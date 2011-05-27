@@ -27,7 +27,7 @@ a:hover {
 }
 
 .background {
-	background-image: url(/images/background.png?v=1);
+	background-image: url(/static/images/background.png?v=1);
 	background-repeat: repeat-x;
 	position: relative;
 	top: -8px;
@@ -59,7 +59,7 @@ a:hover {
 		position:absolute;
 		width:224px;
 		height:42px;
-		background:url(/images/kkn-video-sprites.png) no-repeat;
+		background:url(/static/images/kikin_beta.gif) no-repeat;
 		margin:8px 0 0 0;
 	}
 	
@@ -154,7 +154,7 @@ a:hover {
 }
 
 .loading{
-	background: url('/images/ajax-loader.gif') no-repeat;
+	background: url('/static/images/ajax-loader.gif') no-repeat;
 	height: 16px;
 	padding: 0 0 0 20px;
 }
@@ -374,7 +374,7 @@ h2.page-title {
 /* /site/view pages */
 
 .view {
-	background-image: url(/images/site/logo-bg-big.gif);
+	background-image: url(/static/images/site/logo-bg-big.gif);
 	background-position: right	118px;
 	background-repeat: no-repeat;
 }
@@ -459,7 +459,7 @@ ul>span.cufon-canvas {
 		}
 		.video-thumbnail-btn{
 			height:150px;
-			background:url(/images/kkn-video-sprites.png) no-repeat -275px 40px;
+			background:url(/static/images/kknvideosprites.png) no-repeat -275px 40px;
 			position:relative;
 			top:-143px;
 		}
@@ -576,7 +576,7 @@ ul>span.cufon-canvas {
 #dvUninstalledPromo{
     width:562px;
     height:331px;
-	background: url(/images/download_promo.png) no-repeat;
+	background: url(/static/images/download_promo.png) no-repeat;
 	position:relative;
 	width:756px;
 	right:126px;
@@ -593,35 +593,35 @@ ul>span.cufon-canvas {
 .btn_installed{
 	width:347px;
 	height:76px;
-	background:url(/images/btn_installed.png) no-repeat;
+	background:url(/static/images/btn_installed.png) no-repeat;
 	display:block;
 	margin-left:206px;
 }
 .btn_dl{
 	width:328px;
 	height:56px;
-	background:url(/images/btn_download.png) no-repeat;
+	background:url(/static/images/btn_download.png) no-repeat;
 	cursor:pointer;
 	display:block;
 	margin-left:206px;
 }
 .btn_dl:hover{
-	background:url(/images/btn_download.png) no-repeat 0px -56px;
+	background:url(/static/images/btn_download.png) no-repeat 0px -56px;
 }
 .btn_dl_small{
 	width:86px;
 	height:23px;
-	background:url(/images/btn_download_small.png) no-repeat;
+	background:url(/static/images/btn_download_small.png) no-repeat;
 	cursor:pointer;
 	display:block;
 	margin-left:85px;
 }
 .btn_dl_small:hover{
-	background:url(/images/btn_download_small.png) no-repeat 0px -23px;
+	background:url(/static/images/btn_download_small.png) no-repeat 0px -23px;
 }
 
 .small-close{
-	background:url(/images/kkn-video-sprites.png) no-repeat 0px -200px;
+	background:url(/static/images/kknvideosprites.png) no-repeat 0px -200px;
 	height:16px;
 	width:16px;
 	float:right;
@@ -632,7 +632,7 @@ ul>span.cufon-canvas {
 #header-right .kkn-fb-connect {
 	width: 150px;
     height: 24px;
-	background:url(/images/facebook_signin.png) no-repeat;
+	background:url(/static/images/facebook_signin.png) no-repeat;
 	cursor: pointer;
 	display: block;
     position: relative;
@@ -640,10 +640,10 @@ ul>span.cufon-canvas {
     
 }
 #header-right .kkn-fb-connect:hover{
-	background:url(/images/facebook_signin.png) no-repeat 0px -24px;
+	background:url(/static/images/facebook_signin.png) no-repeat 0px -24px;
 }
 #header-right .kkn-fb-connect:active{
-	background:url(/images/facebook_signin.png) no-repeat 0px -48px;
+	background:url(/static/images/facebook_signin.png) no-repeat 0px -48px;
 }
 
 .modal-win{
