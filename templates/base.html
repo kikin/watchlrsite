@@ -14,6 +14,9 @@
     <!-- Styles -->
     <link rel="stylesheet" type="text/css" href="{{ settings.STATIC_URL }}css/global.css?v=4" media="all"/>
 
+    {% block style_refs %}
+    {% endblock style_refs %}
+
     <!-- jQuery & friends -->
     <script type="text/javascript" src="/js/cfon-yui+vag_400.js?v=0"></script>
 </head>
@@ -58,13 +61,14 @@
 <!-- #header -->
 <div id="wrapper">
     <div id="content">
+        {% block content %}
     	<div id="loggedin">
 	        <div id="video-section">
-<!-- 	            <div class="loading"> -->
-<!-- 	            	loading... -->
-<!-- 	            </div> -->
+            {% block videosection %}
+            {% endblock videosection %}
 	        </div>
 		</div>
+        {% endblock content %}
         <div id="loggedout">
        		<div style="padding-top:75px;"></div>
        		<div id="dvUninstalledPromo"></div>

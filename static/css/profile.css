@@ -1,0 +1,105 @@
+#user-info-container
+{
+	width:800px;
+	height:110px;
+	border:2px solid #999999;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+}
+
+#user-info-container .inner
+{
+	margin:15px;
+}
+
+#delta-img-container
+{
+	position:absolute;
+	height:110px;
+	width:205px;
+	right:-2px;
+	top:2px;
+	background-repeat:no-repeat;
+	background-image:url("/static/images/profile/delta.png");
+}
+
+#profile-image-container
+{
+    position:absolute;
+	width:80px;
+	height:80px;
+}
+
+#username-display
+{
+	position:absolute;
+	left:120px;
+	top:45px;
+}
+
+#username-display .primary
+{
+	font-family:Helvetica;
+	font-weight:900;
+}
+
+#username-display .sub
+{
+	margin-top:2px;
+	font-family:Georgia, serif;
+	font-style:italic;
+	font-weight:600;
+	color: #999999;
+}
+
+.profile-basic-statistics
+{
+	position:absolute;
+	font-family: Helvetica;
+	font-size:16px;
+	color: #999999;
+	width:40px;
+	top:0px;
+}
+
+#profile-stats-container
+{
+    position:absolute;
+    margin-top:30px;
+    margin-left:80px;
+}
+
+.profile-basic-statistics .sub
+{
+	font-size:10px;
+	color: #999999;
+}
+
+.profile-vertical-separator
+{
+	position:absolute;
+	height:30px;
+	width:1px;
+	top:0px;
+	background-color:#e6e6e6;
+}
+
+#follow-button
+{
+	position:absolute;
+	background-image:url("/static/images/profile/follow_button_background.png");
+	text-align:center;
+	padding-top:7px;
+	width:80px;
+	height:20px;
+	border:1px solid #e6e6e6;
+	font-family:Helvetica;
+	font-size:14px;
+	font-weight:900;
+	color:#999999;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	top:0px;
+	left:375px;
+}
+

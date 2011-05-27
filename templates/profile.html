@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block style_refs %}
+    <link rel='stylesheet' type='text/css' href='{{ settings.STATIC_URL }}css/profile.css' />
+{% endblock style_refs %}
+
+{% block content %}
+    <!-- Awaiting templatization/js-wrapping.... -->
+<div id="profile-template">
+	<div id="user-info-container">
+		<div class="inner">
+			<div id="profile-image-container">
+				<!-- placeholder image! -->
+				<img src="{{imageURL}}" style="width:100%;height:100%;"/>
+			</div>
+			<div id="username-display">
+				<!-- placeholder user info text! -->
+				<div class="primary">
+					{{username}}
+				</div>
+				<div class="sub">
+					{{realName}}
+				</div>
+			</div>
+			<div id="profile-stats-container">
+				<div class="profile-basic-statistics" style="left:150px;">
+					<div class="primary" id="following-count">
+						{{followingCount}}
+					</div>
+					<div class="sub">
+						following
+					</div>
+				</div>
+				<div class="profile-vertical-separator" style="left:205px;"></div>
+				<div class="profile-basic-statistics" style="left:220px;">
+					<div class="primary" id="follower-count">
+						{{followerCount}}
+					</div>
+					<div class="sub">
+						followers
+					</div>
+				</div>
+				<div class="profile-vertical-separator" style="left:275px;"></div>
+				<div class="profile-basic-statistics" style="left:290px;width:60px;">
+					<div class="primary" id="videos-count">
+						{{videosCount}}
+					</div>
+					<div class="sub">
+						videos
+					</div>
+				</div>
+				<div id="follow-button">Follow</div>
+			</div>
+		</div>
+		<div id="delta-img-container"></div>
+	</div>
+</div>
+{% endblock content %}
