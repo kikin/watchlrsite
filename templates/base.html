@@ -12,14 +12,11 @@
     <link rel="image_src" href="{{ settings.STATIC_URL }}images/kikin_beta.gif"/>
 
     <!-- Styles -->
-    <link rel="stylesheet" type="text/css" href="{{ settings.STATIC_URL }}css/global.css?v=4" media="all"/>
-
-    {% block style_refs %}
-    {% endblock style_refs %}
+    <link rel="stylesheet" type="text/css" href="{{ settings.STATIC_URL }}css/global.css?v=4" media="all"/>{% block style_refs %}{% endblock style_refs %}
 
     <!-- jQuery & friends -->
-    <script type="text/javascript" src="/js/cfon-yui+vag_400.js?v=0"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/jquery-1.6.1.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/cfon-yui+vag_400.js?v=0"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/jquery-1.6.1.js"></script>{% block script_refs %}{% endblock script_refs %}
 </head>
 <body>
 <div id="header">
