@@ -1,0 +1,41 @@
+{% for video in videos %}
+    <div id="video_{{video.id}}" class="video-wrapper">
+	<div class="video-container">
+                  <h3 class="video-title"><a href="{{video.url}}">{{video.title}}</a></h3>
+		<div class="video-buttons">
+			<span class="likes-info" alt="like">
+				{{video.likes}} likes
+			</span>
+			<a data-video-id="{{video.id}}" data-video-url="{{video.url}}" data-video-liked="{{video.liked}}" class="lnk-like" href="#!/like" data-icon="M11.432,2.403c0,0-4.373-5.177-9.639-0.089c0,0-6.337,6.426,4.82,14.548l4.886,3.525l4.752-3.525c0,0,10.8-6.962,4.82-14.548C21.071,2.314,16.609-2.952,11.432,2.403z"></a>
+		</div>
+		<div class="video-image">
+			<div class="video-thumb-wrapper">
+				<img class="video-thumbnail" src="{{video.thumbnail}}" onerror="this.style.visibility='hidden'" onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
+				<div class="abs-position">
+					<div class="video-thumbnail-btn"></div>
+				</div>
+			</div>
+		</div>
+		<div class="video-info">
+                     <div class="video-description">{{get_description}}</div>
+			<div class="video-saved">
+				<span class="video-timeago">{{pretty_date}}</span>
+				&bull;
+					<a href="{{video.url}}">{{video.title}}</a>
+					&bull;
+				<a data-video-id="{{video.id}}" class="lnk-delete" href="#!/delete">remove</a>
+			</div>
+		</div>
+
+		<br style="clear:both;"/>
+
+		<div class="video-player">
+			<div class="abs-position">
+				<a href="#close" class="video-player-close">X</a>
+			</div>
+			{{video.embed_code}}
+		</div>
+	</div>
+	<div class="my-video-breaker"> </div>
+    </div>
+{% endfor %}
