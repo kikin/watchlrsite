@@ -11,21 +11,21 @@
 		<div class="inner">
 			<div id="profile-image-container">
 				<!-- placeholder image! -->
-				<img src="{{imageURL}}" style="width:100%;height:100%;"/>
+				<img src="{{user.imageURL}}" style="width:100%;height:100%;"/>
 			</div>
 			<div id="username-display">
 				<!-- placeholder user info text! -->
 				<div class="primary">
-					{{username}}
+					{{user.username}}
 				</div>
 				<div class="sub">
-					{{realName}}
+					{{user.realName}}
 				</div>
 			</div>
 			<div id="profile-stats-container">
 				<div class="profile-basic-statistics" style="left:150px;">
 					<div class="primary" id="following-count">
-						{{followingCount}}
+						{{user.followingCount}}
 					</div>
 					<div class="sub">
 						following
@@ -34,7 +34,7 @@
 				<div class="profile-vertical-separator" style="left:205px;"></div>
 				<div class="profile-basic-statistics" style="left:220px;">
 					<div class="primary" id="follower-count">
-						{{followerCount}}
+						{{user.followerCount}}
 					</div>
 					<div class="sub">
 						followers
@@ -43,7 +43,7 @@
 				<div class="profile-vertical-separator" style="left:275px;"></div>
 				<div class="profile-basic-statistics" style="left:290px;width:60px;">
 					<div class="primary" id="videos-count">
-						{{videosCount}}
+						{{user.videosCount}}
 					</div>
 					<div class="sub">
 						videos
