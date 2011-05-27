@@ -7,4 +7,5 @@ from kikinvideo import settings
 
 urlpatterns = patterns('',
 	(r'^$', 'app.views.home'),
+    (r'^profile/', 'app.views.profile'),
 )
