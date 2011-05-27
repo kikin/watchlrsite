@@ -2,7 +2,7 @@
 {
 	width:800px;
 	height:110px;
-	border:2px solid #999999;
+	border:2px solid #c9c8c8;
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
 }
@@ -99,7 +99,7 @@
 	color:#999999;
 	-moz-border-radius:8px;
 	-webkit-border-radius:8px;
-	top:0px;
+	top:-5px;
 	left:375px;
 }
 
