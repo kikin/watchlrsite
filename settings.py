@@ -1,5 +1,7 @@
 # Django settings for video project.
 
+import sys, os
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -100,9 +102,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'video.urls'
+ROOT_URLCONF = 'kikinvideo.urls'
 
-TEMPLATE_DIRS = ('/Users/sandesh/code/kikin/video/templates',)
+TEMPLATE_DIRS = ( os.path.abspath('.') + '/templates' ,)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -115,7 +117,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'video.watchlater',
+    'kikinvideo.watchlater',
 )
 
 # A sample logging configuration. The only tangible logging
