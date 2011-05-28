@@ -1,9 +1,16 @@
 from django.db import models
+from django.contrib.auth import models as auth_models
 
-class User(models.Model):
-	id = models.AutoField(primary_key=True)
+#note: because now subclassing django.contrib.auth.User, we also
+#get the email field in our spec and an auto-incrementing id field.
+#There is a password field as well, but if no
+#password is provided when creating and
+#saving a User instance, it will simply be marked as having
+#an unusable password (see https://docs.djangoproject.com/en/dev
+#/topics/auth/#django.contrib.auth.models.User.set_unusable_password)
+#and we can let the facebook auth backend handle authentication.
+class User(auth_models.User):
 	name = models.CharField(max_length=200)
-	email = models.CharField(max_length=500)
 	facebook_access_token = models.CharField(max_length=100)
 	saved_videos = models.ManyToManyField('Video', related_name='saved_videos', through='UserSavedVideo')
 	liked_videos = models.ManyToManyField('Video', related_name='liked_videos', through='UserLikedVideo')
