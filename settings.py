@@ -4,23 +4,35 @@ import sys, os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+LOCAL_DB = True
 
 ADMINS = (
     ('Sandesh Devaraju', 'sandesh@kikin.com')
 )
 
 MANAGERS = ADMINS
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
-}
+if LOCAL_DB == True:
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.mysql',
+			'NAME': 'kikinvideo',
+			'USER': 'webapp',
+			'PASSWORD': 'savemore',
+			'HOST': '127.0.0.1',
+			'PORT': '',
+		}
+	}
+else:
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'NAME': 'kikinvideo',
+			'USER': 'webapp',
+			'PASSWORD': 'savemore',
+			'HOST': 'dev-video.kikin.com',
+			'PORT': '',
+		}
+	}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
