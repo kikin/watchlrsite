@@ -14,8 +14,8 @@ class Video(models.Model):
 	id = models.AutoField(primary_key=True)
 	url = models.CharField(max_length=1000)
 	description = models.TextField(max_length=3000)
-	thumbnail = models.TextField(max_length=3000)
-	mobile_thumbnail = models.TextField(max_length=3000)
+	thumbnail = models.ForeignKey('ThumbnailImage', related_name='thumbnail')
+	mobile_thumbnail = models.ForeignKey('ThumbnailImage', related_name='mobile_thumbnail')
 	embed_code_html = models.TextField(max_length=3000)
 	embed_code_html5 = models.TextField(max_length=3000)
 	source = models.ManyToManyField('VideoSource')
@@ -26,6 +26,12 @@ class VideoSource(models.Model):
 	domain = models.CharField(max_length=1000)
 	favicon_url = models.CharField(max_length=1000)
 	videos = models.ManyToManyField('Video')
+
+class ThumbnailImage(models.Model):
+	id = models.AutoField(primary_key=True)
+	url = models.CharField(max_length=1000)
+	width = models.IntegerField()
+	height = models.IntegerField()
 
 #associate necessary additional info with user-video mappings...
 
