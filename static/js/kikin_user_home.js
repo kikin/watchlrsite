@@ -1,36 +1,49 @@
-//selectors
-var TAB_SELECTORS = {
-    queue : '.tabQueue',
-    likes : '.tabLikes'
-}
+com.kikin.video.HomeViewController = function(){
+    //selectors
+    var TAB_SELECTORS = {
+        queue : '.tabQueue',
+        likes : '.tabLikes'
+    };
 
-var activeTab = null;
+    var activeTab = null;
 
-function init(){
-    activeTab = TAB_SELECTORS.queue;
-    bindEvents();
-}
+    return {
+        bindToUI : function(){
+            activeTab = TAB_SELECTORS.queue;
+            this.bindEvents(this);
+        },
 
-function bindEvents(){
-    $(TAB_SELECTORS.queue).click(function(event){
-       swapTab(TAB_SELECTORS.queue);
-    });
+        swapTab : function(selector){
+            if(activeTab != selector){
+                $(activeTab).removeClass('selected');
+                $(selector).addClass('selected');
+                activeTab = selector;
+            }
+        },
 
-    $(TAB_SELECTORS.likes).click(function(event){
-       swapTab(TAB_SELECTORS.likes);
-    });
-}
+        /*I don't like the idea of passing the (parent/containing)
+        * context into this function, but it seems necessary because,
+        * if we don't, the 'this' refs within the click handlers
+        * point at the selectors for the objects (i.e. jQuery DOM element objs
+        * ...because the functions are being invoked by jQuery event handler)
+        * and not instances of com.kikin.video.HomeViewController.
+        * Perhaps there is a better way...
+        * */
+         bindEvents : function(context){
+            $(TAB_SELECTORS.queue).click(function(event){
+               context.swapTab(TAB_SELECTORS.queue);
+            });
 
-function swapTab(selector){
-    if(activeTab != selector){
-        $(activeTab).removeClass('selected');
-        $(selector).addClass('selected');
-        activeTab = selector;
+            $(TAB_SELECTORS.likes).click(function(event){
+               context.swapTab(TAB_SELECTORS.likes);
+            });
+        }
     }
-}
+};
 
 $(document).ready(
     function(){
-        init();
+        homeViewController = new com.kikin.video.HomeViewController();
+        homeViewController.bindToUI();
     }
 );
