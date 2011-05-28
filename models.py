@@ -8,7 +8,7 @@ class User(models.Model):
 	saved_videos = models.ManyToManyField('Video', related_name='saved_videos', through='UserSavedVideo')
 	liked_videos = models.ManyToManyField('Video', related_name='liked_videos', through='UserLikedVideo')
 	watched_videos = models.ManyToManyField('Video', related_name='watched_videos', through='UserWatchedVideo')
-	followed_users = models.ManyToManyField('User')
+	followed_users = models.ManyToManyField('User', through='UserFollowsUser')
 
 class Video(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -37,6 +37,7 @@ class UserSavedVideo(models.Model):
 	video = models.ForeignKey('Video')
 	liked = models.BooleanField()
 	watched = models.BooleanField()
+	date = models.DateTimeField()
 
 
 class UserLikedVideo(models.Model):
@@ -44,7 +45,14 @@ class UserLikedVideo(models.Model):
 	video = models.ForeignKey('Video')
 	saved = models.BooleanField()
 	watched = models.BooleanField()
+	date = models.DateTimeField()
 
 class UserWatchedVideo(models.Model):
 	user = models.ForeignKey('User')
 	video = models.ForeignKey('Video')
+	date = models.DateTimeField()
+
+class UserFollowsUser(models.Model):
+	follower = models.ForeignKey('User', related_name='follower')
+	followee = models.ForeignKey('User', related_name='followee')
+	date = models.DateTimeField()
