@@ -1,0 +1,45 @@
+Users:
+	id: int
+	username: charfield
+	name: charfield
+	email: chairfield
+	liked: m2m
+	saved: m2m
+	watched: m2m
+	follows: m2m
+	facebook_token: charfield
+
+
+Videos:
+	id: int
+	url: charfield ()
+	title: charfield (750)
+	description: textfield(?)
+	thumbnail: text (json serialized obj {'size':sz, 'url':url})
+	mobile_thumbnail
+	html
+	html5
+	mobile thumb : text
+	source : json
+	host: url
+	updated: timestamp
+
+source:
+	id:int
+	domain:charfield
+	favicon:charfield
+	videos: m2m
+
+NOTE:
+	m2m table structure:
+		likes:
+			<uid> <vid> <saved?>
+		
+		saved:
+			<uid> <vid> <liked?>  <watched?>
+			
+		watched:
+			<uid> <vid> <liked?>
+		
+	
+	
