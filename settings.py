@@ -4,21 +4,21 @@ import sys, os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-LOCAL_DB = True
+USE_LOCAL_DB = True
 
 ADMINS = (
     ('Sandesh Devaraju', 'sandesh@kikin.com')
 )
 
 MANAGERS = ADMINS
-if LOCAL_DB == True:
+if USE_LOCAL_DB == True:
 	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.mysql',
 			'NAME': 'kikinvideo',
 			'USER': 'webapp',
 			'PASSWORD': 'savemore',
-			'HOST': '127.0.0.1',
+			'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
 			'PORT': '',
 		}
 	}
@@ -130,7 +130,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'kikinvideo.watchlater',
+    'kikinvideo',
+    'kikinvideo.app',
 )
 
 # A sample logging configuration. The only tangible logging
