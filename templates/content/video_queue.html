@@ -1,3 +1,7 @@
+{% extends "user_home.html" %}
+{% block videolist %}
+
+<div class="videoListItems">
 {% for video in videos %}
     <div id="video_{{video.id}}" class="video-wrapper">
 	<div class="video-container">
@@ -17,9 +21,9 @@
 			</div>
 		</div>
 		<div class="video-info">
-                     <div class="video-description">{{get_description}}</div>
+                     <div class="video-description">{{video.description}}</div>
 			<div class="video-saved">
-				<span class="video-timeago">{{pretty_date}}</span>
+				<span class="video-timeago">{{video.date}}</span>
 				&bull;
 					<a href="{{video.url}}">{{video.title}}</a>
 					&bull;
@@ -39,3 +43,5 @@
 	<div class="my-video-breaker"> </div>
     </div>
 {% endfor %}
+</div>
+{% endblock videolist %}
