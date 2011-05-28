@@ -107,12 +107,21 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+	'django.core.context_processors.request',
+)
+
+AUTHENTICATION_BACKENDS = (
+	'socialregistration.auth.FacebookAuth',
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'facebook.djangofb.FacebookMiddleware',
 )
 
 ROOT_URLCONF = 'kikinvideo.urls'
@@ -133,6 +142,7 @@ INSTALLED_APPS = (
     'kikinvideo',
     'kikinvideo.webapp',
     'kikinvideo.api',
+    'socialregistration',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -158,4 +168,5 @@ LOGGING = {
     }
 }
 
-FACEBOOK_API_KEY = '206761890429'
+FACEBOOK_API_KEY = '0d50511f22c6ec9f3a78db5f724e320d'
+FACEBOOK_SECRET_KEY = '3271261af598bdeb1a260699dd5b18ca'
