@@ -34,4 +34,3 @@ function swapTab(selector){
         activeTab = selector;
     }
 }
-
