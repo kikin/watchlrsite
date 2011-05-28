@@ -1,10 +1,12 @@
 import sys, os, datetime
 
 # the settings module is in the project root package 3 dirs up...
-# (ASSUMING you are execting this script from within the 
-# directory containing it)
-
+# (so following path mod assumes you are executing this script from within
+# its containing directory)
 sys.path.append(os.path.abspath('../../../'))
+
+#in case invoking from top-level project directory...
+sys.path.append(os.path.abspath('.'))
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 
@@ -43,3 +45,10 @@ user_1_saved_v1.save()
 
 user_1_watched_v1 = UserWatchedVideo(user=user_1, video=v_1)
 user_1_watched_v1.save()
+
+liked = user_1.liked_videos.all()[0]
+
+liked_info = UserLikedVideo.objects.filter(user__exact=user_1, video__exact=liked)
+
+print liked_info[0].video.title
+print liked_info[0].date
