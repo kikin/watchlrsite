@@ -8,6 +8,16 @@
 
 {% block content %}
 
+    {% block header_right %}
+        <div id="myConnectionsNot">
+            <a id="lnkConnectFb" class="kkn-fb-connect">
+                {% load facebook_tags %}
+                {% facebook_button '/static/images/facebook_signin_img.png'%}
+                {% facebook_js %}
+            </a>
+        </div>
+    {% endblock header_right %}
+
    <div id="video-section">
         <ul class="navigation">
             <li class="tabQueue selected">

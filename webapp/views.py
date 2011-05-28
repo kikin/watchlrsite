@@ -1,5 +1,6 @@
 # Create your views here.
 from django.shortcuts import render_to_response
+from django.template import RequestContext
 from kikinvideo import settings
 
 #note: once User class has been defined, we will almost certainly be passing
@@ -14,11 +15,11 @@ ex_user = {'username':'JenBear', 'realName':'Jennifer Lee', 'followingCount':200
            'saved_videos':[ex_video]}
 
 def home(request):
-	return render_to_response('user_home.html', {'settings':settings})
+	return render_to_response('user_home.html', {'settings':settings}, context_instance = RequestContext(request))
 
 #hard coding tag bindings so you can see how this will work...
 def profile(request):
-	return render_to_response('profile.html', {'settings':settings, 'user': ex_user })
+	return render_to_response('profile.html', {'settings':settings, 'user': ex_user }, context_instance = RequestContext(request))
 
 def video_queue(request):
-	return render_to_response('content/video_queue.html', {'settings':settings, 'videos':[ex_video]})
+	return render_to_response('content/video_queue.html', {'settings':settings, 'videos':[ex_video]}, context_instance = RequestContext(request))

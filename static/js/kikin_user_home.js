@@ -45,5 +45,6 @@ $(document).ready(
     function(){
         homeViewController = new com.kikin.video.HomeViewController();
         homeViewController.bindToUI();
+        $('#myConnectionsNot').show();
     }
 );
