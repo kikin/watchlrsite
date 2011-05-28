@@ -6,12 +6,6 @@ var TAB_SELECTORS = {
 
 var activeTab = null;
 
-$(document).ready(
-    function(){
-        init();
-    }
-);
-
 function init(){
     activeTab = TAB_SELECTORS.queue;
     bindEvents();
@@ -35,3 +29,8 @@ function swapTab(selector){
     }
 }
 
+$(document).ready(
+    function(){
+        init();
+    }
+);
