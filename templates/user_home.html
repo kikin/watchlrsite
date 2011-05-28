@@ -1,8 +1,13 @@
 {% extends "base.html" %}
+
+{% block script_refs %}
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/home.js"></script>
+{% endblock script_refs %}
+
 {% block content %}
    <div id="video-section">
         <ul class="navigation">
-            <li class="tabQueue">
+            <li class="tabQueue selected">
                 <a href="#!/home">Queue</a>
             </li>
             <li class="tabLikes">
