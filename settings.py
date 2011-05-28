@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'kikinvideo',
     'kikinvideo.webapp',
+    'kikinvideo.api',
 )
 
 # A sample logging configuration. The only tangible logging
