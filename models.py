@@ -20,6 +20,7 @@ class User(auth_models.User):
 class Video(models.Model):
 	id = models.AutoField(primary_key=True)
 	url = models.CharField(max_length=1000)
+	title = models.CharField(max_length=500)
 	description = models.TextField(max_length=3000)
 	thumbnail = models.ForeignKey('ThumbnailImage', related_name='thumbnail')
 	mobile_thumbnail = models.ForeignKey('ThumbnailImage', related_name='mobile_thumbnail')
