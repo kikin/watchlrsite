@@ -14,6 +14,10 @@ ThumbnailImage.objects.all().delete()
 VideoSource.objects.all().delete()
 Video.objects.all().delete()
 User.objects.all().delete()
+UserLikedVideo.objects.all().delete()
+UserSavedVideo.objects.all().delete()
+UserWatchedVideo.objects.all().delete()
+UserFollowsUser.objects.all().delete()
 
 nick = User()
 nick.name = "Nicholas Zaillian"

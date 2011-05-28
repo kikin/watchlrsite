@@ -11,7 +11,7 @@ from django.contrib.auth import models as auth_models
 #and we can let the facebook auth backend handle authentication.
 class User(auth_models.User):
 	name = models.CharField(max_length=200)
-	facebook_access_token = models.CharField(max_length=100)
+	facebook_access_token = models.CharField(max_length=100, null=True)
 	saved_videos = models.ManyToManyField('Video', related_name='saved_videos', through='UserSavedVideo')
 	liked_videos = models.ManyToManyField('Video', related_name='liked_videos', through='UserLikedVideo')
 	watched_videos = models.ManyToManyField('Video', related_name='watched_videos', through='UserWatchedVideo')
@@ -23,11 +23,11 @@ class Video(models.Model):
 	title = models.CharField(max_length=500)
 	description = models.TextField(max_length=3000)
 	thumbnail = models.ForeignKey('ThumbnailImage', related_name='thumbnail')
-	mobile_thumbnail = models.ForeignKey('ThumbnailImage', related_name='mobile_thumbnail')
-	embed_code_html = models.TextField(max_length=3000)
-	embed_code_html5 = models.TextField(max_length=3000)
-	source = models.ManyToManyField('VideoSource')
-	last_updated = models.DateTimeField(max_length=3000)
+	mobile_thumbnail = models.ForeignKey('ThumbnailImage', related_name='mobile_thumbnail', null=True)
+	embed_code_html = models.TextField(max_length=3000, null=True)
+	embed_code_html5 = models.TextField(max_length=3000, null=True)
+	source = models.ForeignKey('VideoSource')
+	last_updated = models.DateTimeField(max_length=3000, auto_now=True)
 
 class VideoSource(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -49,24 +49,24 @@ class ThumbnailImage(models.Model):
 class UserSavedVideo(models.Model):
 	user = models.ForeignKey('User')
 	video = models.ForeignKey('Video')
-	liked = models.BooleanField()
-	watched = models.BooleanField()
-	date = models.DateTimeField()
+	liked = models.BooleanField(default=False)
+	watched = models.BooleanField(default=False)
+	date = models.DateTimeField(auto_now=True)
 
 
 class UserLikedVideo(models.Model):
 	user = models.ForeignKey('User')
 	video = models.ForeignKey('Video')
-	saved = models.BooleanField()
-	watched = models.BooleanField()
-	date = models.DateTimeField()
+	saved = models.BooleanField(default=True)
+	watched = models.BooleanField(default=False)
+	date = models.DateTimeField(auto_now=True)
 
 class UserWatchedVideo(models.Model):
 	user = models.ForeignKey('User')
 	video = models.ForeignKey('Video')
-	date = models.DateTimeField()
+	date = models.DateTimeField(auto_now=True)
 
 class UserFollowsUser(models.Model):
 	follower = models.ForeignKey('User', related_name='follower')
 	followee = models.ForeignKey('User', related_name='followee')
-	date = models.DateTimeField()
+	date = models.DateTimeField(auto_now=True)
