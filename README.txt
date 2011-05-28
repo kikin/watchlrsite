@@ -19,7 +19,7 @@ before running/working on the app, install these dependencies:
 Perhaps this goes without saying, but if you keep multiple versions of the python interpreter on your machine, make sure that these modules get installed to the site-packages directory for the version that will be used to run this app.
 
 			
-Example usage of the models defined in models.py (from scripts/test/db_populate.py):
+Example usage of the models defined in models.py:
 
 -----------------------------------------
 [Python]
