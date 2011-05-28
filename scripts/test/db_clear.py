@@ -6,6 +6,9 @@ import sys, os
 
 sys.path.append(os.path.abspath('../../../'))
 
+#in case invoking from top-level project directory...
+sys.path.append(os.path.abspath('.'))
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 
 from kikinvideo.models import *

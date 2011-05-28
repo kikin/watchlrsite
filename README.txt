@@ -60,4 +60,15 @@ Example usage of the models defined in models.py:
 >>>  
 >>>  user_1_watched_v1 = UserWatchedVideo(user=user_1, video=v_1)
 >>>  user_1_watched_v1.save()
+>>>
+>>>  liked = user_1.liked_videos.all()[0]
+>>>  print liked.title
+u'Can I Kick It?'
+>>>
+>>>  liked_info = UserLikedVideo.objects.filter(user__exact=user_1, video__exact=liked)
+>>>  print liked_info[0].video.title
+u'Can I Kick It?'
+>>>  print liked_info[0].date
+2011-05-28 16:01:35
+>>>
 -----------------------------------------
