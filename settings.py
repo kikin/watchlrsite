@@ -4,23 +4,35 @@ import sys, os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+USE_LOCAL_DB = True
 
 ADMINS = (
     ('Sandesh Devaraju', 'sandesh@kikin.com')
 )
 
 MANAGERS = ADMINS
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
-}
+if USE_LOCAL_DB == True:
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.mysql',
+			'NAME': 'kikinvideo',
+			'USER': 'webapp',
+			'PASSWORD': 'savemore',
+			'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+			'PORT': '',
+		}
+	}
+else:
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'NAME': 'kikinvideo',
+			'USER': 'webapp',
+			'PASSWORD': 'savemore',
+			'HOST': 'dev-video.kikin.com',
+			'PORT': '',
+		}
+	}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -118,7 +130,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'kikinvideo.watchlater',
+    'kikinvideo',
+    'kikinvideo.app',
 )
 
 # A sample logging configuration. The only tangible logging
