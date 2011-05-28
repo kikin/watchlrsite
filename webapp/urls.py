@@ -5,8 +5,8 @@ from kikinvideo import settings
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns('',
-	(r'^$', 'app.views.home'),
-    (r'^profile/', 'app.views.profile'),
-    (r'^content/video_queue', 'app.views.video_queue'),
+urlpatterns = patterns('webapp',
+	(r'^$', 'views.home'),
+    (r'^profile/', 'views.profile'),
+    (r'^content/video_queue', 'views.video_queue'),
 )

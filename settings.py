@@ -131,7 +131,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'kikinvideo',
-    'kikinvideo.app',
+    'kikinvideo.webapp',
 )
 
 # A sample logging configuration. The only tangible logging
