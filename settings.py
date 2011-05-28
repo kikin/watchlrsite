@@ -157,3 +157,5 @@ LOGGING = {
         },
     }
 }
+
+FACEBOOK_API_KEY = '206761890429'
