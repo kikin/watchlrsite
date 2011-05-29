@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
 	(r'^', include('kikinvideo.webapp.urls')),
     (r'^api/', include('kikinvideo.api.urls')),
-    ('^social/',include('socialregistration.urls')),
+    url(r'', include('social_auth.urls')),
 )
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
