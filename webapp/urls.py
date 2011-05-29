@@ -7,6 +7,6 @@ from kikinvideo import settings
 
 urlpatterns = patterns('webapp',
 	(r'^$', 'views.home'),
-    (r'^profile/', 'views.profile'),
+	(r'^logout', 'views.logout_view'),
     (r'^content/video_queue', 'views.video_queue'),
 )

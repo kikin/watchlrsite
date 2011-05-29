@@ -17,6 +17,7 @@ class User(auth_models.User):
 	liked_videos = models.ManyToManyField('Video', related_name='liked_videos', through='UserLikedVideo')
 	watched_videos = models.ManyToManyField('Video', related_name='watched_videos', through='UserWatchedVideo')
 	followed_users = models.ManyToManyField('User', through='UserFollowsUser')
+	objects = auth_models.UserManager()
 
 class Video(models.Model):
 	id = models.AutoField(primary_key=True)
