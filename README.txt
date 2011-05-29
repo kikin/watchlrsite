@@ -1,12 +1,57 @@
-IMPORTANT:
-	This project now has dependencies:
+-----------------------------------------
+Project Structure
+-----------------------------------------
+/settings.py
+	Project settings.
 
-		django-socialregistration:
-			simple interface for user authentication through facebook graph API
+/models.py
+	Definitions for the models used in this project.
+
+/urls.py
+	high-level url routing (i.e. routing of '/api/...' urls gets handed 
+	off to the 'api' app, all other urls get handed off to the 
+	'webapp' app).
+
+/manage.py
+	the standard django utility. 
+	(see https://docs.djangoproject.com/en/dev/ref/django-admin/)
+
+/api/*
+	Implementation of the json web service component of 
+	this project.
+	
+/webapp/*
+	Implementation of the browser-based frontend for this project.
+	
+/static/*
+	The static resources for this project.  Pointed to by the
+	STATIC_URL variable in settings.py.  For instance, if you 
+	wanted to reference a static resource from a template, you could
+	pass the settings module through to it and the resource path would be:
+		"{{ settings.STATIC_URL }}path_to_resource_in_static_dir"
+	
+/doc/*
+	Project documentation (right now, though, only out db spec).
+
+/scripts/*
+	Any batch-processing scripts can be placed here.  Right now, in 
+	the 'test' subdirectory, you'll find db_populate.py and
+	db_clear.py, which, respectively, populate the database with 
+	fake data for testing and clear it out.
+
+
+-----------------------------------------
+Dependencies
+-----------------------------------------
+
+This project has the following dependencies:
+
+	django-socialregistration:
+		simple interface for user authentication through facebook graph API
+	
+	pyFacebook:
+		a dependency of django-socialregistration
 		
-		pyFacebook:
-			a dependency of django-socialregistration
-			
 before running/working on the app, install these dependencies:
 	i.e:
 		'cd dependencies'
@@ -97,44 +142,3 @@ Example usage of the models defined in models.py:
 	2011-05-28 16:01:35
 	>>>
 	-----------------------------------------
-	
------------------------------------------
-Project Structure
------------------------------------------
-/settings.py
-	Project settings.
-
-/models.py
-	Definitions for the models used in this project.
-
-/urls.py
-	high-level url routing (i.e. routing of '/api/...' urls gets handed 
-	off to the 'api' app, all other urls get handed off to the 
-	'webapp' app).
-
-/manage.py
-	the standard django utility. 
-	(see https://docs.djangoproject.com/en/dev/ref/django-admin/)
-
-/api/*
-	Implementation of the json web service component of 
-	this project.
-	
-/webapp/*
-	Implementation of the browser-based frontend for this project.
-	
-/static/*
-	The static resources for this project.  Pointed to by the
-	STATIC_URL variable in settings.py.  For instance, if you 
-	wanted to reference a static resource from a template, you could
-	pass the settings module through to it and the resource path would be:
-		"{{ settings.STATIC_URL }}path_to_resource_in_static_dir"
-	
-/doc/*
-	Project documentation (right now, though, only out db spec).
-
-/scripts/*
-	Any batch-processing scripts can be placed here.  Right now, in 
-	the 'test' subdirectory, you'll find db_populate.py and
-	db_clear.py, which, respectively, populate the database with 
-	fake data for testing and clear it out.
