@@ -39,6 +39,9 @@ Project Structure
 	db_clear.py, which, respectively, populate the database with 
 	fake data for testing and clear it out.
 
+/dependencies/*
+	Directory containing all project dependencies (see below).
+
 
 -----------------------------------------
 Dependencies
