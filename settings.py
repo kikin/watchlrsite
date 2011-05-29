@@ -111,6 +111,8 @@ TEMPLATE_LOADERS = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
 	'django.core.context_processors.request',
+	'django.contrib.auth.context_processors.auth',
+	'django.core.context_processors.auth',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -175,3 +177,6 @@ SOCIAL_AUTH_USER_MODEL = 'kikinvideo.User'
 
 FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
 FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_URL = '/'
