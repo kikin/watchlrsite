@@ -67,16 +67,10 @@ This project has the following dependencies:
 	django-social-auth:
 		simple interface for user authentication through
 		various social networks, including facebook.
-	
-	pyFacebook:
-		a dependency of django-social-auth
-		
+
 before running/working on the app, install these dependencies:
 	i.e:
 		'cd dependencies'
-		'cd pyfacebook'
-		'sudo python setup.py install'
-		'cd ..'
 		'cd django-social-auth'
 		'sudo python setup.py install'
 
