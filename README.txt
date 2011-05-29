@@ -49,19 +49,19 @@ Dependencies
 
 This project has the following dependencies:
 
-	django-socialregistration:
+	django-social-auth:
 		simple interface for user authentication through facebook graph API
 	
 	pyFacebook:
-		a dependency of django-socialregistration
+		a dependency of django-social-auth
 		
 before running/working on the app, install these dependencies:
 	i.e:
 		'cd dependencies'
-		'cd django-socialregistration'
+		'cd pyfacebook'
 		'sudo python setup.py install'
 		'cd ..'
-		'cd pyfacebook'
+	    'cd django-social-auth'
 		'sudo python setup.py install'
 
 Perhaps this goes without saying, but if you keep multiple versions of the python interpreter on your machine, make sure that these modules get installed to the site-packages directory for the version that will be used to run this app.
