@@ -11,9 +11,17 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-if USE_LOCAL_DB == True:
-	DATABASES = {
-		'default': {
+
+database_configurations = {
+		'dev': {
+			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'NAME': 'kikinvideo',
+			'USER': 'webapp',
+			'PASSWORD': 'savemore',
+			'HOST': 'dev-video.kikin.com',
+			'PORT': '',
+		},
+	    'local_test':{
 			'ENGINE': 'django.db.backends.mysql',
 			'NAME': 'kikinvideo',
 			'USER': 'webapp',
@@ -21,19 +29,13 @@ if USE_LOCAL_DB == True:
 			'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
 			'PORT': '',
 		}
-	}
-else:
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': 'kikinvideo',
-			'USER': 'webapp',
-			'PASSWORD': 'savemore',
-			'HOST': 'dev-video.kikin.com',
-			'PORT': '',
-		}
-	}
+}
 
+if USE_LOCAL_DB == True:
+	DATABASES = { 'default' : database_configurations['local_test'] }
+else:
+	DATABASES = { 'default' : database_configurations['dev'] }
+	
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
