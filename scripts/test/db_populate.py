@@ -32,9 +32,14 @@ v_1.source = v_source_1
 v_1.last_updated = datetime.datetime.now()
 v_1.save()
 
+#
+# Note: use following facebook account for testing:
+# email: kikintestaccount@yahoo.com
+# password : savemore
+#
 user_1 = User()
-user_1.name = "Steve Williams"
-user_1.email = "w@jkblkjkb.com"
+user_1.name = "Joe Smith"
+user_1.email = "kikintestaccount@yahoo.com"
 user_1.save()
 
 user_1_likes_v1 = UserLikedVideo(user=user_1, video=v_1)
