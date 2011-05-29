@@ -9,11 +9,11 @@ Project Structure
 
 /urls.py
 	high-level url routing (i.e. routing of '/api/...' urls gets handed 
-	off to the 'api' app, all other urls get handed off to the 
-	'webapp' app).
+	off to the 'api' app's url manager, all other urls get handed off 
+	to the 'webapp' app's url manager).
 
 /manage.py
-	the standard django utility. 
+	the standard utility. 
 	(see https://docs.djangoproject.com/en/dev/ref/django-admin/)
 
 /api/*
