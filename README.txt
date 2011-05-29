@@ -42,6 +42,21 @@ Project Structure
 /dependencies/*
 	All project dependencies (see below).
 
+-----------------------------------------
+Environment
+-----------------------------------------
+
+Framework:
+This project is being developed using django 1.3 (and
+leverages certain features not available in earlier 
+versions) and Python 2.6.  Configure your environment 
+accordingly.  
+
+DBMS:
+The production server is running 
+Postgresql 9, though provided you only touch the database
+through Django's ORM layer, you can use any database
+management system you please for testing.
 
 -----------------------------------------
 Dependencies
@@ -50,7 +65,8 @@ Dependencies
 This project has the following dependencies:
 
 	django-social-auth:
-		simple interface for user authentication through facebook graph API
+		simple interface for user authentication through
+		various social networks, including facebook.
 	
 	pyFacebook:
 		a dependency of django-social-auth
@@ -61,7 +77,7 @@ before running/working on the app, install these dependencies:
 		'cd pyfacebook'
 		'sudo python setup.py install'
 		'cd ..'
-	    'cd django-social-auth'
+		'cd django-social-auth'
 		'sudo python setup.py install'
 
 Perhaps this goes without saying, but if you keep multiple versions of the python interpreter on your machine, make sure that these modules get installed to the site-packages directory for the version that will be used to run this app.
@@ -70,17 +86,18 @@ Perhaps this goes without saying, but if you keep multiple versions of the pytho
 Working on this app
 ---------------------------------------
 
+If you will be using a local test database for development, set the USE_LOCAL_DB flag in settings.py to true and fill, then find 
+	if USE_LOCAL_DB == True:
+		DATABASES = {...}
+a few lines down and modify the body of the DATABASES dict with your local db configuration info.
+
+
 Before you can get to work, you will need to run
  
 	'python manage.py syncdb'
 
 from the top level project directory to create the database schema.
 
-
-If you will be using a local test database for development, set the USE_LOCAL_DB flag in settings.py to true and fill, then find 
-	if USE_LOCAL_DB == True:
-		DATABASES = {...}
-a few lines down and modify the body of the DATABASES dict with your local db configuration info.
 			
 finally, to start your local development server, run
 	python manage.py runserver [port or addr:port]
