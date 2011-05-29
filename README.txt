@@ -31,7 +31,7 @@ Project Structure
 		"{{ settings.STATIC_URL }}path_to_resource_in_static_dir"
 	
 /doc/*
-	Project documentation (right now, though, only out db spec).
+	Project documentation (right now, though, only our db spec).
 
 /scripts/*
 	Any batch-processing scripts can be placed here.  Right now, in 
