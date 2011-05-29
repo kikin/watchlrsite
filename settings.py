@@ -126,7 +126,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'kikinvideo.urls'
 
-TEMPLATE_DIRS = ( os.path.abspath('.') + '/templates' ,)
+TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates' ,)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
