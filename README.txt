@@ -85,7 +85,6 @@ If you will be using a local test database for development, set the USE_LOCAL_DB
 		DATABASES = {...}
 a few lines down and modify the body of the DATABASES dict with your local db configuration info.
 
-
 Before you can get to work, you will need to run
  
 	'python manage.py syncdb'
