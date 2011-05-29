@@ -122,7 +122,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'facebook.djangofb.FacebookMiddleware',
 )
 
 ROOT_URLCONF = 'kikinvideo.urls'
@@ -168,6 +167,9 @@ LOGGING = {
         },
     }
 }
+
+AUTH_PROFILE_MODULE = 'kikinvideo.User'
+SOCIAL_AUTH_USER_MODEL = 'kikinvideo.User'
 
 FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
 FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'

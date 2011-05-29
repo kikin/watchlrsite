@@ -23,7 +23,7 @@ class Video(models.Model):
 	url = models.CharField(max_length=1000)
 	title = models.CharField(max_length=500, db_index=True)
 	description = models.TextField(max_length=3000)
-	thumbnail = models.ForeignKey('ThumbnailImage', related_name='thumbnail')
+	thumbnail = models.ForeignKey('ThumbnailImage', related_name='thumbnail', null=True)
 	mobile_thumbnail = models.ForeignKey('ThumbnailImage', related_name='mobile_thumbnail', null=True)
 	embed_code_html = models.TextField(max_length=3000, null=True)
 	embed_code_html5 = models.TextField(max_length=3000, null=True)
