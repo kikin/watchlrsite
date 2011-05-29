@@ -80,11 +80,10 @@ Perhaps this goes without saying, but if you keep multiple versions of the pytho
 Working on this app
 ---------------------------------------
 
-If you will be using a local test database for development, set the USE_LOCAL_DB flag in settings.py to true and fill, then find 
+If you will be using a local test database for development, set the USE_LOCAL_DB flag in settings.py to True, then find
 	if USE_LOCAL_DB == True:
 		DATABASES = {...}
 a few lines down and modify the body of the DATABASES dict with your local db configuration info.
-
 
 Before you can get to work, you will need to run
  

@@ -1,6 +1,8 @@
 # Create your views here.
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.contrib.auth.views import login, logout
 from kikinvideo import settings
 
 #note: once User class has been defined, we will almost certainly be passing
@@ -20,6 +22,10 @@ def home(request):
 #hard coding tag bindings so you can see how this will work...
 def profile(request):
 	return render_to_response('profile.html', {'settings':settings, 'user': ex_user }, context_instance = RequestContext(request))
+
+def logout_view(request):
+	logout(request, next_page='')
+	return HttpResponseRedirect('/')
 
 def video_queue(request):
 	return render_to_response('content/video_queue.html', {'settings':settings, 'videos':[ex_video]}, context_instance = RequestContext(request))

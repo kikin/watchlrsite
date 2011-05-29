@@ -11,9 +11,17 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-if USE_LOCAL_DB == True:
-	DATABASES = {
-		'default': {
+
+database_configurations = {
+		'dev': {
+			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'NAME': 'kikinvideo',
+			'USER': 'webapp',
+			'PASSWORD': 'savemore',
+			'HOST': 'dev-video.kikin.com',
+			'PORT': '',
+		},
+	    'local_test':{
 			'ENGINE': 'django.db.backends.mysql',
 			'NAME': 'kikinvideo',
 			'USER': 'webapp',
@@ -21,19 +29,13 @@ if USE_LOCAL_DB == True:
 			'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
 			'PORT': '',
 		}
-	}
-else:
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': 'kikinvideo',
-			'USER': 'webapp',
-			'PASSWORD': 'savemore',
-			'HOST': 'dev-video.kikin.com',
-			'PORT': '',
-		}
-	}
+}
 
+if USE_LOCAL_DB == True:
+	DATABASES = { 'default' : database_configurations['local_test'] }
+else:
+	DATABASES = { 'default' : database_configurations['dev'] }
+	
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -109,6 +111,8 @@ TEMPLATE_LOADERS = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
 	'django.core.context_processors.request',
+	'django.contrib.auth.context_processors.auth',
+	'django.core.context_processors.auth',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -173,3 +177,6 @@ SOCIAL_AUTH_USER_MODEL = 'kikinvideo.User'
 
 FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
 FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_URL = '/'

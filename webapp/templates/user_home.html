@@ -6,15 +6,42 @@
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_video_panel.js"></script>
 {% endblock script_refs %}
 
-{% block content %}
+{% block header_right %}
+    {% if request.user.is_authenticated %}
+        <div id="myConnections">
+  			<a id="myOptions">
+                <img class="profilePic" />
+                <div class="profileName">{{ user.username }}</div>
+                <span class="gbma"></span>
+            </a>
 
-    {% block header_right %}
+			<!-- #options -->
+			<div id="options">
+			    <div class="options-breaker"></div>
+			    <ul>
+			        <li>
+			            <a id="myProfile">My Profile</a>
+			<!--        </li>-->
+			        <li>
+			            <a href="https://webux.wufoo.com/forms/m7x1p5/" onclick="window.open(this.href,  null, 'height=685, width=680, toolbar=0, location=0, status=1, scrollbars=1, resizable=1'); return false" title="kikin Video Feedback">Feedback</a>
+			        </li>
+			        <li>
+			            <a href="/logout" id="logout">Sign Out</a>
+			        </li>
+			    </ul>
+			</div>
+		</div>
+        {% else %}
+
         <div id="myConnectionsNot">
-            <a id="lnkConnectFb" class="kkn-fb-connect" href="/auth/fblogin">
-                
+            <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook">
+
             </a>
         </div>
-    {% endblock header_right %}
+    {% endif %}
+{% endblock header_right %}
+
+{% block content %}
 
    <div id="video-section">
         <ul class="navigation">
