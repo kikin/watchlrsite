@@ -112,8 +112,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 AUTHENTICATION_BACKENDS = (
+	'social_auth.backends.facebook.FacebookBackend',
 	'django.contrib.auth.backends.ModelBackend',
-	'socialregistration.auth.FacebookAuth',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -143,7 +143,7 @@ INSTALLED_APPS = (
     'kikinvideo',
     'kikinvideo.webapp',
     'kikinvideo.api',
-    'socialregistration',
+    'social_auth',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -169,5 +169,5 @@ LOGGING = {
     }
 }
 
-FACEBOOK_API_KEY = '0d50511f22c6ec9f3a78db5f724e320d'
-FACEBOOK_SECRET_KEY = '3271261af598bdeb1a260699dd5b18ca'
+FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
+FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
