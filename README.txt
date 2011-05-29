@@ -40,7 +40,7 @@ Project Structure
 	fake data for testing and clear it out.
 
 /dependencies/*
-	Directory containing all project dependencies (see below).
+	All project dependencies (see below).
 
 
 -----------------------------------------
