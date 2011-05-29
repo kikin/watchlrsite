@@ -5,6 +5,12 @@ com.kikin.video.HomeViewController = function(){
         likes : '.tabLikes'
     };
 
+    var PROFILE_OPTIONS_PANEL_SELECTOR = '#options';
+
+    var PROFILE_OPTIONS_BUTTON_SELECTOR = '#header-right';
+
+    var profile_options_panel_visible = false;
+
     var activeTab = null;
 
     return {
@@ -37,6 +43,26 @@ com.kikin.video.HomeViewController = function(){
             $(TAB_SELECTORS.likes).click(function(event){
                context.swapTab(TAB_SELECTORS.likes);
             });
+
+            $(PROFILE_OPTIONS_BUTTON_SELECTOR).click(function(event){
+                 if(!profile_options_panel_visible){
+                     //so that body click callback defined further down
+                     //doesn't get fired and immediately hide the panel...
+                     event.stopPropagation();
+                     $(PROFILE_OPTIONS_PANEL_SELECTOR).width($(PROFILE_OPTIONS_BUTTON_SELECTOR).width());
+                     $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
+                     profile_options_panel_visible = true;
+                 }
+             });
+
+             //hide the panel on click outside of
+             //profile info button
+             $('body').click(function(event){
+                 if(profile_options_panel_visible){
+                    $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
+                     profile_options_panel_visible = false;
+                 }
+             });
         }
     }
 };

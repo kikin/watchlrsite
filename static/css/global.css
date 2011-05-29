@@ -102,13 +102,14 @@ a:hover {
     top:10px;
     right:5px;
     padding-top: 10px;
+    width:120px;
 
     -moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.4);
 	-webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.4);
 	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
 
 	box-shadow:0 1px 4px rgba(0, 0, 0, 0.4);
-    z-index: 9999;
+    z-index:5;
 }
 
     #options ul {
@@ -228,7 +229,6 @@ ul.navigation li.selected, ul.navigation li.selected a{
 
 #myConnectionsNot,
 #myConnections{
-	display:none;
 }
 	.profilePic{
 		width:25px;
@@ -236,7 +236,6 @@ ul.navigation li.selected, ul.navigation li.selected a{
 		margin:0 9px;
 		background:#eef;
 		float:left;
-		display:none;
 	}
 	.profileName{
 		float:left;
