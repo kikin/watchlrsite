@@ -409,7 +409,7 @@ ul>span.cufon-canvas {
 
 .clearFloats{clear:both}
 #loggedin,
-#loggedout{display:none;margin:50px 0 50px 0;}
+#loggedout{margin:50px 0 50px 0;}
 
 .css3Btn{
 	display:block;
