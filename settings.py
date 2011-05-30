@@ -2,9 +2,14 @@
 
 import sys, os
 
+#if on production server, change to dev
+#(perhaps we want to set some environment
+#variable on dev, look for it with os.environ
+#and have this AUTOMATICALLY set to dev if found?)
+active_db = 'local_test'
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-USE_LOCAL_DB = True
 
 ADMINS = (
     ('Sandesh Devaraju', 'sandesh@kikin.com')
@@ -31,10 +36,7 @@ database_configurations = {
 		}
 }
 
-if USE_LOCAL_DB == True:
-	DATABASES = { 'default' : database_configurations['local_test'] }
-else:
-	DATABASES = { 'default' : database_configurations['dev'] }
+DATABASES = { 'default': database_configurations[active_db] }
 	
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
