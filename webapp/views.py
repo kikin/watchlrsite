@@ -1,4 +1,3 @@
-# Create your views here.
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -31,4 +30,4 @@ def logout_view(request):
 	return HttpResponseRedirect('/')
 
 def video_queue(request):
-	return render_to_response('content/video_queue.html', {'settings':settings, 'videos':[ex_video]}, context_instance = RequestContext(request))
+	return render_to_response('video_queue.hfrg', {'settings':settings, 'videos':[ex_video]}, context_instance = RequestContext(request))

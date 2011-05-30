@@ -23,7 +23,7 @@
 		<div class="video-info">
                      <div class="video-description">{{video.description}}</div>
 			<div class="video-saved">
-				<span class="video-timeago">{{video.date}}</span>
+				<span class="video-timeago">{{video.date|timesince}} ago</span>
 				&bull;
 					<a href="{{video.url}}">{{video.title}}</a>
 					&bull;
