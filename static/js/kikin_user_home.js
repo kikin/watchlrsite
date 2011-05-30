@@ -9,13 +9,22 @@ com.kikin.video.HomeViewController = function(){
 
     var PROFILE_OPTIONS_BUTTON_SELECTOR = '#header-right';
 
+    var VIDEO_PANEL_SELECTOR = '#videoList';
+
+    var LIKED_VIDEOS_CONTENT_URL = '/content/liked_videos';
+
+    var SAVED_VIDEOS_CONTENT_URL = '/content/saved_videos';
+
     var profile_options_panel_visible = false;
 
-    var activeTab = null;
+    var activeTab;
+
+    var videoPanelController;
 
     return {
         bindToUI : function(){
             activeTab = TAB_SELECTORS.queue;
+            videoPanelController = new com.kikin.VideoPanelController();
             this.bindEvents(this);
         },
 
@@ -41,6 +50,7 @@ com.kikin.video.HomeViewController = function(){
             });
 
             $(TAB_SELECTORS.likes).click(function(event){
+               videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
                context.swapTab(TAB_SELECTORS.likes);
             });
 

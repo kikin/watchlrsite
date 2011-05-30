@@ -2,8 +2,8 @@
 
 {% block script_refs %}
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/raphael.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_home.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_video_panel.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_home.js"></script>
 {% endblock script_refs %}
 
 {% block header_right %}
@@ -55,7 +55,7 @@
         <br class="clear">
         <div style="border-top: 1px solid rgb(204, 204, 204);"></div>
         <br class="clear">
-        <div class="videoList">
+        <div id="videoList">
             {% block videolist %}
             {% endblock videolist %}
         </div>

@@ -35,16 +35,11 @@ class User(auth_models.User):
 	#   functions for working more seamlessly with the m2m
 	#   properties of this model:
 	
-	def like_video(self, video, watched=None, date=None):
-		if not date:
-			date = datetime.now()
-		if not watched:
-			watched = True
-
+	def like_video(self, video, watched=True, date=datetime.now()):
 		#don't allow redundant likes, but do update date...
 		existing = UserLikedVideo.objects.filter(user__exact=self, video__exact=video)
 		if len(existing) > 0:
-			existing[0].date = datetime.now()
+			existing[0].date = date
 			existing[0].save()
 
 		else:
@@ -54,8 +49,42 @@ class User(auth_models.User):
 			user_liked_video.save()
 
 	def get_liked_videos(self):
-		#queries return QuerySets.  We want a list...
-		return list(UserLikedVideo.objects.filter(user__exact=self))
+		#queries return QuerySets of UserLikedVideo objs.
+		# We just want a list of the videos.  Perhaps there's
+		# a better way than this...?:
+		liked = []
+		for user_video_relation in UserLikedVideo.objects.filter(user__exact=self):
+			liked.append(user_video_relation.video)
+		return liked
+
+	def remove_liked_video(self, video):
+		liked = UserLikedVideo.objects.filter(user__exact=self, video__exact=video)
+		liked.delete()
+
+
+	def save_video(self, video, liked=False, watched=False, date=datetime.now()):
+		#don't allow redundant likes, but do update date...
+		existing = UserSavedVideo.objects.filter(user__exact=self, video__exact=video)
+		if len(existing) > 0:
+			existing[0].date = date
+			existing[0].save()
+		else:
+			user_saved_video = UserSavedVideo(user=self, video=video,\
+			                       liked=liked, watched=watched, date=date)
+			user_saved_video.save()
+
+	def get_saved_videos(self):
+		#see comment in get_liked_videos impl. about
+		#whether this is the right way to do this...
+		saved = []
+		for user_video_relation in UserSavedVideo.objects.filter(user__exact=self):
+			saved.append(user_video_relation.video)
+		return saved
+
+	def remove_saved_video(self, video):
+		saved = UserSavedVideo.objects.filter(user__exact=self, video__exact=video)
+		saved.delete()
+
 
 
 	#function to serialize the user properties that should be only visible
