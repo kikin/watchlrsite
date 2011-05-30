@@ -9,7 +9,7 @@ urlpatterns = patterns('webapp',
 	(r'^$', 'views.home'),
 	(r'^logout', 'views.logout_view'),
     (r'^content/liked_videos', 'views.liked_video_queue'),
-#    (r'^content/saved_videos', 'views.saved_video_queue'),
+    (r'^content/saved_videos', 'views.saved_video_queue'),
 )
 
 urlpatterns += patterns('',

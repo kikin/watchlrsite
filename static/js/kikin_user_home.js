@@ -46,6 +46,7 @@ com.kikin.video.HomeViewController = function(){
         * */
          bindEvents : function(context){
             $(TAB_SELECTORS.queue).click(function(event){
+                videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                context.swapTab(TAB_SELECTORS.queue);
             });
 
