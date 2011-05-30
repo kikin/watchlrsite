@@ -40,11 +40,18 @@ class User(auth_models.User):
 			date = datetime.now()
 		if not watched:
 			watched = True
-			
-		user_liked_video = UserLikedVideo(user=self, \
-		        video=video, watched=watched, date=date)
 
-		user_liked_video.save()
+		#don't allow redundant likes, but do update date...
+		existing = UserLikedVideo.objects.get(user__exact=user, video__exact=video)
+		if len(existing) > 0:
+			existing[0].date = datetime.now()
+			existing[0].save()
+
+		else:
+			user_liked_video = UserLikedVideo(user=self, \
+					video=video, watched=watched, date=date)
+			
+			user_liked_video.save()
 
 	def get_liked_videos(self):
 		#queries return QuerySets.  We want a list...
