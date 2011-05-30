@@ -14,8 +14,9 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 from kikinvideo.models import *
 
 u = User.objects.get(pk=2)
-'''
+
 v = Video.objects.all()[0]
-u.like_video(v)'''
+u.like_video(v)
+
 l = u.get_liked_videos()
-l
+print l

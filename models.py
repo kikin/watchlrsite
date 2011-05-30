@@ -42,7 +42,7 @@ class User(auth_models.User):
 			watched = True
 
 		#don't allow redundant likes, but do update date...
-		existing = UserLikedVideo.objects.get(user__exact=user, video__exact=video)
+		existing = UserLikedVideo.objects.filter(user__exact=self, video__exact=video)
 		if len(existing) > 0:
 			existing[0].date = datetime.now()
 			existing[0].save()
