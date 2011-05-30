@@ -29,6 +29,16 @@ class User(auth_models.User):
 	def facebook_uid(self):
 		return self.social_auth.get().uid
 
+	#note:
+	#   We should probably, for our own convenience, write
+	#   functions for working more seamlessly with the m2m
+	#   properties of this model.  i.e.:
+	#
+	#       def like_video(self, video, saved):
+	#           liked_relation = UserLikedVideo(self, video, ...)
+	#           liked_relation.save()
+	#           ...
+
 class Video(models.Model):
 	id = models.AutoField(primary_key=True)
 	url = models.CharField(max_length=1000)
