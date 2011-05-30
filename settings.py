@@ -18,21 +18,21 @@ ADMINS = (
 MANAGERS = ADMINS
 
 database_configurations = {
-		'dev': {
-			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': 'kikinvideo',
-			'USER': 'webapp',
-			'PASSWORD': 'savemore',
-			'HOST': 'dev-video.kikin.com',
-			'PORT': '',
+	'dev': {
+		'ENGINE': 'django.db.backends.postgresql_psycopg2',
+		'NAME': 'kikinvideo',
+		'USER': 'webapp',
+		'PASSWORD': 'savemore',
+		'HOST': 'dev-video.kikin.com',
+		'PORT': '',
 		},
-	    'local_test':{
-			'ENGINE': 'django.db.backends.mysql',
-			'NAME': 'kikinvideo',
-			'USER': 'webapp',
-			'PASSWORD': 'savemore',
-			'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
-			'PORT': '',
+	'local_test':{
+		'ENGINE': 'django.db.backends.mysql',
+		'NAME': 'kikinvideo',
+		'USER': 'webapp',
+		'PASSWORD': 'savemore',
+		'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+		'PORT': '',
 		}
 }
 

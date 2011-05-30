@@ -10,3 +10,7 @@ urlpatterns = patterns('webapp',
 	(r'^logout', 'views.logout_view'),
     (r'^content/video_queue', 'views.video_queue'),
 )
+
+urlpatterns += patterns('',
+	(r'^api/$', include('api.urls')),
+)

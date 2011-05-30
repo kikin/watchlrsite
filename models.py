@@ -39,6 +39,15 @@ class User(auth_models.User):
 	#           liked_relation.save()
 	#           ...
 
+	#function to serialize the user properties that should be only visible
+	#to their owner
+	def to_json_private(self):
+		#id long-to-int cast below may be a bad idea...right now, though, str(long_num) produces "long_numL"
+		#which isn't consistent with the current API spec
+		return str({'id':int(self.id), 'name':self.name, 'first_name':self.first_name,\
+		            'last_name':self.last_name, 'facebook_uid':self.facebook_uid(),\
+		            'facebook_access_token':self.facebook_access_token()})
+
 class Video(models.Model):
 	id = models.AutoField(primary_key=True)
 	url = models.CharField(max_length=1000)
