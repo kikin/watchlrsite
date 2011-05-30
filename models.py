@@ -63,7 +63,7 @@ class User(auth_models.User):
 
 
 	def save_video(self, video, liked=False, watched=False, date=datetime.now()):
-		#don't allow redundant likes, but do update date...
+		#don't allow redundant saves, but do update date...
 		existing = UserSavedVideo.objects.filter(user__exact=self, video__exact=video)
 		if len(existing) > 0:
 			existing[0].date = date
