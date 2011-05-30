@@ -17,7 +17,10 @@ ex_user = {'username':'JenBear', 'realName':'Jennifer Lee', 'followingCount':200
            'saved_videos':[ex_video]}
 
 def home(request):
-	return render_to_response('user_home.html', {'settings':settings}, context_instance = RequestContext(request))
+	if request.user.is_authenticated():
+		return render_to_response('user_home.html', {'settings':settings}, context_instance = RequestContext(request))
+	else:
+		return render_to_response('logged_out.html', {'settings':settings}, context_instance = RequestContext(request))
 
 #hard coding tag bindings so you can see how this will work...
 def profile(request):

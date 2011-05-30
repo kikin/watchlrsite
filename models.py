@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import models as auth_models
-
+	
 #note: because we're now subclassing django.contrib.auth.User
 #for this model, we also get the email field
 #from our spec and an auto-incrementing id field.
@@ -12,12 +12,22 @@ from django.contrib.auth import models as auth_models
 #and we can let the facebook auth backend handle authentication.
 class User(auth_models.User):
 	name = models.CharField(max_length=200, db_index=True)
-	facebook_access_token = models.CharField(max_length=100, null=True, db_index=True)
 	saved_videos = models.ManyToManyField('Video', related_name='saved_videos', through='UserSavedVideo')
 	liked_videos = models.ManyToManyField('Video', related_name='liked_videos', through='UserLikedVideo')
 	watched_videos = models.ManyToManyField('Video', related_name='watched_videos', through='UserWatchedVideo')
 	followed_users = models.ManyToManyField('User', through='UserFollowsUser')
 	objects = auth_models.UserManager()
+
+	#we initially had facebook_access_token and uid columns/properties
+	#for this model, but the user's token and uid are already being
+	#stored in the extra_data property of the UserSocialAuth model
+	#built into django-social-auth, so you can use the following instance
+	#methods to access these things...
+	def facebook_access_token(self):
+		return self.social_auth.get().extra_data['access_token']
+
+	def facebook_uid(self):
+		return self.social_auth.get().uid
 
 class Video(models.Model):
 	id = models.AutoField(primary_key=True)

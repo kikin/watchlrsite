@@ -10,7 +10,7 @@
     {% if request.user.is_authenticated %}
         <div id="myConnections">
   			<a id="myOptions">
-                <img class="profilePic" />
+                <img class="profilePic" src="http://graph.facebook.com/{{ user.facebook_uid }}/picture"/>
                 <div class="profileName">{{ user.username }}</div>
                 <span class="gbma"></span>
             </a>
