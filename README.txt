@@ -1,45 +1,45 @@
 -----------------------------------------
 Project Structure
 -----------------------------------------
-/settings.py
+settings.py
 	Project settings.
 
-/models.py
+models.py
 	Definitions for the models used in this project.
 
-/urls.py
+urls.py
 	high-level url routing (i.e. routing of '/api/...' urls gets handed 
 	off to the 'api' app's url manager, all other urls get handed off 
 	to the 'webapp' app's url manager).
 
-/manage.py
+manage.py
 	the standard utility. 
 	(see https://docs.djangoproject.com/en/dev/ref/django-admin/)
 
-/api/*
+api/*
 	Implementation of the json web service component of 
 	this project.
 	
-/webapp/*
+webapp/*
 	Implementation of the browser-based frontend for this project.
 	
-/static/*
+static/*
 	The static resources for this project.  Pointed to by the
 	STATIC_URL variable in settings.py.  For instance, if you 
 	wanted to reference a static resource from a template, you could
 	pass the settings module through to it and the resource path would be:
 		"{{ settings.STATIC_URL }}path_to_resource_in_static_dir"
 	
-/doc/*
+doc/*
 	Project documentation (right now, though, only our db spec).
 
-/scripts/*
+scripts/*
 	Any batch-processing scripts can be placed here.  Right now, in 
 	the 'test' subdirectory, you'll find db_populate.py and
 	db_clear.py, which, respectively, populate the database with 
 	fake data for testing and clear it out.
 
-/dependencies/*
+dependencies/*
 	All project dependencies (see below).
 
 -----------------------------------------
@@ -80,10 +80,38 @@ Perhaps this goes without saying, but if you keep multiple versions of the pytho
 Working on this app
 ---------------------------------------
 
-If you will be using a local test database for development, set the USE_LOCAL_DB flag in settings.py to True, then find
-	if USE_LOCAL_DB == True:
-		DATABASES = {...}
-a few lines down and modify the body of the DATABASES dict with your local db configuration info.
+If you will be using a local test database for development, set the active_database var in settings.py
+to the key of the corresponding database config dict in the database_configurations dict a few lines down.
+
+---------------------------------------
+i.e.:
+
+active_db = 'local_test'
+
+database_configurations = {
+		'dev': {
+			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'NAME': 'kikinvideo',
+			'USER': 'webapp',
+			'PASSWORD': 'savemore',
+			'HOST': 'dev-video.kikin.com',
+			'PORT': '',
+		},
+	    'local_test':{
+			'ENGINE': 'django.db.backends.mysql',
+			'NAME': 'kikinvideo',
+			'USER': 'webapp',
+			'PASSWORD': 'savemore',
+			'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+			'PORT': '',
+		}
+}
+
+DATABASES = { 'default': database_configurations[active_db] }
+
+--------------------------------------
+...perhaps there's a more correct way to do this, but
+for now the solution above works fine.
 
 Before you can get to work, you will need to run
  
