@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import models as auth_models
+from datetime import datetime
 	
 #note: because we're now subclassing django.contrib.auth.User
 #for this model, we also get the email field
@@ -30,14 +31,32 @@ class User(auth_models.User):
 		return self.social_auth.get().uid
 
 	#note:
-	#   We should probably, for our own convenience, write
+	#   For our own convenience, we should have
 	#   functions for working more seamlessly with the m2m
-	#   properties of this model.  i.e.:
-	#
-	#       def like_video(self, video, saved):
-	#           liked_relation = UserLikedVideo(self, video, ...)
-	#           liked_relation.save()
-	#           ...
+	#   properties of this model:
+	
+	def like_video(self, video, watched=None, date=None):
+		if not date:
+			date = datetime.now()
+		if not watched:
+			watched = True
+
+		#don't allow redundant likes, but do update date...
+		existing = UserLikedVideo.objects.get(user__exact=user, video__exact=video)
+		if len(existing) > 0:
+			existing[0].date = datetime.now()
+			existing[0].save()
+
+		else:
+			user_liked_video = UserLikedVideo(user=self, \
+					video=video, watched=watched, date=date)
+			
+			user_liked_video.save()
+
+	def get_liked_videos(self):
+		#queries return QuerySets.  We want a list...
+		return list(UserLikedVideo.objects.filter(user__exact=self))
+
 
 	#function to serialize the user properties that should be only visible
 	#to their owner

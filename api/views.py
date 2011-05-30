@@ -26,7 +26,7 @@ def list(request):
 					return HttpResponse(str({'result': user_obj.to_json_private()}), mimetype='application/json')
 
 				#IMPORTANT:
-				#   a function for current session owner to list (public facing) info about OTHER users
+				#   logic for current session owner to list (public facing) info about OTHER users
 				#   should go here.
 				#   i.e.
 				#   else:
@@ -40,7 +40,7 @@ def list(request):
 				return HttpResponse(str({'result': user_obj.to_json_private()}), mimetype='application/json')
 		else:
 		#IMPORTANT:
-		#   a function for unauthenticated clients to access (public facing) info about users
+		#   logic for unauthenticated clients to access (public facing) info about users
 		#   should go here.
 		#   i.e.
 		#   if request.GET.has_key('user_id'):
