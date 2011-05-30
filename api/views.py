@@ -21,10 +21,7 @@ def list(request):
 					return HttpResponseBadRequest(str({'result':'invalid user id supplied to method'}), mimetype='application/json')
 
 				if supplied_uid and supplied_uid == request.user.id:
-				#user is accessing his own info....
-					#need to use ModelManager.filter, not ModelManager.get
-					#here because the json serializer expects a QuerySet, not
-					#a User instance...
+					#user is accessing his own info....
 					user_obj = User.objects.get(pk=request.user.id)
 					return HttpResponse(str({'result': user_obj.to_json_private()}), mimetype='application/json')
 
