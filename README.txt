@@ -81,7 +81,7 @@ Working on this app
 ---------------------------------------
 
 If you will be using a local test database for development, set the active_database var in settings.py
-to the key of the corresponding database config dict in the database_configurations dict a few lines down.
+to the key of the corresponding nested config dict in the database_configurations dict a few lines down.
 
 ---------------------------------------
 i.e.:
