@@ -29,5 +29,12 @@ def logout_view(request):
 	logout(request, next_page='')
 	return HttpResponseRedirect('/')
 
-def video_queue(request):
-	return render_to_response('video_queue.hfrg', {'settings':settings, 'videos':[ex_video]}, context_instance = RequestContext(request))
+# will add start (video index) and limit (num videos to show) params to these
+# soon...
+def liked_video_queue(request):
+	if request.user.is_authenticated():
+		return render_to_response('content/video_queue.hfrg', {'settings':settings, 'videos':request.user.get_liked_videos()}, context_instance = RequestContext(request))
+
+def saved_video_queue(request):
+	if request.user.is_authenticated():
+		return render_to_response('content/video_queue.hfrg', {'settings':settings, 'videos':request.user.get_saved_videos()}, context_instance = RequestContext(request))
