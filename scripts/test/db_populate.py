@@ -12,6 +12,9 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 
 from kikinvideo.models import *
 
+def print_video_titles(videos):
+    print ' | '.join([video.title for video in videos])
+
 v_thumb_1 = Thumbnail()
 v_thumb_1.width = 480
 v_thumb_1.height = 360
@@ -69,8 +72,20 @@ user_video_2.saved = True
 user_video_2.saved_timestamp = datetime.utcnow()
 user_video_2.save()
 
-liked = user_1.liked_videos()[0]
-print liked.title
+# Only 'Can I Kick It?'
+print_video_titles(user_1.liked_videos())
 
-saved = user_1.saved_videos()
-print ' | '.join([video.title for video in saved])
+# Videos saved by default - Both 'Can I Kick It?' and 'KMD - Peachfuzz (Video) '
+print_video_titles(user_1.saved_videos())
+
+user_1.like_video(v_2)
+# Both videos now
+print_video_titles(user_1.liked_videos())
+
+user_1.remove_video(v_1)
+# Only 'KMD - Peachfuzz (Video) '
+print_video_titles(user_1.saved_videos())
+
+user_1.unlike_video(v_2)
+# Only 'Can I Kick It?'
+print_video_titles(user_1.liked_videos())
