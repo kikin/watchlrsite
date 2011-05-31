@@ -138,7 +138,7 @@ Example usage of the models defined in models.py:
 	>>>
 	>>>  from kikinvideo.models import *
 	>>>  
-	>>>  v_thumb_1 = ThumbnailImage()
+	>>>  v_thumb_1 = Thumbnail()
 	>>>  v_thumb_1.width = 480
 	>>>  v_thumb_1.height = 360
 	>>>  v_thumb_1.url = 'http://i.ytimg.com/vi/UbDFS6cg1AI/0.jpg'

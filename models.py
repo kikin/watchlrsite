@@ -101,8 +101,8 @@ class Video(models.Model):
 	url = models.CharField(max_length=1000)
 	title = models.CharField(max_length=500, db_index=True)
 	description = models.TextField(max_length=3000)
-	thumbnail = models.ForeignKey('ThumbnailImage', related_name='thumbnail', null=True)
-	mobile_thumbnail = models.ForeignKey('ThumbnailImage', related_name='mobile_thumbnail', null=True)
+	thumbnail = models.ForeignKey('Thumbnail', related_name='thumbnail', null=True)
+	mobile_thumbnail = models.ForeignKey('Thumbnail', related_name='mobile_thumbnail', null=True)
 	embed_code_html = models.TextField(max_length=3000, null=True)
 	embed_code_html5 = models.TextField(max_length=3000, null=True)
 	source = models.ForeignKey('VideoSource', db_index=True)
@@ -114,7 +114,7 @@ class VideoSource(models.Model):
 	favicon_url = models.CharField(max_length=1000)
 	videos = models.ManyToManyField('Video')
 
-class ThumbnailImage(models.Model):
+class Thumbnail(models.Model):
 	id = models.AutoField(primary_key=True)
 	url = models.CharField(max_length=1000)
 	width = models.IntegerField()

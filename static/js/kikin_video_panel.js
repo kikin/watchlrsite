@@ -29,6 +29,26 @@ com.kikin.VideoPanelController = function(){
                         if(!$(this).hasClass('no-hover'))
                             $(this).addClass('no-hover');
                     });
+
+                    $(this).click(function(event){
+
+                        if($(this).hasClass('hovered'))
+                            $(this).removeClass('hovered');
+                        if($(this).hasClass('no-hover'))
+                            $(this).removeClass('no-hover');
+
+                        /*
+                        *   INSERT LOGIC HERE TO "like" videos
+                        *   -- e.g. $.get with return check
+                        * */
+                        
+                         if(!$(this).hasClass('liked'))
+                            $(this).addClass('liked');
+                        else{
+                            if($(this).hasClass('liked'))
+                                $(this).removeClass('liked');
+                         }
+                    });
                 });
                 
             });

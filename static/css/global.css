@@ -163,7 +163,6 @@ a:hover {
 
 
 #video-section {
-    position:absolute;
     padding-top: 15px;
     padding-bottom: 15px;
 }
@@ -684,7 +683,7 @@ ul>span.cufon-canvas {
 
 /*thanks, IE...*/
 .heart-container.hovered{
-    background-image:url(/static/images/heart_red.png);
+    background-image:url(/static/images/heart_maroon.png);
     width:26px;
     height:26px;
 
