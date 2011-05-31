@@ -675,3 +675,29 @@ ul>span.cufon-canvas {
     height:20px;
     display:none;
 }
+
+.heart-container{
+    background-image:url(/static/images/heart_grey.png);
+    width:26px;
+    height:26px;
+}
+
+/*thanks, IE...*/
+.heart-container.hovered{
+    background-image:url(/static/images/heart_red.png);
+    width:26px;
+    height:26px;
+
+}
+
+.heart-container.no-hover{
+    background-image:url(/static/images/heart_grey.png);
+    width:26px;
+    height:26px;
+}
+
+.heart-container.liked{
+    background-image:url(/static/images/heart_red.png);
+    width:26px;
+    height:26px;
+}
