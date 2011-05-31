@@ -6,7 +6,7 @@ import sys, os
 #(perhaps we want to set some environment
 #variable on dev, look for it with os.environ
 #and have this AUTOMATICALLY set to dev if found?)
-active_db = 'dev'
+active_db = 'local_test'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
