@@ -3,26 +3,26 @@ Project Structure
 
 + settings.py
 
-  Project settings.
+    Project settings.
 
 + api/models.py
 
-  Definitions for the models used in this project.
-  Note: Project level models are not a good idea in general. Also, it tends to mess up Celery's task names.
-  If you need to use models in another app, import as follows:
+    Definitions for the models used in this project.
+    Note: Project level models are not a good idea in general. Also, it tends to mess up Celery's task names.
+    If you need to use models in another app, import as follows:
 
         from api.models import User, Video
 
 + urls.py
 
-  high-level url routing (i.e. routing of '/api/...' urls gets handed
-  off to the 'api' app's url manager, all other urls get handed off
-  to the 'webapp' app's url manager).
+    high-level url routing (i.e. routing of '/api/...' urls gets handed
+    off to the 'api' app's url manager, all other urls get handed off
+    to the 'webapp' app's url manager).
 
 + manage.py
 
-  the standard utility.
-  (see https://docs.djangoproject.com/en/dev/ref/django-admin/)
+    the standard utility.
+    (see https://docs.djangoproject.com/en/dev/ref/django-admin/)
 
 + api/
 
