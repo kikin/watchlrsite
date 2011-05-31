@@ -61,7 +61,7 @@ class User(auth_models.User):
     def _create_or_update_video(self, video, **kwargs):
         properties = ('liked', 'saved', 'watched')
 
-        if not all([property not in kwargs for property in properties]):
+        if not any([property not in kwargs for property in properties]):
             raise Exception('Must set one of liked/saved/watched flags')
 
         try:
@@ -74,7 +74,8 @@ class User(auth_models.User):
         for property in properties:
             try:
                 setattr(user_video, property, kwargs[property])
-                setattr(user_video, '%s_timestamp' % property, timestamp)
+                if kwargs[property] == True:
+                    setattr(user_video, '%s_timestamp' % property, timestamp)
             except KeyError:
                 pass
 
@@ -84,10 +85,10 @@ class User(auth_models.User):
             user_video.save()
 
     def like_video(self, video, timestamp=datetime.utcnow()):
-        self._create_or_update_video(video, { 'liked': True, 'timestamp': timestamp })
+        self._create_or_update_video(video, **{ 'liked': True, 'timestamp': timestamp })
 
     def unlike_video(self, video):
-        self._create_or_update_video(video, { 'liked': False, 'timestamp': timestamp })
+        self._create_or_update_video(video, **{ 'liked': False })
 
     def liked_videos(self):
         videos = list()
@@ -96,10 +97,10 @@ class User(auth_models.User):
         return videos
 
     def save_video(self, video, timestamp=datetime.utcnow()):
-        self._create_or_update_video(video, { 'saved': True, 'timestamp': timestamp })
+        self._create_or_update_video(video, **{ 'saved': True, 'timestamp': timestamp })
 
     def remove_video(self, video):
-        self._create_or_update_video(video, { 'saved': False, 'timestamp': timestamp })
+        self._create_or_update_video(video, **{ 'saved': False })
 
     def saved_videos(self):
         videos = list()
