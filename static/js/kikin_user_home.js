@@ -17,15 +17,14 @@ com.kikin.video.HomeViewController = function(){
 
     var profile_options_panel_visible = false;
 
-    var activeTab;
+    var activeTab = TAB_SELECTORS.queue;
 
-    var videoPanelController;
+    var videoPanelController = new com.kikin.VideoPanelController();
 
     return {
         bindToUI : function(){
-            activeTab = TAB_SELECTORS.queue;
-            videoPanelController = new com.kikin.VideoPanelController();
             this.bindEvents(this);
+            videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
         },
 
         swapTab : function(selector){
