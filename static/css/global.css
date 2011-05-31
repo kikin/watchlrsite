@@ -148,9 +148,10 @@ a:hover {
 /* Content */
 
 #content {
-	clear: both;
     padding: 0;
-    position: relative;
+    width:800px;
+    margin-left:auto;
+    margin-right:auto;
     min-height:300px;
 }
 
@@ -162,7 +163,7 @@ a:hover {
 
 
 #video-section {
-    float: left;
+    position:absolute;
     padding-top: 15px;
     padding-bottom: 15px;
 }
@@ -458,7 +459,7 @@ ul>span.cufon-canvas {
 		}
 		.video-thumbnail-btn{
 			height:150px;
-			background:url(/static/images/kknvideosprites.png) no-repeat -275px 40px;
+			background:url(/static/images/kkn-video-sprites.png) no-repeat -275px 40px;
 			position:relative;
 			top:-143px;
 		}
@@ -620,7 +621,7 @@ ul>span.cufon-canvas {
 }
 
 .small-close{
-	background:url(/static/images/kknvideosprites.png) no-repeat 0px -200px;
+	background:url(/static/images/kkn-video-sprites.png) no-repeat 0px -200px;
 	height:16px;
 	width:16px;
 	float:right;

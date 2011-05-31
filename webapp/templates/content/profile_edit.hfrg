@@ -1,0 +1,113 @@
+<style>
+    #profile-edit-panel {
+        height: 195px;
+        width: 460px;
+        border: 2px solid;
+        position:fixed;
+        border-radius: 10px 10px 10px 10px;
+        -moz-border-radius: 10px 10px 10px 10px;
+        -webkit-border-radius: 10px 10px 10px 10px;
+        background-color: #FFFFFF;
+        border-color: #707070;
+        z-index:100;
+        top: 66px;
+        left: 463px;
+        text-align:left;
+    }
+
+    #profile-edit-panel button{
+        position:absolute;
+        width:70px;
+        margin-top:155px;
+    }
+    #profile-edit-panel .cancel-button{
+        margin-left:285px;
+    }
+
+    #profile-edit-panel .save-button{
+        margin-left:370px;
+    }
+
+    #profile-edit-panel #facebook-thumbnail{
+        position:absolute;
+        margin-top:20px;
+        margin-left:16px;
+    }
+
+    #profile-edit-panel #profile-input-container{
+        position:absolute;
+        margin-top:35px;
+        margin-left:136px;
+    }
+
+    #profile-edit-panel .profile-edit-input{
+        width:210px;
+    }
+
+    #profile-edit-panel #username-input-container{
+        position:absolute;
+        margin-top:12px;
+    }
+    #profile-edit-panel #email-input-container{
+        position:absolute;
+        margin-top:50px;
+    }
+    #profile-edit-panel .profile-edit-input{
+        position:absolute;
+        margin-left:80px;
+    }
+    #profile-edit-panel .profile-input-label{
+        position:absolute;
+    }
+    #share-likes-span{
+        position:absolute;
+        margin-top:130px;
+        margin-left:135px;
+    }
+    #share-likes-span input{
+        margin-left:10px;
+    }
+
+    #profile-view-close {
+        background: none repeat scroll 0 0 #111111;
+        border: 1px solid #DEDEDE;
+        border-radius: 12px 12px 12px 12px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+        color: #DEDEDE;
+        cursor: pointer;
+        display: block;
+        float: right;
+        font-weight: bold;
+        height: 12px;
+        padding: 4px;
+        position: relative;
+        right: -10px;
+        text-align: center;
+        text-decoration: none;
+        top: -15px;
+        width: 12px;
+    }
+
+</style>
+
+<div id="profile-edit-panel">
+    <a id="profile-view-close" title="Close">X</a>
+    <span id="#fb-username"></span>
+    <img id="facebook-thumbnail" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=normal"/>
+    <div id="profile-input-container">
+        <div id='username-input-container'>
+            <span id="username-input-label" class="profile-input-label">Username:</span>
+            <input type="text" id="username-input" class="profile-edit-input"/>
+        </div>
+        <div id="email-input-container">
+            <span id="email-input-label" class="profile-input-label">Email:</span>
+            <input type="text" id="email-input" class="profile-edit-input"/>
+        </div>
+    </div>
+    <span id="share-likes-span">
+        Share liked videos with my facebook friends?
+        <input type='checkbox' id="share-likes-checkbox"/>
+    </span>
+    <button class="cancel-button">Cancel</button>
+    <button class="save-button">Save</button>
+</div>
