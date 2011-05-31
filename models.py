@@ -1,50 +1,40 @@
 from django.db import models
+from django.contrib.auth import models as auth_models
 
-class User(models.Model):
-	id = models.AutoField(primary_key=True)
-	name = models.CharField(max_length=200)
-	email = models.CharField(max_length=500)
-	facebook_access_token = models.CharField(max_length=100)
-	saved_videos = models.ManyToManyField('Video', related_name='saved_videos', through='UserSavedVideo')
-	liked_videos = models.ManyToManyField('Video', related_name='liked_videos', through='UserLikedVideo')
-	watched_videos = models.ManyToManyField('Video', related_name='watched_videos', through='UserWatchedVideo')
-	followed_users = models.ManyToManyField('User')
+class Source(models.Model):
+    domain = models.URLField(max_length=750, verify_exists=False)
+    favicon = models.URLField(max_length=750, verify_exists=False)
 
 class Video(models.Model):
-	id = models.AutoField(primary_key=True)
-	url = models.CharField(max_length=1000)
-	description = models.TextField(max_length=3000)
-	thumbnail = models.TextField(max_length=3000)
-	mobile_thumbnail = models.TextField(max_length=3000)
-	embed_code_html = models.TextField(max_length=3000)
-	embed_code_html5 = models.TextField(max_length=3000)
-	source = models.ManyToManyField('VideoSource')
-	last_updated = models.DateTimeField(max_length=3000)
+    url = models.URLField(max_length=1000, verify_exists=False)
+    description = models.TextField(max_length=3000)
+    thumbnail = models.TextField(max_length=3000)
+    mobile_thumbnail = models.TextField(max_length=3000)
+    html_embed_code = models.TextField(max_length=3000)
+    html5_embed_code = models.TextField(max_length=3000)
+    source = models.ForeignKey(Source, related_name='videos')
+    host = models.URLField(max_length=750, verify_exists=False)
 
-class VideoSource(models.Model):
-	id = models.AutoField(primary_key=True)
-	domain = models.CharField(max_length=1000)
-	favicon_url = models.CharField(max_length=1000)
-	videos = models.ManyToManyField('Video')
+class User(auth_models.User):
+    videos = models.ManyToManyField(Video, through='UserVideo')
+    follows = models.ManyToManyField('self', symmetrical=False)
 
-#associate necessary additional info with user-video mappings...
+class Notifications(models.Model):
+    user = models.ForeignKey(User, related_name='notifications')
+    name = models.CharField(max_length=25, db_index=True)
+    value = models.PositiveSmallIntegerField()
 
-#These models define the properties of the relation tables
-#mapping users to videos for user.saved_videos
-#User.liked_videos, and user.watched_videos User properties
-class UserSavedVideo(models.Model):
-	user = models.ForeignKey('User')
-	video = models.ForeignKey('Video')
-	liked = models.BooleanField()
-	watched = models.BooleanField()
+class Preferences(models.Model):
+    user = models.ForeignKey(User, related_name='preferences')
+    name = models.CharField(max_length=25, db_index=True)
+    value = models.PositiveSmallIntegerField()
 
-
-class UserLikedVideo(models.Model):
-	user = models.ForeignKey('User')
-	video = models.ForeignKey('Video')
-	saved = models.BooleanField()
-	watched = models.BooleanField()
-
-class UserWatchedVideo(models.Model):
-	user = models.ForeignKey('User')
-	video = models.ForeignKey('Video')
+class UserVideo(models.Model):
+    user = models.ForeignKey(User)
+    video = models.ForeignKey(Video)
+    saved = models.BooleanField(db_index=True)
+    saved_timestamp = models.DateTimeField(db_index=True)
+    liked = models.BooleanField(db_index=True)
+    liked_timestamp = models.DateTimeField(db_index=True)
+    watched = models.BooleanField(db_index=True)
+    watched_timestamp = models.DateTimeField(db_index=True)
