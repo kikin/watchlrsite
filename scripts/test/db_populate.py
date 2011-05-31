@@ -89,3 +89,16 @@ print_video_titles(user_1.saved_videos())
 user_1.unlike_video(v_2)
 # Only 'Can I Kick It?'
 print_video_titles(user_1.liked_videos())
+
+# Like a liked video
+user_1.like_video(v_1)
+print_video_titles(user_1.liked_videos())
+
+# Unlike a non-liked video
+user_1.unlike_video(v_1)
+user_1.unlike_video(v_1)
+print len(user_1.liked_videos())
+
+# Re-save a saved video
+user_1.save_video(v_2)
+print len(user_1.saved_videos())
