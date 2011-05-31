@@ -4,7 +4,7 @@
                   <h3 class="video-title"><a href="{{video.url}}">{{video.title}}</a></h3>
 		<div class="video-buttons">
             <div class="heart-container no-hover"></div>
-            <div class="x-container"></div>
+            <div class="video-delete-button no-hover"></div>
 		</div>
 		<div class="video-image">
 			<div class="video-thumb-wrapper">
