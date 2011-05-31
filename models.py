@@ -110,7 +110,7 @@ class Video(models.Model):
 
 class VideoSource(models.Model):
 	id = models.AutoField(primary_key=True)
-	domain = models.CharField(max_length=1000, db_index=True)
+	url = models.CharField(max_length=1000, db_index=True)
 	favicon_url = models.CharField(max_length=1000)
 	videos = models.ManyToManyField('Video')
 
