@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
@@ -41,3 +41,12 @@ def liked_video_queue(request):
 def saved_video_queue(request):
 	if request.user.is_authenticated():
 		return render_to_response('content/video_queue.hfrg', {'settings':settings, 'videos':request.user.saved_videos()}, context_instance = RequestContext(request))
+
+def video_player(request, video_id):
+	if request.user.is_authenticated():
+		video_query_set = Video.objects.filter(id__exact=video_id)
+		if len(video_query_set) == 0:
+			return Http404()
+		else:
+			return render_to_response('content/video_player.hfrg', {'video':video_query_set[0]})
+		
