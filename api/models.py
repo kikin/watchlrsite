@@ -4,29 +4,28 @@ from django.contrib.auth import models as auth_models
 from datetime import datetime
 
 class Source(models.Model):
-  id = models.AutoField(primary_key=True)
-  url = models.URLField(max_length=1000, verify_exists=False, db_index=True)
+  name = models.CharField(max_length=100, unique=True)
+  url = models.URLField(max_length=1000, verify_exists=False, unique=True)
   favicon = models.URLField(max_length=1000, verify_exists=False)
-
-
-class Thumbnail(models.Model):
-  id = models.AutoField(primary_key=True)
-  url = models.CharField(max_length=1000)
-  width = models.IntegerField()
-  height = models.IntegerField()
 
 
 class Video(models.Model):
   url = models.URLField(max_length=1000, verify_exists=False)
   title = models.CharField(max_length=500, db_index=True)
   description = models.TextField(max_length=3000)
-  thumbnail = models.ForeignKey(Thumbnail, related_name='videos', null=True)
-  mobile_thumbnail = models.ForeignKey(Thumbnail, related_name='mobile_videos', null=True)
   html_embed_code = models.TextField(max_length=3000, null=True)
   html5_embed_code = models.TextField(max_length=3000, null=True)
-  source = models.ForeignKey(Source, related_name='videos')
-  host = models.URLField(max_length=750, verify_exists=False)
-  fetched = models.DateTimeField(auto_now=True, db_index=True)
+  source = models.ForeignKey(Source, related_name='videos', null=True)
+  host = models.URLField(max_length=1000, verify_exists=False)
+  fetched = models.DateTimeField(null=True, db_index=True)
+
+
+class Thumbnail(models.Model):
+  video = models.ForeignKey(Video, related_name='thumbnails')
+  type = models.CharField(max_length=10, default='web')
+  url = models.URLField(max_length=1000, verify_exists=False)
+  width = models.IntegerField()
+  height = models.IntegerField()
 
 
 #note: because we're now subclassing django.contrib.auth.User
@@ -65,7 +64,7 @@ class User(auth_models.User):
     properties = ('liked', 'saved', 'watched')
 
     if not any([property not in kwargs for property in properties]):
-      raise Exception('Must set one of liked/saved/watched flags')
+      raise Exception('Must (un)set at least one of liked/saved/watched flags')
 
     try:
       user_video = UserVideo.objects.get(user__exact=self, video__exact=video)

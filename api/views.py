@@ -1,6 +1,5 @@
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
-from django.core import serializers
-from kikinvideo.models import *
+from api.models import *
 
 #For example...
 def list(request):

@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath('.'))
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 
-from kikinvideo.models import *
+from api.models import *
 
 def print_video_titles(videos):
     print ' | '.join([video.title for video in videos])
