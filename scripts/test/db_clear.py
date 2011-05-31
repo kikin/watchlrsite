@@ -13,7 +13,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 
 from kikinvideo.models import *
 
-ThumbnailImage.objects.all().delete()
+Thumbnail.objects.all().delete()
 VideoSource.objects.all().delete()
 Video.objects.all().delete()
 User.objects.all().delete()

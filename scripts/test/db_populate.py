@@ -12,13 +12,13 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 
 from kikinvideo.models import *
 
-v_thumb_1 = ThumbnailImage()
+v_thumb_1 = Thumbnail()
 v_thumb_1.width = 480
 v_thumb_1.height = 360
 v_thumb_1.url = 'http://i.ytimg.com/vi/UbDFS6cg1AI/0.jpg'
 v_thumb_1.save()
 
-v_thumb_2 = ThumbnailImage()
+v_thumb_2 = Thumbnail()
 v_thumb_2.width=480
 v_thumb_2.height = 360
 v_thumb_2.url = "http://i2.ytimg.com/vi/Q_3GgAALPkQ/0.jpg"
