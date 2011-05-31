@@ -15,6 +15,13 @@
         text-align:left;
     }
 
+    #fb-username{
+        position:absolute;
+        margin-left:135px;
+        margin-top:16px;
+        font-size:13px;
+    }
+
     #profile-edit-panel button{
         position:absolute;
         width:70px;
@@ -63,6 +70,7 @@
         position:absolute;
         margin-top:130px;
         margin-left:135px;
+        font-size:12.5px;
     }
     #share-likes-span input{
         margin-left:10px;
@@ -92,20 +100,20 @@
 
 <div id="profile-edit-panel">
     <a id="profile-view-close" title="Close">X</a>
-    <span id="#fb-username"></span>
+    <span id="fb-username">Edit Profile:</span>
     <img id="facebook-thumbnail" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=normal"/>
     <div id="profile-input-container">
         <div id='username-input-container'>
             <span id="username-input-label" class="profile-input-label">Username:</span>
-            <input type="text" id="username-input" class="profile-edit-input"/>
+            <input type="text" id="username-input" class="profile-edit-input" value="{{ user.username }}"/>
         </div>
         <div id="email-input-container">
             <span id="email-input-label" class="profile-input-label">Email:</span>
-            <input type="text" id="email-input" class="profile-edit-input"/>
+            <input type="text" id="email-input" class="profile-edit-input" value="{{ user.email }}"/>
         </div>
     </div>
     <span id="share-likes-span">
-        Share liked videos with my facebook friends?
+        Automatically update Facebook when I like videos
         <input type='checkbox' id="share-likes-checkbox"/>
     </span>
     <button class="cancel-button">Cancel</button>
