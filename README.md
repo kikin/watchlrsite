@@ -4,8 +4,11 @@ Project Structure
 + settings.py
     Project settings.
 
-+ models.py
-	  Definitions for the models used in this project.
++ api/models.py
+    Definitions for the models used in this project.
+    Note: Project level models are not a good idea in general. Also, it tends to mess up Celery's task names.
+    If you need to use models in another app, import as follows
+        from api.models import User, Video
 
 + urls.py
     high-level url routing (i.e. routing of '/api/...' urls gets handed
@@ -117,13 +120,13 @@ could set the address to 0.0.0.0 (firewall/network config permitting).
 object-relational API
 ---------------------
 
-Example usage of the models defined in models.py:
+Example usage of the models defined in api/models.py:
 
     -----------------------------------------
     [Python]
     -----------------------------------------
     >>>
-    >>>  from kikinvideo.models import *
+    >>>  from api.models import *
     >>>
     >>>  v_thumb_1 = ThumbnailImage()
     >>>  v_thumb_1.width = 480
