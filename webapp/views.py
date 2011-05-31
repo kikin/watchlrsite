@@ -25,6 +25,9 @@ def home(request):
 def profile(request):
 	return render_to_response('profile.html', {'settings':settings, 'user': ex_user }, context_instance = RequestContext(request))
 
+def profile_edit(request):
+	return render_to_response('content/profile_edit.hfrg', {'settings':settings, 'user': request.user }, context_instance = RequestContext(request))
+
 def logout_view(request):
 	logout(request, next_page='')
 	return HttpResponseRedirect('/')

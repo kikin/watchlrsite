@@ -6,6 +6,7 @@ urlpatterns = patterns('webapp',
 	(r'^logout', 'views.logout_view'),
     (r'^content/liked_videos', 'views.liked_video_queue'),
     (r'^content/saved_videos', 'views.saved_video_queue'),
+    (r'content/profile_edit', 'views.profile_edit'),
 )
 
 urlpatterns += patterns('',
