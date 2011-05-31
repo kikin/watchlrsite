@@ -3,10 +3,8 @@
 	<div class="video-container">
                   <h3 class="video-title"><a href="{{video.url}}">{{video.title}}</a></h3>
 		<div class="video-buttons">
-			<span class="likes-info" alt="like">
-				{{video.likes}} likes
-			</span>
-			<a data-video-id="{{video.id}}" data-video-url="{{video.url}}" data-video-liked="{{video.liked}}" class="lnk-like" href="#!/like" data-icon="M11.432,2.403c0,0-4.373-5.177-9.639-0.089c0,0-6.337,6.426,4.82,14.548l4.886,3.525l4.752-3.525c0,0,10.8-6.962,4.82-14.548C21.071,2.314,16.609-2.952,11.432,2.403z"></a>
+            <div class="heart-container no-hover"></div>
+            <div class="x-container"></div>
 		</div>
 		<div class="video-image">
 			<div class="video-thumb-wrapper">
