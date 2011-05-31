@@ -10,8 +10,14 @@ com.kikin.VideoPanelController = function(){
 
     var LIKED_ICON_CONTAINER_SELECTOR = ".heart-container";
     var DELETE_VIDEO_ICON_CONTAINER = ".video-delete-button";
+    var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
+            '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
+            '</div>';
     return {
         populatePanel : function(panel_container_selector, contentSource, request_params){
+            $(panel_container_selector).empty();
+            $(panel_container_selector).html(LOADING_DIV_HTML);
+            
             $.get(contentSource, request_params, function(data){
                 $(panel_container_selector).empty();
                 $(panel_container_selector).html(data);
