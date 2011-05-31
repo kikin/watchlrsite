@@ -67,7 +67,7 @@ class User(auth_models.User):
         try:
             user_video = UserVideo.objects.get(user__exact=self, video__exact=video)
         except UserVideo.DoesNotExist:
-            user_video = UserLikedVideo(user=self, video=video)
+            user_video = UserVideo(user=self, video=video)
 
         timestamp = kwargs.get('timestamp', datetime.utcnow())
 
