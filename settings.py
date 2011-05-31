@@ -11,7 +11,7 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-if USE_LOCAL_DB == True:
+if USE_LOCAL_DB == False:
 	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.mysql',
