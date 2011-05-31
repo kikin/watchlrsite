@@ -102,13 +102,14 @@ a:hover {
     top:10px;
     right:5px;
     padding-top: 10px;
+    width:120px;
 
     -moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.4);
 	-webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.4);
 	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
 
 	box-shadow:0 1px 4px rgba(0, 0, 0, 0.4);
-    z-index: 9999;
+    z-index:5;
 }
 
     #options ul {
@@ -147,9 +148,10 @@ a:hover {
 /* Content */
 
 #content {
-	clear: both;
     padding: 0;
-    position: relative;
+    width:800px;
+    margin-left:auto;
+    margin-right:auto;
     min-height:300px;
 }
 
@@ -161,7 +163,7 @@ a:hover {
 
 
 #video-section {
-    float: left;
+    position:absolute;
     padding-top: 15px;
     padding-bottom: 15px;
 }
@@ -228,7 +230,6 @@ ul.navigation li.selected, ul.navigation li.selected a{
 
 #myConnectionsNot,
 #myConnections{
-	display:none;
 }
 	.profilePic{
 		width:25px;
@@ -236,7 +237,6 @@ ul.navigation li.selected, ul.navigation li.selected a{
 		margin:0 9px;
 		background:#eef;
 		float:left;
-		display:none;
 	}
 	.profileName{
 		float:left;
@@ -410,7 +410,7 @@ ul>span.cufon-canvas {
 
 .clearFloats{clear:both}
 #loggedin,
-#loggedout{display:none;margin:50px 0 50px 0;}
+#loggedout{margin:50px 0 50px 0;}
 
 .css3Btn{
 	display:block;
@@ -459,7 +459,7 @@ ul>span.cufon-canvas {
 		}
 		.video-thumbnail-btn{
 			height:150px;
-			background:url(/static/images/kknvideosprites.png) no-repeat -275px 40px;
+			background:url(/static/images/kkn-video-sprites.png) no-repeat -275px 40px;
 			position:relative;
 			top:-143px;
 		}
@@ -621,7 +621,7 @@ ul>span.cufon-canvas {
 }
 
 .small-close{
-	background:url(/static/images/kknvideosprites.png) no-repeat 0px -200px;
+	background:url(/static/images/kkn-video-sprites.png) no-repeat 0px -200px;
 	height:16px;
 	width:16px;
 	float:right;
@@ -668,5 +668,10 @@ ul>span.cufon-canvas {
     position:fixed;
     top: 0px;
     left: 0px;
+    display:none;
+}
+#lnkConnectFb{
+    width:100px;
+    height:20px;
     display:none;
 }
