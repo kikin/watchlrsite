@@ -15,6 +15,20 @@ com.kikin.video.HomeViewController = function(){
 
     var SAVED_VIDEOS_CONTENT_URL = '/content/saved_videos';
 
+    var PROFILE_EDIT_URL = '/content/profile_edit';
+
+    var PROFILE_EDIT_OPEN_BUTTON_SELECTOR = '#myProfile';
+
+    var PROFILE_EDIT_CLOSE_BUTTON_SELECTOR = '#profile-view-close';
+
+    var PROFILE_EDIT_PANEL_SELECTOR = '#profile-edit-panel';
+
+    var PROFILE_EDIT_CANCEL_BUTTON_SELECTOR = '.cancel-button';
+
+    var GREYED_BACKGROUND_ELEMENT = '<div class="greyed-background" style="display: block;"></div>';
+
+    var GREYED_BACKGROUND_SELECTOR = '.greyed-background';
+
     var profile_options_panel_visible = false;
 
     var activeTab = TAB_SELECTORS.queue;
@@ -63,6 +77,23 @@ com.kikin.video.HomeViewController = function(){
                      $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
                      profile_options_panel_visible = true;
                  }
+             });
+
+             $(PROFILE_EDIT_OPEN_BUTTON_SELECTOR).click(function(event){
+
+                 $('body').prepend(GREYED_BACKGROUND_ELEMENT);
+
+                $.get(PROFILE_EDIT_URL, function(data){
+                    $('body').prepend(data)
+                    $(PROFILE_EDIT_CLOSE_BUTTON_SELECTOR).bind('click', function(event){
+                        $(PROFILE_EDIT_PANEL_SELECTOR).remove();
+                        $(GREYED_BACKGROUND_SELECTOR).remove();
+                    });
+                    $(PROFILE_EDIT_CANCEL_BUTTON_SELECTOR).bind('click', function(event){
+                        $(PROFILE_EDIT_PANEL_SELECTOR).remove();
+                        $(GREYED_BACKGROUND_SELECTOR).remove();
+                    });
+                });
              });
 
              //hide the panel on click outside of
