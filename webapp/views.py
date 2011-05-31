@@ -36,8 +36,8 @@ def logout_view(request):
 # soon...
 def liked_video_queue(request):
 	if request.user.is_authenticated():
-		return render_to_response('content/video_queue.hfrg', {'settings':settings, 'videos':request.user.get_liked_videos()}, context_instance = RequestContext(request))
+		return render_to_response('content/video_queue.hfrg', {'settings':settings, 'videos':request.user.liked_videos()}, context_instance = RequestContext(request))
 
 def saved_video_queue(request):
 	if request.user.is_authenticated():
-		return render_to_response('content/video_queue.hfrg', {'settings':settings, 'videos':request.user.get_saved_videos()}, context_instance = RequestContext(request))
+		return render_to_response('content/video_queue.hfrg', {'settings':settings, 'videos':request.user.saved_videos()}, context_instance = RequestContext(request))

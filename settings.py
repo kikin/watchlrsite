@@ -6,7 +6,7 @@ import sys, os
 #(perhaps we want to set some environment
 #variable on dev, look for it with os.environ
 #and have this AUTOMATICALLY set to dev if found?)
-active_db = 'local_test'
+active_db = 'local_mysql'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -26,7 +26,15 @@ database_configurations = {
 		'HOST': 'dev-video.kikin.com',
 		'PORT': '',
 		},
-	'local_test':{
+	'local_postgresql': {
+		'ENGINE': 'django.db.backends.postgresql_psycopg2',
+		'NAME': 'kikinvideo',
+		'USER': 'webapp',
+		'PASSWORD': 'savemore',
+		'HOST': '',
+		'PORT': '',
+		},
+	'local_mysql':{
 		'ENGINE': 'django.db.backends.mysql',
 		'NAME': 'kikinvideo',
 		'USER': 'webapp',
