@@ -63,6 +63,8 @@ Dependencies
 Dependencies are specified using a pip requirements file. See
 http://www.pip-installer.org/en/latest/requirement-format.html for more information.
 
+  pip install -r requirements.txt
+
 Working on this app
 -------------------
 
