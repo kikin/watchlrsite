@@ -1,47 +1,59 @@
 Project Structure
 -----------------
 
-* settings.py
++ settings.py
+
   Project settings.
 
-* api/models.py
++ api/models.py
+
   Definitions for the models used in this project.
   Note: Project level models are not a good idea in general. Also, it tends to mess up Celery's task names.
   If you need to use models in another app, import as follows:
-  >       from api.models import User, Video
+
+        from api.models import User, Video
 
 + urls.py
+
   high-level url routing (i.e. routing of '/api/...' urls gets handed
   off to the 'api' app's url manager, all other urls get handed off
   to the 'webapp' app's url manager).
 
 + manage.py
+
   the standard utility.
   (see https://docs.djangoproject.com/en/dev/ref/django-admin/)
 
 + api/
+
     Implementation of the json web service component of this project.
 
 + webapp/
+
 	  Implementation of the browser-based frontend for this project.
 	
 + static/
+
     The static resources for this project.  Pointed to by the
     STATIC_URL variable in settings.py.  For instance, if you
     wanted to reference a static resource from a template, you could
     pass the settings module through to it and the resource path would be:
-    >       "{{ settings.STATIC_URL }}path_to_resource_in_static_dir"
+
+        "{{ settings.STATIC_URL }}path_to_resource_in_static_dir"
 	
 + doc/
+
 	  Project documentation (right now, though, only our db spec).
 
 + scripts/
+
     Any batch-processing scripts can be placed here.  Right now, in
     the 'test' subdirectory, you'll find db_populate.py and
     db_clear.py, which, respectively, populate the database with
     fake data for testing and clear it out.
 
 + dependencies/
+
 	  All project dependencies (see below).
 
 Environment
