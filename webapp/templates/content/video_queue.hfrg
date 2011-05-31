@@ -1,7 +1,3 @@
-{% extends "user_home.html" %}
-{% block videolist %}
-
-<div class="videoListItems">
 {% for video in videos %}
     <div id="video_{{video.id}}" class="video-wrapper">
 	<div class="video-container">
@@ -14,7 +10,7 @@
 		</div>
 		<div class="video-image">
 			<div class="video-thumb-wrapper">
-				<img class="video-thumbnail" src="{{video.thumbnail}}" onerror="this.style.visibility='hidden'" onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
+				<img class="video-thumbnail" src="{{video.thumbnail.url}}" onerror="this.style.visibility='hidden'" onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
 				<div class="abs-position">
 					<div class="video-thumbnail-btn"></div>
 				</div>
@@ -23,7 +19,7 @@
 		<div class="video-info">
                      <div class="video-description">{{video.description}}</div>
 			<div class="video-saved">
-				<span class="video-timeago">{{video.date}}</span>
+				<span class="video-timeago">{{video.date|timesince}} ago</span>
 				&bull;
 					<a href="{{video.url}}">{{video.title}}</a>
 					&bull;
@@ -44,4 +40,3 @@
     </div>
 {% endfor %}
 </div>
-{% endblock videolist %}

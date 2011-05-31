@@ -2,38 +2,42 @@
 
 import sys, os
 
+#if on production server, change to dev
+#(perhaps we want to set some environment
+#variable on dev, look for it with os.environ
+#and have this AUTOMATICALLY set to dev if found?)
+active_db = 'local_test'
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-USE_LOCAL_DB = True
 
 ADMINS = (
     ('Sandesh Devaraju', 'sandesh@kikin.com')
 )
 
 MANAGERS = ADMINS
-if USE_LOCAL_DB == False:
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.mysql',
-			'NAME': 'kikinvideo',
-			'USER': 'webapp',
-			'PASSWORD': 'savemore',
-			'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
-			'PORT': '',
-		}
-	}
-else:
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': 'kikinvideo',
-			'USER': 'webapp',
-			'PASSWORD': 'savemore',
-			'HOST': 'dev-video.kikin.com',
-			'PORT': '',
-		}
-	}
 
+database_configurations = {
+	'dev': {
+		'ENGINE': 'django.db.backends.postgresql_psycopg2',
+		'NAME': 'kikinvideo',
+		'USER': 'webapp',
+		'PASSWORD': 'savemore',
+		'HOST': 'dev-video.kikin.com',
+		'PORT': '',
+		},
+	'local_test':{
+		'ENGINE': 'django.db.backends.mysql',
+		'NAME': 'kikinvideo',
+		'USER': 'webapp',
+		'PASSWORD': 'savemore',
+		'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+		'PORT': '',
+		}
+}
+
+DATABASES = { 'default': database_configurations[active_db] }
+	
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -107,6 +111,17 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+	'django.core.context_processors.request',
+	'django.contrib.auth.context_processors.auth',
+	'django.core.context_processors.auth',
+)
+
+AUTHENTICATION_BACKENDS = (
+	'social_auth.backends.facebook.FacebookBackend',
+	'django.contrib.auth.backends.ModelBackend',
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -117,7 +132,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'kikinvideo.urls'
 
-TEMPLATE_DIRS = ( os.path.abspath('.') + '/templates' ,)
+TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates' ,)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -130,6 +145,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'social_auth',
     'kikinvideo',
     'kikinvideo.webapp',
     'kikinvideo.api',
@@ -158,4 +174,11 @@ LOGGING = {
     }
 }
 
-FACEBOOK_API_KEY = '206761890429'
+AUTH_PROFILE_MODULE = 'kikinvideo.User'
+SOCIAL_AUTH_USER_MODEL = 'kikinvideo.User'
+
+FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
+FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_URL = '/'
