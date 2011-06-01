@@ -2,44 +2,58 @@ Project Structure
 -----------------
 
 + settings.py
+
     Project settings.
 
-+ models.py
-	  Definitions for the models used in this project.
++ api/models.py
+
+    Definitions for the models used in this project.
+    Note: Project level models are not a good idea in general. Also, it tends to mess up Celery's task names.
+    If you need to use models in another app, import as follows:
+
+        from api.models import User, Video
 
 + urls.py
+
     high-level url routing (i.e. routing of '/api/...' urls gets handed
     off to the 'api' app's url manager, all other urls get handed off
     to the 'webapp' app's url manager).
 
 + manage.py
+
     the standard utility.
     (see https://docs.djangoproject.com/en/dev/ref/django-admin/)
 
-+ api/*
-    Implementation of the json web service component of
-    this project.
++ api/
 
-+ webapp/*
+    Implementation of the json web service component of this project.
+
++ webapp/
+
 	  Implementation of the browser-based frontend for this project.
 	
-+ static/*
++ static/
+
     The static resources for this project.  Pointed to by the
     STATIC_URL variable in settings.py.  For instance, if you
     wanted to reference a static resource from a template, you could
     pass the settings module through to it and the resource path would be:
-      "{{ settings.STATIC_URL }}path_to_resource_in_static_dir"
+
+        "{{ settings.STATIC_URL }}path_to_resource_in_static_dir"
 	
-+ doc/*
++ doc/
+
 	  Project documentation (right now, though, only our db spec).
 
-+ scripts/*
++ scripts/
+
     Any batch-processing scripts can be placed here.  Right now, in
     the 'test' subdirectory, you'll find db_populate.py and
     db_clear.py, which, respectively, populate the database with
     fake data for testing and clear it out.
 
-+ dependencies/*
++ dependencies/
+
 	  All project dependencies (see below).
 
 Environment
@@ -64,7 +78,7 @@ Dependencies are specified using a pip requirements file. See
 http://www.pip-installer.org/en/latest/requirement-format.html for more information.
 
 To install all required dependencies, run the following command
-    pip install -r requirements.txt
+>        pip install -r requirements.txt
 
 Working on this app
 -------------------
@@ -117,13 +131,13 @@ could set the address to 0.0.0.0 (firewall/network config permitting).
 object-relational API
 ---------------------
 
-Example usage of the models defined in models.py:
+Example usage of the models defined in api/models.py:
 
     -----------------------------------------
     [Python]
     -----------------------------------------
     >>>
-    >>>  from kikinvideo.models import *
+    >>>  from api.models import *
     >>>
     >>>  v_thumb_1 = ThumbnailImage()
     >>>  v_thumb_1.width = 480
