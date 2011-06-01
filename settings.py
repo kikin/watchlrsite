@@ -1,6 +1,7 @@
 # Django settings for video project.
 
 import sys, os
+sys.path.append(os.getcwd())
 
 #if on production server, change to dev
 #(perhaps we want to set some environment
@@ -154,9 +155,9 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'social_auth',
-    'kikinvideo',
-    'kikinvideo.webapp',
-    'kikinvideo.api',
+    'webapp',
+    'api',
+    'djkombu',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -182,11 +183,27 @@ LOGGING = {
     }
 }
 
-AUTH_PROFILE_MODULE = 'kikinvideo.User'
-SOCIAL_AUTH_USER_MODEL = 'kikinvideo.User'
+AUTH_PROFILE_MODULE = 'api.User'
+SOCIAL_AUTH_USER_MODEL = 'api.User'
 
 FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
 FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/'
+
+# broker transport
+BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
+
+import djcelery
+djcelery.setup_loader()
+
+# broker settings
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_USER = "guest"
+BROKER_PASSWORD = "guest"
+BROKER_VHOST = "/"
+
+CELERY_ALWAYS_EAGER = True
+TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'

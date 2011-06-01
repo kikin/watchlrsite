@@ -163,7 +163,6 @@ a:hover {
 
 
 #video-section {
-    position:absolute;
     padding-top: 15px;
     padding-bottom: 15px;
 }
@@ -515,10 +514,6 @@ ul>span.cufon-canvas {
 	.win .video-player-close{
 		line-height: 12px;
 	}
-	.video-buttons{
-		text-align:right;
-		float:right;
-	}
 		.lnk-add{
     		position: relative;
     		top: -6px;
@@ -674,4 +669,68 @@ ul>span.cufon-canvas {
     width:100px;
     height:20px;
     display:none;
+}
+
+.heart-container{
+    background-image:url(/static/images/heart_grey.png);
+    width:26px;
+    height:26px;
+}
+
+/*thanks, IE...*/
+.heart-container.hovered{
+    background-image:url(/static/images/heart_maroon.png);
+    width:26px;
+    height:26px;
+
+}
+
+.heart-container.no-hover{
+    background-image:url(/static/images/heart_grey.png);
+    width:26px;
+    height:26px;
+}
+
+.heart-container.liked{
+    background-image:url(/static/images/heart_red.png);
+    width:26px;
+    height:26px;
+}
+
+.video-delete-button.hovered{
+    background-image:url(/static/images/x_maroon.png);
+    width:26px;
+    height:26px;
+
+}
+
+.video-delete-button.no-hover{
+    background-image:url(/static/images/x_grey.png);
+    width:26px;
+    height:26px;
+}
+
+.video-delete-button.clicked{
+    background-image:url(/static/images/x_red.png);
+    width:26px;
+    height:26px;
+}
+
+.heart-container{
+    position:absolute;
+    margin-left:37px;
+    margin-top:0px;
+}
+
+.video-delete-button{
+    position:absolute;
+    margin-left:0px;
+    margin-top:0px;
+}
+
+.video-buttons{
+		text-align:right;
+		float:right;
+        width:80px;
+        height:28px;
 }

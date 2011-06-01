@@ -70,6 +70,7 @@
         position:absolute;
         margin-top:130px;
         margin-left:135px;
+        font-size:12.5px;
     }
     #share-likes-span input{
         margin-left:10px;
@@ -112,7 +113,7 @@
         </div>
     </div>
     <span id="share-likes-span">
-        Share liked videos with my facebook friends?
+        Automatically update Facebook when I like videos
         <input type='checkbox' id="share-likes-checkbox"/>
     </span>
     <button class="cancel-button">Cancel</button>
