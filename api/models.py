@@ -19,6 +19,16 @@ class Video(models.Model):
   host = models.URLField(max_length=255, verify_exists=False)
   fetched = models.DateTimeField(null=True, db_index=True)
 
+  def set_thumbnail(self, url, width, height):
+    existing_thumbs = Thumbnail.objects.filter(video__exact=self)
+    #note: I am making assumption that video can only have one associated thumbnail
+    #(change this function's implementation if that assumption isn't correct)
+    if len(existing_thumbs) > 0:
+        for thumbnail in existing_thumbs:
+            thumbnail.delete()
+    thumbnail = Thumbnail(video=self, url=url, width=width, height=height)
+    thumbnail.save()
+
 
 class Thumbnail(models.Model):
   video = models.ForeignKey(Video, related_name='thumbnails')
@@ -69,7 +79,7 @@ class User(auth_models.User):
     try:
       user_video = UserVideo.objects.get(user__exact=self, video__exact=video)
     except UserVideo.DoesNotExist:
-      user_video = UserLikedVideo(user=self, video=video)
+      user_video = UserVideo(user=self, video=video)
 
     timestamp = kwargs.get('timestamp', datetime.utcnow())
 
@@ -109,7 +119,6 @@ class User(auth_models.User):
     for item in UserVideo.objects.filter(user__exact=self, saved=True).order_by('-saved_timestamp'):
       videos.append(item.video)
     return videos
-
 
 class UserFollowsUser(models.Model):
   follower = models.ForeignKey(User, related_name='followee', db_index=True)
