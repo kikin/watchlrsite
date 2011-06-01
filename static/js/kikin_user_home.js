@@ -29,6 +29,11 @@ com.kikin.video.HomeViewController = function() {
 
     var GREYED_BACKGROUND_SELECTOR = '.greyed-background';
 
+    //the path, in #! url, that indicates video player should be opened
+    var VIDEO_PLAYER_PATH = '/player';
+
+    var VIDEO_PLAYER_CLOSE_PATH = '/close_player';
+
     var profile_options_panel_visible = false;
 
     var activeTab = TAB_SELECTORS.queue;
@@ -147,8 +152,14 @@ com.kikin.video.HomeViewController = function() {
         },
 
         onHashChange : function(hash_url) {
-            var url_params = parseHashURL(hash_url);
-            alert(url_params.params);
+            var url_content = parseHashURL(hash_url);
+            if(url_content.path == VIDEO_PLAYER_PATH){
+                videoPanelController.loadPlayer(url_content.params.vid,
+                                                    url_content.params.embed);
+            }
+            if(url_content.path == VIDEO_PLAYER_CLOSE_PATH){
+                videoPanelController.closePlayer(url_content.params.vid);
+            }
         }
     }
 };
