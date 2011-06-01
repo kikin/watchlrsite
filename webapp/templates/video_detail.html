@@ -1,7 +1,8 @@
-{% for video in videos %}
+{% extends "base.html" %}
+{% block content %}
     <div id="video_{{video.id}}" class="video-wrapper">
         <div class="video-container" id="vc{{ videos.id }}">
-            <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
+            <h3 class="video-title"><a href="{{video.url}}">{{ video.title }}</a></h3>
 
             <div class="video-buttons">
                 <div class="heart-container no-hover"></div>
@@ -34,7 +35,7 @@
 
             <br style="clear:both;"/>
 
-            <div class="video-player" id="video-player-{{ video.id }}">
+            <div class="video-player" id="video-player-{{ video.id }}" style="display:block;">
                 <div>
                     <a href="#!/close_player?vid={{ video.id }}" class="video-player-close">X</a>
                 </div>
@@ -47,4 +48,4 @@
         </div>
         <div class="my-video-breaker"></div>
     </div>
-{% endfor %}
+{% endblock content %}
