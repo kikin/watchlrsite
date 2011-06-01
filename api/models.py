@@ -29,6 +29,9 @@ class Video(models.Model):
     thumbnail = Thumbnail(video=self, url=url, width=width, height=height)
     thumbnail.save()
 
+  def get_thumbnail(self):
+      return Thumbnail.objects.get(video__exact=self)
+
 
 class Thumbnail(models.Model):
   video = models.ForeignKey(Video, related_name='thumbnails')

@@ -37,6 +37,7 @@ v_1.description = "See Music Videos http://www.bvmtv.com/ that you CAN'T See on 
 v_1.source = v_source_1
 v_1.fetched = datetime.utcnow()
 v_1.save()
+v_1.set_thumbnail('http://i.ytimg.com/vi/UbDFS6cg1AI/0.jpg', 480, 360)
 
 v_2 = Video()
 v_2.url = "http://www.youtube.com/watch?v=Q_3GgAALPkQ"
@@ -45,4 +46,8 @@ v_2.description = "FROM THE ALBUM \"MR. HOOD\" (1991). Click here: http://www.yo
 v_2.source = v_source_1
 v_2.fetched = datetime.now()
 v_2.save()
+v_2.set_thumbnail('http://i2.ytimg.com/vi/Q_3GgAALPkQ/0.jpg', 480, 360)
 
+u = User.objects.all()[0]
+u.like_video(v_1)
+u.save_video(v_2)
