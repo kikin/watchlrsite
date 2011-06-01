@@ -52,3 +52,30 @@ def like(request, video_id):
         return request.user.like_video(Video.objects.get(pk=video_id)).info_view()
     except Video.DoesNotExist:
         raise VideoNotFound(video_id)
+
+@json_view
+def unlike(request, video_id):
+    if not request.user.is_authenticated():
+        raise Unauthorized()
+    try:
+        return request.user.unlike_video(Video.objects.get(pk=video_id)).info_view()
+    except Video.DoesNotExist:
+        raise VideoNotFound(video_id)
+
+@json_view
+def save(request, video_id):
+    if not request.user.is_authenticated():
+        raise Unauthorized()
+    try:
+        return request.user.save_video(Video.objects.get(pk=video_id)).info_view()
+    except Video.DoesNotExist:
+        raise VideoNotFound(video_id)
+
+@json_view
+def remove(request, video_id):
+    if not request.user.is_authenticated():
+        raise Unauthorized()
+    try:
+        return request.user.remove_video(Video.objects.get(pk=video_id)).info_view()
+    except Video.DoesNotExist:
+        raise VideoNotFound(video_id)
