@@ -40,7 +40,7 @@
                 <div>
                     <a href="#!/close_player?vid={{ video.id }}" class="video-player-close">X</a>
                 </div>
-                <div class='video-embed-container'>
+                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
                 {% autoescape off %}
                     {{ video.html_embed_code }}
                 {% endautoescape %}
@@ -54,10 +54,10 @@
                 <div>
                     <a href="#!/close_player?vid={{ video.id }}" class="video-player-close">X</a>
                 </div>
-                <div class='video-embed-container'>
+                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
                     <div class="video-no-embed-link">
                         The host of the content you have selected requests that
-                        you access it at:<br>
+                        you access it at<br>
                         <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
                     </div>
                 </div>
