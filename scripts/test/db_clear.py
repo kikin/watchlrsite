@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath('.'))
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 
-from api.models import *
+from kikinvideo.api.models import *
 from social_auth.models import UserSocialAuth
 
 Thumbnail.objects.all().delete()

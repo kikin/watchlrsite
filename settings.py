@@ -7,7 +7,7 @@ sys.path.append(os.getcwd())
 #(perhaps we want to set some environment
 #variable on dev, look for it with os.environ
 #and have this AUTOMATICALLY set to dev if found?)
-active_db = 'local_mysql'
+active_db = 'local_postgresql'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -155,8 +155,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'social_auth',
-    'webapp',
-    'api',
+    'kikinvideo.webapp',
+    'kikinvideo.api',
     'djkombu',
 )
 
