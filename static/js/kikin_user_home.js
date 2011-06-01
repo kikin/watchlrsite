@@ -173,5 +173,9 @@ $(document).ready(
                 homeViewController.onHashChange(location.hash);
             });
             $('#myConnectionsNot').show();
+
+            //in case we're refreshing...
+            setTimeout(function(){homeViewController.onHashChange(location.hash);},
+                    800);
         }
 );

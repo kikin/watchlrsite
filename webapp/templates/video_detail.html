@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "user_home.html" %}
 {% block content %}
     <div id="video_{{video.id}}" class="video-wrapper">
         <div class="video-container" id="vc{{ videos.id }}">
@@ -16,7 +16,6 @@
                              onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
 
                         <div class="abs-position">
-                            <div class="video-thumbnail-btn"></div>
                         </div>
                     </div>
                 </div>
