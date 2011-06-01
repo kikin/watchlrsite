@@ -107,7 +107,7 @@ com.kikin.video.HomeViewController = function(){
         }
     }
 };
-
+var homeViewController;
 $(document).ready(
     function(){
         homeViewController = new com.kikin.video.HomeViewController();
