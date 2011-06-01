@@ -34,6 +34,8 @@
 
             <br style="clear:both;"/>
 
+            {% if video.html_embed_code or video.html5_embed_code %}
+                
             <div class="video-player" id="video-player-{{ video.id }}">
                 <div>
                     <a href="#!/close_player?vid={{ video.id }}" class="video-player-close">X</a>
@@ -44,6 +46,24 @@
                 {% endautoescape %}
                 </div>
             </div>
+
+            {% else %}
+
+            <div class="video-player" id="video-player-{{ video.id }}"
+                    style="background-color:#DEDEDE;font-size:16px;">
+                <div>
+                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close">X</a>
+                </div>
+                <div class='video-embed-container'>
+                    <div class="video-no-embed-link">
+                        The host of the content you have selected requests that
+                        you access it at:<br>
+                        <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
         </div>
         <div class="my-video-breaker"></div>
     </div>
