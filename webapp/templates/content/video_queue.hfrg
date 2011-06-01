@@ -6,7 +6,7 @@
             <div class="heart-container no-hover"></div>
             <div class="video-delete-button no-hover"></div>
 		</div>
-        <a href="#!/player?vid={{ video.id }}&under=vc{{ video.id }}">
+        <a href="#!/player?vid={{ video.id }}&embed={{ video.html_embed_code }}">
 		<div class="video-image" id="video-{{ video.id }}">
 			<div class="video-thumb-wrapper">
 				<img class="video-thumbnail" src="{{video.get_thumbnail.url}}" onerror="this.style.visibility='hidden'" onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
@@ -29,7 +29,7 @@
 
 		<br style="clear:both;"/>
 
-		<div class="video-player">
+		<div class="video-player" id="video-player-{{ video.id }}">
 			<div class="abs-position">
 				<a href="#close" class="video-player-close">X</a>
 			</div>
