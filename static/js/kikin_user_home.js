@@ -29,35 +29,52 @@ com.kikin.video.HomeViewController = function() {
 
     var GREYED_BACKGROUND_SELECTOR = '.greyed-background';
 
+    //the path, in #! url, that indicates video player should be opened
+    var VIDEO_PLAYER_PATH = '/player';
+
+    var VIDEO_PLAYER_CLOSE_PATH = '/close_player';
+
     var profile_options_panel_visible = false;
 
     var activeTab = TAB_SELECTORS.queue;
 
     var videoPanelController = new com.kikin.VideoPanelController();
 
+    /**
+     * Function takes full #! url and returns the path + params
+     * of this URL in a 2-element hash.
+     * 
+     * @param hash_url the full hash bang url (including '#!').
+     */
     function parseHashURL(hash_url) {
 
         var path;
 
-        //strip out hash ('#')...
-        var url_content = hash_url.substring(1, hash_url.length);
+        //strip out hash bang   ('#!')...
+        var url_content = hash_url.substring(2, hash_url.length);
 
         if (url_content.search('\\?') == -1) {
             path = url_content;
+        }else{
+            path = url_content.substring(0, url_content.search('\\?'));
         }
 
         var urlParams = {};
-        var e,
-                a = /\+/g,  // Regex for replacing addition symbol with a space
-                r = /([^&=]+)=?([^&]*)/g,
-                d = function (s) {
-                    return decodeURIComponent(s.replace(a, " "));
-                },
-                q = url_content.substring(1);
+        if ((url_content.search('\\?') != -1)){
+            url_content = url_content.substring(url_content.search('\\?'), url_content.length);
+            var e,
+                    a = /\+/g,  // Regex for replacing addition symbol with a space
+                    r = /([^&=]+)=?([^&]*)/g,
+                    d = function (s) {
+                        return decodeURIComponent(s.replace(a, " "));
+                    },
+                    q = url_content.substring(1);
 
-        while (e = r.exec(q))
-            urlParams[d(e[1])] = d(e[2]);
+            while (e = r.exec(q))
+                urlParams[d(e[1])] = d(e[2]);
+        }
         return {
+            path : path,
             params : urlParams
         }
     }
@@ -135,8 +152,13 @@ com.kikin.video.HomeViewController = function() {
         },
 
         onHashChange : function(hash_url) {
-            var url_params = parseHashURL(hash_url);
-            alert(url_params.params);
+            var url_content = parseHashURL(hash_url);
+            if(url_content.path == VIDEO_PLAYER_PATH){
+                videoPanelController.loadPlayer(url_content.params.vid);
+            }
+            if(url_content.path == VIDEO_PLAYER_CLOSE_PATH){
+                videoPanelController.closePlayer(url_content.params.vid);
+            }
         }
     }
 };
@@ -151,5 +173,9 @@ $(document).ready(
                 homeViewController.onHashChange(location.hash);
             });
             $('#myConnectionsNot').show();
+
+            //in case we're refreshing...
+            setTimeout(function(){homeViewController.onHashChange(location.hash);},
+                    800);
         }
 );
