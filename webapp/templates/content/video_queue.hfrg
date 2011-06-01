@@ -56,7 +56,7 @@
                 </div>
                 <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
                     <div class="video-no-embed-link">
-                        The host of the content you have selected requests that
+                        The host of the video you have selected requests that
                         you access it at<br>
                         <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
                     </div>
