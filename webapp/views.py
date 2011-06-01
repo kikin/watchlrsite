@@ -61,4 +61,3 @@ def video_player(request, video_id):
             return Http404()
         else:
             return render_to_response('content/video_player.hfrg', {'video': video_query_set[0]})
-		

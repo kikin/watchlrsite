@@ -7,7 +7,7 @@
                 <div class="heart-container no-hover"></div>
                 <div class="video-delete-button no-hover"></div>
             </div>
-            <a href="#!/player?vid={{ video.id }}&embed={{ video.html_embed_code }}">
+            <a href="#!/player?vid={{ video.id }}">
                 <div class="video-image" id="video-{{ video.id }}">
                     <div class="video-thumb-wrapper">
                         <img class="video-thumbnail" src="{{video.get_thumbnail.url}}"
@@ -35,13 +35,16 @@
             <br style="clear:both;"/>
 
             <div class="video-player" id="video-player-{{ video.id }}">
-                <div class="abs-position">
+                <div>
                     <a href="#!/close_player?vid={{ video.id }}" class="video-player-close">X</a>
                 </div>
-                {{ video.embed_code }}
+                <div class='video-embed-container'>
+                {% autoescape off %}
+                    {{ video.html_embed_code }}
+                {% endautoescape %}
+                </div>
             </div>
         </div>
         <div class="my-video-breaker"></div>
     </div>
 {% endfor %}
-</div>

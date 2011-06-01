@@ -595,6 +595,7 @@ ul>span.cufon-canvas {
 
 .video-player-close {
     float: right;
+    margin-right:-27px;
     cursor: pointer;
     font-weight: bold;
     padding: 4px;
