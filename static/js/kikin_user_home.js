@@ -34,6 +34,10 @@ com.kikin.video.HomeViewController = function() {
 
     var VIDEO_PLAYER_CLOSE_PATH = '/close_player';
 
+    var LIKE_VIDEO_PATH = '/like';
+
+    var REMOVE_VIDEO_PATH = '/remove';
+
     var profile_options_panel_visible = false;
 
     var activeTab = TAB_SELECTORS.queue;
@@ -158,6 +162,12 @@ com.kikin.video.HomeViewController = function() {
             }
             if(url_content.path == VIDEO_PLAYER_CLOSE_PATH){
                 videoPanelController.closePlayer(url_content.params.vid);
+            }
+            if(url_content.path == LIKE_VIDEO_PATH){
+                videoPanelController.handleLike(url_content.params.vid);
+            }
+            if(url_content.path == REMOVE_VIDEO_PATH){
+                videoPanelController.removeVideo(url_content.params.vid);
             }
         }
     }
