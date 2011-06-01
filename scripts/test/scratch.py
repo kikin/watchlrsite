@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath('.'))
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 
-from kikinvideo.models import *
+from api.models import *
 
 v_thumb_1 = Thumbnail()
 v_thumb_1.width = 480
