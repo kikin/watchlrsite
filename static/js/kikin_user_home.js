@@ -50,7 +50,7 @@ com.kikin.video.HomeViewController = function() {
 
         var path;
 
-        //strip out hash ('#')...
+        //strip out hash bang   ('#!')...
         var url_content = hash_url.substring(2, hash_url.length);
 
         if (url_content.search('\\?') == -1) {
@@ -154,8 +154,7 @@ com.kikin.video.HomeViewController = function() {
         onHashChange : function(hash_url) {
             var url_content = parseHashURL(hash_url);
             if(url_content.path == VIDEO_PLAYER_PATH){
-                videoPanelController.loadPlayer(url_content.params.vid,
-                                                    url_content.params.embed);
+                videoPanelController.loadPlayer(url_content.params.vid);
             }
             if(url_content.path == VIDEO_PLAYER_CLOSE_PATH){
                 videoPanelController.closePlayer(url_content.params.vid);

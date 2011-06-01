@@ -46,6 +46,7 @@ v_2.title = 'KMD - Peachfuzz (Video) '
 v_2.description = "FROM THE ALBUM \"MR. HOOD\" (1991). Click here: http://www.youtube.com/subscription_center?add_user=kennylavish to subscribe.  View my channels: http://www.youtube.com/kennylavish & http://www.youtube.com/kennylavishTV.  Please comment and rate this video... Peace!!"
 v_2.source = v_source_1
 v_2.fetched = datetime.now()
+v_2.html_embed_code = """<embed width="640" height="360" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" "="" src="http://www.youtube.com/v/Q_3GgAALPkQ?version=3&autoplay=1">"""
 v_2.save()
 v_2.set_thumbnail('http://i2.ytimg.com/vi/Q_3GgAALPkQ/0.jpg', 480, 360)
 
