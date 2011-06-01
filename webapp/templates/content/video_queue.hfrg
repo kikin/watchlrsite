@@ -36,7 +36,7 @@
 
             <div class="video-player" id="video-player-{{ video.id }}">
                 <div class="abs-position">
-                    <a href="#close" class="video-player-close">X</a>
+                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close">X</a>
                 </div>
                 {{ video.embed_code }}
             </div>
