@@ -5,38 +5,31 @@ from datetime import datetime
 
 class Source(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    url = models.URLField(max_length=255, verify_exists=False, unique=True)
-    favicon = models.URLField(max_length=255, verify_exists=False)
+    url = models.URLField(max_length=750, verify_exists=False)
+    favicon = models.URLField(max_length=750, verify_exists=False)
 
 
 class Video(models.Model):
-    url = models.URLField(max_length=255, verify_exists=False)
+    url = models.URLField(max_length=750, verify_exists=False)
     title = models.CharField(max_length=500, db_index=True)
     description = models.TextField(max_length=3000)
     html_embed_code = models.TextField(max_length=3000, null=True)
     html5_embed_code = models.TextField(max_length=3000, null=True)
     source = models.ForeignKey(Source, related_name='videos', null=True)
-    host = models.URLField(max_length=255, verify_exists=False)
+    host = models.URLField(max_length=750, verify_exists=False)
     fetched = models.DateTimeField(null=True, db_index=True)
 
-    def set_thumbnail(self, url, width, height):
-        existing_thumbs = Thumbnail.objects.filter(video__exact=self)
-        #note: I am making assumption that video can only have one associated thumbnail
-        #(change this function's implementation if that assumption isn't correct)
-        if len(existing_thumbs) > 0:
-            for thumbnail in existing_thumbs:
-                thumbnail.delete()
-        thumbnail = Thumbnail(video=self, url=url, width=width, height=height)
-        thumbnail.save()
+    def set_thumbnail(self, url, width, height, type='web'):
+        self.thumbnails.add(Thumbnail(url=url, width=width, height=height, type=type))
 
-    def get_thumbnail(self):
-        return Thumbnail.objects.get(video__exact=self)
+    def get_thumbnail(self, type='web'):
+        return self.thumbnails.get(type=type)
 
 
 class Thumbnail(models.Model):
     video = models.ForeignKey(Video, related_name='thumbnails')
     type = models.CharField(max_length=10, default='web')
-    url = models.URLField(max_length=255, verify_exists=False)
+    url = models.URLField(max_length=750, verify_exists=False)
     width = models.IntegerField()
     height = models.IntegerField()
 
@@ -80,7 +73,7 @@ class User(auth_models.User):
             raise Exception('Must (un)set at least one of liked/saved/watched flags')
 
         try:
-            user_video = UserVideo.objects.get(user__exact=self, video__exact=video)
+            user_video = UserVideo.objects.get(user=self, video=video)
         except UserVideo.DoesNotExist:
             user_video = UserVideo(user=self, video=video)
 
@@ -94,32 +87,30 @@ class User(auth_models.User):
             except KeyError:
                 pass
 
-        if not any([getattr(user_video, property, False) for property in properties]):
-            user_video.delete()
-        else:
-            user_video.save()
+        user_video.save()
+        return user_video
 
     def like_video(self, video, timestamp=datetime.utcnow()):
-        self._create_or_update_video(video, **{'liked': True, 'timestamp': timestamp})
+        return self._create_or_update_video(video, **{'liked': True, 'timestamp': timestamp})
 
     def unlike_video(self, video):
-        self._create_or_update_video(video, **{'liked': False})
+        return self._create_or_update_video(video, **{'liked': False})
 
     def liked_videos(self):
         videos = list()
-        for item in UserVideo.objects.filter(user__exact=self, liked=True).order_by('-liked_timestamp'):
+        for item in UserVideo.objects.filter(user=self, liked=True).order_by('-liked_timestamp'):
             videos.append(item.video)
         return videos
 
     def save_video(self, video, timestamp=datetime.utcnow()):
-        self._create_or_update_video(video, **{'saved': True, 'timestamp': timestamp})
+        return self._create_or_update_video(video, **{'saved': True, 'timestamp': timestamp})
 
     def remove_video(self, video):
-        self._create_or_update_video(video, **{'saved': False})
+        return self._create_or_update_video(video, **{'saved': False})
 
     def saved_videos(self):
         videos = list()
-        for item in UserVideo.objects.filter(user__exact=self, saved=True).order_by('-saved_timestamp'):
+        for item in UserVideo.objects.filter(user=self, saved=True).order_by('-saved_timestamp'):
             videos.append(item.video)
         return videos
 
@@ -134,8 +125,16 @@ class UserVideo(models.Model):
     user = models.ForeignKey(User)
     video = models.ForeignKey(Video)
     saved = models.BooleanField(default=True, db_index=True)
-    saved_timestamp = models.DateTimeField(auto_now=True, db_index=True)
+    saved_timestamp = models.DateTimeField(null=True, db_index=True)
     liked = models.BooleanField(default=False, db_index=True)
     liked_timestamp = models.DateTimeField(null=True, db_index=True)
     watched = models.BooleanField(default=False, db_index=True)
     watched_timestamp = models.DateTimeField(null=True, db_index=True)
+
+    def info_view(self):
+        return { 'url': self.video.url,
+                 'id': self.video.id,
+                 'liked': self.liked,
+                 'likes': UserVideo.objects.filter(video=self.video, liked=True).count(),
+                 'saved': self.saved,
+                 'saves': UserVideo.objects.filter(video=self.video, saved=True).count() }

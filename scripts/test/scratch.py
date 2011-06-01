@@ -13,19 +13,8 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'kikinvideo.settings'
 
 from kikinvideo.api.models import *
 
-'''
-v_thumb_1 = Thumbnail()
-v_thumb_1.width = 480
-v_thumb_1.height = 360
-v_thumb_1.url = 'http://i.ytimg.com/vi/UbDFS6cg1AI/0.jpg'
-v_thumb_1.save()
+User(first_name='John', last_name='Everyman', email='john.everyman@everywhere.com').save()
 
-v_thumb_2 = Thumbnail()
-v_thumb_2.width = 480
-v_thumb_2.height = 360
-v_thumb_2.url = "http://i2.ytimg.com/vi/Q_3GgAALPkQ/0.jpg"
-v_thumb_2.save()
-'''
 v_source_1 = Source()
 v_source_1.url = 'http://www.youtube.com'
 v_source_1.favicon = 'http://s.ytimg.com/yt/favicon-vflZlzSbU.ico'
@@ -38,7 +27,7 @@ v_1.description = "See Music Videos http://www.bvmtv.com/ that you CAN'T See on 
 v_1.source = v_source_1
 v_1.fetched = datetime.utcnow()
 v_1.save()
-v_1.set_thumbnail('http://i.ytimg.com/vi/UbDFS6cg1AI/0.jpg', 480, 360)
+v_1.thumbnails.add(Thumbnail(url='http://i.ytimg.com/vi/UbDFS6cg1AI/0.jpg', width=480, height=360))
 
 v_2 = Video()
 v_2.url = "http://www.youtube.com/watch?v=Q_3GgAALPkQ"
@@ -47,7 +36,7 @@ v_2.description = "FROM THE ALBUM \"MR. HOOD\" (1991). Click here: http://www.yo
 v_2.source = v_source_1
 v_2.fetched = datetime.now()
 v_2.save()
-v_2.set_thumbnail('http://i2.ytimg.com/vi/Q_3GgAALPkQ/0.jpg', 480, 360)
+v_2.thumbnails.add(Thumbnail(url='http://i2.ytimg.com/vi/Q_3GgAALPkQ/0.jpg', width=480, height=360))
 
 u = User.objects.all()[0]
 u.like_video(v_1)

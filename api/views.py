@@ -1,50 +1,54 @@
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
-from api.models import *
+from django.http import HttpResponse
 
-#For example...
-def list(request):
-    if request.method == 'GET':
-        #fetch data from db, serialize, and return....
-        if request.user.is_authenticated():
-            # We should probably revise the spec for this method to
-            # have user_id param be optional.
-            # If not supplied, method could return info (both public-facing and otherwise)
-            # about current session's user.  If supplied and different from
-            # session participant, it could return only public-facing info
-            # for the specified user.
-            if request.GET.has_key('user_id'):
-                try:
-                    supplied_uid = int(request.GET['user_id'])
-                #if cast fails...
-                except ValueError:
-                    return HttpResponseBadRequest(str({'result': 'invalid user id supplied to method'}),
-                                                  mimetype='application/json')
+from api.exception import ApiError, Unauthorized, VideoNotFound
+from api.models import Video
 
-                if supplied_uid and supplied_uid == request.user.id:
-                    #user is accessing his own info....
-                    user_obj = User.objects.get(pk=request.user.id)
-                    return HttpResponse(str({'result': user_obj.to_json_private()}), mimetype='application/json')
+from json import dumps
 
-                #IMPORTANT:
-                #   logic for current session owner to list (public facing) info about OTHER users
-                #   should go here.
-                #   i.e.
-                #   else:
-                #	    user_obj = User.objects.get(pk=request.GET['user_id'])
-                #       return HttpResponse(str({'result': user_obj.to_json_public()}), mimetype='application/json')
+import logging, logconfig
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger('api')
 
+def json_view(f):
+    def wrap(request, *args, **kwargs):
+        response = None
+        try:
+            result = f(request, *args, **kwargs)
+            assert isinstance(result, dict)
+            response = { 'success': True,
+                         'result': result }
 
-            #if no user_id provided, default to sending data for session owner
-            else:
-                user_obj = User.objects.get(pk=request.user.id)
-                return HttpResponse(str({'result': user_obj.to_json_private()}), mimetype='application/json')
-        else:
-        #IMPORTANT:
-        #   logic for unauthenticated clients to access (public facing) info about users
-        #   should go here.
-        #   i.e.
-        #   if request.GET.has_key('user_id'):
-        #		user_obj = User.objects.get(pk=request.GET['user_id'])
-        #       return HttpResponse(str({'result': user_obj.to_json_public()}), mimetype='application/json')
-            return HttpResponseForbidden(str({'result': 'you are not authorized to access this method'}),
-                                         mimetype='application/json')
+        except KeyboardInterrupt:
+            # Allow keyboard interrupts through for debugging.
+            raise
+
+        except ApiError, exc:
+            # Let API errors pass through
+            response = { 'success': False,
+                         'code': exc.code,
+                         'error': exc.reason }
+
+        except Exception, e:
+            try:
+                request_repr = repr(request)
+            except:
+                request_repr = 'Request unavailable'
+            logger.exception(request_repr)
+
+            # Come what may, we're returning JSON.
+            response = { 'success': False,
+                         'code': 500,
+                         'error': 'Unknown server error' }
+
+        json = dumps(response)
+        return HttpResponse(json, mimetype='application/json')
+    return wrap
+
+@json_view
+def like(request, video_id):
+    if not request.user.is_authenticated():
+        raise Unauthorized()
+    try:
+        return request.user.like_video(Video.objects.get(pk=video_id)).info_view()
+    except Video.DoesNotExist:
+        raise VideoNotFound(video_id)
