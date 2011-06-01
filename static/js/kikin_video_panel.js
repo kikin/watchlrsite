@@ -104,7 +104,7 @@ com.kikin.VideoPanelController = function() {
             var video_player_target_width = '100%';//video_player_div.width();
             var video_player_target_height = video_player_div.height();
             video_player_div.css({width:0, height:0});
-            video_player_div.show();
+            video_player_div.fadeIn(100);
             video_player_div.animate({width:video_player_target_width,
                         height:video_player_target_height}, 500);
         },
