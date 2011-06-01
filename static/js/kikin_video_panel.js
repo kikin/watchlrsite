@@ -95,6 +95,9 @@ com.kikin.VideoPanelController = function(){
                 });
                 
             });
+        },
+        loadPlayer : function(embed_code, under){
+            
         }
     };
 
