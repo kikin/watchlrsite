@@ -1,6 +1,7 @@
 # Django settings for video project.
 
 import sys, os
+
 sys.path.append(os.getcwd())
 
 #if on production server, change to dev
@@ -13,40 +14,40 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Sandesh Devaraju', 'sandesh@kikin.com')
+('Sandesh Devaraju', 'sandesh@kikin.com')
 )
 
 MANAGERS = ADMINS
 
 database_configurations = {
-	'dev': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME': 'kikinvideo',
-		'USER': 'webapp',
-		'PASSWORD': 'savemore',
-		'HOST': 'dev-video.kikin.com',
-		'PORT': '',
-		},
-	'local_postgresql': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME': 'kikinvideo',
-		'USER': 'webapp',
-		'PASSWORD': 'savemore',
-		'HOST': '',
-		'PORT': '',
-		},
-	'local_mysql':{
-		'ENGINE': 'django.db.backends.mysql',
-		'NAME': 'kikinvideo',
-		'USER': 'webapp',
-		'PASSWORD': 'savemore',
-		'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
-		'PORT': '',
-		}
+    'dev': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'kikinvideo',
+        'USER': 'webapp',
+        'PASSWORD': 'savemore',
+        'HOST': 'dev-video.kikin.com',
+        'PORT': '',
+        },
+    'local_postgresql': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'kikinvideo',
+        'USER': 'webapp',
+        'PASSWORD': 'savemore',
+        'HOST': '',
+        'PORT': '',
+        },
+    'local_mysql': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kikinvideo',
+        'USER': 'webapp',
+        'PASSWORD': 'savemore',
+        'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+        'PORT': '',
+        }
 }
 
-DATABASES = { 'default': database_configurations[active_db] }
-	
+DATABASES = {'default': database_configurations[active_db]}
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -96,17 +97,17 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-	os.path.abspath('.') + '/static/',
+# Put strings here, like "/home/html/static" or "C:/www/django/static".
+# Always use forward slashes, even on Windows.
+# Don't forget to use absolute paths, not relative paths.
+os.path.abspath('.') + '/static/',
 )
 
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+'django.contrib.staticfiles.finders.FileSystemFinder',
+'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
@@ -115,49 +116,49 @@ SECRET_KEY = 'ejgs5a_i-ycbtj0(z$u-s*4src7k79jrl-0!y_eo*ez^z=&%y$'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
+'django.template.loaders.filesystem.Loader',
+'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-	'django.core.context_processors.request',
-	'django.contrib.auth.context_processors.auth',
-	'django.core.context_processors.auth',
+'django.core.context_processors.request',
+'django.contrib.auth.context_processors.auth',
+'django.core.context_processors.auth',
 )
 
 AUTHENTICATION_BACKENDS = (
-	'social_auth.backends.facebook.FacebookBackend',
-	'django.contrib.auth.backends.ModelBackend',
+'social_auth.backends.facebook.FacebookBackend',
+'django.contrib.auth.backends.ModelBackend',
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+'django.middleware.common.CommonMiddleware',
+'django.contrib.sessions.middleware.SessionMiddleware',
+'django.middleware.csrf.CsrfViewMiddleware',
+'django.contrib.auth.middleware.AuthenticationMiddleware',
+'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'kikinvideo.urls'
 
-TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates' ,)
+TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates',)
 
 INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
-    'social_auth',
-    'kikinvideo.webapp',
-    'kikinvideo.api',
-    'djkombu',
+'django.contrib.auth',
+'django.contrib.contenttypes',
+'django.contrib.sessions',
+'django.contrib.sites',
+'django.contrib.messages',
+'django.contrib.staticfiles',
+# Uncomment the next line to enable the admin:
+# 'django.contrib.admin',
+# Uncomment the next line to enable admin documentation:
+# 'django.contrib.admindocs',
+'social_auth',
+'kikinvideo.webapp',
+'kikinvideo.api',
+'djkombu',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -179,8 +180,8 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-        },
-    }
+            },
+        }
 }
 
 AUTH_PROFILE_MODULE = 'api.User'
@@ -196,6 +197,7 @@ LOGOUT_URL = '/'
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
 import djcelery
+
 djcelery.setup_loader()
 
 # broker settings

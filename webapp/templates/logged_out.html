@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block header_right %}
-        <div id="myConnectionsNot">
-            <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook">
+    <div id="myConnectionsNot">
+        <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook">
 
-            </a>
-        </div>
+        </a>
+    </div>
 {% endblock header_right %}
 
 {% block content %}
@@ -13,6 +13,7 @@
         <div style="padding-top:75px;"></div>
         <div id="dvUninstalledPromo"></div>
         <br>
+
         <div id="installed">
             <div style="padding-top:10px;"></div>
             <div class="btn_installed">&nbsp;</div>
@@ -21,9 +22,11 @@
             <a class="btn_dl download-cta-body-download" href="javascript://Download!"></a>
         </div>
         <br>
+
         <div id="featuresSection">
             <br class="clearFloats">
             <br>
+
             <div class="featureTxt" style="width:806px;">
                 <h4>
                     Place your mouse on any video, on any webpage and kikin will add a
@@ -32,6 +35,7 @@
             </div>
             <img class="featureImage" alt="Download Now!" src="{{ settings.STATIC_URL }}images/education/education.png">
             <br class="clearFloats">
+
             <div style="height:40px;"></div>
             <div class="featureTxt" style="width:806px;">
                 <h4>
@@ -43,7 +47,8 @@
                 Easily manage your saved videos and watch them
                 <span class="blue">anywhere.</span>
             </div>
-            <img class="featureImage" style="padding-left:145px;" alt="Download Now!" src="{{ settings.STATIC_URL }}images/screenshot2.png">
+            <img class="featureImage" style="padding-left:145px;" alt="Download Now!"
+                 src="{{ settings.STATIC_URL }}images/screenshot2.png">
             <br class="clearFloats">
         </div>
         <br>

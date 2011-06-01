@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<style>
+    <style>
 
-</style>
-<div id="video-player">
+    </style>
+    <div id="video-player">
 
-</div>
+    </div>
 {% endblock content %}

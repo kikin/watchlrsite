@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block script_refs %}
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/jquery.hashchange-1.0.0.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/raphael.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_video_panel.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_home.js"></script>
@@ -9,27 +10,30 @@
 {% block header_right %}
     {% if request.user.is_authenticated %}
         <div id="myConnections">
-  			<a id="myOptions">
+            <a id="myOptions">
                 <img class="profilePic" src="http://graph.facebook.com/{{ user.facebook_uid }}/picture"/>
+
                 <div class="profileName">{{ user.username }}</div>
                 <span class="gbma"></span>
             </a>
 
-			<div id="options">
-			    <div class="options-breaker"></div>
-			    <ul>
-			        <li>
-			            <a id="myProfile">My Profile</a>
-			        <li>
-			            <a href="https://webux.wufoo.com/forms/m7x1p5/" onclick="window.open(this.href,  null, 'height=685, width=680, toolbar=0, location=0, status=1, scrollbars=1, resizable=1'); return false" title="kikin Video Feedback">Feedback</a>
-			        </li>
-			        <li>
-			            <a href="/logout" id="logout">Sign Out</a>
-			        </li>
-			    </ul>
-			</div>
-		</div>
-        {% else %}
+            <div id="options">
+                <div class="options-breaker"></div>
+                <ul>
+                    <li>
+                        <a id="myProfile">My Profile</a>
+                    <li>
+                        <a href="https://webux.wufoo.com/forms/m7x1p5/"
+                           onclick="window.open(this.href,  null, 'height=685, width=680, toolbar=0, location=0, status=1, scrollbars=1, resizable=1'); return false"
+                           title="kikin Video Feedback">Feedback</a>
+                    </li>
+                    <li>
+                        <a href="/logout" id="logout">Sign Out</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    {% else %}
 
         <div id="myConnectionsNot">
             <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook">
@@ -41,7 +45,7 @@
 
 {% block content %}
 
-   <div id="video-section">
+    <div id="video-section">
         <ul class="navigation">
             <li class="tabQueue selected">
                 <a href="#!/home">Queue</a>
@@ -51,11 +55,12 @@
             </li>
         </ul>
         <br class="clear">
+
         <div style="border-top: 1px solid rgb(204, 204, 204);"></div>
         <br class="clear">
         <div id="videoList">
             {% block videolist %}
             {% endblock videolist %}
         </div>
-   </div>
+    </div>
 {% endblock content %}
