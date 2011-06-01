@@ -1,8 +1,9 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404, HttpResponseForbidden
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
 from kikinvideo import settings
+from kikinvideo.api.models import Video
 
 #note: once User class has been defined, we will almost certainly be passing
 #that through to each template in the context hash when we render...
@@ -61,4 +62,15 @@ def video_player(request, video_id):
             return Http404()
         else:
             return render_to_response('content/video_player.hfrg', {'video': video_query_set[0]})
-		
+def video_detail(request):
+    if request.user.is_authenticated():
+        if 'vid' in request.GET:
+            vid_str = request.GET['vid']
+            try:
+                vid = long(vid_str)
+                video = Video.objects.get(pk=vid)
+                return render_to_response('video_detail.html',{'settings':settings, \
+                                    'video':video}, context_instance=RequestContext(request))
+            except ValueError:
+                return Http404
+    return HttpResponseForbidden('You must log in to view this content')

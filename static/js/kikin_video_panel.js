@@ -13,6 +13,8 @@ com.kikin.VideoPanelController = function() {
     var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
             '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
             '</div>';
+    var VIDEO_PLAYER_ID_PREFIX = "#video-player-";
+    var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
     return {
         populatePanel : function(panel_container_selector, contentSource, request_params) {
             $(panel_container_selector).empty();
@@ -96,8 +98,25 @@ com.kikin.VideoPanelController = function() {
 
             });
         },
-        loadPlayer : function(embed_code, under) {
+        loadPlayer : function(vid) {
+            var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
+            var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
+            /*for nice expando effect...*/
+            var video_player_target_width = '100%';
+            var video_player_target_height = video_player_div.height();
+            video_player_div.css({width:0, height:0});
+            video_embed_div.hide();
+            video_player_div.fadeIn(100);
+            video_player_div.animate({width:video_player_target_width,
+                        height:video_player_target_height}, 500,
+                        function(){
+                            video_embed_div.fadeIn(100);
+                        });
+        },
 
+        closePlayer : function(vid){
+            var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
+            video_player_div.fadeOut();
         }
     };
 
