@@ -39,17 +39,14 @@ com.kikin.VideoPanelController = function() {
                             $(this).addClass('no-hover');
                     });
 
-                    $(this).click(function(event) {
+/*                    $(this).click(function(event) {
 
                         if ($(this).hasClass('hovered'))
                             $(this).removeClass('hovered');
                         if ($(this).hasClass('no-hover'))
                             $(this).removeClass('no-hover');
 
-                        /*
-                         *   INSERT LOGIC HERE TO "like" videos
-                         *   -- e.g. $.get with return check
-                         * */
+
 
                         if (!$(this).hasClass('liked'))
                             $(this).addClass('liked');
@@ -57,7 +54,7 @@ com.kikin.VideoPanelController = function() {
                             if ($(this).hasClass('liked'))
                                 $(this).removeClass('liked');
                         }
-                    });
+                    });*/
                 });
 
                 $(DELETE_VIDEO_ICON_CONTAINER).each(function() {
@@ -117,6 +114,10 @@ com.kikin.VideoPanelController = function() {
         closePlayer : function(vid){
             var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
             video_player_div.fadeOut();
+        },
+
+        likeVideo : function(vid){
+            
         }
     };
 
