@@ -193,6 +193,8 @@ FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/'
 
+SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
+
 # broker transport
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
