@@ -1,42 +1,47 @@
 {% for video in videos %}
     <div id="video_{{video.id}}" class="video-wrapper">
-	<div class="video-container" id="vc{{ videos.id }}">
-                  <h3 class="video-title"><a href="{{video.url}}">{{video.title}}</a></h3>
-		<div class="video-buttons">
-            <div class="heart-container no-hover"></div>
-            <div class="video-delete-button no-hover"></div>
-		</div>
-        <a href="#!/player?vid={{ video.id }}&embed={{ video.html_embed_code }}">
-		<div class="video-image" id="video-{{ video.id }}">
-			<div class="video-thumb-wrapper">
-				<img class="video-thumbnail" src="{{video.get_thumbnail.url}}" onerror="this.style.visibility='hidden'" onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
-				<div class="abs-position">
-					<div class="video-thumbnail-btn"></div>
-				</div>
-			</div>
-		</div>
-        </a>
-		<div class="video-info">
-                     <div class="video-description">{{video.description}}</div>
-			<div class="video-saved">
-				<span class="video-timeago">{{video.date|timesince}} ago</span>
-				&bull;
-					<a href="{{video.url}}">{{video.title}}</a>
-					&bull;
-				<a data-video-id="{{video.id}}" class="lnk-delete" href="#!/delete">remove</a>
-			</div>
-		</div>
+        <div class="video-container" id="vc{{ videos.id }}">
+            <h3 class="video-title"><a href="{{video.url}}">{{ video.title }}</a></h3>
 
-		<br style="clear:both;"/>
+            <div class="video-buttons">
+                <div class="heart-container no-hover"></div>
+                <div class="video-delete-button no-hover"></div>
+            </div>
+            <a href="#!/player?vid={{ video.id }}&embed={{ video.html_embed_code }}">
+                <div class="video-image" id="video-{{ video.id }}">
+                    <div class="video-thumb-wrapper">
+                        <img class="video-thumbnail" src="{{video.get_thumbnail.url}}"
+                             onerror="this.style.visibility='hidden'"
+                             onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
 
-		<div class="video-player" id="video-player-{{ video.id }}">
-			<div class="abs-position">
-				<a href="#close" class="video-player-close">X</a>
-			</div>
-			{{video.embed_code}}
-		</div>
-	</div>
-	<div class="my-video-breaker"> </div>
+                        <div class="abs-position">
+                            <div class="video-thumbnail-btn"></div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <div class="video-info">
+                <div class="video-description">{{ video.description }}</div>
+                <div class="video-saved">
+                    <span class="video-timeago">{{ video.date|timesince }} ago</span>
+                    &bull;
+                    <a href="{{video.url}}">{{ video.title }}</a>
+                    &bull;
+                    <a data-video-id="{{video.id}}" class="lnk-delete" href="#!/delete">remove</a>
+                </div>
+            </div>
+
+            <br style="clear:both;"/>
+
+            <div class="video-player" id="video-player-{{ video.id }}">
+                <div class="abs-position">
+                    <a href="#close" class="video-player-close">X</a>
+                </div>
+                {{ video.embed_code }}
+            </div>
+        </div>
+        <div class="my-video-breaker"></div>
     </div>
 {% endfor %}
 </div>
