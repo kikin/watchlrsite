@@ -6,32 +6,22 @@ com.kikin.VideoPanelController = function(){
                     forceHitArea: true,
                     hover: true
                 });
-    };
-
-    function _loadVideoPlayer(video_id, beneath){
-            //waiting on API...
-            //will want to make an ajax call here to grab video embed code
-            x=1;
-        }
+    }
 
     var LIKED_ICON_CONTAINER_SELECTOR = ".heart-container";
     var DELETE_VIDEO_ICON_CONTAINER = ".video-delete-button";
-    var VIDEO_THUMB_BUTTON = ".video-thumbnail-btn";
-
-    var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
+     var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
             '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
             '</div>';
-
     return {
         populatePanel : function(panel_container_selector, contentSource, request_params){
             $(panel_container_selector).empty();
             $(panel_container_selector).html(LOADING_DIV_HTML);
-            
             $.get(contentSource, request_params, function(data){
                 $(panel_container_selector).empty();
                 $(panel_container_selector).html(data);
                 _stylizeVideoTitles();
-                
+
                 $(LIKED_ICON_CONTAINER_SELECTOR).each(function(){
                     $(this).mouseover(function(){
                         if($(this).hasClass('no-hover'))
@@ -103,18 +93,8 @@ com.kikin.VideoPanelController = function(){
                          }
                     });
                 });
-
-                $('.video-thumbnail-btn').each(function(){
-                    var id_str = $(this).attr('id');
-                    var video_id_str = id_str.substr('video-id-'.length, id_str.length);
-                    var video_id = parseInt(video_id_str);
-                    $(this).click(function(){
-                       var under_element_selector = '#video_' + video_id;
-                       _loadVideoPlayer(video_id, under_element_selector);
-                    });
-                });
+                
             });
-
         }
     };
 

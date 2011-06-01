@@ -1,26 +1,21 @@
 {% for video in videos %}
     <div id="video_{{video.id}}" class="video-wrapper">
-	<div class="video-container" id="video-container-{{ video.id }}">
+	<div class="video-container" id="vc{{ videos.id }}">
                   <h3 class="video-title"><a href="{{video.url}}">{{video.title}}</a></h3>
 		<div class="video-buttons">
             <div class="heart-container no-hover"></div>
             <div class="video-delete-button no-hover"></div>
 		</div>
-		<div class="video-image">
+        <a href="#!/player?vid={{ video.id }}&under=vc{{ video.id }}">
+		<div class="video-image" id="video-{{ video.id }}">
 			<div class="video-thumb-wrapper">
-				<img class="video-thumbnail" src="{{video.thumbnail.url}}" onerror="this.style.visibility='hidden'"
-                     onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px';"/>
+				<img class="video-thumbnail" src="{{video.thumbnail.url}}" onerror="this.style.visibility='hidden'" onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
 				<div class="abs-position">
-					<div class="video-thumbnail-btn" id="video-id-{{ video.id }}">
-                        <script type='text/javascript'>
-                                $('#video-id-{{ video.id }}').click(function(){
-                                    homeViewController.videoPanelController.loadVideoPlayer({{ video.id }}, '#video-container-{{ video.id }}');
-                                });
-                        </script>
-					</div>
+					<div class="video-thumbnail-btn"></div>
 				</div>
 			</div>
 		</div>
+        </a>
 		<div class="video-info">
                      <div class="video-description">{{video.description}}</div>
 			<div class="video-saved">
