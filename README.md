@@ -78,7 +78,8 @@ Dependencies are specified using a pip requirements file. See
 http://www.pip-installer.org/en/latest/requirement-format.html for more information.
 
 To install all required dependencies, run the following command
->        pip install -r requirements.txt
+
+    pip install -r requirements.txt
 
 Working on this app
 -------------------
@@ -122,13 +123,14 @@ from the top level project directory to create the database schema.
 
 			
 finally, to start your local development server, run
-	  python manage.py runserver [port or addr:port]
+
+    python manage.py runserver [port or addr:port]
 
 the default addr/port is 127.0.0.1:8000, if you want your development server to be externally accessible, you
 could set the address to 0.0.0.0 (firewall/network config permitting).
 
 
-object-relational API
+Object-relational API
 ---------------------
 
 Example usage of the models defined in api/models.py:
@@ -184,3 +186,7 @@ Example usage of the models defined in api/models.py:
     2011-05-28 16:01:35
     >>>
     -----------------------------------------
+
+Testing
+-------
+
