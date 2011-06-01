@@ -5,25 +5,25 @@ from datetime import datetime
 
 class Source(models.Model):
   name = models.CharField(max_length=100, unique=True)
-  url = models.URLField(max_length=1000, verify_exists=False, unique=True)
-  favicon = models.URLField(max_length=1000, verify_exists=False)
+  url = models.URLField(max_length=255, verify_exists=False, unique=True)
+  favicon = models.URLField(max_length=255, verify_exists=False)
 
 
 class Video(models.Model):
-  url = models.URLField(max_length=1000, verify_exists=False)
+  url = models.URLField(max_length=255, verify_exists=False)
   title = models.CharField(max_length=500, db_index=True)
   description = models.TextField(max_length=3000)
   html_embed_code = models.TextField(max_length=3000, null=True)
   html5_embed_code = models.TextField(max_length=3000, null=True)
   source = models.ForeignKey(Source, related_name='videos', null=True)
-  host = models.URLField(max_length=1000, verify_exists=False)
+  host = models.URLField(max_length=255, verify_exists=False)
   fetched = models.DateTimeField(null=True, db_index=True)
 
 
 class Thumbnail(models.Model):
   video = models.ForeignKey(Video, related_name='thumbnails')
   type = models.CharField(max_length=10, default='web')
-  url = models.URLField(max_length=1000, verify_exists=False)
+  url = models.URLField(max_length=255, verify_exists=False)
   width = models.IntegerField()
   height = models.IntegerField()
 
