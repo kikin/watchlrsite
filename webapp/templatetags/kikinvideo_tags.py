@@ -54,3 +54,11 @@ def date_saved(video, user):
 def pretty_date_saved(video, user):
     return pretty_date(video.date_saved(user))
 
+@register.filter
+def total_liked_videos(user):
+    return len(user.liked_videos())
+
+@register.filter
+def total_saved_videos(user):
+    return len(user.saved_videos())
+
