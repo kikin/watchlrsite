@@ -1,58 +1,92 @@
 {% extends "base.html" %}
 
+{% block script_refs %}
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/jquery.hashchange-1.0.0.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/raphael.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_video_panel.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_home.js"></script>
+{% endblock script_refs %}
+
 {% block style_refs %}
     <link rel='stylesheet' type='text/css' href='{{ settings.STATIC_URL }}css/profile.css'/>
 {% endblock style_refs %}
 
 {% block content %}
-    <!-- Awaiting templatization/js-wrapping.... -->
-    <div id="profile-template">
-        <div id="user-info-container">
-            <div class="inner">
-                <div id="profile-image-container">
-                    <!-- placeholder image! -->
-                    <img src="{{user.imageURL}}" style="width:100%;height:100%;"/>
+    {% load kikinvideo_tags %}
+{% for video in videos %}
+    <div id="video-{{video.id}}" class="video-wrapper">
+        <div class="video-container">
+            <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
+
+            <div class="video-buttons">
+                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                {% if video.total_likes != 0 %}
+                    {{ video.total_likes }}
+                {%  endif %}
                 </div>
-                <div id="username-display">
-                    <!-- placeholder user info text! -->
-                    <div class="primary">
-                        {{ user.username }}
-                    </div>
-                    <div class="sub">
-                        {{ user.realName }}
+                <a href="#!/like?vid={{ video.id }}" title="like">
+                {% if video in user.liked_videos %}
+                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                {% else %}
+                    <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                {% endif %}
+                </a>
+            </div>
+            <a href="#!/player?vid={{ video.id }}">
+                <div class="video-image" id="video-{{ video.id }}">
+                    <div class="video-thumb-wrapper">
+                        <img class="video-thumbnail" src="{{video.get_thumbnail.url}}"
+                             onerror="this.style.visibility='hidden'"
+                             onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
+
+                        <div class="abs-position">
+                            <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
+                        </div>
                     </div>
                 </div>
-                <div id="profile-stats-container">
-                    <div class="profile-basic-statistics" style="left:150px;">
-                        <div class="primary" id="following-count">
-                            {{ user.followingCount }}
-                        </div>
-                        <div class="sub">
-                            following
-                        </div>
-                    </div>
-                    <div class="profile-vertical-separator" style="left:205px;"></div>
-                    <div class="profile-basic-statistics" style="left:220px;">
-                        <div class="primary" id="follower-count">
-                            {{ user.followerCount }}
-                        </div>
-                        <div class="sub">
-                            followers
-                        </div>
-                    </div>
-                    <div class="profile-vertical-separator" style="left:275px;"></div>
-                    <div class="profile-basic-statistics" style="left:290px;width:60px;">
-                        <div class="primary" id="videos-count">
-                            {{ user.videosCount }}
-                        </div>
-                        <div class="sub">
-                            videos
-                        </div>
-                    </div>
-                    <div id="follow-button">Follow</div>
+            </a>
+
+            <div class="video-info">
+                <div class="video-description">{{ video.description }}</div>
+                <div class="video-saved">
+                    <a href="{{video.url}}">{{ video.title }}</a>
                 </div>
             </div>
-            <div id="delta-img-container"></div>
+
+            <br style="clear:both;"/>
+
+            {% if video.html_embed_code or video.html5_embed_code %}
+
+            <div class="video-player" id="video-player-{{ video.id }}">
+                <div>
+                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
+                </div>
+                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
+                {% autoescape off %}
+                    {{ video.html_embed_code }}
+                {% endautoescape %}
+                </div>
+            </div>
+
+            {% else %}
+
+            <div class="video-player" id="video-player-{{ video.id }}"
+                    style="background-color:#DEDEDE;font-size:16px;">
+                <div>
+                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
+                </div>
+                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
+                    <div class="video-no-embed-link">
+                        The host of the video you have selected requests that
+                        you access it at<br>
+                        <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
         </div>
+        <div class="my-video-breaker"></div>
     </div>
-{% endblock content %}
+{% endfor %}
+{% endblock %}
