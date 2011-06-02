@@ -62,3 +62,8 @@ def total_liked_videos(user):
 def total_saved_videos(user):
     return len(user.saved_videos())
 
+@register.filter
+def possessive(value):
+    if value[-1] == 's':
+        return "%s'" % value
+    return "%s's" % value
