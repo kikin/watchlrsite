@@ -9,12 +9,14 @@ com.kikin.VideoPanelController = function() {
     }
 
     var current_vid = null;
-    var LIKED_ICON_CONTAINER_SELECTOR = ".heart-container";
+    var LIKED_ICON_CONTAINER = ".heart-container";
     var LIKED_ICON_ID_PREFIX = "#liked-icon-vid-";
     var LIKED_INFO_CONTAINER_ID_PREFIX = "#video-liked-info-vid-";
     var VIDEO_CONTAINER_ID_PREFIX = "#video-";
     var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
     var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
+    var SAVE_VIDEO_BUTTON_CONTAINER = ".save-video-button";
+    var SAVE_VIDEO_BUTTON_ID_PREFIX = "#save-video-button-vid-";
 
     var DELETE_VIDEO_ICON_CONTAINER = ".video-delete-button";
     var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
@@ -31,7 +33,7 @@ com.kikin.VideoPanelController = function() {
                 $(panel_container_selector).html(data);
                 _stylizeVideoTitles();
 
-                $(LIKED_ICON_CONTAINER_SELECTOR).each(function() {
+                $(LIKED_ICON_CONTAINER).each(function() {
                     $(this).mouseover(function() {
                         if ($(this).hasClass('no-hover'))
                             $(this).removeClass('no-hover');
@@ -49,6 +51,23 @@ com.kikin.VideoPanelController = function() {
                 });
 
                 $(DELETE_VIDEO_ICON_CONTAINER).each(function() {
+                    $(this).mouseover(function() {
+                        if ($(this).hasClass('no-hover'))
+                            $(this).removeClass('no-hover');
+                        if (!$(this).hasClass('hovered'))
+                            $(this).addClass('hovered');
+                    });
+
+                    $(this).mouseout(function() {
+                        if ($(this).hasClass('hovered'))
+                            $(this).removeClass('hovered');
+                        if (!$(this).hasClass('no-hover'))
+                            $(this).addClass('no-hover');
+                    });
+
+                });
+
+                $(SAVE_VIDEO_BUTTON_CONTAINER).each(function() {
                     $(this).mouseover(function() {
                         if ($(this).hasClass('no-hover'))
                             $(this).removeClass('no-hover');

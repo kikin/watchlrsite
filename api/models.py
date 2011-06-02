@@ -71,6 +71,10 @@ class Video(models.Model):
     def total_likes(self):
         return UserVideo.objects.filter(video=self, liked=True).count()
 
+    #date when user saved video....
+    def date_saved(self, user):
+        save_date = UserVideo.objects.get(video=self, user=user).saved_timestamp
+        return save_date
 
 class Thumbnail(models.Model):
     '''
