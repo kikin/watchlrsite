@@ -615,6 +615,7 @@ ul>span.cufon-canvas {
     -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
+    background-image:url(/static/images/close_button.png);
 }
 
 .video-player-close:hover {
