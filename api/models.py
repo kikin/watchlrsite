@@ -232,11 +232,10 @@ def slugify(username, id):
 slugify.is_safe = True
 slugify = stringfilter(slugify)
 
-# Note that since we are defining a custom User model, these imports and handler
-# definition MUST be done here to avoid circular import issues.
+# Note that since we are defining a custom User model, import and handler
+# registration MUST be done after model definition to avoid circular import issues.
 
 from social_auth.signals import pre_update
-from social_auth.backends.facebook import FacebookBackend
 
 def compose_username(sender, user, response, details, **kwargs):
     saved = user.username
@@ -244,4 +243,4 @@ def compose_username(sender, user, response, details, **kwargs):
     user.username = response.get('username', slugify(fullname, user.id))
     return saved == user.username
 
-pre_update.connect(compose_username, sender=FacebookBackend)
+pre_update.connect(compose_username, sender=None)
