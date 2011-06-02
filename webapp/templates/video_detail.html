@@ -1,7 +1,8 @@
-{% for video in videos %}
+{% extends "user_home.html" %}
+{% block content %}
     <div id="video_{{video.id}}" class="video-wrapper">
         <div class="video-container" id="vc{{ videos.id }}">
-            <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
+            <h3 class="video-title"><a href="{{video.url}}">{{ video.title }}</a></h3>
 
             <div class="video-buttons">
                 <div class="heart-container no-hover"></div>
@@ -15,7 +16,6 @@
                              onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
 
                         <div class="abs-position">
-                            <div class="video-thumbnail-btn"></div>
                         </div>
                     </div>
                 </div>
@@ -34,37 +34,17 @@
 
             <br style="clear:both;"/>
 
-            {% if video.html_embed_code or video.html5_embed_code %}
-                
-            <div class="video-player" id="video-player-{{ video.id }}">
+            <div class="video-player" id="video-player-{{ video.id }}" style="display:block;">
                 <div>
                     <a href="#!/close_player?vid={{ video.id }}" class="video-player-close">X</a>
                 </div>
-                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
+                <div class='video-embed-container'>
                 {% autoescape off %}
                     {{ video.html_embed_code }}
                 {% endautoescape %}
                 </div>
             </div>
-
-            {% else %}
-
-            <div class="video-player" id="video-player-{{ video.id }}"
-                    style="background-color:#DEDEDE;font-size:16px;">
-                <div>
-                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close">X</a>
-                </div>
-                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                    <div class="video-no-embed-link">
-                        The host of the video you have selected requests that
-                        you access it at<br>
-                        <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
-                    </div>
-                </div>
-            </div>
-
-            {% endif %}
         </div>
         <div class="my-video-breaker"></div>
     </div>
-{% endfor %}
+{% endblock content %}
