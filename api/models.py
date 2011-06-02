@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth import models as auth_models
 
+from re import sub
+from unicodedata import normalize
 from datetime import datetime
+from django.template.defaultfilters import stringfilter
 
 class Source(models.Model):
     '''
@@ -11,7 +14,7 @@ class Source(models.Model):
     >>> youtube = Source.objects.create(name='YouTube', url='http://youtube.com',
     ... favicon='http://youtube.com/favicon.ico')
 
-    Source `name` should be unique
+    `Source.name`:instance_attribute: should be unique
     >>> ripoff = Source.objects.create(name='YouTube', url='http://facetube.com') # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
       ...
@@ -34,8 +37,8 @@ class Video(models.Model):
     >>> video.title = 'The Art of FLIGHT'
     >>> video.save()
 
-    Add source
-    >>> youtube = Source.objects.create(name='YouTube', url='http://youtube.com')
+    Add `Source`
+    >>> youtube = Source.objects.create(name='Youtube', url='http://youtube.com')
     >>> video.source = youtube
 
     Set thumbnail
@@ -69,11 +72,11 @@ class Thumbnail(models.Model):
     >>> thumb = Thumbnail.objects.create(video=video, url='http://i2.ytimg.com/vi/kh29_SERH0Y/0.jpg',
     ... width=480, height=360)
 
-    Default to `web` type
+    Default to 'web' type
     >>> thumb.type
     u'web'
 
-    A video can have multiple thumbnails
+    A `Video` can have multiple thumbnails
     >>> mobile_thumb = Thumbnail.objects.create(video=video, url='http://i2.ytimg.com/vi/kh29_SERH0Y/2.jpg',
     ... width=120, height=90, type='mobile')
     >>> Video.objects.get(url=video.url).thumbnails.all()
@@ -95,7 +98,7 @@ class User(auth_models.User):
     User object. Extends `django.contrib.auth.User`.
     As a result, we get username, email, id and password (unused) fields.
 
-    Only required field is `username`
+    Only required field is `User.username`:instance_attribute:
     >>> user = User.objects.create(username='bender')
 
     Which, of course, is required to be unique
@@ -104,6 +107,7 @@ class User(auth_models.User):
       ...
     IntegrityError: duplicate key value violates unique constraint "auth_user_username_key"
     '''
+
     videos = models.ManyToManyField(Video, through='UserVideo')
     follows = models.ManyToManyField('self', symmetrical=False)
 
@@ -141,6 +145,19 @@ class User(auth_models.User):
         return user_video
 
     def like_video(self, video, timestamp=datetime.utcnow()):
+        '''
+        Like a video. Creates an association between `User` and `Video` objects (if one doesn't exist already).
+
+        @type video: `Video` instance
+        @type timestamp: Specify a timestamp - defaults to `datetime.utcnow()`
+        @returns: Updated `UserVideo` association object
+
+        >>> user = User.objects.create(username='birdman')
+        >>> video = Video.objects.create(url='http://www.vimeo.com/24532073')
+        >>> user_video = user.like_video(video)
+        >>> user_video.liked
+        False
+        '''
         return self._create_or_update_video(video, **{'liked': True, 'timestamp': timestamp})
 
     def unlike_video(self, video):
@@ -189,17 +206,14 @@ class UserVideo(models.Model):
                  'saved': self.saved,
                  'saves': UserVideo.objects.filter(video=self.video, saved=True).count() }
 
-
-import unicodedata, re
-from django.template.defaultfilters import stringfilter
-
 def slugify(username, id):
     '''
-	    Normalizes string, converts to lowercase, removes non-alphanumeric characters (including spaces).
-	    Also, checks and appends offset integer to ensure that username is unique.
+    Normalizes string, converts to lowercase, removes non-alphanumeric characters (including spaces).
+    Also, checks and appends offset integer to ensure that username is unique.
     '''
-    username = unicodedata.normalize('NFKD', username).encode('ascii', 'ignore')
-    username = basename = unicode(re.sub('[^0-9a-zA-Z]+', '', username).strip().lower())
+    username = normalize('NFKD', username).encode('ascii', 'ignore')
+    username = basename = unicode(sub('[^0-9a-zA-Z]+', '', username).strip().lower())
+
     counter = 1
     while True:
         try:
@@ -210,17 +224,22 @@ def slugify(username, id):
             break
         username = '%s%d' % (basename, counter)
         counter += 1
+
     return username
+
 slugify.is_safe = True
 slugify = stringfilter(slugify)
+
+# Note that since we are defining a custom User model, these imports and handler
+# definition MUST be done here to avoid circular import issues.
 
 from social_auth.signals import pre_update
 from social_auth.backends.facebook import FacebookBackend
 
-def facebook_extra_values(sender, user, response, details, **kwargs):
+def compose_username(sender, user, response, details, **kwargs):
+    saved = user.username
     fullname = ''.join([user.first_name, user.last_name])
     user.username = response.get('username', slugify(fullname, user.id))
-    return True
+    return saved == user.username
 
-pre_update.connect(facebook_extra_values, sender=FacebookBackend)
-
+pre_update.connect(compose_username, sender=FacebookBackend)
