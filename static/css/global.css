@@ -847,10 +847,17 @@ a.lnk-page-next:hover {
 
 .heart-container {
     position: absolute;
-    margin-left: 37px;
+    margin-left: 50px;
     margin-top: 0px;
 }
-
+.video-liked-info{
+    position:absolute;;
+    font-size:21px;
+    margin-left:36px;
+    margin-top:4px;
+    font-weight:800;
+    color:red;
+}
 .video-delete-button {
     position: absolute;
     margin-left: 0px;
