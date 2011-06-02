@@ -44,38 +44,26 @@ def json_view(f):
         return HttpResponse(json, mimetype='application/json')
     return wrap
 
-@json_view
-def like(request, video_id):
+def do_request(request, video_id, method):
     if not request.user.is_authenticated():
         raise Unauthorized()
     try:
-        return request.user.like_video(Video.objects.get(pk=video_id)).info_view()
+        return getattr(request.user, method)(Video.objects.get(pk=video_id)).info_view()
     except Video.DoesNotExist:
         raise VideoNotFound(video_id)
+
+@json_view
+def like(request, video_id):
+    return do_request(request, video_id, 'like_video')
 
 @json_view
 def unlike(request, video_id):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
-    try:
-        return request.user.unlike_video(Video.objects.get(pk=video_id)).info_view()
-    except Video.DoesNotExist:
-        raise VideoNotFound(video_id)
+    return do_request(request, video_id, 'unlike_video')
 
 @json_view
 def save(request, video_id):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
-    try:
-        return request.user.save_video(Video.objects.get(pk=video_id)).info_view()
-    except Video.DoesNotExist:
-        raise VideoNotFound(video_id)
+    return do_request(request, video_id, 'save_video')
 
 @json_view
 def remove(request, video_id):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
-    try:
-        return request.user.remove_video(Video.objects.get(pk=video_id)).info_view()
-    except Video.DoesNotExist:
-        raise VideoNotFound(video_id)
+    return do_request(request, video_id, 'remove_video')
