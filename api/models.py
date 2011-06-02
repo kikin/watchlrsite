@@ -25,6 +25,8 @@ class Video(models.Model):
     def get_thumbnail(self, type='web'):
         return self.thumbnails.get(type=type)
 
+    def total_likes(self):
+        return UserVideo.objects.filter(video=self, liked=True).count()
 
 class Thumbnail(models.Model):
     video = models.ForeignKey(Video, related_name='thumbnails')
