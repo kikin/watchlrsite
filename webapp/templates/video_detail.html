@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load kikinvideo_tags %}
 {% block content %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
@@ -37,11 +38,9 @@
             <div class="video-info">
                 <div class="video-description">{{ video.description }}</div>
                 <div class="video-saved">
-                    <span class="video-timeago">{{ video.date|timesince }} ago</span>
+                    <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
                     &bull;
                     <a href="{{video.url}}">{{ video.title }}</a>
-                    &bull;
-                    <a data-video-id="{{video.id}}" class="lnk-delete" href="#!/delete">remove</a>
                 </div>
             </div>
 
