@@ -865,8 +865,10 @@ a.lnk-page-next:hover {
 }
 
 .video-buttons {
-    text-align: right;
-    float: right;
-    width: 80px;
+    /*text-align: right;
+    float: right;*/
+    position:absolute;
+    margin-left:720px;
+    width: 110px;
     height: 28px;
 }
