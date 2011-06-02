@@ -20,7 +20,6 @@
                     <img id="facebook-thumbnail" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=small"/>
 					</div>
 					<div id="username-display">
-						<!-- placeholder user info text! -->
 							<div class="primary">
 								{{ user.username }}
 							</div>
@@ -40,20 +39,15 @@
 							Liked<br>videos
 							</div>
 						</div>
-						<!--<div class="profile-vertical-separator" style="left:275px;"></div>
-						<div class="profile-basic-statistics" style="left:290px;width:60px;">
-							190
-							<div class="sub">
-							videos
-							</div>
-						</div>-->
 						<div id="follow-button">Follow</div>
 					</div>
 					<img src="{{ settings.STATIC_URL }}images/profile/delta.png" id="delta-img"/>
 				</div>
 			</div>
 
-    {% load kikinvideo_tags %}
+    <div id="recent-activity-titlebar">
+    {{ user.first_name }}'s Recent Activity
+    </div>
     {% for video in videos %}
         <div id="video-{{video.id}}" class="video-wrapper">
             <div class="video-container">
