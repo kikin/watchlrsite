@@ -1,3 +1,4 @@
+{% load kikinvideo_tags %}
 {% for video in videos %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
@@ -5,7 +6,7 @@
 
             <div class="video-buttons">
                 {% if display_mode == 'saved' %}
-                <a href="#!/remove?vid={{ video.id }}">
+                <a href="#!/remove?vid={{ video.id }}" title="remove">
                     <div class="video-delete-button no-hover"></div>
                 </a>
                 {% endif %}
@@ -15,7 +16,7 @@
                     {{ video.total_likes }}
                 {%  endif %}
                 </div>
-                <a href="#!/like?vid={{ video.id }}">
+                <a href="#!/like?vid={{ video.id }}" title="like">
                 {% if video in user.liked_videos %}
                     <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                 {% else %}
@@ -40,11 +41,15 @@
             <div class="video-info">
                 <div class="video-description">{{ video.description }}</div>
                 <div class="video-saved">
-                    <span class="video-timeago">{{ video.date|timesince }} ago</span>
+                    {% if display_mode == 'saved' %}
+                        <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
+                    {% endif %}
                     &bull;
                     <a href="{{video.url}}">{{ video.title }}</a>
+                    {% if display_mode != 'public_profile' %}
                     &bull;
-                    <a data-video-id="{{video.id}}" class="lnk-delete" href="#!/delete">remove</a>
+                    <a href="#!/remove?vid={{ video.id }}" class="lnk-delete">remove</a>
+                    {% endif %}
                 </div>
             </div>
 
