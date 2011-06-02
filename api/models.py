@@ -172,6 +172,8 @@ class User(auth_models.User):
         >>> user_video = user.like_video(video)
         >>> user_video.liked
         True
+        >>> user_video.saved
+        False
         '''
         return self._create_or_update_video(video, **{'liked': True, 'timestamp': timestamp})
 
@@ -226,7 +228,7 @@ class UserFollowsUser(models.Model):
 class UserVideo(models.Model):
     user = models.ForeignKey(User)
     video = models.ForeignKey(Video)
-    saved = models.BooleanField(default=True, db_index=True)
+    saved = models.BooleanField(default=False, db_index=True)
     saved_timestamp = models.DateTimeField(null=True, db_index=True)
     liked = models.BooleanField(default=False, db_index=True)
     liked_timestamp = models.DateTimeField(null=True, db_index=True)

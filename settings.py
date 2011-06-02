@@ -216,6 +216,6 @@ CELERY_ALWAYS_EAGER = True
 TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'
 
 from logging import basicConfig, DEBUG
-from kikinvideo.api.logconfig import init
+from api.logconfig import init
 init()
 basicConfig(level=DEBUG)
