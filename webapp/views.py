@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
 from kikinvideo import settings
-from kikinvideo.api.models import Video
+#from kikinvideo.api.models import Video
 
 def home(request):
     if request.user.is_authenticated():
@@ -31,14 +31,14 @@ def logout_view(request):
 def liked_video_queue(request):
     if request.user.is_authenticated():
         return render_to_response('content/video_queue.hfrg',
-                                  {'settings': settings, 'videos': request.user.liked_videos()},
+                                  {'display_mode':'liked', 'settings': settings, 'videos': request.user.liked_videos()},
                                   context_instance=RequestContext(request))
 
 
 def saved_video_queue(request):
     if request.user.is_authenticated():
         return render_to_response('content/video_queue.hfrg',
-                                  {'settings': settings, 'videos': request.user.saved_videos()},
+                                  {'display_mode':'saved', 'settings': settings, 'videos': request.user.saved_videos()},
                                   context_instance=RequestContext(request))
 
 
@@ -57,7 +57,7 @@ def video_detail(request):
             try:
                 vid = long(vid_str)
                 video = Video.objects.get(pk=vid)
-                return render_to_response('video_detail.html',{'settings':settings, \
+                return render_to_response('video_detail.html',{'display_mode':'saved', 'settings':settings, \
                                     'video':video}, context_instance=RequestContext(request))
             #in case of uncastable or invalid vid...
             except ValueError:
