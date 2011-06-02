@@ -8,10 +8,13 @@ com.kikin.VideoPanelController = function() {
                 });
     }
 
+    var current_vid = null;
     var LIKED_ICON_CONTAINER_SELECTOR = ".heart-container";
     var LIKED_ICON_ID_PREFIX = "#liked-icon-vid-";
     var LIKED_INFO_CONTAINER_ID_PREFIX = "#video-liked-info-vid-";
     var VIDEO_CONTAINER_ID_PREFIX = "#video-";
+    var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
+    var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
 
     var DELETE_VIDEO_ICON_CONTAINER = ".video-delete-button";
     var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
@@ -65,6 +68,14 @@ com.kikin.VideoPanelController = function() {
             });
         },
         loadPlayer : function(vid) {
+            if(current_vid){
+                $(VIDEO_PLAYER_ID_PREFIX + current_vid).fadeOut(1000);
+            }
+
+            /*remove the 'play' button from the thumb...*/
+            if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
+                    $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
+                }
             var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
             var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
 
@@ -83,11 +94,15 @@ com.kikin.VideoPanelController = function() {
                         function(){
                             video_embed_div.fadeIn(100);
                         });
+            current_vid = vid;
         },
 
         closePlayer : function(vid){
             var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
             video_player_div.fadeOut();
+            if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
+                $(VIDEO_BUTTON_ID_PREFIX + vid).addClass(VIDEO_BUTTON_CLASS)
+            }
         },
 
         handleLike : function(vid){

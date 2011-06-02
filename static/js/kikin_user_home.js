@@ -38,6 +38,10 @@ com.kikin.video.HomeViewController = function() {
 
     var REMOVE_VIDEO_PATH = '/remove';
 
+    var SAVED_QUEUE_PATH = '/saved_queue';
+
+    var LIKED_QUEUE_PATH = '/liked_queue';
+
     var profile_options_panel_visible = false;
 
     var activeTab = TAB_SELECTORS.queue;
@@ -108,12 +112,10 @@ com.kikin.video.HomeViewController = function() {
          * */
         bindEvents : function(context) {
             $(TAB_SELECTORS.queue).click(function(event) {
-                videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                 context.swapTab(TAB_SELECTORS.queue);
             });
 
             $(TAB_SELECTORS.likes).click(function(event) {
-                videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
                 context.swapTab(TAB_SELECTORS.likes);
             });
 
@@ -168,6 +170,10 @@ com.kikin.video.HomeViewController = function() {
             }
             if(url_content.path == REMOVE_VIDEO_PATH){
                 videoPanelController.removeVideo(url_content.params.vid);
+            }if(url_content.path == SAVED_QUEUE_PATH){
+                    videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+            }if(url_content.path == LIKED_QUEUE_PATH){
+                    videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
             }
         }
     }
