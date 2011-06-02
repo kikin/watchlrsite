@@ -866,10 +866,23 @@ a.lnk-page-next:hover {
 }
 
 .video-buttons {
-    /*text-align: right;
-    float: right;*/
     position:absolute;
     margin-left:720px;
     width: 110px;
     height: 28px;
+}
+.save-video-button{
+    position:absolute;
+    margin-left:0px;
+    margin-top:0px;
+}
+.save-video-button.no-hover{
+    background-image:url(/static/images/save_video.png);
+    width:26px;
+    height:26px;
+}
+.save-video-button.hovered{
+    background-image:url(/static/images/save_video_maroon.png);
+    width:26px;
+    height:26px;
 }
