@@ -8,7 +8,7 @@ sys.path.append(os.getcwd())
 #(perhaps we want to set some environment
 #variable on dev, look for it with os.environ
 #and have this AUTOMATICALLY set to dev if found?)
-active_db = 'local_mysql'
+active_db = 'local_postgresql'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -199,7 +199,6 @@ SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
 import djcelery
-
 djcelery.setup_loader()
 
 # broker settings
@@ -215,3 +214,8 @@ CELERY_DISABLE_RATE_LIMITS = True
 
 CELERY_ALWAYS_EAGER = True
 TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'
+
+from logging import basicConfig, DEBUG
+from kikinvideo.api.logconfig import init
+init()
+basicConfig(level=DEBUG)
