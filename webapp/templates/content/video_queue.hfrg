@@ -11,7 +11,9 @@
                     <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}">
                 {% endif %}
                     </div>
-                        <span id="video-liked-info-vid-{{ video.id }}"></span>
+                        <span id="video-liked-info-vid-{{ video.id }}">
+                            {{ video.total_likes }}
+                        </span>
 
                 </a>
                 <a href="#!/remove?vid={{ video.id }}">
