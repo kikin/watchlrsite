@@ -9,6 +9,10 @@ com.kikin.VideoPanelController = function() {
     }
 
     var LIKED_ICON_CONTAINER_SELECTOR = ".heart-container";
+    var LIKED_ICON_ID_PREFIX = "#liked-icon-vid-";
+    var LIKED_INFO_CONTAINER_ID_PREFIX = "#video-liked-info-vid-";
+    var VIDEO_CONTAINER_ID_PREFIX = "#video-";
+
     var DELETE_VIDEO_ICON_CONTAINER = ".video-delete-button";
     var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
             '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
@@ -39,25 +43,6 @@ com.kikin.VideoPanelController = function() {
                             $(this).addClass('no-hover');
                     });
 
-                    $(this).click(function(event) {
-
-                        if ($(this).hasClass('hovered'))
-                            $(this).removeClass('hovered');
-                        if ($(this).hasClass('no-hover'))
-                            $(this).removeClass('no-hover');
-
-                        /*
-                         *   INSERT LOGIC HERE TO "like" videos
-                         *   -- e.g. $.get with return check
-                         * */
-
-                        if (!$(this).hasClass('liked'))
-                            $(this).addClass('liked');
-                        else {
-                            if ($(this).hasClass('liked'))
-                                $(this).removeClass('liked');
-                        }
-                    });
                 });
 
                 $(DELETE_VIDEO_ICON_CONTAINER).each(function() {
@@ -75,25 +60,6 @@ com.kikin.VideoPanelController = function() {
                             $(this).addClass('no-hover');
                     });
 
-                    $(this).click(function(event) {
-
-                        if ($(this).hasClass('hovered'))
-                            $(this).removeClass('hovered');
-                        if ($(this).hasClass('no-hover'))
-                            $(this).removeClass('no-hover');
-
-                        /*
-                         *   INSERT LOGIC HERE TO "like" videos
-                         *   -- e.g. $.get with return check
-                         * */
-
-                        if (!$(this).hasClass('clicked'))
-                            $(this).addClass('clicked');
-                        else {
-                            if ($(this).hasClass('clicked'))
-                                $(this).removeClass('clicked');
-                        }
-                    });
                 });
 
             });
@@ -101,12 +67,17 @@ com.kikin.VideoPanelController = function() {
         loadPlayer : function(vid) {
             var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
             var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
+
             /*for nice expando effect...*/
             var video_player_target_width = '100%';
             var video_player_target_height = video_player_div.height();
+
             video_player_div.css({width:0, height:0});
+
             video_embed_div.hide();
+
             video_player_div.fadeIn(100);
+
             video_player_div.animate({width:video_player_target_width,
                         height:video_player_target_height}, 500,
                         function(){
@@ -117,6 +88,37 @@ com.kikin.VideoPanelController = function() {
         closePlayer : function(vid){
             var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
             video_player_div.fadeOut();
+        },
+
+        handleLike : function(vid){
+            $.get('/api/like/'+vid, function(data){
+               var video_properties = data.result;
+               if(video_properties){
+                    if(video_properties.liked){
+                        //update the icon...
+                        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
+                            if(data.result.liked){
+                                $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
+                                if(data){
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
+                                    });
+                                }
+                            }
+                        }
+                    }
+               }
+            });
+        },
+
+        removeVideo : function(vid){
+            $.get('/api/remove/'+vid, function(data){
+                $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(800, function(){
+                    $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
+                });
+            });            
         }
     };
 
