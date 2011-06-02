@@ -60,6 +60,9 @@
                 <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
 
                 <div class="video-buttons">
+                    <a href="#!/save_video?vid={{ video.id }}" title="add to my queue">
+                        <div class="save-video-button no-hover" id="save-video-button-vid-{{ video.id }}"></div>
+                    </a>
                     <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                     {% if video.total_likes != 0 %}
                         {{ video.total_likes }}
