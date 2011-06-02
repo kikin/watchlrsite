@@ -1,10 +1,9 @@
 from django.conf.urls.defaults import patterns, include, url
-from kikinvideo import settings
 
-urlpatterns = patterns('api',
-#    (r'^auth/profile', 'views.authenticate'),
-     (r'^list', 'views.list'),
-#    (r'^save', 'views.save'),
-#    (r'remove', 'views.remove'),
-#    (r'update', 'views.update'),
+urlpatterns = patterns(
+    'api',
+    (r'^like/(?P<video_id>[0-9]+)$', 'views.like'),
+    (r'^unlike/(?P<video_id>[0-9]+)$', 'views.unlike'),
+    (r'^save/(?P<video_id>[0-9]+)$', 'views.save'),
+    (r'^remove/(?P<video_id>[0-9]+)$', 'views.remove'),
 )

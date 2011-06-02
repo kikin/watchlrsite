@@ -1,6 +1,7 @@
 # Django settings for video project.
 
 import sys, os
+
 sys.path.append(os.getcwd())
 
 #if on production server, change to dev
@@ -19,34 +20,34 @@ ADMINS = (
 MANAGERS = ADMINS
 
 database_configurations = {
-	'dev': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME': 'kikinvideo',
-		'USER': 'webapp',
-		'PASSWORD': 'savemore',
-		'HOST': 'dev-video.kikin.com',
-		'PORT': '',
-		},
-	'local_postgresql': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME': 'kikinvideo',
-		'USER': 'webapp',
-		'PASSWORD': 'savemore',
-		'HOST': '',
-		'PORT': '',
-		},
-	'local_mysql':{
-		'ENGINE': 'django.db.backends.mysql',
-		'NAME': 'kikinvideo',
-		'USER': 'webapp',
-		'PASSWORD': 'savemore',
-		'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
-		'PORT': '',
-		}
+    'dev': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'kikinvideo',
+        'USER': 'webapp',
+        'PASSWORD': 'savemore',
+        'HOST': 'dev-video.kikin.com',
+        'PORT': '',
+        },
+    'local_postgresql': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'kikinvideo',
+        'USER': 'webapp',
+        'PASSWORD': 'savemore',
+        'HOST': '',
+        'PORT': '',
+        },
+    'local_mysql': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kikinvideo',
+        'USER': 'webapp',
+        'PASSWORD': 'savemore',
+        'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+        'PORT': '',
+        }
 }
 
 DATABASES = { 'default': database_configurations[active_db] }
-	
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -99,7 +100,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-	os.path.abspath('.') + '/static/',
+    os.path.abspath('.') + '/static/',
 )
 
 # List of finder classes that know how to find static files in
@@ -107,7 +108,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -117,18 +118,18 @@ SECRET_KEY = 'ejgs5a_i-ycbtj0(z$u-s*4src7k79jrl-0!y_eo*ez^z=&%y$'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #'django.template.loaders.eggs.Loader',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-	'django.core.context_processors.request',
-	'django.contrib.auth.context_processors.auth',
-	'django.core.context_processors.auth',
+    'django.core.context_processors.request',
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.auth',
 )
 
 AUTHENTICATION_BACKENDS = (
-	'social_auth.backends.facebook.FacebookBackend',
-	'django.contrib.auth.backends.ModelBackend',
+    'social_auth.backends.facebook.FacebookBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -141,7 +142,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'kikinvideo.urls'
 
-TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates' ,)
+TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates',)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -155,8 +156,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'social_auth',
-    'webapp',
-    'api',
+    'kikinvideo.webapp',
+    'kikinvideo.api',
     'djkombu',
 )
 
@@ -179,8 +180,8 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-        },
-    }
+            },
+        }
 }
 
 AUTH_PROFILE_MODULE = 'api.User'
@@ -192,10 +193,13 @@ FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/'
 
+SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
+
 # broker transport
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
 import djcelery
+
 djcelery.setup_loader()
 
 # broker settings
@@ -204,6 +208,10 @@ BROKER_PORT = 5672
 BROKER_USER = "guest"
 BROKER_PASSWORD = "guest"
 BROKER_VHOST = "/"
+
+# No tasks currently produce results or use rate limits
+CELERY_IGNORE_RESULT = True
+CELERY_DISABLE_RATE_LIMITS = True
 
 CELERY_ALWAYS_EAGER = True
 TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'

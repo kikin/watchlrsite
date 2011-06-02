@@ -3,77 +3,83 @@
         height: 195px;
         width: 460px;
         border: 2px solid;
-        position:fixed;
+        position: fixed;
         border-radius: 10px 10px 10px 10px;
         -moz-border-radius: 10px 10px 10px 10px;
         -webkit-border-radius: 10px 10px 10px 10px;
         background-color: #FFFFFF;
         border-color: #707070;
-        z-index:100;
-        top: 66px;
+        z-index: 100;
+        top: 210px;
         left: 463px;
-        text-align:left;
+        text-align: left;
     }
 
-    #fb-username{
-        position:absolute;
-        margin-left:135px;
-        margin-top:16px;
-        font-size:13px;
+    #fb-username {
+        position: absolute;
+        margin-left: 135px;
+        margin-top: 16px;
+        font-size: 13px;
     }
 
-    #profile-edit-panel button{
-        position:absolute;
-        width:70px;
-        margin-top:155px;
-    }
-    #profile-edit-panel .cancel-button{
-        margin-left:285px;
+    #profile-edit-panel button {
+        position: absolute;
+        width: 70px;
+        margin-top: 155px;
     }
 
-    #profile-edit-panel .save-button{
-        margin-left:370px;
+    #profile-edit-panel .cancel-button {
+        margin-left: 285px;
     }
 
-    #profile-edit-panel #facebook-thumbnail{
-        position:absolute;
-        margin-top:20px;
-        margin-left:16px;
+    #profile-edit-panel .save-button {
+        margin-left: 370px;
     }
 
-    #profile-edit-panel #profile-input-container{
-        position:absolute;
-        margin-top:35px;
-        margin-left:136px;
+    #profile-edit-panel #facebook-thumbnail {
+        position: absolute;
+        margin-top: 20px;
+        margin-left: 16px;
     }
 
-    #profile-edit-panel .profile-edit-input{
-        width:210px;
+    #profile-edit-panel #profile-input-container {
+        position: absolute;
+        margin-top: 35px;
+        margin-left: 136px;
     }
 
-    #profile-edit-panel #username-input-container{
-        position:absolute;
-        margin-top:12px;
+    #profile-edit-panel .profile-edit-input {
+        width: 210px;
     }
-    #profile-edit-panel #email-input-container{
-        position:absolute;
-        margin-top:50px;
+
+    #profile-edit-panel #username-input-container {
+        position: absolute;
+        margin-top: 12px;
     }
-    #profile-edit-panel .profile-edit-input{
-        position:absolute;
-        margin-left:80px;
+
+    #profile-edit-panel #email-input-container {
+        position: absolute;
+        margin-top: 50px;
     }
-    #profile-edit-panel .profile-input-label{
-        position:absolute;
+
+    #profile-edit-panel .profile-edit-input {
+        position: absolute;
+        margin-left: 80px;
     }
-    #share-likes-span{
-        position:absolute;
-        margin-top:130px;
-        margin-left:135px;
-        font-size:12.5px;
+
+    #profile-edit-panel .profile-input-label {
+        position: absolute;
     }
-    #share-likes-span input{
-        margin-left:10px;
+
+    #share-likes-span {
+        position: absolute;
+        margin-top: 130px;
+        margin-left: 135px;
+        font-size: 12.5px;
+    }
+
+    #share-likes-span input {
+        margin-left: 10px;
     }
 
     #profile-view-close {
@@ -102,6 +108,7 @@
     <a id="profile-view-close" title="Close">X</a>
     <span id="fb-username">Edit Profile:</span>
     <img id="facebook-thumbnail" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=normal"/>
+
     <div id="profile-input-container">
         <div id='username-input-container'>
             <span id="username-input-label" class="profile-input-label">Username:</span>
