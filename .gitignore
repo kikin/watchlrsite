@@ -2,3 +2,4 @@
 *.swp
 .idea
 error.log
+scripts/*

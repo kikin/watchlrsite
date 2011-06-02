@@ -1,11 +1,25 @@
 {% for video in videos %}
-    <div id="video_{{video.id}}" class="video-wrapper">
-        <div class="video-container" id="vc{{ videos.id }}">
+    <div id="video-{{video.id}}" class="video-wrapper">
+        <div class="video-container">
             <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
 
             <div class="video-buttons">
-                <div class="heart-container no-hover"></div>
-                <div class="video-delete-button no-hover"></div>
+                <a href="#!/remove?vid={{ video.id }}">
+                    <div class="video-delete-button no-hover"></div>
+                </a>
+
+                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                {% if video.total_likes != 0 %}
+                    {{ video.total_likes }}
+                {%  endif %}
+                </div>
+                <a href="#!/like?vid={{ video.id }}">
+                {% if video in user.liked_videos %}
+                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                {% else %}
+                    <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                {% endif %}
+                </a>
             </div>
             <a href="#!/player?vid={{ video.id }}">
                 <div class="video-image" id="video-{{ video.id }}">
