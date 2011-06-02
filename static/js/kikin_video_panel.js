@@ -1,4 +1,4 @@
-com.kikin.VideoPanelController = function() {
+com.kikin.VideoPanelController = function(parent) {
 
     function _stylizeVideoTitles() {
         Cufon.replace('h3.video-title, .section-title, h4', {
@@ -24,6 +24,7 @@ com.kikin.VideoPanelController = function() {
             '</div>';
     var VIDEO_PLAYER_ID_PREFIX = "#video-player-";
     var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
+
     return {
         populatePanel : function(panel_container_selector, contentSource, request_params) {
             $(panel_container_selector).empty();
@@ -167,6 +168,12 @@ com.kikin.VideoPanelController = function() {
                                                 $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
                                             }
                                         });
+
+                                        if(activeTab == TAB_SELECTORS.likes){
+                                            $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
+                                                    $(VIDEO_CONTAINER_ID_PREFIX).remove();
+                                            });
+                                        }
                                     }
                                 }
                             }
@@ -174,6 +181,12 @@ com.kikin.VideoPanelController = function() {
                    }
                 });
             }
+        },
+
+        handleSave : function(vid){
+             $.get('/api/save?vid='+vid, function(data){
+                    
+             });
         },
 
         removeVideo : function(vid){
