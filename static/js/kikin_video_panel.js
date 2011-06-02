@@ -10,6 +10,7 @@ com.kikin.VideoPanelController = function() {
 
     var LIKED_ICON_CONTAINER_SELECTOR = ".heart-container";
     var LIKED_ICON_ID_PREFIX = "#liked-icon-vid-";
+    var LIKED_INFO_CONTAINER_ID_PREFIX = "#video-liked-info-vid-";
     var VIDEO_CONTAINER_ID_PREFIX = "#video-";
 
     var DELETE_VIDEO_ICON_CONTAINER = ".video-delete-button";
@@ -96,7 +97,16 @@ com.kikin.VideoPanelController = function() {
                     if(video_properties.liked){
                         //update the icon...
                         if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
-                            $(LIKED_ICON_ID_PREFIX+vid).addClass('liked')
+                            if(data.result.liked){
+                                $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
+                                if(data){
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
+                                    });
+                                }
+                            }
                         }
                     }
                }
