@@ -69,7 +69,7 @@ def public_profile(request, username):
     try:
         user = User.objects.get(username=username)
         return render_to_response('profile.html', {'user':user, 'settings':settings,\
-                                                   'videos':user.liked_videos()}, context_instance=RequestContext(request))
+                                                   'videos':user.saved_videos()}, context_instance=RequestContext(request))
     except Exception, e:
         return HttpResponseNotFound('')
     
