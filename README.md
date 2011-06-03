@@ -67,7 +67,7 @@ Environment
 
 + DBMS:
   The production server is running
-  Postgresql 9, though provided you only touch the database
+  MySQL 5, though provided you only touch the database
   through Django's ORM layer, you can use any database
   management system you please for testing.
 
@@ -89,18 +89,18 @@ to the key of the corresponding nested config dict in the database_configuration
 
 i.e.:
 
-    active_db = 'local_test'
+    active_db = 'local'
 
     database_configurations = {
         'dev': {
-          'ENGINE': 'django.db.backends.postgresql_psycopg2',
+          'ENGINE': 'django.db.backends.mysql',
           'NAME': 'kikinvideo',
           'USER': 'webapp',
           'PASSWORD': 'savemore',
           'HOST': 'dev-video.kikin.com',
           'PORT': '',
         },
-          'local_test':{
+          'local':{
           'ENGINE': 'django.db.backends.mysql',
           'NAME': 'kikinvideo',
           'USER': 'webapp',
@@ -111,9 +111,6 @@ i.e.:
     }
 
     DATABASES = { 'default': database_configurations[active_db] }
-
-...perhaps there's a more correct way to do this, but
-for now the solution above works fine.
 
 Before you can get to work, you will need to run
  
