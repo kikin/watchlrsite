@@ -109,7 +109,7 @@ com.kikin.video.HomeViewController = function() {
     function handleProfileSave(){
         if(currentUser){
 
-            var preferences = {'syndicate' : _checkboxValueInt($(SYNDICATE_LIKES_CHECKBOX_ID))};
+            var preferences = '{"syndicate" :'+_checkboxValueInt($(SYNDICATE_LIKES_CHECKBOX_ID))+'}';
             var username = $(PROFILE_EDIT_USERNAME_INPUT).val();
             var email = $(PROFILE_EDIT_EMAIL_INPUT).val();
 
