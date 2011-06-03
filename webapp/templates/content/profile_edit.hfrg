@@ -11,7 +11,7 @@
         border-color: #707070;
         z-index: 100;
         top: 210px;
-        left: 463px;
+        left: 400px;
         text-align: left;
     }
 
@@ -123,6 +123,6 @@
         Automatically update Facebook when I like videos
         <input type='checkbox' id="share-likes-checkbox"/>
     </span>
-    <button class="cancel-button">Cancel</button>
-    <button class="save-button">Save</button>
+    <a href="/#!/cancel_profile_edit"><button class="cancel-button">Cancel</button></a>
+    <a href="/#!/save_profile"><button class="save-button">Save</button></a>
 </div>

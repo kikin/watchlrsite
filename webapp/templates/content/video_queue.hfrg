@@ -1,4 +1,32 @@
 {% load kikinvideo_tags %}
+
+
+{% if videos|length_is:"0"%}
+    <div class="videoList">
+        <div class="loading" style="display: none;"> loading... </div>
+        <div class="videoListItems"></div>
+        <a class="lnk-page-next" href="#!/next" style="display: none;">load more videos</a>
+        <br>
+
+        {% if display_mode == "liked" %}
+            <div class="featureTxt" style="width: 600px;">
+            <h4>
+                <p>When you find a video you like, click the heart icon (like the one below). Your liked videos appear on your public profile so your friends and others can enjoy them too.</p>
+                <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_likes2.png" style="width: 600px; padding-left: 0px;">
+            </div>
+        {% endif %}
+        {% if display_mode ==  "saved"%}
+            <div class="featureTxt" style="width: 600px;">
+            <h4>
+                <p>Place your mouse on any video, on any webpage and kikin will add a "Save For Later" button.</p>
+                <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="width: 600px; padding-left: 0px;">
+            </div>
+        {% endif %}
+
+        </div>
+    </div>
+{% endif %}
+
 {% for video in videos %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
