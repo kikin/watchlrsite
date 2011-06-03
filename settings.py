@@ -4,39 +4,25 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-#if on production server, change to dev
-#(perhaps we want to set some environment
-#variable on dev, look for it with os.environ
-#and have this AUTOMATICALLY set to dev if found?)
-active_db = 'local_mysql'
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Sandesh Devaraju', 'sandesh@kikin.com')
+    ('Sandesh Devaraju', 'sandesh@kikin.com'),
 )
 
 MANAGERS = ADMINS
 
 database_configurations = {
     'dev': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'kikinvideo',
-        'USER': 'webapp',
-        'PASSWORD': 'savemore',
-        'HOST': 'dev-video.kikin.com',
-        'PORT': '',
-        },
-    'local_postgresql': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
         'HOST': '',
         'PORT': '',
         },
-    'local_mysql': {
+    'local': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'kikinvideo',
         'USER': 'webapp',
@@ -45,6 +31,9 @@ database_configurations = {
         'PORT': '',
         }
 }
+
+# Picks up database configuration from environment variable
+active_db = os.environ.get('VIDEO_ENV', 'local')
 
 DATABASES = { 'default': database_configurations[active_db] }
 
