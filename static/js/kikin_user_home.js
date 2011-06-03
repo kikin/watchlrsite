@@ -1,27 +1,3 @@
-//the path, in #! url, that indicates video player should be opened
-var VIDEO_PLAYER_PATH = '/player';
-
-var VIDEO_PLAYER_CLOSE_PATH = '/close_player';
-
-var LIKE_VIDEO_PATH = '/like';
-
-var REMOVE_VIDEO_PATH = '/remove';
-
-var SAVED_QUEUE_PATH = '/saved_queue';
-
-var LIKED_QUEUE_PATH = '/liked_queue';
-
-var PROFILE_EDIT_PANEL_OPEN_PATH = '/edit_profile';
-
-var PROFILE_SAVE_PATH = '/save_profile';
-
-var TAB_SELECTORS = {
-    queue : '.tabQueue',
-    likes : '.tabLikes'
-};
-
-var activeTab;
-
 /**
 * Function takes full #! url and returns the path + params
 * of this URL in a 2-element hash.
@@ -141,6 +117,20 @@ com.kikin.video.HomeViewController = function() {
 
 
     function handleProfileEditPanelOpen(){
+
+        $('body').prepend(GREYED_BACKGROUND_ELEMENT);
+
+        $.get(PROFILE_EDIT_URL, function(data) {
+            $('body').prepend(data)
+            $(PROFILE_EDIT_CLOSE_BUTTON_SELECTOR).bind('click', function(event) {
+                $(PROFILE_EDIT_PANEL_SELECTOR).remove();
+                $(GREYED_BACKGROUND_SELECTOR).remove();
+            });
+            $(PROFILE_EDIT_CANCEL_BUTTON_SELECTOR).bind('click', function(event) {
+                $(PROFILE_EDIT_PANEL_SELECTOR).remove();
+                $(GREYED_BACKGROUND_SELECTOR).remove();
+            });
+        });
         $.get('/api/auth/profile', function(data){
             if(data && data.result){
                 currentUser = data.result;
@@ -169,36 +159,21 @@ com.kikin.video.HomeViewController = function() {
         }
     };
 
+    function swapTab(selector) {
+        if (activeTab != selector) {
+            $(activeTab).removeClass('selected');
+            $(selector).addClass('selected');
+            activeTab = selector;
+        }
+    };
+
     return {
         bindToUI : function() {
             this.bindEvents(this);
             videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
         },
 
-        swapTab : function(selector) {
-            if (activeTab != selector) {
-                $(activeTab).removeClass('selected');
-                $(selector).addClass('selected');
-                activeTab = selector;
-            }
-        },
-
-        /*I don't like the idea of passing the (parent/containing)
-         * context into this function, but it seems necessary because,
-         * if we don't, the 'this' refs within the click handlers
-         * point at the selectors for the objects (i.e. jQuery DOM element objs
-         * ...because the functions are being invoked by jQuery event handler)
-         * and not instances of com.kikin.video.HomeViewController.
-         * Perhaps there is a better way...
-         * */
-        bindEvents : function(context) {
-            $(TAB_SELECTORS.queue).click(function(event) {
-                context.swapTab(TAB_SELECTORS.queue);
-            });
-
-            $(TAB_SELECTORS.likes).click(function(event) {
-                context.swapTab(TAB_SELECTORS.likes);
-            });
+        bindEvents : function() {
 
             $(PROFILE_OPTIONS_BUTTON_SELECTOR).click(function(event) {
                 if (!profile_options_panel_visible) {
@@ -209,23 +184,6 @@ com.kikin.video.HomeViewController = function() {
                     $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
                     profile_options_panel_visible = true;
                 }
-            });
-
-            $(PROFILE_EDIT_OPEN_BUTTON_SELECTOR).click(function(event) {
-
-                $('body').prepend(GREYED_BACKGROUND_ELEMENT);
-
-                $.get(PROFILE_EDIT_URL, function(data) {
-                    $('body').prepend(data)
-                    $(PROFILE_EDIT_CLOSE_BUTTON_SELECTOR).bind('click', function(event) {
-                        $(PROFILE_EDIT_PANEL_SELECTOR).remove();
-                        $(GREYED_BACKGROUND_SELECTOR).remove();
-                    });
-                    $(PROFILE_EDIT_CANCEL_BUTTON_SELECTOR).bind('click', function(event) {
-                        $(PROFILE_EDIT_PANEL_SELECTOR).remove();
-                        $(GREYED_BACKGROUND_SELECTOR).remove();
-                    });
-                });
             });
 
             //hide the panel on click outside of
@@ -256,8 +214,10 @@ com.kikin.video.HomeViewController = function() {
             }if(url_content.path == REMOVE_VIDEO_PATH){
                 videoPanelController.removeVideo(url_content.params.vid);
             }if(url_content.path == SAVED_QUEUE_PATH){
+                swapTab(TAB_SELECTORS.queue);
                 videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
             }if(url_content.path == LIKED_QUEUE_PATH){
+                swapTab(TAB_SELECTORS.likes);
                 videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
             }if(url_content.path == PROFILE_EDIT_PANEL_OPEN_PATH){
                 handleProfileEditPanelOpen();
@@ -280,7 +240,6 @@ $(document).ready(
             $('#myConnectionsNot').show();
 
             //in case we're refreshing...
-            setTimeout(function(){homeViewController.onHashChange(location.hash);},
-                    800);
+            homeViewController.onHashChange(location.hash);
         }
 );

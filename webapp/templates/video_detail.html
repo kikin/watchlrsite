@@ -11,7 +11,7 @@
                     {{ video.total_likes }}
                 {%  endif %}
                 </div>
-                <a>
+                <a href="/#!/like?vid={{ video.id }}" title="like">
                 {% if video in user.liked_videos %}
                     <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                 {% else %}
@@ -19,7 +19,7 @@
                 {% endif %}
                 </a>
             </div>
-            <a href="#!/player?vid={{ video.id }}">
+            <a href="/#!/player?vid={{ video.id }}">
                 <div class="video-image" id="video-{{ video.id }}">
                     <div class="video-thumb-wrapper">
                         <img class="video-thumbnail" src="{{video.get_thumbnail.url}}"
