@@ -1,5 +1,5 @@
 //project namesapce...
-var com = { kikin : {video : {} } };
+var com = { kikin : {video : {'util':{}}}};
 
 //the path, in #! url, that indicates video player should be opened
 var VIDEO_PLAYER_PATH = '/player';

@@ -69,14 +69,13 @@
             <div class="video-info">
                 <div class="video-description">{{ video.description }}</div>
                 <div class="video-saved">
-                    {% if display_mode == 'saved' %}
-                        <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
-                    {% endif %}
                     &bull;
-                    <a href="{{video.url}}">{{ video.title }}</a>
+                    <a href="{{video.url}}">source</a>
                     {% if display_mode != 'public_profile' %}
                     &bull;
-                    <a href="#!/remove?vid={{ video.id }}" class="lnk-delete">remove</a>
+                    {% endif %}
+                    {% if display_mode == 'saved' %}
+                        <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
                     {% endif %}
                 </div>
             </div>
