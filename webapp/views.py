@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
 from kikinvideo import settings
-from kikinvideo.api.models import Video, User
+from kikinvideo.api.models import Video, User, Preference
 
 def home(request):
     if request.user.is_authenticated():
@@ -18,8 +18,9 @@ def profile(request):
 
 
 def profile_edit(request):
-    return render_to_response('content/profile_edit.hfrg', {'settings': settings, 'user': request.user},
-                              context_instance=RequestContext(request))
+    syndicate = Preference.objects.get(user=request.user, name="syndicate").value
+    return render_to_response('content/profile_edit.hfrg', {'settings': settings, 'user': request.user,\
+                              'syndicate_likes':syndicate}, context_instance=RequestContext(request))
 
 
 def logout_view(request):
@@ -67,7 +68,7 @@ def video_detail(request):
 def public_profile(request, username):
     try:
         user = User.objects.get(username=username)
-        return render_to_response('profile.html', {'user':user, 'settings':settings, \
+        return render_to_response('profile.html', {'user':user, 'settings':settings,\
                                                    'videos':user.liked_videos()}, context_instance=RequestContext(request))
     except Exception, e:
         return HttpResponseNotFound('')

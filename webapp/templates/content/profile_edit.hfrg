@@ -121,7 +121,11 @@
     </div>
     <span id="share-likes-span">
         Automatically update Facebook when I like videos
-        <input type='checkbox' id="share-likes-checkbox"/>
+        {% if syndicate_likes == 1 %}
+        <input type='checkbox' id="share-likes-checkbox" checked/>
+        {% else %}
+         <input type='checkbox' id="share-likes-checkbox"/>
+        {% endif %}
     </span>
     <a href="/#!/cancel_profile_edit"><button class="cancel-button">Cancel</button></a>
     <a href="/#!/save_profile"><button class="save-button">Save</button></a>
