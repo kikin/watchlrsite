@@ -111,8 +111,8 @@ com.kikin.VideoPanelController = function(parent) {
             if(current_vid){
                 $(VIDEO_PLAYER_ID_PREFIX + current_vid).fadeOut(1000);
                 if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
-                $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
-            }
+                    $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
+                }
             }
 
             /*remove the 'play' button from the thumb...*/
@@ -137,6 +137,10 @@ com.kikin.VideoPanelController = function(parent) {
                         function(){
                             video_embed_div.fadeIn(100);
                         });
+                                        //scroll to the video...
+            $('html, body').animate({
+                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-80
+                    }, 1000);
             current_vid = vid;
         },
 
