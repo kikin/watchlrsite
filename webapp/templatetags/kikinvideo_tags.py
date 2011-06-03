@@ -67,3 +67,7 @@ def possessive(value):
     if value[-1] == 's':
         return "%s'" % value
     return "%s's" % value
+
+@register.filter
+def source_icon(video):
+    return video.source.favicon
