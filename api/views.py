@@ -120,12 +120,25 @@ def like_by_url(request):
 
     querydict = request.GET if request.method == 'GET' else request.POST
     try:
-        return as_dict(request.user.like_video(Video.objects.get(url=querydict['url'])))
+        normalized_url = url_fix(querydict['url'])
+    except MalformedURLException:
+        raise BadRequest('Malformed URL:%s' % url)
+
+    try:
+        user_video = request.user.like_video(Video.objects.get(url=normalized_url))
     except KeyError:
         raise BadRequest('Parameter:url missing')
     except Video.DoesNotExist:
-        # TODO: Fix this!
-        raise VideoNotFound(url)
+        video = Video(url=normalized_url)
+        video.save()
+
+        user_video = UserVideo(user=request.user, video=video, host=request.get_host(), liked=True)
+        user_video.save()
+
+        # Fetch video metadata in background
+        fetch.delay(request.user.id, normalized_url, user_video.host)
+
+    return as_dict(user_video)
 
 
 @json_view
@@ -144,7 +157,12 @@ def unlike_by_url(request):
 
     querydict = request.GET if request.method == 'GET' else request.POST
     try:
-        return as_dict(request.user.unlike_video(Video.objects.get(url=querydict['url'])))
+        normalized_url = url_fix(querydict['url'])
+    except MalformedURLException:
+        raise BadRequest('Malformed URL:%s' % url)
+
+    try:
+        return as_dict(request.user.unlike_video(Video.objects.get(url=normalized_url)))
     except KeyError:
         raise BadRequest('Parameter:url missing')
     except Video.DoesNotExist:
@@ -183,19 +201,17 @@ def add(request):
         video['saved'] = True
 
     except UserVideo.DoesNotExist:
-        host = request.get_host()
-
         try:
             video = Video.objects.get(url=normalized_url)
         except Video.DoesNotExist:
             video = Video(url=normalized_url)
             video.save()
 
-        user_video = UserVideo(user=request.user, video=video, host=host, saved=True)
+        user_video = UserVideo(user=request.user, video=video, host=request.get_host(), saved=True)
         user_video.save()
 
     # Fetch video metadata in background
-    fetch.delay(request.user.id, normalized_url, host)
+    fetch.delay(request.user.id, normalized_url, user_video.host)
 
     info = as_dict(user_video)
     info.update({'first': request.user.saved_videos().count() == 1,
