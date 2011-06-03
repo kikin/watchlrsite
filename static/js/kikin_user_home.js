@@ -40,38 +40,6 @@ if ((url_content.search('\\?') != -1)){
 com.kikin.video.HomeViewController = function() {
     //selectors
 
-    var PROFILE_OPTIONS_PANEL_SELECTOR = '#options';
-
-    var PROFILE_OPTIONS_BUTTON_SELECTOR = '#header-right';
-
-    var PROFILE_NAME_DISPLAY = ".profileName";
-
-    var VIDEO_PANEL_SELECTOR = '#videoList';
-
-    var LIKED_VIDEOS_CONTENT_URL = '/content/liked_videos';
-
-    var SAVED_VIDEOS_CONTENT_URL = '/content/saved_videos';
-
-    var PROFILE_EDIT_URL = '/content/profile_edit';
-
-    var PROFILE_EDIT_OPEN_BUTTON_SELECTOR = '#myProfile';
-
-    var PROFILE_EDIT_CLOSE_BUTTON_SELECTOR = '#profile-view-close';
-
-    var PROFILE_EDIT_PANEL_SELECTOR = '#profile-edit-panel';
-
-    var PROFILE_EDIT_USERNAME_INPUT = "#username-input";
-
-    var PROFILE_EDIT_EMAIL_INPUT = "#email-input";
-
-    var SYNDICATE_LIKES_CHECKBOX_ID = "#share-likes-checkbox";
-
-    var PROFILE_EDIT_CANCEL_BUTTON_SELECTOR = '.cancel-button';
-
-    var GREYED_BACKGROUND_ELEMENT = '<div class="greyed-background" style="display: block;"></div>';
-
-    var GREYED_BACKGROUND_SELECTOR = '.greyed-background';
-
     var profile_options_panel_visible = false;
 
     var currentUser;
@@ -196,10 +164,14 @@ com.kikin.video.HomeViewController = function() {
             });
         },
 
-        //public version...
+        //public...
         activeTab : activeTab,
 
         TAB_SELECTORS : TAB_SELECTORS,
+
+        swapTab : function(selector){
+            swapTab(selector);
+        },
 
         /*hash-changes function as primary method of propogating state...
         * bind them to fun*/
