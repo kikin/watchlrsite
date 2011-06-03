@@ -235,6 +235,18 @@ class UserVideo(models.Model):
     watched = models.BooleanField(default=False, db_index=True)
     watched_timestamp = models.DateTimeField(null=True, db_index=True)
 
+    @classmethod
+    def save_count(cls, video):
+        return cls.objects.filter(video=video, saved=True).count()
+
+    @classmethod
+    def like_count(cls, video):
+        return cls.objects.filter(video=video, liked=True).count()
+
+    @classmethod
+    def watch_count(cls, video):
+        return cls.objects.filter(video=video, watched=True).count()
+
 
 DEFAULT_NOTIFICATIONS = {
     'welcome': False, # Welcome experience for new users
