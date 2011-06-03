@@ -109,14 +109,47 @@ def like(request, video_id):
     return do_request(request, video_id, 'like_video')
 
 
+# See note on `profile()` method about CSRF exemption
+
+@csrf_exempt
+@json_view
+def like_by_url(request, url):
+    if not request.user.is_authenticated():
+        raise Unauthorized()
+    try:
+        return as_dict(request.user.like_video(Video.objects.get(url=url)))
+    except Video.DoesNotExist:
+        # TODO: Fix this!
+        raise VideoNotFound(url)
+
 @json_view
 def unlike(request, video_id):
     return do_request(request, video_id, 'unlike_video')
 
 
+# See note on `profile()` method about CSRF exemption
+
+@csrf_exempt
+@json_view
+def unlike_by_url(request, url):
+    if not request.user.is_authenticated():
+        raise Unauthorized()
+    try:
+        return as_dict(request.user.unlike_video(Video.objects.get(url=url)))
+    except Video.DoesNotExist:
+        raise VideoNotFound(url)
+
+
 @json_view
 def save(request, video_id):
     return do_request(request, video_id, 'save_video')
+
+# See note on `profile()` method about CSRF exemption
+
+@csrf_exempt
+@json_view
+def add(request, url):
+    pass
 
 
 @json_view
