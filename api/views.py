@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest
 from api.models import Video, User, UserVideo, Source, Notification, Preference, slugify, Thumbnail
 from api.utils import epoch, url_fix, MalformedURLException
+from api.tasks import fetch
 
 from re import split
 from json import loads, dumps
@@ -86,7 +87,6 @@ def as_dict(obj):
                 'url': obj.url,
                 'title': obj.title,
                 'description': obj.description,
-                'host': obj.host,
                 'thumbnail': as_dict(obj.get_thumbnail()),
                 'source': as_dict(obj.source),
                 'saves': UserVideo.save_count(obj),
@@ -127,6 +127,7 @@ def like_by_url(request):
         # TODO: Fix this!
         raise VideoNotFound(url)
 
+
 @json_view
 def unlike(request, video_id):
     return do_request(request, video_id, 'unlike_video')
@@ -154,13 +155,53 @@ def unlike_by_url(request):
 def save(request, video_id):
     return do_request(request, video_id, 'save_video')
 
+
 # See note on `profile()` method about CSRF exemption
 
-@csrf_exempt
 @json_view
-def add(request, url):
-    pass
+def add(request):
+    if not request.user.is_authenticated():
+        raise Unauthorized()
 
+    querydict = request.GET if request.method == 'GET' else request.POST
+    try:
+        url = querydict['url']
+    except KeyError:
+        raise BadRequest('Parameter:url missing')
+
+    try:
+        normalized_url = url_fix(url)
+    except MalformedURLException:
+        raise BadRequest('Malformed URL:%s' % url)
+
+    try:
+        user_video = UserVideo.objects.get(user=request.user, video__url=normalized_url)
+
+        if user_video.saved:
+            raise BadRequest('Video:%s already saved with id:%s' % (user_video.video.url, user_video.video.id))
+
+        video['saved'] = True
+
+    except UserVideo.DoesNotExist:
+        host = request.get_host()
+
+        try:
+            video = Video.objects.get(url=normalized_url)
+        except Video.DoesNotExist:
+            video = Video(url=normalized_url)
+            video.save()
+
+        user_video = UserVideo(user=request.user, video=video, host=host, saved=True)
+        user_video.save()
+
+    # Fetch video metadata in background
+    fetch.delay(request.user.id, normalized_url, host)
+
+    info = as_dict(user_video)
+    info.update({'first': request.user.saved_videos().count() == 1,
+                 'unwatched': request.user.unwatched_videos().count()})
+
+    return info
 
 @json_view
 def remove(request, video_id):
@@ -177,6 +218,7 @@ def get(request, video_id):
                 user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
 
                 video['saved'] = user_video.saved
+                video['host'] = user_video.host
                 video['timestamp'] = epoch(user_video.saved_timestamp)
                 video['liked'] = user_video.liked
                 video['watched'] = user_video.watched
@@ -186,7 +228,7 @@ def get(request, video_id):
                 pass
 
         video['saved'] = video['liked'] = video['watched'] = False
-        video['timestamp'] = None
+        video['host'] = video['timestamp'] = None
         return {'videos': [ video ] }
 
     except Video.DoesNotExist:

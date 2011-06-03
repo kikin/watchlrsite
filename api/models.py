@@ -59,7 +59,6 @@ class Video(models.Model):
     html_embed_code = models.TextField(max_length=3000, null=True)
     html5_embed_code = models.TextField(max_length=3000, null=True)
     source = models.ForeignKey(Source, related_name='videos', null=True)
-    host = models.URLField(max_length=750, verify_exists=False, null=True)
     fetched = models.DateTimeField(null=True, db_index=True)
 
     def set_thumbnail(self, url, width, height, type='web'):
@@ -201,6 +200,9 @@ class User(auth_models.User):
     def watched_videos(self):
         return Video.objects.filter(user__id=self.id, uservideo__watched=True).order_by('-uservideo__watched_timestamp')
 
+    def unwatched_videos(self):
+        return Video.objects.filter(user__id=self.id, uservideo__watched=False).order_by('-uservideo__saved_timestamp')
+
     def notifications(self):
         return dict([(n.message, int(not n.archived)) for n in self.notification_set.all()])
 
@@ -228,6 +230,7 @@ class UserFollowsUser(models.Model):
 class UserVideo(models.Model):
     user = models.ForeignKey(User)
     video = models.ForeignKey(Video)
+    host = models.URLField(max_length=750, verify_exists=False, null=True)
     saved = models.BooleanField(default=False, db_index=True)
     saved_timestamp = models.DateTimeField(null=True, db_index=True)
     liked = models.BooleanField(default=False, db_index=True)
