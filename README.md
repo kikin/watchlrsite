@@ -187,6 +187,23 @@ Example usage of the models defined in api/models.py:
     >>>
     -----------------------------------------
 
+Fetching Video Metadata
+-----------------------
+
+Fetching video metadata is done in the background using a Celery task queue. You need to spawn the Celery worker
+server as follows:
+
+    python manage.py celeryd -l info
+
+Note that this runs the server in the foreground. More information about Celery can be found at
+http://django-celery.readthedocs.org/en/latest/index.html
+
 Testing
 -------
 
+Utilizes standard Django test framework. Doctests are preferred. More information can be found at
+http://docs.djangoproject.com/en/dev/topics/testing/#writing-doctests
+
+Example:
+
+    python manage.py test api.User.like_video
