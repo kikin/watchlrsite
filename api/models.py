@@ -1,10 +1,16 @@
-from django.db import models
-from django.contrib.auth import models as auth_models
-
 from re import sub
 from unicodedata import normalize
 from datetime import datetime
+
+from django.db import models
+from django.contrib.auth import models as auth_models
+
 from django.template.defaultfilters import stringfilter
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+import logging
+logger = logging.getLogger(__name__)
 
 class Source(models.Model):
     '''
@@ -114,7 +120,6 @@ class User(auth_models.User):
       ...
     IntegrityError: duplicate key value violates unique constraint "auth_user_username_key"
     '''
-
     videos = models.ManyToManyField(Video, through='UserVideo')
     follows = models.ManyToManyField('self', symmetrical=False)
 
@@ -126,6 +131,9 @@ class User(auth_models.User):
 
     def facebook_uid(self):
         return self.social_auth.get().uid
+
+    def picture(self):
+        return 'https://graph.facebook.com/%s/picture' % self.facebook_uid()
 
     def _create_or_update_video(self, video, **kwargs):
         properties = ('liked', 'saved', 'watched')
@@ -163,6 +171,8 @@ class User(auth_models.User):
         >>> video = Video.objects.create(url='http://www.vimeo.com/24532073')
         >>> user_video = user.like_video(video)
         >>> user_video.liked
+        True
+        >>> user_video.saved
         False
         '''
         return self._create_or_update_video(video, **{'liked': True, 'timestamp': timestamp})
@@ -171,10 +181,7 @@ class User(auth_models.User):
         return self._create_or_update_video(video, **{'liked': False})
 
     def liked_videos(self):
-        videos = list()
-        for item in UserVideo.objects.filter(user=self, liked=True).order_by('-liked_timestamp'):
-            videos.append(item.video)
-        return videos
+        return Video.objects.filter(user__id=self.id, uservideo__liked=True).order_by('-uservideo__liked_timestamp')
 
     def save_video(self, video, timestamp=datetime.utcnow()):
         return self._create_or_update_video(video, **{'saved': True, 'timestamp': timestamp})
@@ -183,11 +190,34 @@ class User(auth_models.User):
         return self._create_or_update_video(video, **{'saved': False})
 
     def saved_videos(self):
-        videos = list()
-        for item in UserVideo.objects.filter(user=self, saved=True).order_by('-saved_timestamp'):
-            videos.append(item.video)
-        return videos
+        return Video.objects.filter(user__id=self.id, uservideo__saved=True).order_by('-uservideo__saved_timestamp')
 
+    def mark_video_watched(self, video):
+        return self._create_or_update_video(video, **{'watched': True, 'timestamp': timestamp})
+
+    def mark_video_unwatched(self, video):
+        return self._create_or_update_video(video, **{'watched': False, 'timestamp': timestamp})
+
+    def watched_videos(self):
+        return Video.objects.filter(user__id=self.id, uservideo__watched=True).order_by('-uservideo__watched_timestamp')
+
+    def notifications(self):
+        return dict([(n.message, int(not n.archived)) for n in self.notification_set.all()])
+
+    def set_notifications(self, notifications):
+        for msg, archived in notifications.items():
+            n = self.notification_set.get(user=self, message=msg.lower())
+            n.archived = not bool(int(archived))
+            n.save()
+
+    def preferences(self):
+        return dict([(p.name, p.value) for p in self.preference_set.all()])
+
+    def set_preferences(self, preferences):
+        for name, value in preferences.items():
+            p = self.preference_set.get(name=name.lower())
+            p.value = int(value)
+            p.save()
 
 class UserFollowsUser(models.Model):
     follower = models.ForeignKey(User, related_name='followee', db_index=True)
@@ -198,20 +228,48 @@ class UserFollowsUser(models.Model):
 class UserVideo(models.Model):
     user = models.ForeignKey(User)
     video = models.ForeignKey(Video)
-    saved = models.BooleanField(default=True, db_index=True)
+    saved = models.BooleanField(default=False, db_index=True)
     saved_timestamp = models.DateTimeField(null=True, db_index=True)
     liked = models.BooleanField(default=False, db_index=True)
     liked_timestamp = models.DateTimeField(null=True, db_index=True)
     watched = models.BooleanField(default=False, db_index=True)
     watched_timestamp = models.DateTimeField(null=True, db_index=True)
 
-    def info_view(self):
-        return { 'url': self.video.url,
-                 'id': self.video.id,
-                 'liked': self.liked,
-                 'likes': UserVideo.objects.filter(video=self.video, liked=True).count(),
-                 'saved': self.saved,
-                 'saves': UserVideo.objects.filter(video=self.video, saved=True).count() }
+
+DEFAULT_NOTIFICATIONS = {
+    'welcome': False, # Welcome experience for new users
+    'emptyq': False, # Queue location education for first-time video save
+}
+
+class Notification(models.Model):
+    user = models.ForeignKey(User)
+    message = models.CharField(max_length=200)
+    archived = models.BooleanField(default=False, db_index=True)
+    changed = models.DateTimeField(auto_now=True)
+
+
+DEFAULT_PREFERENCES = {
+    'syndicate': 1, # Syndicate likes to Facebook
+}
+
+class Preference(models.Model):
+    user = models.ForeignKey(User)
+    name = models.CharField(max_length=100)
+    value = models.PositiveSmallIntegerField()
+    changed = models.DateTimeField(auto_now=True)
+
+
+@receiver(post_save, sender=User)
+def user_post_save(sender, instance, signal, *args, **kwargs):
+    # Called at the end of `save()` method
+
+    # Set up default notifications and preferences for new user
+    if not instance.notification_set.count():
+        for msg, archived in DEFAULT_NOTIFICATIONS.items():
+            Notification.objects.create(user=instance, message=msg, archived=archived)
+
+        for name, value in DEFAULT_PREFERENCES.items():
+            Preference.objects.create(user=instance, name=name, value=value)
 
 def slugify(username, id):
     '''
