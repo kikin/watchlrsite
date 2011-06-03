@@ -156,8 +156,9 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'social_auth',
-    'kikinvideo.webapp',
-    'kikinvideo.api',
+    'webapp',
+    'api',
+    'djcelery',
     'djkombu',
 )
 
