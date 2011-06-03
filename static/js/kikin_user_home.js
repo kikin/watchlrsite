@@ -68,6 +68,8 @@ com.kikin.video.HomeViewController = function() {
 
     var PROFILE_OPTIONS_BUTTON_SELECTOR = '#header-right';
 
+    var PROFILE_NAME_DISPLAY = ".profileName";
+
     var VIDEO_PANEL_SELECTOR = '#videoList';
 
     var LIKED_VIDEOS_CONTENT_URL = '/content/liked_videos';
@@ -82,9 +84,9 @@ com.kikin.video.HomeViewController = function() {
 
     var PROFILE_EDIT_PANEL_SELECTOR = '#profile-edit-panel';
 
-    var PROFILE_EDIT_USERNAME_INPUT = ".profile-edit-input #username-input";
+    var PROFILE_EDIT_USERNAME_INPUT = "#username-input";
 
-    var PROFILE_EDIT_EMAIL_INPUT = ".profile-edit-input #email-input";
+    var PROFILE_EDIT_EMAIL_INPUT = "#email-input";
 
     var SYNDICATE_LIKES_CHECKBOX_ID = "#share-likes-checkbox";
 
@@ -159,8 +161,9 @@ com.kikin.video.HomeViewController = function() {
             $.post('/api/auth/profile', {'preferences':preferences, 'username':username,
                     'email':email}, function(data){
                 if(data && data.result){
-                    /*TODO:
-                    * check response...*/
+                    if(data.result.username){
+                        $(PROFILE_NAME_DISPLAY).html(data.result.username);
+                    }
                 }
             });
         }
