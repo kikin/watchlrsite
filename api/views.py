@@ -113,11 +113,16 @@ def like(request, video_id):
 
 @csrf_exempt
 @json_view
-def like_by_url(request, url):
+@require_http_methods(['GET', 'POST'])
+def like_by_url(request):
     if not request.user.is_authenticated():
         raise Unauthorized()
+
+    querydict = request.GET if request.method == 'GET' else request.POST
     try:
-        return as_dict(request.user.like_video(Video.objects.get(url=url)))
+        return as_dict(request.user.like_video(Video.objects.get(url=querydict['url'])))
+    except KeyError:
+        raise BadRequest('Parameter:url missing')
     except Video.DoesNotExist:
         # TODO: Fix this!
         raise VideoNotFound(url)
@@ -131,11 +136,16 @@ def unlike(request, video_id):
 
 @csrf_exempt
 @json_view
-def unlike_by_url(request, url):
+@require_http_methods(['GET', 'POST'])
+def unlike_by_url(request):
     if not request.user.is_authenticated():
         raise Unauthorized()
+
+    querydict = request.GET if request.method == 'GET' else request.POST
     try:
-        return as_dict(request.user.unlike_video(Video.objects.get(url=url)))
+        return as_dict(request.user.unlike_video(Video.objects.get(url=querydict['url'])))
+    except KeyError:
+        raise BadRequest('Parameter:url missing')
     except Video.DoesNotExist:
         raise VideoNotFound(url)
 

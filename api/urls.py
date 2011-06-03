@@ -3,9 +3,9 @@ from django.conf.urls.defaults import patterns, include, url
 urlpatterns = patterns(
     'api',
     (r'^like/(?P<video_id>[0-9]+)$', 'views.like'),
-    (r'^like/(?P<url>.+)$', 'views.like_by_url'),
+    (r'^like', 'views.like_by_url'),
     (r'^unlike/(?P<video_id>[0-9]+)$', 'views.unlike'),
-    (r'^unlike/(?P<url>.+)$', 'views.unlike_by_url'),
+    (r'^unlike', 'views.unlike_by_url'),
     (r'^save/(?P<video_id>[0-9]+)$', 'views.save'),
     (r'^add/(?P<url>.+)$', 'views.add'),
     (r'^remove/(?P<video_id>[0-9]+)$', 'views.remove'),
