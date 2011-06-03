@@ -173,8 +173,8 @@ com.kikin.video.HomeViewController = function() {
             swapTab(selector);
         },
 
-        /*hash-changes function as primary method of propogating state...
-        * bind them to fun*/
+        /*hash-changes serve as the primary method of propogating state throughout this frontend...
+        * bind them to their corresponding UI-manipulation functions below*/
         onHashChange : function(hash_url) {
             var url_content = parseHashURL(hash_url);
             if(url_content.path == VIDEO_PLAYER_PATH){
