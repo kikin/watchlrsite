@@ -8,4 +8,5 @@ urlpatterns = patterns(
     (r'^remove/(?P<video_id>[0-9]+)$', 'views.remove'),
     (r'^auth/profile$', 'views.profile'),
     (r'^get/(?P<video_id>[0-9]+)$', 'views.get'),
+    (r'^info', 'views.info'),
 )
