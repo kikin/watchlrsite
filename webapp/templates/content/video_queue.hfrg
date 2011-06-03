@@ -67,7 +67,7 @@
             </a>
 
             <div class="video-info">
-                <div class="video-description">{{ video.description }}</div>
+                <div class="video-description">{{ video.description|truncatewords:50 }}</div>
                 <div class="video-saved">
                     <img class="video-source-image" src="{{ video|source_icon }}"/>
                     &bull;

@@ -71,3 +71,7 @@ def possessive(value):
 @register.filter
 def source_icon(video):
     return video.source.favicon
+
+@register.filter
+def truncate_text(text, letter_count):
+    return text[0:letter_count]
