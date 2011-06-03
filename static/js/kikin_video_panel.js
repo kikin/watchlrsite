@@ -8,22 +8,37 @@ com.kikin.VideoPanelController = function(parent) {
                 });
     }
 
-    var current_vid = null;
+    var current_vid;
+
+    var currentUser;
+
+    /*Selectors and selector-prefixes*/
+    
     var LIKED_ICON_CONTAINER = ".heart-container";
+
     var LIKED_ICON_ID_PREFIX = "#liked-icon-vid-";
+
     var LIKED_INFO_CONTAINER_ID_PREFIX = "#video-liked-info-vid-";
+
     var VIDEO_CONTAINER_ID_PREFIX = "#video-";
+
     var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
+
     var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
+
     var SAVE_VIDEO_BUTTON_CONTAINER = ".save-video-button";
+
     var SAVE_VIDEO_BUTTON_ID_PREFIX = "#save-video-button-vid-";
 
     var DELETE_VIDEO_ICON_CONTAINER = ".video-delete-button";
+
+    var VIDEO_PLAYER_ID_PREFIX = "#video-player-";
+
+    var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
+
     var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
             '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
             '</div>';
-    var VIDEO_PLAYER_ID_PREFIX = "#video-player-";
-    var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
 
     return {
         populatePanel : function(panel_container_selector, contentSource, request_params) {
@@ -129,7 +144,7 @@ com.kikin.VideoPanelController = function(parent) {
 
         handleLike : function(vid){
             if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
-            {
+            {window.location="#!/liked?vid="+vid;
                 $.get('/api/like/'+vid, function(data){
                    var video_properties = data.result;
                    if(video_properties){
@@ -151,6 +166,7 @@ com.kikin.VideoPanelController = function(parent) {
                    }
                 });
             }else{
+              window.location="#!/unliked?vid="+vid;
               $.get('/api/unlike/'+vid, function(data){
                    var video_properties = data.result;
                    if(video_properties){

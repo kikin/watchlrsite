@@ -11,6 +11,10 @@ var SAVED_QUEUE_PATH = '/saved_queue';
 
 var LIKED_QUEUE_PATH = '/liked_queue';
 
+var PROFILE_EDIT_PANEL_OPEN_PATH = '/edit_profile';
+
+var PROFILE_SAVE_PATH = '/save_profile';
+
 var TAB_SELECTORS = {
     queue : '.tabQueue',
     likes : '.tabLikes'
@@ -78,6 +82,12 @@ com.kikin.video.HomeViewController = function() {
 
     var PROFILE_EDIT_PANEL_SELECTOR = '#profile-edit-panel';
 
+    var PROFILE_EDIT_USERNAME_INPUT = ".profile-edit-input #username-input";
+
+    var PROFILE_EDIT_EMAIL_INPUT = ".profile-edit-input #email-input";
+
+    var SYNDICATE_LIKES_CHECKBOX_ID = "#share-likes-checkbox";
+
     var PROFILE_EDIT_CANCEL_BUTTON_SELECTOR = '.cancel-button';
 
     var GREYED_BACKGROUND_ELEMENT = '<div class="greyed-background" style="display: block;"></div>';
@@ -86,10 +96,75 @@ com.kikin.video.HomeViewController = function() {
 
     var profile_options_panel_visible = false;
 
+    var currentUser;
+
     activeTab = TAB_SELECTORS.queue;
 
     var videoPanelController = new com.kikin.VideoPanelController(this);
 
+
+          /*
+    * Values accessible via jQuery for html checkboxes' "checked"
+    * attribute are true and undefined, the latter of which cannot
+    * RELIABLY be cast to integer.  Therefore, use this to access
+    * and modify checkbox state in integer form.
+    *
+    * function returns checkbox value if not intValue param is
+    * passed, otherwise, sets checkbox according to intValue param.
+    *
+    * @param selector jQuery selector obj for the checkbox.
+    * @param intValue OPTIONAL -- value to assign to checkbox.
+    * */
+    function _checkboxValueInt(selector, intValue){
+        if(intValue){
+            switch(intValue){
+                case 1:
+                    selector.attr("checked", true);
+                    break;
+                case 0:
+                    selector.attr("checked", false);
+                    break;
+            }
+        }
+        else{
+            var checked = selector.attr("checked");
+            if(!checked){
+                return 0;
+            }
+            else{
+                return 1;
+            }
+        }
+    };
+
+
+    function handleProfileEditPanelOpen(){
+        $.get('/api/auth/profile', function(data){
+            if(data && data.result){
+                currentUser = data.result;
+            }
+        });
+    };
+
+    function handleProfileSave(){
+        if(currentUser){
+
+            var preferences = {'syndicate' : _checkboxValueInt($(SYNDICATE_LIKES_CHECKBOX_ID))};
+            var username = $(PROFILE_EDIT_USERNAME_INPUT).val();
+            var email = $(PROFILE_EDIT_EMAIL_INPUT).val();
+
+            $(PROFILE_EDIT_PANEL_SELECTOR).remove();
+            $(GREYED_BACKGROUND_SELECTOR).remove();
+
+            $.post('/api/auth/profile', {'preferences':preferences, 'username':username,
+                    'email':email}, function(data){
+                if(data && data.result){
+                    /*TODO:
+                    * check response...*/
+                }
+            });
+        }
+    };
 
     return {
         bindToUI : function() {
@@ -165,23 +240,26 @@ com.kikin.video.HomeViewController = function() {
 
         TAB_SELECTORS : TAB_SELECTORS,
 
+        /*hash-changes function as primary method of propogating state...
+        * bind them to fun*/
         onHashChange : function(hash_url) {
             var url_content = parseHashURL(hash_url);
             if(url_content.path == VIDEO_PLAYER_PATH){
                 videoPanelController.loadPlayer(url_content.params.vid);
-            }
-            if(url_content.path == VIDEO_PLAYER_CLOSE_PATH){
+            }if(url_content.path == VIDEO_PLAYER_CLOSE_PATH){
                 videoPanelController.closePlayer(url_content.params.vid);
-            }
-            if(url_content.path == LIKE_VIDEO_PATH){
+            }if(url_content.path == LIKE_VIDEO_PATH){
                 videoPanelController.handleLike(url_content.params.vid);
-            }
-            if(url_content.path == REMOVE_VIDEO_PATH){
+            }if(url_content.path == REMOVE_VIDEO_PATH){
                 videoPanelController.removeVideo(url_content.params.vid);
             }if(url_content.path == SAVED_QUEUE_PATH){
-                    videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+                videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
             }if(url_content.path == LIKED_QUEUE_PATH){
-                    videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
+                videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
+            }if(url_content.path == PROFILE_EDIT_PANEL_OPEN_PATH){
+                handleProfileEditPanelOpen();
+            }if(url_content.path == PROFILE_SAVE_PATH){
+                handleProfileSave();
             }
         }
     }
