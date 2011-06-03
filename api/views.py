@@ -176,7 +176,9 @@ def save(request, video_id):
 
 # See note on `profile()` method about CSRF exemption
 
+@csrf_exempt
 @json_view
+@require_http_methods(['GET', 'POST'])
 def add(request):
     if not request.user.is_authenticated():
         raise Unauthorized()

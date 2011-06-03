@@ -216,7 +216,14 @@ CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ALWAYS_EAGER = True
 TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'
 
+# Set up logging
 from logging import basicConfig, DEBUG
-from api.logconfig import init
-init()
 basicConfig(level=DEBUG)
+
+import logconfig
+logconfig.init()
+
+# Session cookies
+SESSION_COOKIE_AGE = 2592000 # 30 days in seconds
+SESSION_COOKIE_NAME = '_KVS' # Plugin converts this into a kikin cookie
+SESSION_COOKIE_DOMAIN = '.kikin.com' # Cross-domain!
