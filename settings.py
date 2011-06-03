@@ -43,7 +43,11 @@ database_configurations = {
         'PASSWORD': 'savemore',
         'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
         'PORT': '',
-        }
+        },
+    'local_sqlite':{
+        'ENGINE':'django.db.backends.sqlite3',
+        'NAME':'kikinvideo',
+    }
 }
 
 DATABASES = { 'default': database_configurations[active_db] }
