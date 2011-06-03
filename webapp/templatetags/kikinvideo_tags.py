@@ -1,5 +1,6 @@
 from django import template
 from datetime import datetime
+from urlparse import urlparse
 
 register = template.Library()
 
@@ -71,6 +72,11 @@ def possessive(value):
 @register.filter
 def source_icon(video):
     return video.source.favicon
+
+@register.filter
+def source_url_root(video):
+    source_url_components = urlparse(video.source.url)
+    return source_url_components.scheme + "://" + source_url_components.hostname
 
 @register.filter
 def truncate_text(text, letter_count):

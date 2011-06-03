@@ -69,7 +69,9 @@
             <div class="video-info">
                 <div class="video-description">{{ video.description|truncatewords:50 }}</div>
                 <div class="video-saved">
-                    <img class="video-source-image" src="{{ video|source_icon }}"/>
+                    <a href="{{ video|source_url_root }}">
+                        <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
+                    </a>
                     &bull;
                     <a href="{{video.url}}">source</a>
                     {% if display_mode != 'public_profile' %}
