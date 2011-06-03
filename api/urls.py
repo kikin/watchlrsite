@@ -7,4 +7,5 @@ urlpatterns = patterns(
     (r'^save/(?P<video_id>[0-9]+)$', 'views.save'),
     (r'^remove/(?P<video_id>[0-9]+)$', 'views.remove'),
     (r'^auth/profile$', 'views.profile'),
+    (r'^get/(?P<video_id>[0-9]+)$', 'views.get'),
 )

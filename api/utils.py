@@ -4,6 +4,7 @@ from urlparse import urlparse, parse_qs, urlunparse
 from urllib import quote, quote_plus
 from urlnorm import norm_tuple
 from re import match
+from time import mktime
 
 class MalformedURLException(Exception):
     def __init__(self, url):
@@ -122,3 +123,6 @@ def remove_html(html):
                 raise ValueError(str(e))
     raise TypeError('Input parameter should be string or unicode object')
 
+
+def epoch(dt):
+    return mktime(dt.timetuple())
