@@ -2,11 +2,13 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest
-from api.models import Video, User, UserVideo, Notification, Preference, slugify
+from api.models import Video, User, UserVideo, Source, Notification, Preference, slugify, Thumbnail
+from api.utils import epoch
 
 from json import loads, dumps
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 def json_view(f):
@@ -65,7 +67,28 @@ def as_dict(obj):
                 'queued': obj.saved_videos().count(),
                 'saved': obj.videos.count(),
                 'watched': obj.watched_videos().count(),
-                'liked': obj.liked_videos().count() }
+                'liked': obj.liked_videos().count()}
+
+    elif isinstance(obj, Source):
+        return {'name': obj.name,
+                'url': obj.url,
+                'favicon': obj.favicon}
+
+    elif isinstance(obj, Thumbnail):
+        return {'url': obj.url,
+                'width': obj.width,
+                'height': obj.height}
+
+    elif isinstance(obj, Video):
+        return {'id': obj.id,
+                'url': obj.url,
+                'title': obj.title,
+                'description': obj.description,
+                'host': obj.host,
+                'thumbnail': as_dict(obj.get_thumbnail()),
+                'source': as_dict(obj.source),
+                'saves': UserVideo.objects.filter(video=obj, saved=True).count(),
+                'likes': UserVideo.objects.filter(video=obj, liked=True).count()}
 
     raise Exception('Unknown type:%s' % type(obj))
 
@@ -97,6 +120,33 @@ def save(request, video_id):
 @json_view
 def remove(request, video_id):
     return do_request(request, video_id, 'remove_video')
+
+
+@json_view
+def get(request, video_id):
+    try:
+        video = as_dict(Video.objects.get(pk=video_id))
+
+        if request.user.is_authenticated():
+            try:
+                user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
+
+                video['saved'] = user_video.saved
+                video['timestamp'] = epoch(user_video.saved_timestamp)
+                video['liked'] = user_video.liked
+                video['watched'] = user_video.watched
+                return video
+
+            except UserVideo.DoesNotExist:
+                pass
+
+        video['saved'] = video['liked'] = video['watched'] = False
+        video['timestamp'] = None
+        return video
+
+    except Video.DoesNotExist:
+        raise VideoNotFound(video_id)
+
 
 class InvalidUsername(ApiError):
     code = 406
@@ -161,7 +211,7 @@ def profile(request):
             user.set_preferences(loads(request.POST['preferences']))
         except KeyError:
             pass
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, Preference.DoesNotExist):
             raise BadRequest('Parameter:preferences malformed')
 
         user.save()
