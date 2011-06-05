@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
-from kikinvideo import settings
+from django.conf import settings
 from kikinvideo.api.models import Video, User, Preference
 
 def home(request):
