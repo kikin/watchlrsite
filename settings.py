@@ -41,7 +41,7 @@ database_configurations = {
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
         'PORT': '',
         },
     'local_sqlite':{
