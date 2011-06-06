@@ -188,6 +188,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/'
 
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
+FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']
 
 # broker transport
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
