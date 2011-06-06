@@ -1,76 +1,5 @@
-/**
-* Function takes full #! url and returns the path + params
-* of this URL in a 2-element hash.
-*
-* @param hash_url the full hash bang url (including '#!').
-*/
-function parseHashURL(hash_url) {
-
-var path;
-
-//strip out hash bang   ('#!')...
-var url_content = hash_url.substring(2, hash_url.length);
-
-if (url_content.search('\\?') == -1) {
-    path = url_content;
-}else{
-    path = url_content.substring(0, url_content.search('\\?'));
-}
-
-var urlParams = {};
-if ((url_content.search('\\?') != -1)){
-    url_content = url_content.substring(url_content.search('\\?'), url_content.length);
-    var e,
-            a = /\+/g,  // Regex for replacing addition symbol with a space
-            r = /([^&=]+)=?([^&]*)/g,
-            d = function (s) {
-                return decodeURIComponent(s.replace(a, " "));
-            },
-            q = url_content.substring(1);
-
-    while (e = r.exec(q))
-        urlParams[d(e[1])] = d(e[2]);
-}
-    return {
-        path : path,
-        params : urlParams
-    }
-}
-
 com.kikin.video.HomeViewController = function() {
     //selectors
-
-    var PROFILE_OPTIONS_PANEL_SELECTOR = '#options';
-
-    var PROFILE_OPTIONS_BUTTON_SELECTOR = '#header-right';
-
-    var PROFILE_NAME_DISPLAY = ".profileName";
-
-    var VIDEO_PANEL_SELECTOR = '#videoList';
-
-    var LIKED_VIDEOS_CONTENT_URL = '/content/liked_videos';
-
-    var SAVED_VIDEOS_CONTENT_URL = '/content/saved_videos';
-
-    var PROFILE_EDIT_URL = '/content/profile_edit';
-
-    var PROFILE_EDIT_OPEN_BUTTON_SELECTOR = '#myProfile';
-
-    var PROFILE_EDIT_CLOSE_BUTTON_SELECTOR = '#profile-view-close';
-
-    var PROFILE_EDIT_PANEL_SELECTOR = '#profile-edit-panel';
-
-    var PROFILE_EDIT_USERNAME_INPUT = "#username-input";
-
-    var PROFILE_EDIT_EMAIL_INPUT = "#email-input";
-
-    var SYNDICATE_LIKES_CHECKBOX_ID = "#share-likes-checkbox";
-
-    var PROFILE_EDIT_CANCEL_BUTTON_SELECTOR = '.cancel-button';
-
-    var GREYED_BACKGROUND_ELEMENT = '<div class="greyed-background" style="display: block;"></div>';
-
-    var GREYED_BACKGROUND_SELECTOR = '.greyed-background';
 
     var profile_options_panel_visible = false;
 
@@ -141,7 +70,7 @@ com.kikin.video.HomeViewController = function() {
     function handleProfileSave(){
         if(currentUser){
 
-            var preferences = {'syndicate' : _checkboxValueInt($(SYNDICATE_LIKES_CHECKBOX_ID))};
+            var preferences = '{"syndicate" :'+_checkboxValueInt($(SYNDICATE_LIKES_CHECKBOX_ID))+'}';
             var username = $(PROFILE_EDIT_USERNAME_INPUT).val();
             var email = $(PROFILE_EDIT_EMAIL_INPUT).val();
 
@@ -196,13 +125,17 @@ com.kikin.video.HomeViewController = function() {
             });
         },
 
-        //public version...
+        //public...
         activeTab : activeTab,
 
         TAB_SELECTORS : TAB_SELECTORS,
 
-        /*hash-changes function as primary method of propogating state...
-        * bind them to fun*/
+        swapTab : function(selector){
+            swapTab(selector);
+        },
+
+        /*hash-changes serve as the primary method of propogating state throughout this frontend...
+        * bind them to their corresponding UI-manipulation functions below*/
         onHashChange : function(hash_url) {
             var url_content = parseHashURL(hash_url);
             if(url_content.path == VIDEO_PLAYER_PATH){

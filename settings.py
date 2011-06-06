@@ -27,9 +27,13 @@ database_configurations = {
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
         'PORT': '',
-        }
+        },
+    'local_sqlite':{
+        'ENGINE':'django.db.backends.sqlite3',
+        'NAME':'kikinvideo',
+    }
 }
 
 # Picks up database configuration from environment variable

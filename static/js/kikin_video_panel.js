@@ -22,6 +22,8 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_CONTAINER_ID_PREFIX = "#video-";
 
+    var VIDEO_CONTAINER_CLASS = "video-wrapper";
+
     var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
 
     var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
@@ -40,8 +42,7 @@ com.kikin.VideoPanelController = function(parent) {
             '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
             '</div>';
 
-    return {
-        populatePanel : function(panel_container_selector, contentSource, request_params) {
+    function _populatePanel(panel_container_selector, contentSource, request_params) {
             $(panel_container_selector).empty();
             $(panel_container_selector).html(LOADING_DIV_HTML);
             $.get(contentSource, request_params, function(data) {
@@ -100,13 +101,18 @@ com.kikin.VideoPanelController = function(parent) {
                 });
 
             });
+        };
+
+    return {
+        populatePanel : function(panel_container_selector, contentSource, request_params){
+            _populatePanel(panel_container_selector, contentSource, request_params);
         },
         loadPlayer : function(vid) {
             if(current_vid){
                 $(VIDEO_PLAYER_ID_PREFIX + current_vid).fadeOut(1000);
                 if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
-                $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
-            }
+                    $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
+                }
             }
 
             /*remove the 'play' button from the thumb...*/
@@ -131,6 +137,10 @@ com.kikin.VideoPanelController = function(parent) {
                         function(){
                             video_embed_div.fadeIn(100);
                         });
+                                        //scroll to the video...
+            $('html, body').animate({
+                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-80
+                    }, 1000);
             current_vid = vid;
         },
 
@@ -187,7 +197,10 @@ com.kikin.VideoPanelController = function(parent) {
 
                                         if(activeTab == TAB_SELECTORS.likes){
                                             $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
-                                                    $(VIDEO_CONTAINER_ID_PREFIX).remove();
+                                                    $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
+                                                    if($("."+VIDEO_CONTAINER_CLASS).length == 0){
+                                                        _populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
+                                                    }
                                             });
                                         }
                                     }
@@ -209,6 +222,11 @@ com.kikin.VideoPanelController = function(parent) {
             $.get('/api/remove/'+vid, function(data){
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(800, function(){
                     $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
+                    if(activeTab == TAB_SELECTORS.queue){
+                        if($("."+VIDEO_CONTAINER_CLASS).length == 0){
+                            _populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+                        }
+                    }
                 });
             });            
         }
