@@ -74,6 +74,10 @@ def source_icon(video):
     return video.source.favicon
 
 @register.filter
+def source_url(video):
+    return video.source.url
+
+@register.filter
 def source_url_root(video):
     source_url_components = urlparse(video.source.url)
     return source_url_components.scheme + "://" + source_url_components.hostname
