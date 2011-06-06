@@ -68,7 +68,7 @@ def video_detail(request):
             #in case of uncastable or invalid vid...
             except ValueError:
                 return HttpResponseNotFound
-    return HttpResponseForbidden('You must log in to view this content')
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 def public_profile(request, username):
     try:
