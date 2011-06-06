@@ -8,7 +8,7 @@ sys.path.append(os.getcwd())
 #(perhaps we want to set some environment
 #variable on dev, look for it with os.environ
 #and have this AUTOMATICALLY set to dev if found?)
-active_db = 'local_mysql'
+active_db = 'local_sqlite'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -43,7 +43,11 @@ database_configurations = {
         'PASSWORD': 'savemore',
         'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
         'PORT': '',
-        }
+        },
+    'local_sqlite':{
+    	'ENGINE':'django.db.backends.sqlite3',
+        'NAME':'kikinvideo'
+     }
 }
 
 DATABASES = { 'default': database_configurations[active_db] }
