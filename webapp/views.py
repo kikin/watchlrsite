@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
-from kikinvideo import settings
+from django.conf import settings
 from kikinvideo.api.models import Video, User, Preference
 
 def home(request):
@@ -31,6 +31,7 @@ def logout_view(request):
 # soon...
 def liked_video_queue(request):
     if request.user.is_authenticated():
+        liked =request.user.liked_videos()
         return render_to_response('content/video_queue.hfrg',{'user':request.user,
                                   'display_mode':'liked', 'settings': settings, 'videos': request.user.liked_videos()},
                                   context_instance=RequestContext(request))
@@ -48,7 +49,7 @@ def video_player(request, video_id):
         video_query_set = Video.objects.filter(id__exact=video_id)
         if len(video_query_set) == 0:
             return HttpResponseNotFound()
-        else:
+        else:               
             return render_to_response('content/video_player.hfrg', {'video': video_query_set[0]})
         
 def video_detail(request):
@@ -68,8 +69,12 @@ def video_detail(request):
 def public_profile(request, username):
     try:
         user = User.objects.get(username=username)
-        return render_to_response('profile.html', {'user':user, 'settings':settings,\
-                                                   'videos':user.liked_videos()}, context_instance=RequestContext(request))
+        if user == request.user:
+            return render_to_response('profile.html', {'user':user, 'settings':settings, 'is_own_profile':True,\
+                                                       'videos':user.saved_videos()}, context_instance=RequestContext(request))
+        else:
+            return render_to_response('profile.html', {'user':user, 'settings':settings, 'is_own_profile':False,\
+                                           'videos':user.saved_videos()}, context_instance=RequestContext(request))
     except Exception, e:
         return HttpResponseNotFound('')
     
