@@ -6,6 +6,7 @@ from django.conf import settings
 from kikinvideo.api.models import Video, User, Preference
 
 ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you have requested"
+MALFORMED_URL_MESSAGE = 'Error: malformed URL supplied to host'
 
 def home(request):
     if request.user.is_authenticated():
@@ -29,23 +30,55 @@ def logout_view(request):
     logout(request, next_page='')
     return HttpResponseRedirect('/')
 
-# will add start (video index) and limit (num videos to show) params to these
-# soon...
 def liked_video_queue(request):
-    if request.user.is_authenticated():
-        liked =request.user.liked_videos()
+    if request.method == 'GET' and request.user.is_authenticated():
+        all_liked_vids = request.user.liked_videos()
+        if 'start' in request.GET and 'count' in request.GET:
+            try:
+                start_index = int(request.GET['start'])
+                end_index = start_index + int(request.GET['count'])
+                if all_liked_vids.count() >= end_index:
+                    vid_subset = all_liked_vids[start_index:end_index]
+                elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
+                    vid_subset = all_liked_vids[start_index:]
+                else:
+                    vid_subset = []
+            except Exception, e:
+                #means url was malformed...
+                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+        else:
+            #just pass through all liked videos...
+            vid_subset = request.user.liked_videos()
         return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                                  'display_mode':'liked', 'settings': settings, 'videos': request.user.liked_videos()},
+                                  'display_mode':'liked', 'settings': settings, 'videos': vid_subset},
                                   context_instance=RequestContext(request))
-    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+    return HttpResponseForbidden('you are not authorized to view this content, please log in')
+
+
 
 
 def saved_video_queue(request):
-    if request.user.is_authenticated():
+    if request.method == 'GET' and request.user.is_authenticated():
+        all_saved_vids = request.user.saved_videos()
+        if 'start' in request.GET and 'count' in request.GET:
+            try:
+                start_index = int(request.GET['start'])
+                end_index = start_index + int(request.GET['count'])
+                if all_saved_vids.count() >= end_index:
+                    vid_subset = all_saved_vids[start_index:end_index]
+                elif start_index < all_saved_vids.count() and end_index >= all_saved_vids.count():
+                    vid_subset = all_saved_vids[start_index:]
+                else:
+                    vid_subset = []
+            except Exception, e:
+                #means url was malformed...
+                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+        else:
+            #just pass through all liked videos...
+            vid_subset = request.user.saved_videos()
         return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                                  'display_mode':'saved', 'settings': settings, 'videos': request.user.saved_videos()},
+                                  'display_mode':'saved', 'settings': settings, 'videos': vid_subset},
                                   context_instance=RequestContext(request))
-    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 
 def video_player(request, video_id):

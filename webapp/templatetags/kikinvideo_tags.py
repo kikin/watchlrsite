@@ -93,3 +93,12 @@ def source_url_root(video):
 @register.filter
 def truncate_text(text, letter_count):
     return text[0:letter_count]
+
+@register.filter
+def web_thumbnail_url(video):
+    #until integrity assured, return the first of the web-type thumbs
+    #associated with video.
+    thumbs = video.thumbnails.filter(type='web')
+    if len(thumbs) > 0:
+        return thumbs[0].url
+    return ""
