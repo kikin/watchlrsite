@@ -57,28 +57,26 @@ def video_player(request, video_id):
             return render_to_response('content/video_player.hfrg', {'video': video_query_set[0]})
         
 def video_detail(request):
-    if request.user.is_authenticated():
-        if 'vid' in request.GET:
-            vid_str = request.GET['vid']
-            try:
-                vid = long(vid_str)
-                video = Video.objects.get(pk=vid)
-                return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
-                                    'settings':settings, 'video':video}, context_instance=RequestContext(request))
-            #in case of uncastable or invalid vid...
-            except ValueError:
-                return HttpResponseNotFound
-    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+    if 'vid' in request.GET:
+        vid_str = request.GET['vid']
+        try:
+            vid = long(vid_str)
+            video = Video.objects.get(pk=vid)
+            return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
+                                'settings':settings, 'video':video}, context_instance=RequestContext(request))
+        #in case of uncastable or invalid vid...
+        except ValueError:
+            return HttpResponseNotFound
 
 def public_profile(request, username):
     try:
         user = User.objects.get(username=username)
         if user == request.user:
             return render_to_response('profile.html', {'user':user, 'settings':settings, 'is_own_profile':True,\
-                                                       'videos':user.saved_videos()}, context_instance=RequestContext(request))
+                                                       'videos':user.liked_videos()}, context_instance=RequestContext(request))
         else:
             return render_to_response('profile.html', {'user':user, 'settings':settings, 'is_own_profile':False,\
-                                           'videos':user.saved_videos()}, context_instance=RequestContext(request))
+                                           'videos':user.liked_videos()}, context_instance=RequestContext(request))
     except Exception, e:
         return HttpResponseNotFound('')
     
