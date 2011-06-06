@@ -4,6 +4,12 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
+#if on production server, change to dev
+#(perhaps we want to set some environment
+#variable on dev, look for it with os.environ
+#and have this AUTOMATICALLY set to dev if found?)
+active_db = 'local_sqlite'
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
