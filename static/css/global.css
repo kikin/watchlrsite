@@ -890,3 +890,34 @@ a.lnk-page-next:hover {
     width:26px;
     height:26px;
 }
+
+#error-msg-dialog{
+    position:absolute;
+    width:400px;
+    height:200px;
+    background-color:#DEDEDE;
+    padding:30px;
+    text-align:center;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+    display:none;
+    font-size:14px;
+    z-index:9999;
+    left:50%;
+    margin-left:-200px;
+}
+
+#error-msg-dialog .msg-body{
+    width:320px;
+    height:180px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:left;
+}
+
+#error-msg-dialog button{
+    float:right;
+    margin-right:20px;
+    width:50px;
+}

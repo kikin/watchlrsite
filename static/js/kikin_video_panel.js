@@ -38,6 +38,13 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
 
+    var paginationThreshold = 5;
+
+    var savedVideosLoaded = 0;
+
+    var likedVideosLoaded = 0;
+    
+
     var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
             '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
             '</div>';
@@ -102,6 +109,27 @@ com.kikin.VideoPanelController = function(parent) {
 
             });
         };
+
+    /*loads n videos into present panel, where n = paginationThreshold*/
+    function _loadMore(){
+        if(activeTab == TAB_SELECTORS.likes){
+            $.ajax({
+                url : LIKED_VIDEOS_CONTENT_URL,
+                success : function(content){
+                    
+                },
+                failure : showErrorDialog(content)
+           });
+        }else if(activeTab == TAB_SELECTORS.queue){
+            $.ajax({
+                url : SAVED_VIDEOS_CONTENT_URL,
+                success : function(content){
+
+                },
+                failure : showErrorDialog(content)
+           });
+        }
+    }
 
     return {
         populatePanel : function(panel_container_selector, contentSource, request_params){

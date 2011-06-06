@@ -204,6 +204,6 @@ import logconfig
 logconfig.init()
 
 # Session cookies
-SESSION_COOKIE_AGE = 2592000 # 30 days in seconds
-SESSION_COOKIE_NAME = '_KVS' # Plugin converts this into a kikin cookie
-SESSION_COOKIE_DOMAIN = '.kikin.com' # Cross-domain!
+#SESSION_COOKIE_AGE = 2592000 # 30 days in seconds
+#SESSION_COOKIE_NAME = '_KVS' # Plugin converts this into a kikin cookie
+#SESSION_COOKIE_DOMAIN = '.kikin.com' # Cross-domain!
