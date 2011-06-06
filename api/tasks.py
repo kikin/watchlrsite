@@ -1,5 +1,3 @@
-from celery.decorators import task
-
 import re
 import urllib
 import urllib2
@@ -15,8 +13,10 @@ import gdata.youtube
 import gdata.youtube.service
 from gdata.service import RequestError
 
+from celery.decorators import task
+from django.utils.html import strip_tags
+
 from api.models import Video, Thumbnail, Source as VideoSource
-from utils import remove_html
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -54,7 +54,7 @@ class OEmbed(object):
         video.title = meta.get('title')
 
         try:
-            video.description = remove_html(meta['description'])
+            video.description = strip_tags(meta['description'])
         except KeyError:
             pass
         except:
