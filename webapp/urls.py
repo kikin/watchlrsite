@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import patterns, include, url
-from kikinvideo import settings
+from django.conf import settings
 
 urlpatterns = patterns('webapp',
                        (r'^$', 'views.home'),

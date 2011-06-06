@@ -1,42 +1,3 @@
-/**
-* Function takes full #! url and returns the path + params
-* of this URL in a 2-element hash.
-*
-* @param hash_url the full hash bang url (including '#!').
-*/
-function parseHashURL(hash_url) {
-
-var path;
-
-//strip out hash bang   ('#!')...
-var url_content = hash_url.substring(2, hash_url.length);
-
-if (url_content.search('\\?') == -1) {
-    path = url_content;
-}else{
-    path = url_content.substring(0, url_content.search('\\?'));
-}
-
-var urlParams = {};
-if ((url_content.search('\\?') != -1)){
-    url_content = url_content.substring(url_content.search('\\?'), url_content.length);
-    var e,
-            a = /\+/g,  // Regex for replacing addition symbol with a space
-            r = /([^&=]+)=?([^&]*)/g,
-            d = function (s) {
-                return decodeURIComponent(s.replace(a, " "));
-            },
-            q = url_content.substring(1);
-
-    while (e = r.exec(q))
-        urlParams[d(e[1])] = d(e[2]);
-}
-    return {
-        path : path,
-        params : urlParams
-    }
-}
-
 com.kikin.video.HomeViewController = function() {
     //selectors
 
@@ -173,8 +134,8 @@ com.kikin.video.HomeViewController = function() {
             swapTab(selector);
         },
 
-        /*hash-changes function as primary method of propogating state...
-        * bind them to fun*/
+        /*hash-changes serve as the primary method of propogating state throughout this frontend...
+        * bind them to their corresponding UI-manipulation functions below*/
         onHashChange : function(hash_url) {
             var url_content = parseHashURL(hash_url);
             if(url_content.path == VIDEO_PLAYER_PATH){

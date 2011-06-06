@@ -14,41 +14,36 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Sandesh Devaraju', 'sandesh@kikin.com')
+    ('Sandesh Devaraju', 'sandesh@kikin.com'),
 )
 
 MANAGERS = ADMINS
 
 database_configurations = {
     'dev': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'kikinvideo',
-        'USER': 'webapp',
-        'PASSWORD': 'savemore',
-        'HOST': 'dev-video.kikin.com',
-        'PORT': '',
-        },
-    'local_postgresql': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
         'HOST': '',
         'PORT': '',
         },
-    'local_mysql': {
+    'local': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
         'PORT': '',
         },
     'local_sqlite':{
-    	'ENGINE':'django.db.backends.sqlite3',
-        'NAME':'kikinvideo'
-     }
+        'ENGINE':'django.db.backends.sqlite3',
+        'NAME':'kikinvideo',
+    }
 }
+
+# Picks up database configuration from environment variable
+active_db = os.environ.get('VIDEO_ENV', 'local')
 
 DATABASES = { 'default': database_configurations[active_db] }
 
@@ -199,6 +194,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/'
 
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
+FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']
 
 # broker transport
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
