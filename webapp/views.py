@@ -5,6 +5,8 @@ from django.contrib.auth.views import login, logout
 from django.conf import settings
 from kikinvideo.api.models import Video, User, Preference
 
+ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you have requested"
+
 def home(request):
     if request.user.is_authenticated():
         return render_to_response('user_home.html', {'settings': settings}, context_instance=RequestContext(request))
@@ -35,6 +37,7 @@ def liked_video_queue(request):
         return render_to_response('content/video_queue.hfrg',{'user':request.user,
                                   'display_mode':'liked', 'settings': settings, 'videos': request.user.liked_videos()},
                                   context_instance=RequestContext(request))
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 
 def saved_video_queue(request):
@@ -42,6 +45,7 @@ def saved_video_queue(request):
         return render_to_response('content/video_queue.hfrg',{'user':request.user,
                                   'display_mode':'saved', 'settings': settings, 'videos': request.user.saved_videos()},
                                   context_instance=RequestContext(request))
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 
 def video_player(request, video_id):
@@ -64,7 +68,7 @@ def video_detail(request):
             #in case of uncastable or invalid vid...
             except ValueError:
                 return HttpResponseNotFound
-    return HttpResponseForbidden('You must log in to view this content')
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 def public_profile(request, username):
     try:
