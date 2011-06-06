@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "user_home.html" %}
 {% load kikinvideo_tags %}
 {% block content %}
     <div id="video-{{video.id}}" class="video-wrapper">
@@ -11,11 +11,21 @@
                     {{ video.total_likes }}
                 {%  endif %}
                 </div>
-                <a href="/#!/like?vid={{ video.id }}" title="like">
-                {% if video in user.liked_videos %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                {% if user.is_authenticated %}
+                    <a>
+                    {% if video in user.liked_videos %}
+                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% else %}
+                        <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% endif %}
+                    </a>
                 {% else %}
-                    <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                <a>
+                {% if video.total_likes > 0 %}
+                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% else %}
+                        <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"
+                    {% endif %}
                 {% endif %}
                 </a>
             </div>
@@ -32,7 +42,9 @@
             <div class="video-info">
                 <div class="video-description">{{ video.description }}</div>
                 <div class="video-saved">
-                    <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
+                    {% if user.is_authenticated %}
+                        <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
+                    {% endif %}
                     &bull;
                     <a href="{{video.url}}">{{ video.title }}</a>
                 </div>
