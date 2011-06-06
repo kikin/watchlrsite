@@ -62,6 +62,7 @@ class OEmbed(object):
                         (meta['description'], format_exc()))
 
         video.html_embed_code = meta.get('html')
+        video.html5_embed_code = meta.get('html5')
 
         video.fetched = datetime.utcnow()
 
@@ -532,7 +533,7 @@ class EmbedlyFetcher(object):
         try:
             meta['html5'] = self.fetch_html5(url)
         except:
-            logger.exception('Error fetching HTML5 embed code for: %s' % url)
+            logger.error('Error fetching HTML5 embed code for: %s' % url)
 
         return meta
 
