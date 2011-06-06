@@ -4,12 +4,6 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-#if on production server, change to dev
-#(perhaps we want to set some environment
-#variable on dev, look for it with os.environ
-#and have this AUTOMATICALLY set to dev if found?)
-active_db = 'local'
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -196,25 +190,11 @@ LOGOUT_URL = '/'
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
 FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']
 
-# broker transport
-BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
-
 import djcelery
 djcelery.setup_loader()
 
-# broker settings
-BROKER_HOST = "localhost"
-BROKER_PORT = 5672
-BROKER_USER = "guest"
-BROKER_PASSWORD = "guest"
-BROKER_VHOST = "/"
-
-# No tasks currently produce results or use rate limits
-CELERY_IGNORE_RESULT = True
-CELERY_DISABLE_RATE_LIMITS = True
-
-CELERY_ALWAYS_EAGER = True
-TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'
+# broker transport
+BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
 # Set up logging
 from logging import basicConfig, DEBUG
