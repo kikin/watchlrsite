@@ -2,6 +2,5 @@
 *.swp
 .idea
 error.log
-apache/*
-scripts/*
+scripts/
 .DS_Store
