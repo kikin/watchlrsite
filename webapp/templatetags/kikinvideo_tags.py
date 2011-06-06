@@ -75,8 +75,11 @@ def source_icon(video):
     return video.source.favicon
 
 @register.filter
-def video_page(video):
-    return video.source.url
+def video_page(video, user):
+    user_video = UserVideo.objects.get(video=video, user=user).host
+    if not user_video:
+        return ""
+    return user_video
 
 @register.filter
 def source_url_root(video):

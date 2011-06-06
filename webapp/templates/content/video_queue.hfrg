@@ -78,7 +78,7 @@
                     </a>
                     &bull;
                     {% if video.source %}
-                        <a href="{{ video|video_page }}" target="_blank">source</a>
+                        <a href="{{ video|video_page:user }}" target="_blank">source</a>
                     {% endif %}
                     {% if display_mode != 'public_profile' %}
                     &bull;
