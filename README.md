@@ -204,3 +204,18 @@ http://docs.djangoproject.com/en/dev/topics/testing/#writing-doctests
 Example:
 
     python manage.py test api.User.like_video
+
+Deployment
+----------
+
+On development and production environments, the project will be deployed behind Apache running mod_wsgi.
+Apache site configuration file is apache/video.site and associated WSGI script is apache/django.wsgi.
+
+Pushing Changes to Development Server
+-------------------------------------
+
+Assuming you have the SSH permissions on dev-video.kikin.com, the following steps illustrate pushing changes
+to the development server.
+
+    git remote add dev ssh://dev-video.kikin.com/opt/video_env/kikinvideo
+    git push dev
