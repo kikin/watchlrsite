@@ -554,7 +554,10 @@ class EmbedlyFetcher(object):
             logger.warning('Non-success response code fetching metadata: %s' % fetch_url)
             return None
 
-        meta = json.loads(response.read())
+        content = response.read()
+        logger.debug('Embed.ly response for url:%s\n%s' % (url, content))
+
+        meta = json.loads(content)
         return meta.get('html')
 
 
