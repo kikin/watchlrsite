@@ -11,8 +11,7 @@ from re import split
 from json import loads, dumps
 
 import logging
-
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('kikinvideo')
 
 def json_view(f):
     def wrap(request, *args, **kwargs):
