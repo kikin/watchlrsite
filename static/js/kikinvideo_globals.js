@@ -1,5 +1,5 @@
 //project namesapce...
-var com = { kikin : {video : {} } };
+var com = { kikin : {video : {'util':{}}}};
 
 //the path, in #! url, that indicates video player should be opened
 var VIDEO_PLAYER_PATH = '/player';
@@ -56,3 +56,42 @@ var TAB_SELECTORS = {
 };
 
 var activeTab;
+
+/**
+* Function takes full #! url and returns the path + params
+* of this URL in a 2-element hash.
+*
+* @param hash_url the full hash bang url (including '#!').
+*/
+function parseHashURL(hash_url) {
+
+    var path;
+
+//strip out hash bang   ('#!')...
+    var url_content = hash_url.substring(2, hash_url.length);
+
+    if (url_content.search('\\?') == -1) {
+        path = url_content;
+    }else{
+        path = url_content.substring(0, url_content.search('\\?'));
+    }
+
+    var urlParams = {};
+    if ((url_content.search('\\?') != -1)){
+        url_content = url_content.substring(url_content.search('\\?'), url_content.length);
+        var e,
+                a = /\+/g,  // Regex for replacing addition symbol with a space
+                r = /([^&=]+)=?([^&]*)/g,
+                d = function (s) {
+                    return decodeURIComponent(s.replace(a, " "));
+                },
+                q = url_content.substring(1);
+
+        while (e = r.exec(q))
+            urlParams[d(e[1])] = d(e[2]);
+    }
+    return {
+        path : path,
+        params : urlParams
+    }
+}
