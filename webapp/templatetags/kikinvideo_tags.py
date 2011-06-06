@@ -1,6 +1,7 @@
 from django import template
 from datetime import datetime
 from urlparse import urlparse
+from kikinvideo.api.models import UserVideo
 
 register = template.Library()
 
@@ -74,13 +75,12 @@ def source_icon(video):
     return video.source.favicon
 
 @register.filter
-def source_url(video):
-    return video.source.url
+def video_page(video, user):
+    return UserVideo.objects.get(user=user, video=video).host
 
 @register.filter
 def source_url_root(video):
-    source_url_components = urlparse(video.source.url)
-    return source_url_components.scheme + "://" + source_url_components.hostname
+    return video.source.url
 
 @register.filter
 def truncate_text(text, letter_count):
