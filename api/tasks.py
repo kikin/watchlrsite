@@ -19,7 +19,7 @@ from api.models import Video, Thumbnail, Source as VideoSource
 from utils import remove_html
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('kikinvideo')
 
 class Source(dict):
     FAVICON_FETCHER = 'http://fav.us.kikin.com/favicon/s?%s'
