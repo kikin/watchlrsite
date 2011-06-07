@@ -24,9 +24,6 @@
 					<li>
                         <a id="profileHomeLink" href="/{{ user.username }}">Profile</a>
                     <li>
-                        <a href="/{{ user.username }}">Profile</a>
-                    </li>
-                    <li>
                         <a href="https://webux.wufoo.com/forms/m7x1p5/"
                            onclick="window.open(this.href,  null, 'height=685, width=680, toolbar=0, location=0, status=1, scrollbars=1, resizable=1'); return false"
                            title="kikin Video Feedback">Feedback</a>
@@ -59,12 +56,12 @@
             </li>
         </ul>
         <br class="clear">
-
-        <div style="border-top: 1px solid rgb(204, 204, 204);"></div>
-        <br class="clear">
-        <div id="videoList">
-            {% block videolist %}
-            {% endblock videolist %}
+        <div id="video-wrapper-left-filler" style="position:absolute;height:20px;width:10px;margin-left:0px;margin-top:2px;background-color:#E5EFF3;z-index:1;"></div>
+        <div id="videoListWrapper">
+            <div id="videoList">
+                {% block videolist %}
+                {% endblock videolist %}
+            </div>
         </div>
     </div>
     <a id="lnk-page-next" href="#!/next" style="display: none;">load more videos</a>

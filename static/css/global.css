@@ -116,7 +116,7 @@ a:hover {
     width: 100%;
     top: 0px;
     padding: 10px;
-    background: #fff;
+    background: #0c536f;
     z-index: 10;
     -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
@@ -128,7 +128,7 @@ a:hover {
     position: absolute;
     width: 224px;
     height: 42px;
-    background: url(/static/images/kikin_beta.gif) no-repeat;
+    background: url(/static/images/kikin_logo.png) no-repeat;
     margin: 8px 0 0 0;
 }
 
@@ -145,7 +145,7 @@ a:hover {
 }
 
 #header-right .gbma {
-    border-color: #000000 transparent transparent;
+    border-color: #FFFFFF transparent transparent;
     border-right: 3px dashed transparent;
     border-style: solid dashed dashed;
     border-width: 7px 5px 0;
@@ -194,6 +194,10 @@ a:hover {
     margin-bottom: 5px;
 }
 
+#options a{
+   color: #0c536f;
+}
+
 .options-breaker {
     border-bottom: 5px solid #DDDDDD;
     margin: 38px 0 0 0;
@@ -225,10 +229,29 @@ a:hover {
     min-height: 300px;
 }
 
+.loading-container{
+    text-align:center;
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    position:absolute;
+    padding-top: 200px;
+    width: 100%;
+    height: 100%;
+    top:0px;
+    left:0px;
+    z-index:9999;
+    background-color: #000000;
+    opacity: 0.2;
+}
+
 .loading {
     background: url('/static/images/ajax-loader.gif') no-repeat;
-    height: 16px;
-    padding: 0 0 0 20px;
+    margin-left: auto;
+    margin-right: auto;
+    width:110px;
+    height:110px;
+    opacity:1.0;
 }
 
 #video-section {
@@ -236,8 +259,32 @@ a:hover {
     padding-bottom: 15px;
 }
 
+#videoList{
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    width:780px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: -30px;
+    text-align: left;
+}
+
+#videoListWrapper{
+    background-color: #e5eff3;
+    text-align: center;
+    width:800px;
+    padding-top:10px;
+    padding-bottom: 10px;
+    border-radius: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    z-index:9999;
+}
+
 ul.navigation {
-    margin: 10px auto 10px auto;
+    margin: 0px auto 0px auto;
     padding-left: 5px;
 }
 
@@ -251,11 +298,11 @@ ul.navigation li {
     border-radius: 10px 10px 2px 2px;
     float: left;
     margin: 0 10px 0 0;
-    border: solid 1px #777;
-    border-bottom: 0;
     position: relative;
     top: 2px;
     background: #eee;
+    margin-left: -5px;
+    z-index:0;
 }
 
 ul.navigation li a:link, ul.navigation li a:visited {
@@ -271,12 +318,12 @@ ul.navigation li a:link, ul.navigation li a:visited {
     text-decoration: none;
     font-size: 16px;
     font-weight: bold;
-    color: #777;
+    color: #FFFFFF;
     letter-spacing: 1px;
     outline: none;
     float: left;
     top: 1px;
-    background: #dedede;
+    background-color: #0c536f;
     -webkit-transition: background-color 0.3s linear;
     -moz-transition: background-color 0.3s linear;
     -o-transition: background-color 0.3s linear;
@@ -284,18 +331,18 @@ ul.navigation li a:link, ul.navigation li a:visited {
 
 ul.navigation li a:hover {
     background: #f2f2f2;
+    color:#144d63;
 }
 
 ul.navigation li.selected a:hover {
-    background: #fff;
+    background-color: #ffffff;
 }
 
 ul.navigation li.selected, ul.navigation li.selected a {
-    color: #43B6E6;
+    color: #144d63;
     border-color: #CCC;
     cursor: default;
-    border-bottom: 1px solid #fff;
-    background: #fff;
+    background: #e5eff3;
 }
 
 #myConnectionsNot,
@@ -315,6 +362,11 @@ ul.navigation li.selected, ul.navigation li.selected a {
     font-size: 14px;
     font-weight: bold;
     margin: 6px 0 0 0;
+    color:#FFFFFF;
+}
+
+.profileName a.hover{
+   color: #0c536f;
 }
 
 #myConnections {
@@ -514,8 +566,10 @@ ul>span.cufon-canvas {
 
 .featureTxt {
     text-align: left;
-    float: left;
     font-size: 14px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 10px;
     padding-bottom: 10px;
 }
 
@@ -584,25 +638,29 @@ ul>span.cufon-canvas {
 
 .video-player {
     display: none;
-    margin: 10px 0 0;
+    /*margin: 10px 0 0;*/
+    margin-top:10px;
     padding: 17px;
     background: #333;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
     text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    width:700px;
 }
 
 .video-player-close {
     float: right;
-    margin-right:-27px;
+    margin-right: -27px;
     cursor: pointer;
     font-weight: bold;
     padding: 4px;
     position: relative;
     top: -24px;
-    color: #dedede;
-    border: 1px solid #dedede;
+    color: #DEDEDE;
+    border: 1px solid #DEDEDE;
     background: #111;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
@@ -614,8 +672,9 @@ ul>span.cufon-canvas {
     text-decoration: none;
     -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
-    background-image:url(/static/images/close_button.png);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='black')";
+    background-image: url(/static/images/close_button.png);
+
 }
 
 .video-player-close:hover {
@@ -681,10 +740,11 @@ a#lnk-page-next {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
-    height:18px;
+    height:19px;
     width:100%;
     margin-left:auto;
     margin-right:auto;
+    background-color:#e5eff3;
 }
 
 a#lnk-page-next:hover {
@@ -871,7 +931,7 @@ a#lnk-page-next:hover {
 
 .video-buttons {
     position:absolute;
-    margin-left:720px;
+    margin-left:670px;
     width: 110px;
     height: 28px;
 }
@@ -928,4 +988,8 @@ a#lnk-page-next:hover {
     height:100%;
     background-color: #DEDEDE;
     opacity:0.2;
+}
+
+.video-container{
+    padding:14px;
 }
