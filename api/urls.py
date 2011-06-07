@@ -13,5 +13,5 @@ urlpatterns = patterns(
     (r'^get/(?P<video_id>[0-9]+)$', 'views.get'),
     (r'^info', 'views.info'),
     (r'^list', 'views.list'),
-    (r'seek', 'views.seek')
+    (r'^seek/(?P<video_id>[0-9]+)/(?P<position>[0-9]{1,3}(\.[0-9]{1,2})?)', 'views.seek')
 )
