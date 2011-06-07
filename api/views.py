@@ -1,9 +1,10 @@
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage
+from django.contrib.sessions.backends.db import SessionStore
 
-from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest
+from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, UserNotConnected
 from api.models import Video, User, UserVideo, Source, Notification, Preference, slugify, Thumbnail
 from api.utils import epoch, url_fix, MalformedURLException
 from api.tasks import fetch
@@ -448,7 +449,8 @@ def list(request):
             'total': paginator.count,
             'videos': videos}
 
-
+@csrf_exempt
+@json_view
 def seek(request, video_id, position):
     if not request.user.is_authenticated():
         raise Unauthorized()
@@ -462,3 +464,20 @@ def seek(request, video_id, position):
     user_video.save()
 
     return as_dict(user_video)
+
+@json_view
+def swap(request, facebook_id):
+    for current in User.objects.all():
+        if facebook_id == current.facebook_uid():
+            user = current
+            break
+    else:
+        raise UserNotConnected()
+
+    if not user.is_authenticated():
+        raise Unauthorized()
+
+    session = SessionStore()
+    session.save()
+
+    return {'session_id': session.session_key}

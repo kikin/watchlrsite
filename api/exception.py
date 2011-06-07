@@ -30,3 +30,10 @@ class VideoNotFound(BadRequest):
 
   def __init__(self, id):
     super(VideoNotFound, self).__init__('Video:%s not found' % id)
+
+class UserNotConnected(BadRequest):
+  code = 403
+  reason = 'User not connected'
+
+  def __init__(self):
+    super(UserNotConnected, self).__init__(self.reason)
