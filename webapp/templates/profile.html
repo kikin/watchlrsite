@@ -37,7 +37,7 @@
 							Liked<br>videos
 							</div>
 						</div>
-						<div id="follow-button">Follow</div>
+						<!--<div id="follow-button">Follow</div>-->
 					</div>
 					<img src="{{ settings.STATIC_URL }}images/profile/delta.png" id="delta-img"/>
 				</div>
@@ -53,20 +53,27 @@
 
                 <div class="video-buttons">
 
+                    {% comment %}
+                    .......until I have the time to implement it.....
                     <a href="#!/save_video?vid={{ video.id }}" title="add to my queue">
                         <div class="save-video-button no-hover" id="save-video-button-vid-{{ video.id }}"></div>
                     </a>
+                    {% endcomment %}
 
                     <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                     {% if video.total_likes != 0 %}
                         {{ video.total_likes }}
                     {%  endif %}
                     </div>
+
+                    <a>
                     {% if video in user.liked_videos %}
                         <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}
                         <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
                     {% endif %}
+                   </a>
+
                 </div>
                 <a href="#!/player?vid={{ video.id }}">
                     <div class="video-image" id="video-{{ video.id }}">
