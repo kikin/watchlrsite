@@ -98,7 +98,7 @@ com.kikin.video.HomeViewController = function() {
 
     return {
         bindToUI : function() {
-            this.bindEvents(this);
+            this.bindEvents();
             videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
         },
 
