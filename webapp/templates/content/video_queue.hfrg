@@ -3,28 +3,25 @@
 <meta name="video_count" content="{{ videos|length }}"/>
 
 {% if videos|length_is:"0"%}
-        <div class="loading" style="display: none;"> loading... </div>
-        <div class="videoListItems"></div>
-        <a class="lnk-page-next" href="#!/next" style="display: none;">load more videos</a>
-        <br>
-
-        {% if display_mode == "liked" %}
-            <div class="featureTxt" style="width: 600px;">
-            <h4>
-                You have no liked videos at the moment.
-            </h4>
-            <p>Click <img src="{{ settings.STATIC_URL }}images/heart_grey.png" style="height:15px; padding-right:2px;"> to like a video.  Your liked videos appear on your public profile so your friends and others can enjoy them too.</p>
-            <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_likes2.png" style="width: 600px; padding-left: 0px;">
-            </div>
-        {% endif %}
-        {% if display_mode ==  "saved"%}
-            <div class="featureTxt" style="width: 600px;">
+        <div class="video-container" style="margin-bottom: 30px;">
+            {% if display_mode == "liked" %}
+                <div class="featureTxt" style="width: 600px;">
                 <h4>
-                    You have no saved videos at the moment.
+                    You have no liked videos at the moment.
                 </h4>
-                <p>Click <img src="{{ settings.STATIC_URL }}images/save_video.png" style="height:15px; padding-right:1px;"> to add a video to your Saved Queue.</p>
-                <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="width: 600px; padding-left: 0px;">
-            </div>
+                <p>Click <img src="{{ settings.STATIC_URL }}images/heart_grey.png" style="height:15px; padding-right:2px;"/> to like a video.  Your liked videos appear on your public profile so your friends and others can enjoy them too.
+                <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_likes2.png" style="width: 600px; padding-left: 0px;"/>
+                </div>
+            {% endif %}
+            {% if display_mode ==  "saved"%}
+                <div class="featureTxt" style="width: 600px;">
+                    <h4>
+                        You have no saved videos at the moment.
+                    </h4>
+                    <p>Click <img src="{{ settings.STATIC_URL }}images/save_video.png" style="height:15px; padding-right:1px;"/> to add a video to your Saved Queue.
+                    <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="width: 600px; padding-left: 0px;"/>
+                </div>
+        </div>
         {% endif %}
 {% endif %}
 
@@ -68,7 +65,7 @@
             </a>
 
             <div class="video-info">
-                <div class="video-description">{{ video.description|truncatewords:50 }}</div>
+                <div class="video-description">{{ video.description|truncatewords:50|urlize }}</div>
                 <div class="video-saved">
                     <a href="{{ video|source_url_root }}" target="_blank">
                         <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
@@ -102,17 +99,18 @@
             </div>
 
             {% else %}
-
-            <div class="video-player" id="video-player-{{ video.id }}"
-                    style="background-color:#DEDEDE;font-size:16px;">
-                <div>
-                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                </div>
-                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                    <div class="video-no-embed-link">
-                        The host of the video you have selected requests that
-                        you access it at<br>
-                        <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
+            <div class="videoplayerContainer">
+                <div class="video-player" id="video-player-{{ video.id }}"
+                        style="background-color:#DEDEDE;font-size:16px;">
+                    <div>
+                        <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
+                    </div>
+                    <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
+                        <div class="video-no-embed-link">
+                            The host of the video you have selected requests that
+                            you access it at<br>
+                            <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
+                        </div>
                     </div>
                 </div>
             </div>
