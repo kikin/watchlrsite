@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest
 from api.models import Video, User, UserVideo, Source, Notification, Preference, slugify, Thumbnail
@@ -398,3 +399,36 @@ def profile(request):
         user.save()
 
     return as_dict(user)
+
+@json_view
+@require_http_methods(['GET',])
+def list(request):
+    user = request.user
+
+    if not user.is_authenticated():
+        raise Unauthorized()
+
+    try:
+        count = int(request.GET['count'])
+    except (KeyError, ValueError):
+        count = 10
+
+    list_fn = user.liked_videos if request.GET.get('likes') else user.saved_videos
+    paginator = Paginator(list_fn(), count)
+
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        videos = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        videos = paginator.page(paginator.num_pages).object_list
+
+    return {'page': page,
+            'count': len(videos),
+            'total': paginator.count,
+            'videos': [as_dict(video) for video in videos]}
