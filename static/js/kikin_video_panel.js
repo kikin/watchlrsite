@@ -28,21 +28,47 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_PLAYER_ID_PREFIX = "#video-player-";
 
+    var LOAD_MORE_VIDEOS_BUTTON_ID = "#lnk-page-next";
+
     var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
 
+    var VIDEO_COUNT_META_SELECTOR = "meta[name=video_count]";
+
+    var INITIAL_PAGINATION_THRESHOLD = 10;
+
+    var likedVideosPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
+
+    var saveVideosPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
+
+    //set to whatever num of these you want to initially load...
+    var savedVideosToLoad = 10;
+
+    var likedVideosToLoad = 10;
+    
+    /*content that is displayed on tab switch...*/
     var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
             '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
             '</div>';
 
-    function _populatePanel(panel_container_selector, contentSource, request_params) {
-            $(panel_container_selector).empty();
-            $(panel_container_selector).html(LOADING_DIV_HTML);
-            $.get(contentSource, request_params, function(data) {
-                $(panel_container_selector).empty();
-                $(panel_container_selector).html(data);
-                _stylizeVideoTitles();
+    /*content that is overlayed on video panel when more videos are
+    * being loaded (...pagination)*/
+    var LOADING_MORE_DIV = '<div id="loading-more"><img src="/static/images/loading_more.gif"/></div>';
 
-                $(LIKED_ICON_CONTAINER).each(function() {
+    function _loadMoreVideos(){
+        if(activeTab == TAB_SELECTORS.likes){
+            likedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
+            likedVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
+        }else if(activeTab == TAB_SELECTORS.queue){
+            savedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
+            saveVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
+        }
+        _populatePanel();
+        //invalidate hash url (so a subsequent click of "load more" button will register as hash change)
+        window.location.href += "_";
+    }
+
+    function _bindVideoPanelEvents(){
+        $(LIKED_ICON_CONTAINER).each(function() {
                     $(this).mouseover(function() {
                         if ($(this).hasClass('no-hover'))
                             $(this).removeClass('no-hover');
@@ -91,22 +117,63 @@ com.kikin.VideoPanelController = function(parent) {
                     });
 
                 });
+    }
+
+    function _populatePanel() {
+            $(VIDEO_PANEL_SELECTOR).empty();
+            $(VIDEO_PANEL_SELECTOR).html(LOADING_DIV_HTML);
+
+            var contentSource, requestParams;
+
+            if(activeTab == TAB_SELECTORS.likes){
+                contentSource = LIKED_VIDEOS_CONTENT_URL;
+                requestParams = {'start':0, 'count':likedVideosToLoad};
+            }else if (activeTab == TAB_SELECTORS.queue){
+                contentSource = SAVED_VIDEOS_CONTENT_URL;
+                requestParams = {'start':0, 'count':savedVideosToLoad};
+            }
+
+
+            $.get(contentSource, requestParams, function(data) {
+                $(VIDEO_PANEL_SELECTOR).empty();
+                $(VIDEO_PANEL_SELECTOR).html(data);
+                _stylizeVideoTitles();
+
+                _bindVideoPanelEvents();
+
+                var videoCount = parseInt($(VIDEO_COUNT_META_SELECTOR).attr('content'));
+
+                if(activeTab == TAB_SELECTORS.likes){
+                    if(videoCount >= likedVideosPaginationThreshold){
+                        $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
+                    }else{
+                        $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
+                    }
+                }else if(activeTab == TAB_SELECTORS.queue){
+                    if(videoCount >= saveVideosPaginationThreshold){
+                        $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
+                    }else{
+                        $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
+                    }
+                }
 
             });
         };
 
-        function _stylizeVideoTitles() {
-        Cufon.replace('h3.video-title, .section-title, h4', {
-                    fontFamily: 'vag',
-                    forceHitArea: true,
-                    hover: true
-                });
-        }
+     function _stylizeVideoTitles() {
+	     Cufon.replace('h3.video-title, .section-title, h4', {
+	                 fontFamily: 'vag',
+	                 forceHitArea: true,
+	                 hover: true
+	             });
+     }
+
 
     return {
-        populatePanel : function(panel_container_selector, contentSource, request_params){
-            _populatePanel(panel_container_selector, contentSource, request_params);
-        },
+        loadMoreVideos : _loadMoreVideos,
+        
+        populatePanel : _populatePanel,
+        
         loadPlayer : function(vid) {
             if(current_vid){
                 $(VIDEO_PLAYER_ID_PREFIX + current_vid).fadeOut(1000);

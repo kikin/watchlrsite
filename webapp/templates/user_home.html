@@ -23,8 +23,10 @@
                     </li>
 					<li>
                         <a id="profileHomeLink" href="/{{ user.username }}">Profile</a>
-                    <li>	
-					<li>
+                    <li>
+                        <a href="/{{ user.username }}">Profile</a>
+                    </li>
+                    <li>
                         <a href="https://webux.wufoo.com/forms/m7x1p5/"
                            onclick="window.open(this.href,  null, 'height=685, width=680, toolbar=0, location=0, status=1, scrollbars=1, resizable=1'); return false"
                            title="kikin Video Feedback">Feedback</a>
@@ -65,5 +67,5 @@
             {% endblock videolist %}
         </div>
     </div>
-    <a class="lnk-page-next" href="#!/next" style="display: none;">load more videos</a>
+    <a id="lnk-page-next" href="#!/next" style="display: none;">load more videos</a>
 {% endblock content %}
