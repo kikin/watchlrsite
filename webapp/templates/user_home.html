@@ -56,12 +56,12 @@
             </li>
         </ul>
         <br class="clear">
-
-        <div style="border-top: 1px solid rgb(204, 204, 204);"></div>
-        <br class="clear">
-        <div id="videoList">
-            {% block videolist %}
-            {% endblock videolist %}
+        <div id="video-wrapper-left-filler" style="position:absolute;height:20px;width:10px;margin-left:0px;margin-top:2px;background-color:#E5EFF3;z-index:1;"></div>
+        <div id="videoListWrapper">
+            <div id="videoList">
+                {% block videolist %}
+                {% endblock videolist %}
+            </div>
         </div>
     </div>
     <a id="lnk-page-next" href="#!/next" style="display: none;">load more videos</a>
