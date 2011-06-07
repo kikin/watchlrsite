@@ -18,6 +18,8 @@ var PROFILE_EDIT_PANEL_OPEN_PATH = '/edit_profile';
 
 var PROFILE_SAVE_PATH = '/save_profile';
 
+var LOAD_MORE_VIDEOS_PATH = '/next';
+
 var LIKED_VIDEOS_CONTENT_URL = '/content/liked_videos';
 
 var SAVED_VIDEOS_CONTENT_URL = '/content/saved_videos';
@@ -94,4 +96,21 @@ function parseHashURL(hash_url) {
         path : path,
         params : urlParams
     }
+}
+
+
+function showErrorDialog(msg){
+    var error_info = "Error details:<br><br>";
+    if(!msg){
+        error_info += "[none]";
+    }else{
+        error_info += msg;
+    }
+
+    $(ERROR_DIALOG_MESSAGE_BODY_SELECTOR).html(error_info);
+    $(ERROR_DIALOG_SELECTOR).fadeIn(600);
+}
+
+function hideErrorDialog(){
+    $(ERROR_DIALOG_SELECTOR).fadeOut(600);
 }
