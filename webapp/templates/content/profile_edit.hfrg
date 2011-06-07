@@ -11,7 +11,8 @@
         border-color: #707070;
         z-index: 100;
         top: 210px;
-        left: 400px;
+        left: 50%;
+        margin-left:-230px;
         text-align: left;
     }
 
