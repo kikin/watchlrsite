@@ -38,16 +38,16 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_COUNT_META_SELECTOR = "meta[name=video_count]";
 
-    var INITIAL_PAGINATION_THRESHOLD = 2;
+    var INITIAL_PAGINATION_THRESHOLD = 10;
 
     var likedVideosPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
 
     var saveVideosPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
 
     //set to whatever num of these you want to initially load...
-    var savedVideosToLoad = 2;
+    var savedVideosToLoad = 10;
 
-    var likedVideosToLoad = 2;
+    var likedVideosToLoad = 10;
     
     /*content that is displayed on tab switch...*/
     var LOADING_DIV_HTML = '<div class="loading-container">' +
@@ -128,16 +128,11 @@ com.kikin.VideoPanelController = function(parent) {
     }
 
     function _populatePanel() {
-
-          /*  if(initialLoad){
-                initialLoad = false;
-                $(VIDEO_PANEL_SELECTOR).append('<div style="position:absolute;top:0px;' +
-                        'left:0px;width:100%;height:100%;background-color: #000000;opacity:0.1;z-index:10000"></div>');
-            }else{*/
+        
                 $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-                //$(LOADING_ICON_BACKGROUND).css({width:$(VIDEO_PANEL_SELECTOR).width(),
-              //                  height:$(VIDEO_PANEL_SELECTOR).height()});
-            //}
+                $(LOADING_ICON_BACKGROUND).css({width:'100%',
+                                height:'100%'});
+            
 
             var contentSource, requestParams;
 
