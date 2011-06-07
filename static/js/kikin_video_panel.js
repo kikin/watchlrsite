@@ -1,13 +1,5 @@
 com.kikin.VideoPanelController = function(parent) {
 
-    function _stylizeVideoTitles() {
-        Cufon.replace('h3.video-title, .section-title, h4', {
-                    fontFamily: 'vag',
-                    forceHitArea: true,
-                    hover: true
-                });
-    }
-
     var current_vid;
 
     var currentUser;
@@ -142,6 +134,15 @@ com.kikin.VideoPanelController = function(parent) {
            });
         }
     }
+
+     function _stylizeVideoTitles() {
+	     Cufon.replace('h3.video-title, .section-title, h4', {
+	                 fontFamily: 'vag',
+	                 forceHitArea: true,
+	                 hover: true
+	             });
+     }
+
 
     return {
         populatePanel : function(panel_container_selector, contentSource, request_params){

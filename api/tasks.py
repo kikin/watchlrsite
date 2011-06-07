@@ -1,5 +1,3 @@
-from celery.decorators import task
-
 import re
 import urllib
 import urllib2
@@ -15,8 +13,13 @@ import gdata.youtube
 import gdata.youtube.service
 from gdata.service import RequestError
 
+from celery.decorators import task
+from django.utils.html import strip_tags
+
 from api.models import Video, Thumbnail, Source as VideoSource
-from utils import remove_html
+
+import logging
+logger = logging.getLogger('kikinvideo')
 
 class Source(dict):
     FAVICON_FETCHER = 'http://fav.us.kikin.com/favicon/s?%s'
@@ -51,14 +54,15 @@ class OEmbed(object):
         video.title = meta.get('title')
 
         try:
-            video.description = remove_html(meta['description'])
+            video.description = strip_tags(meta['description'])
         except KeyError:
             pass
         except:
-            logger.warn('Error cleaning HTML markup from description:%s\n%s' %\
+            logger.warning('Error cleaning HTML markup from description:%s\n%s' %\
                         (meta['description'], format_exc()))
 
         video.html_embed_code = meta.get('html')
+        video.html5_embed_code = meta.get('html5')
 
         video.fetched = datetime.utcnow()
 
@@ -461,6 +465,12 @@ class EmbedlyFetcher(object):
             </object>''',
         }
 
+    PRO_OEMBED_API_ENDPOINT = 'http://pro.embed.ly/1/oembed'
+
+    KEY = '59772722865011e088ae4040f9f86dcd'
+
+    IPAD_USER_AGENT = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
+
     def __init__(self):
         self.providers = dict()
         sources = urllib2.urlopen(self.OEMBED_SERVICE_ENDPOINT).read()
@@ -491,7 +501,7 @@ class EmbedlyFetcher(object):
             pass
 
         # Gather options
-        params = {url: url,
+        params = {'url': url,
                   'maxwidth': self.MAX_WIDTH,
                   'maxheight': self.MAX_HEIGHT,
                   'autoplay': True}
@@ -520,7 +530,36 @@ class EmbedlyFetcher(object):
         except KeyError:
             meta['source'] = Source(provider, meta['provider_url'])
 
+        try:
+            meta['html5'] = self.fetch_html5(url)
+        except:
+            logger.error('Error fetching HTML5 embed code for: %s' % url)
+
         return meta
+
+    def fetch_html5(self, url):
+        params = {'url': url, 'autoplay': True, 'key': self.KEY}
+
+        logger.debug('Fetching HTML5 video metadata for URL:%s' % url)
+
+        query = urllib.urlencode(params)
+
+        opener = urllib2.build_opener()
+        opener.addheaders = [('User-agent', self.IPAD_USER_AGENT)]
+
+        fetch_url = '%s?%s' % (self.PRO_OEMBED_API_ENDPOINT, query)
+
+        response = opener.open(fetch_url)
+
+        if not response.getcode() == 200:
+            logger.warning('Non-success response code fetching metadata: %s' % fetch_url)
+            return None
+
+        content = response.read()
+        logger.debug('Embed.ly response for url:%s\n%s' % (url, content))
+
+        meta = json.loads(content)
+        return meta.get('html')
 
 
 class YoutubeFetcher(object):
@@ -542,6 +581,9 @@ class YoutubeFetcher(object):
     type="application/x-shockwave-flash" width="640" height="360">
   </embed>
 </object>'''
+
+    YOUTUBE_HTML5_EMBED_TAG = '''<iframe type="text/html" width="100%%" height="100%%"
+    src="http://www.youtube.com/embed/%(id)s?enablejsapi=1&autoplay=1" frameborder="0">'''
 
     def __init__(self):
         self.yt_service = gdata.youtube.service.YouTubeService()
@@ -612,9 +654,10 @@ class YoutubeFetcher(object):
 
             meta['embeddable'] = False if entry.noembed else True
             if not meta['embeddable']:
-                logger.warn('Youtube video:%s not embeddable' % video_id)
+                logger.warning('Youtube video:%s not embeddable' % video_id)
 
             meta['html'] = self.YOUTUBE_EMBED_TAG % {'id': video_id}
+            meta['html5'] = self.YOUTUBE_HTML5_EMBED_TAG % {'id': video_id}
 
             meta['source'] = self.SOURCE
 
@@ -773,6 +816,8 @@ class VimeoFetcher(object):
          type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="640" height="360"></embed>
 </object>'''
 
+    VIMEO_HTML5_EMBED_TAG = '''<video src="http://www.vimeo.com/play_redirect?clip_id=%(id)s" controls="controls" width="100%%" height="100%%"></video>'''
+
     def sources(self):
         return (self.SOURCE,)
 
@@ -813,6 +858,7 @@ class VimeoFetcher(object):
         meta['mobile_thumbnail_width'], meta['thumbnail_height'] = 100, 75
 
         meta['html'] = self.VIMEO_EMBED_TAG % {'id': id}
+        meta['html5'] = self.VIMEO_HTML5_EMBED_TAG % {'id': id}
 
         meta['source'] = self.SOURCE
 
