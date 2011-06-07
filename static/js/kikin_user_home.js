@@ -99,7 +99,7 @@ com.kikin.video.HomeViewController = function() {
     return {
         bindToUI : function() {
             this.bindEvents();
-            videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+            videoPanelController.populatePanel();
         },
 
         bindEvents : function() {
@@ -151,11 +151,13 @@ com.kikin.video.HomeViewController = function() {
                 videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
             }if(url_content.path == LIKED_QUEUE_PATH){
                 swapTab(TAB_SELECTORS.likes);
-                videoPanelController.populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
+                videoPanelController.populatePanel();
             }if(url_content.path == PROFILE_EDIT_PANEL_OPEN_PATH){
                 handleProfileEditPanelOpen();
             }if(url_content.path == PROFILE_SAVE_PATH){
                 handleProfileSave();
+            }if(url_content.path == LOAD_MORE_VIDEOS_PATH){
+                videoPanelController.loadMoreVideos();
             }
         }
     }

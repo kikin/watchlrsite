@@ -3,7 +3,6 @@
 <meta name="video_count" content="{{ videos|length }}"/>
 
 {% if videos|length_is:"0"%}
-    <div class="videoList">
         <div class="loading" style="display: none;"> loading... </div>
         <div class="videoListItems"></div>
         <a class="lnk-page-next" href="#!/next" style="display: none;">load more videos</a>
@@ -27,9 +26,6 @@
                 <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="width: 600px; padding-left: 0px;">
             </div>
         {% endif %}
-
-        </div>
-    </div>
 {% endif %}
 
 {% for video in videos %}
