@@ -40,18 +40,30 @@ com.kikin.VideoPanelController = function(parent) {
 
     var paginationThreshold = 5;
 
-    var savedVideosLoaded = 0;
+    var savedVideosToLoad = 5;
 
-    var likedVideosLoaded = 0;
+    var likedVideosToLoad = 5;
     
 
     var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
             '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
             '</div>';
 
-    function _populatePanel(panel_container_selector, contentSource, request_params) {
-            $(panel_container_selector).empty();
-            $(panel_container_selector).html(LOADING_DIV_HTML);
+    function _populatePanel() {
+            $(VIDEO_PANEL_SELECTOR).empty();
+            $(VIDEO_PANEL_SELECTOR).html(LOADING_DIV_HTML);
+
+            var contentSource, requestParams;
+
+            if(activeTab == TAB_SELECTORS.likes){
+                contentSource = LIKED_QUEUE_PATH;
+                requestParams = {'start':0, 'count':likedVideosToLoad};
+            }else if (activeTab == TAB_SELECTORS.queue){
+                contentSource = SAVED_QUEUE_PATH;
+                requestParams = {'start':0, 'count':savedVideosToLoad};
+            }
+
+
             $.get(contentSource, request_params, function(data) {
                 $(panel_container_selector).empty();
                 $(panel_container_selector).html(data);
