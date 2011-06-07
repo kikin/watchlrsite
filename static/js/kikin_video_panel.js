@@ -32,6 +32,10 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
 
+    var LOADING_ICON_BACKGROUND = ".loading-container";
+
+    var LOADING_ICON = ".loading";
+
     var VIDEO_COUNT_META_SELECTOR = "meta[name=video_count]";
 
     var INITIAL_PAGINATION_THRESHOLD = 10;
@@ -46,13 +50,17 @@ com.kikin.VideoPanelController = function(parent) {
     var likedVideosToLoad = 10;
     
     /*content that is displayed on tab switch...*/
-    var LOADING_DIV_HTML = '<div style="width:100%;text-align:center;">' +
-            '<div class="loading" style="margin-left:auto;margin-right:auto;width:60px;height:60px;"></div>' +
+    var LOADING_DIV_HTML = '<div class="loading-container">' +
+            '<div class="loading"></div>' +
             '</div>';
 
     /*content that is overlayed on video panel when more videos are
     * being loaded (...pagination)*/
     var LOADING_MORE_DIV = '<div id="loading-more"><img src="/static/images/loading_more.gif"/></div>';
+
+    //this is an ugly hack around a jQuery/css issue...see body
+    //of _populatePanel
+    var initialLoad = true;
 
     function _loadMoreVideos(){
         if(activeTab == TAB_SELECTORS.likes){
@@ -120,8 +128,11 @@ com.kikin.VideoPanelController = function(parent) {
     }
 
     function _populatePanel() {
-            $(VIDEO_PANEL_SELECTOR).empty();
-            $(VIDEO_PANEL_SELECTOR).html(LOADING_DIV_HTML);
+        
+                $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
+                $(LOADING_ICON_BACKGROUND).css({width:'100%',
+                                height:'100%'});
+            
 
             var contentSource, requestParams;
 
@@ -135,7 +146,6 @@ com.kikin.VideoPanelController = function(parent) {
 
 
             $.get(contentSource, requestParams, function(data) {
-                $(VIDEO_PANEL_SELECTOR).empty();
                 $(VIDEO_PANEL_SELECTOR).html(data);
                 _stylizeVideoTitles();
 
@@ -190,19 +200,20 @@ com.kikin.VideoPanelController = function(parent) {
             var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
 
             /*for nice expando effect...*/
-            var video_player_target_width = '100%';
+            var video_player_target_width = video_player_div.width();
             var video_player_target_height = video_player_div.height();
 
-            video_player_div.css({width:0, height:0});
+            video_player_div.css({width:0, height:0, 'margin-left':'0px'});
 
             video_embed_div.hide();
 
             video_player_div.fadeIn(100);
 
             video_player_div.animate({width:video_player_target_width,
-                        height:video_player_target_height}, 500,
+                        height:video_player_target_height, 'margin-left':'auto'}, 500,
                         function(){
-                            video_embed_div.fadeIn(100);
+                           // video_embed_div.fadeIn(100);
+                            video_embed_div.show();
                         });
                                         //scroll to the video...
             $('html, body').animate({
