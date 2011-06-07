@@ -221,6 +221,7 @@ class User(auth_models.User):
             p.value = int(value)
             p.save()
 
+
 class UserFollowsUser(models.Model):
     follower = models.ForeignKey(User, related_name='followee', db_index=True)
     followee = models.ForeignKey(User, related_name='follower', db_index=True)
