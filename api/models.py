@@ -145,7 +145,7 @@ class User(auth_models.User):
         except UserVideo.DoesNotExist:
             user_video = UserVideo(user=self, video=video)
 
-        timestamp = kwargs.get('timestamp', datetime.utcnow())
+        timestamp = kwargs.get('timestamp', None) or datetime.utcnow()
 
         for property in properties:
             try:
@@ -174,6 +174,10 @@ class User(auth_models.User):
         >>> user_video.saved
         False
         '''
+
+        if timestamp is None:
+            timestamp = datetime.utcnow()
+
         return self._create_or_update_video(video, **{'liked': True, 'timestamp': timestamp})
 
     def unlike_video(self, video):
@@ -183,6 +187,8 @@ class User(auth_models.User):
         return Video.objects.filter(user__id=self.id, uservideo__liked=True).order_by('-uservideo__liked_timestamp')
 
     def save_video(self, video, timestamp=None):
+        if timestamp is None:
+            timestamp = datetime.utcnow()
         return self._create_or_update_video(video, **{'saved': True, 'timestamp': timestamp})
 
     def remove_video(self, video):
@@ -191,11 +197,13 @@ class User(auth_models.User):
     def saved_videos(self):
         return Video.objects.filter(user__id=self.id, uservideo__saved=True).order_by('-uservideo__saved_timestamp')
 
-    def mark_video_watched(self, video):
+    def mark_video_watched(self, video, timestamp=None):
+        if timestamp is None:
+            timestamp = datetime.utcnow()
         return self._create_or_update_video(video, **{'watched': True, 'timestamp': timestamp})
 
     def mark_video_unwatched(self, video):
-        return self._create_or_update_video(video, **{'watched': False, 'timestamp': timestamp})
+        return self._create_or_update_video(video, **{'watched': False})
 
     def watched_videos(self):
         return Video.objects.filter(user__id=self.id, uservideo__watched=True).order_by('-uservideo__watched_timestamp')
