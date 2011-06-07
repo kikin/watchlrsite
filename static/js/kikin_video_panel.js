@@ -48,17 +48,17 @@ com.kikin.VideoPanelController = function(parent) {
             var contentSource, requestParams;
 
             if(activeTab == TAB_SELECTORS.likes){
-                contentSource = LIKED_QUEUE_PATH;
+                contentSource = LIKED_VIDEOS_CONTENT_URL;
                 requestParams = {'start':0, 'count':likedVideosToLoad};
             }else if (activeTab == TAB_SELECTORS.queue){
-                contentSource = SAVED_QUEUE_PATH;
+                contentSource = SAVED_VIDEOS_CONTENT_URL;
                 requestParams = {'start':0, 'count':savedVideosToLoad};
             }
 
 
-            $.get(contentSource, request_params, function(data) {
-                $(panel_container_selector).empty();
-                $(panel_container_selector).html(data);
+            $.get(contentSource, requestParams, function(data) {
+                $(VIDEO_PANEL_SELECTOR).empty();
+                $(VIDEO_PANEL_SELECTOR).html(data);
                 _stylizeVideoTitles();
 
                 $(LIKED_ICON_CONTAINER).each(function() {
