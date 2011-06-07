@@ -158,7 +158,7 @@ class User(auth_models.User):
         user_video.save()
         return user_video
 
-    def like_video(self, video, timestamp=datetime.utcnow()):
+    def like_video(self, video, timestamp=None):
         '''
         Like a video. Creates an association between `User` and `Video` objects (if one doesn't exist already).
 
@@ -182,7 +182,7 @@ class User(auth_models.User):
     def liked_videos(self):
         return Video.objects.filter(user__id=self.id, uservideo__liked=True).order_by('-uservideo__liked_timestamp')
 
-    def save_video(self, video, timestamp=datetime.utcnow()):
+    def save_video(self, video, timestamp=None):
         return self._create_or_update_video(video, **{'saved': True, 'timestamp': timestamp})
 
     def remove_video(self, video):
@@ -238,6 +238,7 @@ class UserVideo(models.Model):
     liked_timestamp = models.DateTimeField(null=True, db_index=True)
     watched = models.BooleanField(default=False, db_index=True)
     watched_timestamp = models.DateTimeField(null=True, db_index=True)
+    position = models.DecimalField(max_digits=5, decimal_places=2, null=True)
 
     @classmethod
     def save_count(cls, video):

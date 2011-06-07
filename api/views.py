@@ -10,6 +10,7 @@ from api.tasks import fetch
 
 from re import split
 from json import loads, dumps
+from decimal import Decimal
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -58,7 +59,8 @@ def as_dict(obj):
                 'liked': obj.liked,
                 'likes': UserVideo.like_count(obj.video),
                 'saved': obj.saved,
-                'saves': UserVideo.save_count(obj.video)}
+                'saves': UserVideo.save_count(obj.video),
+                'position': obj.position}
 
     elif isinstance(obj, User):
         return {'name': ' '.join([obj.first_name, obj.last_name]),
@@ -445,3 +447,18 @@ def list(request):
             'count': len(videos),
             'total': paginator.count,
             'videos': videos}
+
+
+def seek(request, video_id, position):
+    if not request.user.is_authenticated():
+        raise Unauthorized()
+
+    try:
+        user_video = UserVideo.objects.filter(user=request.user, video__id=video_id)
+    except UserVideo.DoesNotExist:
+        raise BadRequest('')
+
+    user_video.position = Decimal(position)
+    user_video.save()
+
+    return as_dict(user_video)
