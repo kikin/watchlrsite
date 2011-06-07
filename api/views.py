@@ -423,12 +423,25 @@ def list(request):
         page = 1
 
     try:
-        videos = paginator.page(page).object_list
+        items = paginator.page(page).object_list
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        videos = paginator.page(paginator.num_pages).object_list
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
+    try:
+        type = request.GET['type']
+        if not type in ('html', 'html5'):
+            raise ValueError
+    except (KeyError, ValueError):
+        type = 'html'
+
+    videos = []
+    for item in items:
+        video = as_dict(item)
+        video['html'] = getattr(item, '%s_embed_code' % type)
+        videos.append(video)
 
     return {'page': page,
             'count': len(videos),
             'total': paginator.count,
-            'videos': [as_dict(video) for video in videos]}
+            'videos': videos}
