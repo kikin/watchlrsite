@@ -187,7 +187,7 @@ com.kikin.VideoPanelController = function(parent) {
         
         loadPlayer : function(vid) {
             if(current_vid){
-                $(VIDEO_PLAYER_ID_PREFIX + current_vid).fadeOut(1000);
+                $(VIDEO_PLAYER_ID_PREFIX + current_vid).hide();
                 if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
                     $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
                 }
@@ -218,7 +218,7 @@ com.kikin.VideoPanelController = function(parent) {
                         });
                                         //scroll to the video...
             $('html, body').animate({
-                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-80
+                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-40
                     }, 1000);
             
             current_vid = vid;
