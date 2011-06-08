@@ -176,5 +176,7 @@ $(document).ready(
 
             //in case we're refreshing...
             homeViewController.onHashChange(location.hash);
+
+            VideoJS.setupAllWhenReady();
         }
 );
