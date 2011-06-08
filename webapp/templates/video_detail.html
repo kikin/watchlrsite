@@ -56,7 +56,7 @@
 
             <br style="clear:both;"/>
 
-            {% if video.html_embed_code or video.html5_embed_code %}
+            {% if video.html5_embed_code or video.html5_embed_code %}
 
             <div class="video-player" id="video-player-{{ video.id }}"
                     style="display:block;">
@@ -65,7 +65,7 @@
                 </div>
                 <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
                 {% autoescape off %}
-                    {{ video.html_embed_code }}
+                    {{ video.html5_embed_code }}
                 {% endautoescape %}
                 </div>
             </div>
