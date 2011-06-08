@@ -52,6 +52,8 @@ var GREYED_BACKGROUND_ELEMENT = '<div class="greyed-background" style="display: 
 
 var GREYED_BACKGROUND_SELECTOR = '.greyed-background';
 
+var PLAYBACK_POSITION_API_URL = '/api/seek/';//  /[vid]/[position]
+
 var TAB_SELECTORS = {
     queue : '.tabQueue',
     likes : '.tabLikes'
