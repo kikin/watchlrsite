@@ -2,6 +2,8 @@ com.kikin.VideoPanelController = function(parent) {
 
     var current_vid;
 
+    var curVidEmbedObj;
+
     var currentUser;
 
     /*Selectors and selector-prefixes*/
@@ -61,7 +63,7 @@ com.kikin.VideoPanelController = function(parent) {
     //this is an ugly hack around a jQuery/css issue...see body
     //of _populatePanel
     var initialLoad = true;
-
+   
     function _loadMoreVideos(){
         if(activeTab == TAB_SELECTORS.likes){
             likedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
@@ -178,7 +180,6 @@ com.kikin.VideoPanelController = function(parent) {
 	             });
      }
 
-
     return {
         loadMoreVideos : _loadMoreVideos,
         
@@ -186,7 +187,7 @@ com.kikin.VideoPanelController = function(parent) {
         
         loadPlayer : function(vid) {
             if(current_vid){
-                $(VIDEO_PLAYER_ID_PREFIX + current_vid).fadeOut(1000);
+                $(VIDEO_PLAYER_ID_PREFIX + current_vid).hide();
                 if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
                     $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
                 }
@@ -217,8 +218,9 @@ com.kikin.VideoPanelController = function(parent) {
                         });
                                         //scroll to the video...
             $('html, body').animate({
-                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-80
+                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-40
                     }, 1000);
+            
             current_vid = vid;
         },
 
