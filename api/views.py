@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator, EmptyPage
 from django.contrib.sessions.backends.db import SessionStore
+from django.contrib.sessions.models import Session
 
 from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, UserNotConnected
 from api.models import Video, User, UserVideo, Source, Notification, Preference, slugify, Thumbnail
@@ -409,7 +410,17 @@ def list(request):
     user = request.user
 
     if not user.is_authenticated():
-        raise Unauthorized()
+        # iOS clients send session key as a request parameter
+        try:
+            session_key = request.GET['session_id']
+            session = Session.objects.get(pk=session_key)
+        except (KeyError, Session.DoesNotExist):
+            raise Unauthorized()
+
+        logger.info('DECODED=%s' % session.get_decoded())
+        user = User.objects.get(pk=session.get_decoded()['user_id'])
+        if not user.is_authenticated():
+            raise Unauthorized()
 
     try:
         count = int(request.GET['count'])
