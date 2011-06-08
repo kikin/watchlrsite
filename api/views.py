@@ -13,6 +13,7 @@ from api.tasks import fetch
 from re import split
 from json import loads, dumps
 from decimal import Decimal
+from datetime import datetime
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -208,8 +209,6 @@ def add(request):
         if user_video.saved:
             raise BadRequest('Video:%s already saved with id:%s' % (user_video.video.url, user_video.video.id))
 
-        video['saved'] = True
-
     except UserVideo.DoesNotExist:
         try:
             video = Video.objects.get(url=normalized_url)
@@ -217,8 +216,12 @@ def add(request):
             video = Video(url=normalized_url)
             video.save()
 
-        user_video = UserVideo(user=request.user, video=video, host=get_host(request), saved=True)
-        user_video.save()
+        user_video = UserVideo(user=request.user, video=video)
+
+    user_video.saved = True
+    user_video.saved_timestamp = datetime.utcnow()
+    user_video.host = get_host(request)
+    user_video.save()
 
     # Fetch video metadata in background
     fetch.delay(request.user.id, normalized_url, user_video.host)
@@ -228,6 +231,7 @@ def add(request):
                  'unwatched': request.user.unwatched_videos().count()})
 
     return info
+
 
 @json_view
 def remove(request, video_id):
