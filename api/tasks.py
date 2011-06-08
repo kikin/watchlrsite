@@ -583,7 +583,7 @@ class YoutubeFetcher(object):
 </object>'''
 
     YOUTUBE_HTML5_EMBED_TAG = '''<iframe type="text/html" width="100%%" height="100%%"
-    src="http://www.youtube.com/embed/%(id)s?enablejsapi=1&autoplay=1" frameborder="0">'''
+    src="http://www.youtube.com/embed/%(id)s?autoplay=1" frameborder="0"></iframe>'''
 
     def __init__(self):
         self.yt_service = gdata.youtube.service.YouTubeService()
@@ -816,7 +816,7 @@ class VimeoFetcher(object):
          type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="640" height="360"></embed>
 </object>'''
 
-    VIMEO_HTML5_EMBED_TAG = '''<video src="http://www.vimeo.com/play_redirect?clip_id=%(id)s" controls="controls" width="100%%" height="100%%"></video>'''
+    VIMEO_HTML5_EMBED_TAG = '''<video src="http://www.vimeo.com/play_redirect?clip_id=%(id)s" width="100%%" height="100%%" controls autoplay></video>'''
 
     def sources(self):
         return (self.SOURCE,)
