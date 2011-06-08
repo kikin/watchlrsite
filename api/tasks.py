@@ -1097,12 +1097,12 @@ class FoxFetcher(object):
 
 
 _fetchers = [
-#        YoutubeFetcher(),
-#        VimeoFetcher(),
-#        MockHuluFetcher(),
-#        AolVideoFetcher(),
-#        CBSNewsFetcher(),
-#        FoxFetcher(),
+        YoutubeFetcher(),
+        VimeoFetcher(),
+        MockHuluFetcher(),
+        AolVideoFetcher(),
+        CBSNewsFetcher(),
+        FoxFetcher(),
         EmbedlyFetcher(),
         ]
 
