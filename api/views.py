@@ -437,7 +437,10 @@ def list(request):
     except (KeyError, ValueError):
         count = 10
 
-    list_fn = user.liked_videos if request.GET.get('likes', '').lower() in ('1', 'true') else user.saved_videos
+    # Liked video queue?
+    likes = request.GET.get('likes', '').lower() in ('1', 'true')
+
+    list_fn = user.liked_videos if likes else user.saved_videos
     paginator = Paginator(list_fn(), count)
 
     try:
@@ -462,7 +465,13 @@ def list(request):
     videos = []
     for item in items:
         video = as_dict(item)
+
+        user_video = UserVideo.objects.get(user=user, video=item)
+        video['saved'] = user_video.saved
+        video['liked'] = user_video.liked
+
         video['html'] = getattr(item, '%s_embed_code' % type)
+
         videos.append(video)
 
     return {'page': page,
