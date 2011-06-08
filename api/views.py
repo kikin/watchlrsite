@@ -427,7 +427,7 @@ def list(request):
     except (KeyError, ValueError):
         count = 10
 
-    list_fn = user.liked_videos if request.GET.get('likes').lower() in ('1', 'true') else user.saved_videos
+    list_fn = user.liked_videos if request.GET.get('likes', '').lower() in ('1', 'true') else user.saved_videos
     paginator = Paginator(list_fn(), count)
 
     try:
