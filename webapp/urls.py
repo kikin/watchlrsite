@@ -3,6 +3,7 @@ from django.conf import settings
 
 urlpatterns = patterns('webapp',
                        (r'^$', 'views.home'),
+                       (r'^login_complete$', 'views.login_complete'),
                        (r'^logout', 'views.logout_view'),
                        (r'^content/liked_videos', 'views.liked_video_queue'),
                        (r'^content/saved_videos', 'views.saved_video_queue'),
