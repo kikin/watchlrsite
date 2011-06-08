@@ -107,10 +107,3 @@ def web_thumbnail_url(video):
     if len(thumbs) > 0:
         return thumbs[0].url
     return ""
-
-@register.filter
-def normalized_dimensions(video_tag):
-    #I'm going to do this the stupid simple way...
-    #normalized_tag = video_tag.replace('width="100%"', 'width="640px"')
-    #normalized_tag = normalized_tag.replace('height="100%"', 'height="480px"')
-    return normalized_tag
