@@ -816,7 +816,8 @@ class VimeoFetcher(object):
          type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="640" height="360"></embed>
 </object>'''
 
-    VIMEO_HTML5_EMBED_TAG = '''<video src="http://www.vimeo.com/play_redirect?clip_id=%(id)s" width="100%%" height="100%%" controls autoplay></video>'''
+    VIMEO_HTML5_EMBED_TAG = '''<iframe src="http://player.vimeo.com/video/%(id)s?title=0&amp;byline=0&amp;portrait=0&amp;autoplay=1"
+    width="100%%" height="100%%" frameborder="0"></iframe>'''
 
     def sources(self):
         return (self.SOURCE,)
@@ -1096,12 +1097,12 @@ class FoxFetcher(object):
 
 
 _fetchers = [
-        YoutubeFetcher(),
-        VimeoFetcher(),
-        MockHuluFetcher(),
-        AolVideoFetcher(),
-        CBSNewsFetcher(),
-        FoxFetcher(),
+#        YoutubeFetcher(),
+#        VimeoFetcher(),
+#        MockHuluFetcher(),
+#        AolVideoFetcher(),
+#        CBSNewsFetcher(),
+#        FoxFetcher(),
         EmbedlyFetcher(),
         ]
 
