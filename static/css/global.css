@@ -276,7 +276,7 @@ a:hover {
     text-align: center;
     width:800px;
     padding-top:10px;
-    padding-bottom: 10px;
+    padding-bottom: 40px;
     border-radius: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -992,4 +992,17 @@ a#lnk-page-next:hover {
 
 .video-container{
     padding:14px;
+}
+
+video{
+    background-color: #000000;
+}
+
+.video-embed-container{
+    width:640px;
+    height:480px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:14px;
+    margin-bottom:10px;
 }
