@@ -489,6 +489,7 @@ def swap(request, facebook_id):
         raise Unauthorized()
 
     session = SessionStore()
+    session['user_id'] = user.id
     session.save()
 
     return {'session_id': session.session_key}
