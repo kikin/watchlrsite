@@ -469,6 +469,7 @@ def list(request):
         user_video = UserVideo.objects.get(user=user, video=item)
         video['saved'] = user_video.saved
         video['liked'] = user_video.liked
+        video['seek'] = float(user_video.position or 0)
 
         video['html'] = getattr(item, '%s_embed_code' % type)
 
