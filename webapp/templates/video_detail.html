@@ -12,7 +12,7 @@
                 {%  endif %}
                 </div>
                 {% if user.is_authenticated %}
-                    <a>
+                    <a href="#!/like?vid={{ video.id }}" title="like">
                     {% if video in user.liked_videos %}
                         <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}
@@ -42,11 +42,15 @@
             <div class="video-info">
                 <div class="video-description">{{ video.description }}</div>
                 <div class="video-saved">
+                   <a href="{{ video|source_url_root }}" target="_blank">
+                        <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
+                    </a>
+                    &bull;
+                    <a href="{{video.url}}">source</a>
+                    &bull;
                     {% if user.is_authenticated %}
                         <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
                     {% endif %}
-                    &bull;
-                    <a href="{{video.url}}">{{ video.title }}</a>
                 </div>
             </div>
 
