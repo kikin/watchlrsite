@@ -12,7 +12,7 @@
                 {%  endif %}
                 </div>
                 {% if user.is_authenticated %}
-                    <a href="/#!/like?vid={{ video.id }}" title="like">
+                    <a href="#!/like?vid={{ video.id }}" title="like">
                     {% if video in user.liked_videos %}
                         <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}
