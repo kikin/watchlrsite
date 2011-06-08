@@ -3,7 +3,7 @@
 <meta name="video_count" content="{{ videos|length }}"/>
 
 {% if videos|length_is:"0"%}
-        <div class="video-container" style="margin-bottom: 30px;">
+        <div class="video-container">
             {% if display_mode == "liked" %}
                 <div class="featureTxt" style="width: 600px;">
                 <h4>
