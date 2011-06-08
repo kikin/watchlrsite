@@ -479,9 +479,12 @@ def seek(request, video_id, position):
 @json_view
 def swap(request, facebook_id):
     for current in User.objects.all():
-        if facebook_id == current.facebook_uid():
-            user = current
-            break
+        try:
+            if facebook_id == current.facebook_uid():
+                user = current
+                break
+        except AttributeError:
+            pass
     else:
         raise UserNotConnected()
 
