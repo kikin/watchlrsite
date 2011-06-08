@@ -190,6 +190,8 @@ LOGOUT_URL = '/'
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
 FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']
 
+REDIRECT_FIELD_NAME = 'callback'
+
 import djcelery
 djcelery.setup_loader()
 
