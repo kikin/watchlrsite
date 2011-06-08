@@ -235,9 +235,19 @@ def remove(request, video_id):
 
 
 @json_view
+@require_http_methods(['GET',])
 def get(request, video_id):
     try:
-        video = as_dict(Video.objects.get(pk=video_id))
+        type = request.GET['type']
+        if not type in ('html', 'html5'):
+            raise ValueError
+    except (KeyError, ValueError):
+        type = 'html'
+
+    try:
+        item = Video.objects.get(pk=video_id)
+        video = as_dict(item)
+        video['html'] = getattr(item, '%s_embed_code' % type)
 
         if request.user.is_authenticated():
             try:

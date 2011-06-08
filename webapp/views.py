@@ -8,6 +8,17 @@ from kikinvideo.api.models import Video, User, Preference
 ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you have requested"
 MALFORMED_URL_MESSAGE = 'Error: malformed URL supplied to host'
 
+def login_complete(request):
+    # Client requires that we pass in a Set-Kke header with session key so as to persist it
+    # in its cookie jar. This is just an intermediary view which does exactly that and
+    # redirects user to `home` view.
+    if request.user.is_authenticated():
+        response = HttpResponseRedirect('/')
+        response['Set-Kke'] = '_KVS=%s' % request.session.session_key
+        return response
+    else:
+        return render_to_response('logged_out.html', {'settings': settings}, context_instance=RequestContext(request))
+
 def home(request):
     if request.user.is_authenticated():
         return render_to_response('user_home.html', {'settings': settings}, context_instance=RequestContext(request))
