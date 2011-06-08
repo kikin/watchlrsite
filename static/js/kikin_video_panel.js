@@ -34,6 +34,8 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
 
+    var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper-";
+
     var LOADING_ICON_BACKGROUND = ".loading-container";
 
     var LOADING_ICON = ".loading";
@@ -214,8 +216,15 @@ com.kikin.VideoPanelController = function(parent) {
                         height:video_player_target_height, 'margin-left':'auto'}, 500,
                         function(){
                            // video_embed_div.fadeIn(100);
+/*                              var fv = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0].flareVideo();
+                              fv.load([
+                                {
+                                  src:  'http://video_url/file.mp4',
+                                  type: 'video/mp4'
+                                }
+                              ]);*/
                             video_embed_div.show();
-                        });
+                            });
                                         //scroll to the video...
             $('html, body').animate({
                         scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-40
