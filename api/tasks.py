@@ -582,7 +582,8 @@ class YoutubeFetcher(object):
   </embed>
 </object>'''
 
-    YOUTUBE_HTML5_EMBED_TAG = '''<video src="http://www.youtube.com/embed/%(id)s" width="100%%" height="100%%" controls autoplay></video>'''
+    YOUTUBE_HTML5_EMBED_TAG = '''<iframe type="text/html" width="100%%" height="100%%"
+    src="http://www.youtube.com/embed/%(id)s?autoplay=1" frameborder="0"></iframe>'''
 
     def __init__(self):
         self.yt_service = gdata.youtube.service.YouTubeService()
