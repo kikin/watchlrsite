@@ -180,16 +180,6 @@ com.kikin.VideoPanelController = function(parent) {
 	             });
      }
 
-
-    setInterval(function(){
-//            var embedObjWrapper = $(VIDEO_EMBED_CONTAINER_PREFIX + vid);
-
-        /*    if(curVidEmbedObj){
-                curVidEmbedObj.src = "http://www.youtube.com/e/"+vid+"?enablejsapi=1&version=3";
-            }*/
-            
-    },5000);
-
     return {
         loadMoreVideos : _loadMoreVideos,
         
