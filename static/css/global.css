@@ -330,12 +330,12 @@ ul.navigation li a:link, ul.navigation li a:visited {
 }
 
 ul.navigation li a:hover {
-    background: #f2f2f2;
+    background: #E5EFF3;
     color:#144d63;
 }
 
 ul.navigation li.selected a:hover {
-    background-color: #ffffff;
+    /*background-color: #ffffff;*/
 }
 
 ul.navigation li.selected, ul.navigation li.selected a {
@@ -918,15 +918,15 @@ a#lnk-page-next:hover {
 .video-liked-info{
     position:absolute;;
     font-size:21px;
-    margin-left:36px;
-    margin-top:4px;
+    margin-left:31px;
+    margin-top:2px;
     font-weight:800;
     color:red;
 }
 .video-delete-button {
     position: absolute;
     margin-left: 50px;
-    margin-top: 0px;
+    margin-top: 1px;
 }
 
 .video-buttons {
