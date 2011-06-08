@@ -993,3 +993,7 @@ a#lnk-page-next:hover {
 .video-container{
     padding:14px;
 }
+
+video{
+    background-color: #000000;
+}
