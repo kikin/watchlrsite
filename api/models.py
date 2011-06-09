@@ -1,6 +1,7 @@
 from re import sub
 from unicodedata import normalize
 from datetime import datetime
+from operator import attrgetter
 
 from django.db import models
 from django.contrib.auth import models as auth_models
@@ -103,6 +104,15 @@ class Thumbnail(models.Model):
 
     def __repr__(self):
         return self.url
+
+class ActivityItem(object):
+    def __init__(self, user_video_list, timestamp=None):
+        super(ActivityItem, self).__init__()
+        self.user_video_list = user_video_list
+        self.timestamp = timestamp
+
+    def __cmp__(self, other):
+        return cmp(self.timestamp, other.timestamp)
 
 
 class User(auth_models.User):
@@ -269,6 +279,55 @@ class User(auth_models.User):
             p = self.preference_set.get(name=name.lower())
             p.value = int(value)
             p.save()
+
+    def activity(self, since=None):
+        '''
+        Activity stream for user.
+
+        >>> birdman = User.objects.create(username='birdman')
+        >>> aquaman = User.objects.create(username='aquaman')
+        >>> ghostface = User.objects.create(username='ghostface')
+        >>> waveforms = Video.objects.create(url='http://www.vimeo.com/24532073')
+        >>> birdman.like_video(waveforms)
+        <UserVideo: UserVideo object>
+        >>> aquaman.follow(birdman)
+        <UserFollowsUser: UserFollowsUser object>
+        >>> items = aquaman.activity()
+        >>> len(items), items[0]
+        (1, u'http://www.vimeo.com/24532073')
+        >>> aquaman.follow(ghostface)
+        <UserFollowsUser: UserFollowsUser object>
+        >>> ghostface.like_video(waveforms)
+        <UserVideo: UserVideo object>
+        >>> items = aquaman.activity()
+        >>> len(items), items[0]
+        (1, [<User: ghostface>, <User: birdman>])
+        '''
+        if since is None:
+            since = datetime(1970, 1, 1)
+
+        by_video = dict()
+        for user in self.following():
+
+            for video in user.liked_videos():
+
+                user_video = UserVideo.objects.get(user=user, video=video)
+                if since is not None:
+                    if user_video.liked_timestamp < since:
+                        continue
+
+                try:
+                    by_video[video].user_video_list.append(user_video)
+                except KeyError:
+                    by_video[video] = ActivityItem(user_video_list=[user_video,])
+
+                by_video[video].timestamp = user_video.liked_timestamp
+
+        items = sorted(by_video.values(), reverse=True)
+        for item in items:
+            item.user_video_list.sort(key=attrgetter('liked_timestamp'), reverse=True)
+
+        return items
 
 
 class UserFollowsUser(models.Model):
