@@ -79,7 +79,7 @@ def liked_video_queue(request):
             #just pass through all liked videos...
             vid_subset = user.liked_videos()
         return render_to_response('content/video_queue.hfrg',{'user':user,
-                                  'display_mode':'liked', 'settings': settings, 'videos': vid_subset},
+                                  'display_mode':'profile', 'settings': settings, 'videos': vid_subset},
                                   context_instance=RequestContext(request))
     return HttpResponseForbidden('you are not authorized to view this content, please log in')
 
@@ -134,11 +134,13 @@ def public_profile(request, username):
     try:
         user = User.objects.get(username=username)
         if user == request.user:
-            return render_to_response('profile.html', {'user':user, 'settings':settings, 'is_own_profile':True,\
-                                                       'videos':user.liked_videos()}, context_instance=RequestContext(request))
+            return render_to_response('profile.html', {'profile_owner':user, 'user':user, 'settings':settings, 'display_mode':'profile',\
+                                                       'is_own_profile':True, 'videos':user.liked_videos()},\
+                                                        context_instance=RequestContext(request))
         else:
-            return render_to_response('profile.html', {'user':user, 'settings':settings, 'is_own_profile':False,\
-                                           'videos':user.liked_videos()}, context_instance=RequestContext(request))
+            return render_to_response('profile.html', {'user':request.user, 'profile_owner':user, 'settings':settings, 'display_mode':'profile',\
+                                                       'is_own_profile':False, 'videos':user.liked_videos()},\
+                                                        context_instance=RequestContext(request))
     except Exception, e:
         return HttpResponseNotFound('')
     
