@@ -81,7 +81,7 @@ class OEmbed(object):
             try:
                 thumbnail = Thumbnail.objects.get(video=video, type='mobile')
             except Thumbnail.DoesNotExist:
-                thumbnail = Thumbnail.objects.create(video=video)
+                thumbnail = Thumbnail(video=video)
 
             thumbnail.url=meta['mobile_thumbnail_url']
             thumbnail.width=meta['mobile_thumbnail_width']
