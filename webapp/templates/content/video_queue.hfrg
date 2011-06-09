@@ -26,7 +26,6 @@
 {% endif %}
 
 {% for video in videos %}
-{% if video.html5_embed_code %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
             <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
@@ -94,9 +93,10 @@
                 </div>
                 <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
 
-                <div  class="video-embed-wrapper" style="width:640px;height:480px;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:10px;">
+                <div  class="video-embed-wrapper" id="video-embed-wrapper-{{ video.id }}"
+                      style="width:640px;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:10px;">
                 {% autoescape off %}
-                    {{ video.html5_embed_code }}
+                    {{ video.html_embed_code }}
                 {% endautoescape %}
                 </div>
                 </div>
@@ -123,5 +123,4 @@
         </div>
         <div class="my-video-breaker"></div>
     </div>
-{% endif %}
 {% endfor %}
