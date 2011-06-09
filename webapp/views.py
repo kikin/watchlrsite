@@ -119,16 +119,13 @@ def video_player(request, video_id):
         else:               
             return render_to_response('content/video_player.hfrg', {'video': video_query_set[0]})
         
-def video_detail(request):
-    if 'vid' in request.GET:
-        vid_str = request.GET['vid']
+def video_detail(request, video_id):
         try:
-            vid = long(vid_str)
-            video = Video.objects.get(pk=vid)
+            video = Video.objects.get(pk=video_id)
             return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
                                 'settings':settings, 'video':video}, context_instance=RequestContext(request))
         #in case of uncastable or invalid vid...
-        except ValueError:
+        except Exception:
             return HttpResponseNotFound
 
 def public_profile(request, username):
