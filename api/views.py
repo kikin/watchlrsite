@@ -4,6 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator, EmptyPage
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
+from social_auth.backends.facebook import FACEBOOK_SERVER
 
 from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, UserNotConnected
 from api.models import Video, User, UserVideo, Source, Notification, Preference, slugify, Thumbnail
@@ -14,6 +15,8 @@ from re import split
 from json import loads, dumps
 from decimal import Decimal
 from datetime import datetime
+from urllib import urlencode
+from urllib2 import urlopen
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -132,9 +135,39 @@ def get_host(request):
     return request.META.get('HTTP_REFERER')
 
 
+def get_server_name(request):
+    host = request.META.get('SERVER_HOST', '127.0.0.1')
+    port = int(request.META.get('SERVER_PORT', 80))
+
+    if not port == 80:
+        return 'http://%s:%d/' % (host, port)
+    else:
+        return 'http://%s/' % host
+
 @json_view
 @require_authentication
 def like(request, video_id):
+    try:
+        video = Video.objects.get(pk=video_id)
+    except Video.DoesNotExist:
+        raise VideoNotFound(video_id)
+
+    user = request.user
+
+    if user.preferences()['syndicate'] == 1:
+        server_name = get_server_name(request)
+
+        params = {'access_token': user.facebook_access_token(),
+                  'link': '%s/%s' % (server_name, video.get_absolute_url()),
+                  'caption': server_name,
+                  'picture': video.get_thumbnail().url,
+                  'name': video.title,
+                  'description': video.description}
+
+        url = 'https://%s/%s/links?%s' % (FACEBOOK_SERVER, user.facebook_uid(), urlencode(params))
+
+        logger.debug(loads(urlopen(url).read()))
+
     return do_request(request, video_id, 'like_video')
 
 
