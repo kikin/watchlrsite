@@ -79,7 +79,7 @@ class Video(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('kikinvideo.webapp.views.video_detail', [str(self.id)])
+        return ('video_detail', [str(self.id)])
 
 class Thumbnail(models.Model):
     '''
