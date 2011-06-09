@@ -31,7 +31,9 @@
 							</div>
 						</div>
 						<div class="profile-basic-statistics shadow-5l" style="left:258px;">
+                            <div id="follower-count-user-{{ profile_owner.id }}">
 							{{ profile_owner.followers|length }}
+                            </div>
 							<div class="profile-basic-statistics-sub" style="margin-top:10px;">
 							Followers
 							</div>
@@ -65,7 +67,7 @@
     {% for video in videos %}
         <div id="video-{{video.id}}" class="video-wrapper">
             <div class="video-container">
-                <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
+                <h3 class="video-title"><a href="/detail/{{video.id}}">{{ video.title }}</a></h3>
 
                 <div class="video-buttons">
 

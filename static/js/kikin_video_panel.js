@@ -24,6 +24,8 @@ com.kikin.VideoPanelController = function(parent) {
 
     var FOLLOW_LINK_ID_PREFIX = "#follow-link-user-";
 
+    var FOLLOW_COUNT_CONTAINER_ID_PREFIX = "#follower-count-user-";
+
     var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
 
     var SAVE_VIDEO_BUTTON_CONTAINER = ".save-video-button";
@@ -320,6 +322,10 @@ com.kikin.VideoPanelController = function(parent) {
                     if (response.success){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
                         $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/unfollow?user="+user_id);
+                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
+                        numFollowers++;
+                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                        window.location += '_';
                     }
                 },
                 failure : function(err_msg){
@@ -328,20 +334,24 @@ com.kikin.VideoPanelController = function(parent) {
             });
         },
 
-            handleUnfollow : function(user_id){
-            $.ajax({
-                url : '/api/unfollow/'+user_id,
-                success: function(response){
-                    if (response.success){
-                        $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
-                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/follow?user="+user_id);
-                    }
-                },
-                failure : function(err_msg){
-                    showErrorDialog(err_msg);
+        handleUnfollow : function(user_id){
+        $.ajax({
+            url : '/api/unfollow/'+user_id,
+            success: function(response){
+                if (response.success){
+                    $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
+                    $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/follow?user="+user_id);
+                    var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
+                    numFollowers--;
+                    $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                    window.location += '_';
                 }
-            });
-        },
+            },
+            failure : function(err_msg){
+                showErrorDialog(err_msg);
+            }
+        });
+    },
 
         removeVideo : function(vid){
             $.get('/api/remove/'+vid, function(data){
