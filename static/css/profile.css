@@ -1,69 +1,72 @@
 #user-info-container
 {
 	width:100%;
-	height:110px;
-	border:2px solid #e6e6e6;
-	-moz-border-radius:3px;
-	-webkit-border-radius:3px;
+	height:140px;
+    background-color: #E5EFF3;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+    border-radius: 10px;
     margin-bottom:25px;
+    color:#0c536f;
 }
 
 #user-info-container .inner
 {
-	margin:15px;
+	padding:20px;
 }
 
-#delta-img
-{
-	position:absolute;
-	height:110px;
-	width:205px;
-	margin-left:580px;
-	margin-top:-15px;
-}
-
-#profile-image-container
+#facebook-img
 {
     position:absolute;
-	width:80px;
-	height:80px;
+	width:100px;
+	height:100px;
+    overflow: hidden;
+    margin-left:5px;
 }
 
 #username-display
 {
 	position:absolute;
-	margin-left:80px;
-    margin-top:20px;
+	margin-left:140px;
+    margin-top:24px;
+    font-family: Arial;
+    font-size:18px;
 }
 
 #username-display .primary
 {
-	font-family:Helvetica;
-	font-weight:900;
+
 }
 
 #username-display .sub
 {
-	margin-top:2px;
+	margin-top:5px;
 	font-family:Georgia, serif;
 	font-style:italic;
-	font-weight:600;
-	color: #999999;
+    font-size:14px;
 }
 
 .profile-basic-statistics
 {
 	position:absolute;
 	font-family: Helvetica;
-	font-size:16px;
-	color: #999999;
-	width:40px;
-	top:0px;
+	font-size:18px;
+	color: #000000;
+    background-color:#d5d7d8;
+    height:63px;
+    width:95px;
+    -moz-border-radius:8px;
+	-webkit-border-radius:8px;
+    border-radius: 8px;
+    text-align: center;
+    padding-top:15px;
+    top:-15px;
 }
-.profile-basic-statistics .sub
+.profile-basic-statistics-sub
 {
-	font-size:10px;
-	color: #999999;
+    margin-top:5px;
+	font-size:13px;
+	color: #000000;
 }
 
 #profile-stats-container
@@ -87,18 +90,22 @@
 	position:absolute;
 	text-align:center;
 	padding-top:7px;
-	width:80px;
-	height:20px;
-	border:1px solid #e6e6e6;
+	width:110px;
 	font-family:Helvetica;
-	font-size:14px;
+	font-size:16px;
 	font-weight:900;
-	color:#999999;
+	color:#FFFFFF;
 	-moz-border-radius:8px;
 	-webkit-border-radius:8px;
-	top:0px;
-	left:375px;
-    background-image:url(/static/images/profile/follow_button_background.png);
+	top:4px;
+	left:496px;
+    background-color: #0c536f;
+    padding-top:10px;
+    padding-bottom: 10px;
+}
+
+#follow-button:hover{
+    background-color: #4ab7e3;
 }
 
 
@@ -106,5 +113,6 @@
     font-size:20px;
     font-family:Helvetica;
     margin-bottom:15px;
-    color:#424242;
+    margin-left: 5px;
+    color:#0c536f;
 }
