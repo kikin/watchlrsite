@@ -34,6 +34,8 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
 
+    var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper-";
+
     var LOADING_ICON_BACKGROUND = ".loading-container";
 
     var LOADING_ICON = ".loading";
@@ -63,6 +65,8 @@ com.kikin.VideoPanelController = function(parent) {
     //this is an ugly hack around a jQuery/css issue...see body
     //of _populatePanel
     var initialLoad = true;
+
+    VideoJS.setupAllWhenReady();
    
     function _loadMoreVideos(){
         if(activeTab == TAB_SELECTORS.likes){
@@ -132,8 +136,8 @@ com.kikin.VideoPanelController = function(parent) {
     function _populatePanel() {
         
                 $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-                $(LOADING_ICON_BACKGROUND).css({width:'100%',
-                                height:'100%'});
+                $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
+                                height:$(document).height()});
             
 
             var contentSource, requestParams;
@@ -213,9 +217,11 @@ com.kikin.VideoPanelController = function(parent) {
             video_player_div.animate({width:video_player_target_width,
                         height:video_player_target_height, 'margin-left':'auto'}, 500,
                         function(){
-                           // video_embed_div.fadeIn(100);
-                            video_embed_div.show();
-                        });
+                            //video_embed_div.fadeIn(100);
+                              var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
+
+                               video_embed_div.show();
+                            });
                                         //scroll to the video...
             $('html, body').animate({
                         scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-40

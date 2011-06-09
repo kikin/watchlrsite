@@ -3,7 +3,7 @@
 <meta name="video_count" content="{{ videos|length }}"/>
 
 {% if videos|length_is:"0"%}
-        <div class="video-container" style="margin-bottom: 30px;">
+        <div class="video-container">
             {% if display_mode == "liked" %}
                 <div class="featureTxt" style="width: 600px;">
                 <h4>
@@ -85,16 +85,20 @@
 
             <br style="clear:both;"/>
 
-            {% if video.html_embed_code or video.html5_embed_code %}
+            {% if video.html5_embed_code %}
 
             <div class="video-player" id="video-player-{{ video.id }}">
                 <div>
                     <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
                 </div>
                 <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
+
+                <div  class="video-embed-wrapper" id="video-embed-wrapper-{{ video.id }}"
+                      style="width:640px;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:10px;">
                 {% autoescape off %}
                     {{ video.html_embed_code }}
                 {% endautoescape %}
+                </div>
                 </div>
             </div>
 

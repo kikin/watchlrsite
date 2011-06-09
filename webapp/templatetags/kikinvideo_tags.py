@@ -72,7 +72,12 @@ def possessive(value):
 
 @register.filter
 def source_icon(video):
-    return video.source.favicon
+    #temporary fix for null favicon error Kapil is experiencing
+    try:
+        favicon = video.source.favicon
+        return video.source.favicon
+    except Exception:
+        return ""
 
 @register.filter
 def video_page(video, user):

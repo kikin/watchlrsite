@@ -267,7 +267,6 @@ a:hover {
     width:780px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: -30px;
     text-align: left;
 }
 
@@ -280,7 +279,7 @@ a:hover {
     border-radius: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
-    z-index:9999;
+    text-align:center;
 }
 
 ul.navigation {
@@ -992,4 +991,28 @@ a#lnk-page-next:hover {
 
 .video-container{
     padding:14px;
+}
+
+video{
+    background-color: #000000;
+}
+
+.video-embed-container{
+    width:640px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:14px;
+    margin-bottom:10px;
+}
+
+.shadow-10r{
+-moz-box-shadow: 10px 10px 5px #888;
+-webkit-box-shadow: 10px 10px 5px #888;
+box-shadow: 10px 10px 5px #888;
+}
+
+.shadow-5l{
+    -moz-box-shadow: -5x 5px 5px #888;
+    -webkit-box-shadow: -5px 5px 5px #888;
+    box-shadow: -5px 5px 5px #888;
 }
