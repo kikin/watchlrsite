@@ -42,25 +42,7 @@ def logout_view(request):
     return HttpResponseRedirect('/')
 
 def liked_video_queue(request):
-    if request.method == 'GET' and request.user.is_authenticated():
-        all_liked_vids = request.user.liked_videos()
-        if 'start' in request.GET and 'count' in request.GET:
-            try:
-                start_index = int(request.GET['start'])
-                end_index = start_index + int(request.GET['count'])
-                if all_liked_vids.count() >= end_index:
-                    vid_subset = all_liked_vids[start_index:end_index]
-                elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
-                    vid_subset = all_liked_vids[start_index:]
-                else:
-                    vid_subset = []
-            except Exception, e:
-                #means url was malformed...
-                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
-            return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                              'display_mode':'liked', 'settings': settings, 'videos': vid_subset},
-                              context_instance=RequestContext(request))
-    elif request.method == 'GET' and 'user_id' in request.GET:
+    if request.method == 'GET' and 'user_id' in request.GET:
         try:
             user = User.objects.get(id__exact=long(request.GET['user_id']))
             all_liked_vids = user.liked_videos()
@@ -81,6 +63,25 @@ def liked_video_queue(request):
         return render_to_response('content/video_queue.hfrg',{'user':user,
                                   'display_mode':'profile', 'settings': settings, 'videos': vid_subset},
                                   context_instance=RequestContext(request))
+
+    elif request.method == 'GET' and request.user.is_authenticated():
+        all_liked_vids = request.user.liked_videos()
+        if 'start' in request.GET and 'count' in request.GET:
+            try:
+                start_index = int(request.GET['start'])
+                end_index = start_index + int(request.GET['count'])
+                if all_liked_vids.count() >= end_index:
+                    vid_subset = all_liked_vids[start_index:end_index]
+                elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
+                    vid_subset = all_liked_vids[start_index:]
+                else:
+                    vid_subset = []
+            except Exception, e:
+                #means url was malformed...
+                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+            return render_to_response('content/video_queue.hfrg',{'user':request.user,
+                              'display_mode':'liked', 'settings': settings, 'videos': vid_subset},
+                              context_instance=RequestContext(request))
     return HttpResponseForbidden('you are not authorized to view this content, please log in')
 
 
@@ -118,16 +119,13 @@ def video_player(request, video_id):
         else:               
             return render_to_response('content/video_player.hfrg', {'video': video_query_set[0]})
         
-def video_detail(request):
-    if 'vid' in request.GET:
-        vid_str = request.GET['vid']
+def video_detail(request, video_id):
         try:
-            vid = long(vid_str)
-            video = Video.objects.get(pk=vid)
+            video = Video.objects.get(pk=video_id)
             return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
                                 'settings':settings, 'video':video}, context_instance=RequestContext(request))
         #in case of uncastable or invalid vid...
-        except ValueError:
+        except Exception:
             return HttpResponseNotFound
 
 def public_profile(request, username):

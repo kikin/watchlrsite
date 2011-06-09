@@ -28,7 +28,7 @@
 {% for video in videos %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
-            <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
+            <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
 
             <div class="video-buttons">
                 {% if display_mode == 'profile' %}
@@ -48,13 +48,25 @@
                     {{ video.total_likes }}
                 {%  endif %}
                 </div>
-                <a href="#!/like?vid={{ video.id }}" title="like">
-                {% if video in user.liked_videos %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                {% else %}
-                    <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+            
+                {% if display_mode == 'profile' %}
+
+                    {% if video in user.liked_videos %}
+                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% else %}
+                        <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% endif %}
+
+               {% else %}
+
+                    <a href="#!/like?vid={{ video.id }}" title="like">
+                    {% if video in user.liked_videos %}
+                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% else %}
+                        <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% endif %}
+                    </a>
                 {% endif %}
-                </a>
             </div>
             <a href="#!/player?vid={{ video.id }}">
                 <div class="video-image" id="video-{{ video.id }}">
@@ -91,7 +103,7 @@
 
             <br style="clear:both;"/>
 
-            {% if video.html5_embed_code %}
+            {% if video.html_embed_code %}
 
             <div class="video-player" id="video-player-{{ video.id }}">
                 <div>
