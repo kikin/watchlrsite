@@ -4,6 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator, EmptyPage
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
+from django.contrib.sites.models import Site
 from social_auth.backends.facebook import FACEBOOK_SERVER
 
 from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, UserNotConnected
@@ -136,13 +137,8 @@ def get_host(request):
 
 
 def get_server_name(request):
-    host = request.META.get('SERVER_HOST', '127.0.0.1')
-    port = int(request.META.get('SERVER_PORT', 80))
+    return '%s' % Site.objects.get_current().domain
 
-    if not port == 80:
-        return 'http://%s:%d/' % (host, port)
-    else:
-        return 'http://%s/' % host
 
 @json_view
 @require_authentication
@@ -155,18 +151,25 @@ def like(request, video_id):
     user = request.user
 
     if user.preferences()['syndicate'] == 1:
-        server_name = get_server_name(request)
+        try:
+            UserVideo.objects.get(user=user, video=video, like_timestamp__isnull=False)
+        except UserVideo.DoesNotExist:
+            server_name = get_server_name(request)
 
-        params = {'access_token': user.facebook_access_token(),
-                  'link': '%s/%s' % (server_name, video.get_absolute_url()),
-                  'caption': server_name,
-                  'picture': video.get_thumbnail().url,
-                  'name': video.title,
-                  'description': video.description}
+            params = {'access_token': user.facebook_access_token(),
+                      'link': '%s/%s' % (server_name, video.get_absolute_url()),
+                      'caption': server_name,
+                      'picture': video.get_thumbnail().url,
+                      'name': video.title,
+                      'description': video.description}
 
-        url = 'https://%s/me/feed' % FACEBOOK_SERVER
+            url = 'https://%s/me/feed' % FACEBOOK_SERVER
 
-        logger.debug(loads(urlopen(url, urlencode(params)).read()))
+            try:
+                response = loads(urlopen(url, urlencode(params)).read())
+                logger.debug('Facebook post id: %s' % response['id'])
+            except:
+                logger.exception('Could not post to Facebook')
 
     return do_request(request, video_id, 'like_video')
 
