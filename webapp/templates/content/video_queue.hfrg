@@ -48,13 +48,25 @@
                     {{ video.total_likes }}
                 {%  endif %}
                 </div>
-                <a href="#!/like?vid={{ video.id }}" title="like">
-                {% if video in user.liked_videos %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                {% else %}
-                    <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+            
+                {% if display_mode == 'profile' %}
+
+                    {% if video in user.liked_videos %}
+                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% else %}
+                        <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% endif %}
+
+               {% else %}
+
+                    <a href="#!/like?vid={{ video.id }}" title="like">
+                    {% if video in user.liked_videos %}
+                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% else %}
+                        <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                    {% endif %}
+                    </a>
                 {% endif %}
-                </a>
             </div>
             <a href="#!/player?vid={{ video.id }}">
                 <div class="video-image" id="video-{{ video.id }}">
