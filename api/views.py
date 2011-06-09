@@ -18,6 +18,28 @@ from datetime import datetime
 import logging
 logger = logging.getLogger('kikinvideo')
 
+def require_authentication(f):
+    def wrap(request, *args, **kwargs):
+        user = request.user
+
+        if not user.is_authenticated():
+            # Clients can send session key as a request parameter
+            try:
+                session_key = request.GET['session_id']
+                session = Session.objects.get(pk=session_key)
+            except (KeyError, Session.DoesNotExist):
+                raise Unauthorized()
+
+            if session.expire_date <= datetime.now():
+                raise Unauthorized()
+
+            uid = session.get_decoded().get('_auth_user_id')
+            request.user = User.objects.get(pk=uid)
+
+        return f(request, *args, **kwargs)
+
+    return wrap
+
 def json_view(f):
     def wrap(request, *args, **kwargs):
         response = None
@@ -101,8 +123,6 @@ def as_dict(obj):
 
 
 def do_request(request, video_id, method):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
     try:
         return as_dict(getattr(request.user, method)(Video.objects.get(pk=video_id)))
     except Video.DoesNotExist:
@@ -114,6 +134,7 @@ def get_host(request):
 
 
 @json_view
+@require_authentication
 def like(request, video_id):
     return do_request(request, video_id, 'like_video')
 
@@ -151,6 +172,7 @@ def like_by_url(request):
 
 
 @json_view
+@require_authentication
 def unlike(request, video_id):
     return do_request(request, video_id, 'unlike_video')
 
@@ -179,6 +201,7 @@ def unlike_by_url(request):
 
 
 @json_view
+@require_authentication
 def save(request, video_id):
     return do_request(request, video_id, 'save_video')
 
@@ -234,6 +257,7 @@ def add(request):
 
 
 @json_view
+@require_authentication
 def remove(request, video_id):
     return do_request(request, video_id, 'remove_video')
 
@@ -419,22 +443,10 @@ def profile(request):
     return as_dict(user)
 
 @json_view
+@require_authentication
 @require_http_methods(['GET',])
 def list(request):
     user = request.user
-
-    if not user.is_authenticated():
-        # iOS clients send session key as a request parameter
-        try:
-            session_key = request.GET['session_id']
-            session = Session.objects.get(pk=session_key)
-        except (KeyError, Session.DoesNotExist):
-            raise Unauthorized()
-
-        logger.info('DECODED=%s' % session.get_decoded())
-        user = User.objects.get(pk=session.get_decoded()['user_id'])
-        if not user.is_authenticated():
-            raise Unauthorized()
 
     try:
         count = int(request.GET['count'])
@@ -486,10 +498,8 @@ def list(request):
 
 @csrf_exempt
 @json_view
+@require_authentication
 def seek(request, video_id, position):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
-
     try:
         user_video = UserVideo.objects.filter(user=request.user, video__id=video_id)
     except UserVideo.DoesNotExist:
@@ -516,17 +526,15 @@ def swap(request, facebook_id):
         raise Unauthorized()
 
     session = SessionStore()
-    session['user_id'] = user.id
+    session['_auth_user_id'] = user.id
     session.save()
 
     return {'session_id': session.session_key}
 
 @json_view
+@require_authentication
 def follow(request, other):
     user = request.user
-
-    if not user.is_authenticated():
-        raise Unauthorized()
 
     try:
         other = User.objects.get(pk=int(other))
@@ -543,11 +551,9 @@ def follow(request, other):
 
 
 @json_view
+@require_authentication
 def unfollow(request, other):
     user = request.user
-
-    if not user.is_authenticated():
-        raise Unauthorized()
 
     try:
         other = User.objects.get(pk=int(other))
