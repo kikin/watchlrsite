@@ -32,6 +32,8 @@ var PROFILE_NAME_DISPLAY = ".profileName";
 
 var VIDEO_PANEL_SELECTOR = '#videoList';
 
+var VIDEO_PANEL_WRAPPER_SELECTOR = "#videoListWrapper";
+
 var PROFILE_EDIT_URL = '/content/profile_edit';
 
 var PROFILE_EDIT_OPEN_BUTTON_SELECTOR = '#myProfile';
