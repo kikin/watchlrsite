@@ -120,7 +120,7 @@ class User(auth_models.User):
     IntegrityError: duplicate key value violates unique constraint "auth_user_username_key"
     '''
     videos = models.ManyToManyField(Video, through='UserVideo')
-    follows = models.ManyToManyField('self', symmetrical=False)
+    follows = models.ManyToManyField('self', through='UserFollowsUser', symmetrical=False)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
@@ -159,11 +159,28 @@ class User(auth_models.User):
         return user_video
 
     def followers(self):
-        return UserFollowsUser.objects.filter(followee=self)
+        return UserFollowsUser.objects.filter(followee=self).all()
 
-    def follows_users(self):
-        return UserFollowsUser.objects.filter(follower=self)
+    def following(self):
+        return self.follows.all()
 
+    def follow(self, other):
+        if self == other:
+            return
+
+        try:
+            result = UserFollowsUser.objects.get(follower=self, followee=other)
+        except UserFollowsUser.DoesNotExist:
+            result = UserFollowsUser.objects.create(follower=self, followee=other, since=datetime.utcnow())
+
+        return result
+
+    def unfollow(self, other):
+        try:
+            UserFollowsUser.objects.get(follower=self, followee=other).delete()
+        except UserFollowsUser.DoesNotExist:
+            pass
+        
     def like_video(self, video, timestamp=None):
         '''
         Like a video. Creates an association between `User` and `Video` objects (if one doesn't exist already).
@@ -255,9 +272,12 @@ class User(auth_models.User):
 
 
 class UserFollowsUser(models.Model):
-    follower = models.ForeignKey(User, related_name='followee', db_index=True)
-    followee = models.ForeignKey(User, related_name='follower', db_index=True)
+    follower = models.ForeignKey(User, related_name='follower_set', db_index=True)
+    followee = models.ForeignKey(User, related_name='followeee_set', db_index=True)
     since = models.DateTimeField(auto_now=True, db_index=True)
+
+    class Meta:
+        ordering = ['-since']
 
 
 class UserVideo(models.Model):
