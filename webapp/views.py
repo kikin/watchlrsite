@@ -134,11 +134,11 @@ def public_profile(request, username):
     try:
         user = User.objects.get(username=username)
         if user == request.user:
-            return render_to_response('profile.html', {'user':user, 'settings':settings, 'display_mode':'profile',\
+            return render_to_response('profile.html', {'profile_owner':user, 'user':user, 'settings':settings, 'display_mode':'profile',\
                                                        'is_own_profile':True, 'videos':user.liked_videos()},\
                                                         context_instance=RequestContext(request))
         else:
-            return render_to_response('profile.html', {'user':user, 'settings':settings, 'display_mode':'profile',\
+            return render_to_response('profile.html', {'user':request.user, 'profile_owner':user, 'settings':settings, 'display_mode':'profile',\
                                                        'is_own_profile':False, 'videos':user.liked_videos()},\
                                                         context_instance=RequestContext(request))
     except Exception, e:
