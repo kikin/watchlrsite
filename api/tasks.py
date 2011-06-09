@@ -72,9 +72,9 @@ class OEmbed(object):
             except Thumbnail.DoesNotExist:
                 thumbnail = Thumbnail(video=video)
 
-            thumbnail.url=meta['thumbnail_url']
-            thumbnail.width=meta['thumbnail_width']
-            thumbnail.height=meta['thumbnail_height']
+            thumbnail.url = meta['thumbnail_url']
+            thumbnail.width = meta['thumbnail_width']
+            thumbnail.height = meta['thumbnail_height']
             thumbnail.save()
 
         if meta.get('mobile_thumbnail_url'):
@@ -83,9 +83,9 @@ class OEmbed(object):
             except Thumbnail.DoesNotExist:
                 thumbnail = Thumbnail(video=video)
 
-            thumbnail.url=meta['mobile_thumbnail_url']
-            thumbnail.width=meta['mobile_thumbnail_width']
-            thumbnail.height=meta['mobile_thumbnail_height']
+            thumbnail.url = meta['mobile_thumbnail_url']
+            thumbnail.width = meta['mobile_thumbnail_width']
+            thumbnail.height = meta['mobile_thumbnail_height']
             thumbnail.save()
 
         try:
@@ -851,7 +851,7 @@ class VimeoFetcher(object):
         meta['thumbnail_width'], meta['thumbnail_height'] = 200, 150
 
         meta['mobile_thumbnail_url'] = video['thumbnail_small']
-        meta['mobile_thumbnail_width'], meta['thumbnail_height'] = 100, 75
+        meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 100, 75
 
         meta['html'] = self.VIMEO_EMBED_TAG % {'id': id}
         meta['html5'] = self.VIMEO_HTML5_EMBED_TAG % {'id': id}
