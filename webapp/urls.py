@@ -8,7 +8,7 @@ urlpatterns = patterns('webapp',
                        (r'^content/liked_videos', 'views.liked_video_queue'),
                        (r'^content/saved_videos', 'views.saved_video_queue'),
                        (r'^content/profile_edit', 'views.profile_edit'),
-                       (r'^detail', 'views.video_detail'),
+                       (r'^video/(?P<video_id>[0-9]+)', 'views.video_detail'),
                        #any root-level urls must be defined here, ABOVE
                        #the public_profile view url routing rule...
                        #ex. (r'^about', 'views.about'),
