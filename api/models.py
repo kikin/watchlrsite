@@ -158,6 +158,12 @@ class User(auth_models.User):
         user_video.save()
         return user_video
 
+    def followers(self):
+        return UserFollowsUser.objects.filter(followee=self)
+
+    def follows_users(self):
+        return UserFollowsUser.objects.filter(follower=self)
+
     def like_video(self, video, timestamp=None):
         '''
         Like a video. Creates an association between `User` and `Video` objects (if one doesn't exist already).
@@ -187,6 +193,24 @@ class User(auth_models.User):
         return Video.objects.filter(user__id=self.id, uservideo__liked=True).order_by('-uservideo__liked_timestamp')
 
     def save_video(self, video, timestamp=None):
+        '''
+        Add video to user's saved queue.
+
+        @type video: `Video` instance
+        @type timestamp: Specify a timestamp - defaults to `datetime.utcnow()`
+        @returns: Updated `UserVideo` association object
+
+        >>> user = User.objects.create(username='birdman')
+        >>> video = Video.objects.create(url='http://www.vimeo.com/24532073')
+        >>> timestamp = datetime(2011, 6, 8, 15, 12, 1)
+        >>> user_video = user.save_video(video, timestamp=timestamp)
+        >>> user_video.saved
+        True
+        >>> user_video.saved_timestamp
+        datetime.datetime(2011, 6, 8, 15, 12, 1)
+        >>> user_video.liked
+        False
+        '''
         if timestamp is None:
             timestamp = datetime.utcnow()
         return self._create_or_update_video(video, **{'saved': True, 'timestamp': timestamp})
