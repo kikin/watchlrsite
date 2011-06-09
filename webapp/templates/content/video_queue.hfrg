@@ -31,6 +31,12 @@
             <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
 
             <div class="video-buttons">
+                {% if display_mode == 'profile' %}
+                <a href="#!/save?vid={{ video.id }}" title="save">
+                    <div class="save-video-button no-hover"></div>
+                </a>
+                {% endif %}
+
                 {% if display_mode == 'saved' %}
                 <a href="#!/remove?vid={{ video.id }}" title="remove">
                     <div class="video-delete-button no-hover"></div>
