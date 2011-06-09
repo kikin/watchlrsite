@@ -144,3 +144,5 @@ def public_profile(request, username):
     except Exception, e:
         return HttpResponseNotFound('')
     
+def plugin_pitch(request):
+    return render_to_response('content/plugin_pitch.hfrg')
