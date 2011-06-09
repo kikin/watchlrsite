@@ -1,57 +1,144 @@
-{% extends "base.html" %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>kikin Video</title>
 
-{% block header_right %}
-    <div id="myConnectionsNot">
-        <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook">
+        <meta http-equiv="X-UA-Compatible" content="IE=8"/>
+        <meta name="Charset" content="UTF-8"/>
+        <meta name="title" content="kikin"/>
+        <meta name="copyright" content="kikin Inc."/>
+        <meta name="description" content="Save videos on any page to be watched later"/>
+        <meta name="keywords" content="kikin, video, kikin video, online video, instant video, save video, save video for later"/>
+        <link rel="image_src" href="{{ settings.STATIC_URL }}images/kikin_beta.gif"/>
+        <link rel="icon" href="{{ settings.STATIC_URL }}images/favicon.ico"/>
 
-        </a>
-    </div>
-{% endblock header_right %}
+        <!-- Styles -->
+        <link rel="stylesheet" type="text/css" href="{{ settings.STATIC_URL }}css/homepage.css?v=4" media="all"/>{% block style_refs %}{% endblock style_refs %}
 
-{% block content %}
-    <div id="loggedout" style="display: block;">
-        <div style="padding-top:75px;"></div>
-        <div id="dvUninstalledPromo"></div>
-        <br>
+        <!-- jQuery & friends -->
+        <script type="text/javascript" src="{{ settings.STATIC_URL }}js/cfon-yui+vag_400.js?v=0"></script>
+        <script type="text/javascript" src="{{ settings.STATIC_URL }}js/jquery-1.6.1.js"></script>
+        <script type="text/javascript" src="{{ settings.STATIC_URL }}js/jquery.hashchange-1.0.0.js"></script>
+        <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo_globals.js"></script>{% block script_refs %}{% endblock script_refs %}
+    </head>
+    <body>
+        <div id="header">
 
-        <div id="installed">
-            <div style="padding-top:10px;"></div>
-            <div class="btn_installed">&nbsp;</div>
         </div>
-        <div id="uninstalled" style="display: none;">
-            <a class="btn_dl download-cta-body-download" href="javascript://Download!"></a>
-        </div>
-        <br>
-
-        <div id="featuresSection">
-            <br class="clearFloats">
-            <br>
-
-            <div class="featureTxt" style="width:806px;">
-                <h4>
-                    Place your mouse on any video, on any webpage and kikin will add a
-                    <span class="blue">"Save For Later"</span>
-                    button.
+        <div id="header-wrapper">
+            <a href="/" title="kikin Video"><h1 id="header-logo"></h1></a>
+            <div id="header-right" class="right">
+                <div id="myConnectionsNot">
+                    <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook"></a>
+                </div>
             </div>
-            <img class="featureImage" alt="Download Now!" src="{{ settings.STATIC_URL }}images/education/education.png">
-            <br class="clearFloats">
 
-            <div style="height:40px;"></div>
-            <div class="featureTxt" style="width:806px;">
+            <div class="right" id="loggedInInstallPitch" style="display: none;">
+                <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
+            </div>
+        </div>
+
+        <div id="wrapper" style="height:370px;">
+            <script type="text/javascript">
+                if (navigator.userAgent.indexOf("Firefox") > 0)
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ settings.STATIC_URL }}images/devices.png" style="position:absolute; top:21px; right:0px;" />');
+                }
+                else
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ settings.STATIC_URL }}images/devices.png" style="position:absolute; top:37px; right:0px;" />');
+                }
+            </script>
+
+            <img title="kikin Video" src="{{ settings.STATIC_URL }}images/logo_big.png" style="padding-left: 8px;"/>
+            <br />
+            <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 28px; padding-top:20px; padding-left: 8px;">
+                Save, share, and play<br />any video on any device.
+            </div>
+            <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 19px; padding-top:20px; padding-left: 8px; font-style: italic;">
+                New Users
+            </div>
+            <div title="Sign up" class="facebook_signup" src="{{ settings.STATIC_URL }}images/facebook_signup.png" /></div>
+        </div>
+        <div id="wrapper" style="width:980px; margin-top:45px;">
+            <div style="width:300px; color:white; border-right: 1px solid white; float:left;">
+                <img title="Watch Later" src="{{ settings.STATIC_URL }}images/white_plus.png" style="float:left; padding-right:25px;"/>
+                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
+                    Watch Later
+                </div>
+                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:bold;">
+                    Don't have time?<br/>Save videos to watch later.
+                </div>
+            </div>
+            <div style="width:330px; color:white; border-right: 1px solid white; padding-left:35px; float:left;">
+                <img title="Watch Later" src="{{ settings.STATIC_URL }}images/white_mobile.png" style="float:left; padding-right:25px;"/>
+                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
+                    Mobile Friendly
+                </div>
+                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:bold;">
+                    View kikin Video on<br/>iPhone, iPad and Android.
+                </div>
+            </div>
+            <div style="width:310px; color:white; float:right;">
+                <img title="Watch Later" src="{{ settings.STATIC_URL }}images/white_peeps.png" style="float:left; padding-left:25px; padding-right:25px;"/>
+                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
+                    People Powered
+                </div>
+                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:bold;">
+                    Share and discover videos<br/>through friends and influencers.
+                </div>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <div id="wrapper" style="margin-top:40px;">
+            <div class="featureTxt">
                 <h4>
-                    Watch Saved Videos on Your
-                    <span class="blue">Desktop</span>
-                    or
-                    <span class="blue">Mobile Device</span>
+                    Save Any Video For Later
                 </h4>
-                Easily manage your saved videos and watch them
-                <span class="blue">anywhere.</span>
+                <p>Place your mouse on any video, on any webpage and kikin will add a "Watch Later" button.</p>
+                <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="padding-top:5px; padding-left: 0px;"/>
             </div>
-            <img class="featureImage" style="padding-left:145px;" alt="Download Now!"
-                 src="{{ settings.STATIC_URL }}images/screenshot2.png">
-            <br class="clearFloats">
         </div>
-        <br>
-        <br>
-    </div>
-{% endblock content %}
+
+    <!-- footer -->
+        <div id="footer">
+            <div id="footer-copyright">&copy; 2008-2011 kikin, Inc.</div>
+            <ul id="footer-nav" class="nav">
+                <li>
+                    <a href="http://www.kikin.com/blog">Blog</a>
+                </li>
+                <li>
+                    <span class="footer-nav-separator">|</span><a href="http://www.kikin.com/about">About</a>
+                </li>
+                <li>
+                    <span class="footer-nav-separator">|</span><a href="http://www.kikin.com/privacy"
+                                                                  title="Privacy">Privacy</a>
+                </li>
+                <li>
+                    <span class="footer-nav-separator">|</span><a href="http://www.kikin.com/contact" title="Contact us">Contact
+                    us</a>
+                </li>
+                <li>
+                    <span class="footer-nav-separator">|</span><a href="http://www.kikin.com/terms" title="Terms of Service">Terms
+                    of
+                    Service</a>
+                </li>
+                <li>
+                    <span class="footer-nav-separator">|</span><a href="http://www.kikin.com/jobs" title="Jobs">Jobs</a>
+                </li>
+                <li class="fb-twit">
+                    <a href="http://www.facebook.com/pages/kikin/124204911881" title="Kikin on Facebook"
+                       target="_blank"><img
+                            src="{{ settings.STATIC_URL }}images/footer/footerfacebook.gif" alt="Facebook"/></a><a
+                        href="http://twitter.com/kikin_inc"
+                        title="Kikin on Facebook"
+                        target="_blank"><img
+                        src="{{ settings.STATIC_URL }}images/footer/footertwitter.gif" alt="Twitter"/></a>
+                </li>
+            </ul>
+        </div>
+        <!-- #footer -->
+
+    </body>
+</html>
