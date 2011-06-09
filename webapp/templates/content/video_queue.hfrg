@@ -43,11 +43,20 @@
                 </a>
                 {% endif %}
 
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                 {% if video.total_likes != 0 %}
-                    {{ video.total_likes }}
-                {%  endif %}
-                </div>
+                    {% if video in user.liked_videos %}
+                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                        {{ video.total_likes }}
+                    </div>
+                    {% else %}
+                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                        {{ video.total_likes }}
+                    </div>
+                    {%  endif %}
+                {% else %}
+                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                    </div>
+                {% endif %}
             
                 {% if display_mode == 'profile' %}
 

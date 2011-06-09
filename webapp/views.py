@@ -145,3 +145,11 @@ def public_profile(request, username):
     
 def plugin_pitch(request):
     return render_to_response('content/plugin_pitch.hfrg')
+
+def activity(request):
+    if request.user.is_authenticated():
+        user = request.user
+        return render_to_response('content/activity_queue.html', \
+                {'user':user, 'settings':settings,'activity_items':user.activity()},\
+                                                    context=RequestContext(request))
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
