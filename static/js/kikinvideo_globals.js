@@ -61,7 +61,7 @@ var TAB_SELECTORS = {
     likes : '.tabLikes'
 };
 
-var activeTab;
+var activeTab = TAB_SELECTORS.queue;
 
 /**
 * Function takes full #! url and returns the path + params
