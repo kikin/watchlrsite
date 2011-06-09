@@ -265,6 +265,7 @@ com.kikin.VideoPanelController = function(parent) {
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
+                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
                                         });
                                     }
                                 }
@@ -283,15 +284,14 @@ com.kikin.VideoPanelController = function(parent) {
                                 if(!data.result.liked){
                                     $(LIKED_ICON_ID_PREFIX+vid).removeClass('liked');
                                     if(data){
-                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
-                                            if(data.result.likes != 0){
-                                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
-                                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({'color':'#777777'});
-                                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
-                                            }
-                                        });
-
+                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+                                                if(data.result.likes != 0){
+                                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
+                                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
+                                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#d0d0d0'});
+                                                }
+                                            });
                                         if(activeTab == TAB_SELECTORS.likes){
                                             $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
                                                     $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
