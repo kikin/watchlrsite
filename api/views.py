@@ -152,8 +152,8 @@ def like(request, video_id):
 
     if user.preferences()['syndicate'] == 1:
         try:
-            UserVideo.objects.get(user=user, video=video, like_timestamp__isnull=False)
-        except UserVideo.DoesNotExist:
+            UserVideo.objects.get(user=user, video=video, liked_timestamp__isnull=False)
+        except UserVideo.DoesNotExist:  
             server_name = get_server_name(request)
 
             params = {'access_token': user.facebook_access_token(),
