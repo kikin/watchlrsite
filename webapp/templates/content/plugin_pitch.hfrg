@@ -1,0 +1,56 @@
+<style>
+#plugin-pitch{
+    position: absolute;
+    width:200px;
+    height:200px;
+    right:30px;
+    top:80px;
+    background-color:#f8ff70;
+    font-family: Helvetica;
+    font-size: 21px;
+    color:black;
+    z-index:1000;
+    display:none;
+    padding: 40px;
+    border-radius: 7px;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+}
+
+.close-button-fancy{
+    position:absolute;
+    width:15px;
+    height:15px;
+    background-image: url(/static/images/close_button_fancy.png);
+}
+
+#kikinvideo-plugin-download{
+    background-color: #4ab7e3;
+    color:#FFFFFF;
+    margin-left: auto;
+    margin-right:auto;
+    text-align:center;
+	width:110px;
+	font-family:Helvetica;
+	font-size:16px;
+	font-weight:900;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	top:4px;
+	left:496px;
+    padding-top:10px;
+    padding-bottom: 10px;
+    margin-top:30px;
+}
+
+</style>
+<div id="plugin-pitch" class="shadow-5l">
+<div id="plugin-pitch-close" class="close-button-fancy" style="top:5px;right:6px;"></div>
+Hey, buddy!
+In order to save videos to your kikin video queue, you'll need to first download the Kikin Video Plugin.
+<div style="width:100%;text-align: center;">
+<a href="/download">
+    <div id="kikinvideo-plugin-download" class="shadow-5l">Download</div>
+</a>
+</div>
+</div>
