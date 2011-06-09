@@ -520,3 +520,52 @@ def swap(request, facebook_id):
     session.save()
 
     return {'session_id': session.session_key}
+
+@json_view
+def follow(request, other):
+    user = request.user
+
+    if not user.is_authenticated():
+        raise Unauthorized()
+
+    try:
+        other = User.objects.get(pk=int(other))
+    except ValueError:
+        other = User.objects.get(username=other)
+    except User.DoesNotExist:
+        raise BadRequest('User:%s does not exist' % other)
+
+    user.follow(other)
+
+    return {'username': user.username,
+            'following': user.following().count(),
+            'followers': user.followers().count()}
+
+
+@json_view
+def unfollow(request, other):
+    user = request.user
+
+    if not user.is_authenticated():
+        raise Unauthorized()
+
+    try:
+        other = User.objects.get(pk=int(other))
+    except ValueError:
+        other = User.objects.get(username=other)
+    except User.DoesNotExist:
+        raise BadRequest('User:%s does not exist' % other)
+
+    user.unfollow(other)
+
+    return {'username': user.username,
+            'following': user.following().count(),
+            'followers': user.followers().count()}
+
+
+@json_view
+def activity(request):
+    user = request.user
+
+    if not user.is_authenticated():
+        raise Unauthorized()
