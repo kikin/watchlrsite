@@ -67,7 +67,7 @@
 
                 <div  class="video-embed-wrapper" style="width:640px;height:480px;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:10px;">
                 {% autoescape off %}
-                    {{ video.html5_embed_code }}
+                    {{ video.html5_embed_code|video_js }}
                 {% endautoescape %}
                 </div>
                 </div>
