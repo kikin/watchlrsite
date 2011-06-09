@@ -164,9 +164,9 @@ def like(request, video_id):
                   'name': video.title,
                   'description': video.description}
 
-        url = 'https://%s/%s/links?%s' % (FACEBOOK_SERVER, user.facebook_uid(), urlencode(params))
+        url = 'https://%s/me/feed' % FACEBOOK_SERVER
 
-        logger.debug(loads(urlopen(url).read()))
+        logger.debug(loads(urlopen(url, urlencode(params)).read()))
 
     return do_request(request, video_id, 'like_video')
 
