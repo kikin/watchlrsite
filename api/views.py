@@ -45,7 +45,6 @@ def json_view(f):
         response = None
         try:
             result = f(request, *args, **kwargs)
-            assert isinstance(result, dict)
             response = {'success': True,
                         'result': result}
 
@@ -570,8 +569,20 @@ def unfollow(request, other):
 
 
 @json_view
+@require_authentication
 def activity(request):
     user = request.user
 
-    if not user.is_authenticated():
-        raise Unauthorized()
+    items = []
+    for item in user.activity():
+
+        users = []
+        for user_like_tuple in item.users:
+            users.append({'timestamp': user_like_tuple[1],
+                          'user': user_like_tuple[0]})
+
+        items.append({'type': 'like',
+                      'video': as_dict(item.video),
+                      'users': users })
+
+    return items
