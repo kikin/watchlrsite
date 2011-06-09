@@ -24,6 +24,10 @@ var LIKED_VIDEOS_CONTENT_URL = '/content/liked_videos';
 
 var SAVED_VIDEOS_CONTENT_URL = '/content/saved_videos';
 
+var FOLLOW_USER_PATH = '/follow';
+
+var UNFOLLOW_USER_PATH = '/unfollow';
+
 var PROFILE_OPTIONS_PANEL_SELECTOR = '#options';
 
 var PROFILE_OPTIONS_BUTTON_SELECTOR = '#header-right';
