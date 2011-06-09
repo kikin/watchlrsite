@@ -2,8 +2,10 @@
 {% load kikinvideo_tags %}
 
 {% block script_refs %}
+    <script type="text/javascript">activeTab = TAB_SELECTORS.likes;</script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_video_panel.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_home.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_profile.js"></script>
 {% endblock script_refs %}
 
 {% block style_refs %}
@@ -11,7 +13,7 @@
 {% endblock style_refs %}
 
 {% block content %}
-
+    <meta name="profile_subject" content="{{ user.id }}"/>
     <div id="user-info-container">
 				<div class="inner">
                     <div id="facebook-img" class="shadow-5l" style="background-image:url('https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=normal');"></div>
