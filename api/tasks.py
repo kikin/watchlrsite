@@ -70,7 +70,7 @@ class OEmbed(object):
             try:
                 thumbnail = Thumbnail.objects.get(video=video, type='web')
             except Thumbnail.DoesNotExist:
-                thumbnail = Thumbnail(video=video)
+                thumbnail = Thumbnail(video=video, type='web')
 
             thumbnail.url = meta['thumbnail_url']
             thumbnail.width = meta['thumbnail_width']
@@ -81,7 +81,7 @@ class OEmbed(object):
             try:
                 thumbnail = Thumbnail.objects.get(video=video, type='mobile')
             except Thumbnail.DoesNotExist:
-                thumbnail = Thumbnail(video=video)
+                thumbnail = Thumbnail(video=video, type='mobile')
 
             thumbnail.url = meta['mobile_thumbnail_url']
             thumbnail.width = meta['mobile_thumbnail_width']
