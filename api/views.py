@@ -158,13 +158,14 @@ def like_by_url(request):
     querydict = request.GET if request.method == 'GET' else request.POST
     try:
         normalized_url = url_fix(querydict['url'])
+    except KeyError:
+        raise BadRequest('Parameter:url missing')
     except MalformedURLException:
         raise BadRequest('Malformed URL:%s' % url)
 
     try:
         user_video = request.user.like_video(Video.objects.get(url=normalized_url))
-    except KeyError:
-        raise BadRequest('Parameter:url missing')
+        push_like_to_fb.delay(request.user, user_video.video)
     except Video.DoesNotExist:
         video = Video(url=normalized_url)
         video.save()
