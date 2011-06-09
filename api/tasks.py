@@ -66,35 +66,30 @@ class OEmbed(object):
 
         video.fetched = datetime.utcnow()
 
-        try:
-            thumbnail = Thumbnail(url=meta['thumbnail_url'],
-                                  width=meta['thumbnail_width'],
-                                  height=meta['thumbnail_height'],
-                                  video=video)
+        if meta.get('thumbnail_url'):
+            try:
+                thumbnail = Thumbnail.objects.get(video=video, type='web')
+            except Thumbnail.DoesNotExist:
+                thumbnail = Thumbnail.objects.create(video=video)
 
+            thumbnail.url=meta['thumbnail_url']
+            thumbnail.width=meta['thumbnail_width']
+            thumbnail.height=meta['thumbnail_height']
             thumbnail.save()
 
-            video.thumbnails.add(thumbnail)
+        if meta.get('mobile_thumbnail_url'):
+            try:
+                thumbnail = Thumbnail.objects.get(video=video, type='mobile')
+            except Thumbnail.DoesNotExist:
+                thumbnail = Thumbnail.objects.create(video=video)
 
-        except KeyError:
-            pass
-
-        try:
-            mobile_thumbnail = Thumbnail(type='mobile',
-                                         url=meta['mobile_thumbnail_url'],
-                                         width=meta['mobile_thumbnail_width'],
-                                         height=meta['mobile_thumbnail_height'],
-                                         video=video)
-
-            mobile_thumbnail.save()
-
-            video.thumbnails.add(mobile_thumbnail)
-
-        except KeyError:
-            pass
+            thumbnail.url=meta['mobile_thumbnail_url']
+            thumbnail.width=meta['mobile_thumbnail_width']
+            thumbnail.height=meta['mobile_thumbnail_height']
+            thumbnail.save()
 
         try:
-            source = VideoSource.objects.get(url__exact=meta['source'].url)
+            source = VideoSource.objects.get(name=meta['source'].name)
         except VideoSource.DoesNotExist:
             source = VideoSource(name=meta['source'].name,
                                  url=meta['source'].url,
