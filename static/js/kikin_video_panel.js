@@ -317,10 +317,8 @@ com.kikin.VideoPanelController = function(parent) {
             $.ajax({
                 url : '/api/follow/'+user_id,
                 success: function(response){
-                    if (response.result.following == 1){
+                    if (response.success){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
-                        var follow_link = $(FOLLOW_LINK_ID_PREFIX+user_id);
-                        console.log(follow_link);
                         $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/unfollow?user="+user_id);
                     }
                 },
@@ -334,9 +332,8 @@ com.kikin.VideoPanelController = function(parent) {
             $.ajax({
                 url : '/api/unfollow/'+user_id,
                 success: function(response){
-                    if (response.result.following == 0){
+                    if (response.success){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
-                        var follow_link = $(FOLLOW_LINK_ID_PREFIX+user_id);
                         $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/follow?user="+user_id);
                     }
                 },
