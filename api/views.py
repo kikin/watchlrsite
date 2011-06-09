@@ -161,7 +161,8 @@ def like(request, video_id):
                       'caption': server_name,
                       'picture': video.get_thumbnail().url,
                       'name': video.title,
-                      'description': video.description}
+                      'description': video.description,
+                      'message': 'likes \'%s\' on kikin Video' % video.title}
 
             url = 'https://%s/me/feed' % FACEBOOK_SERVER
 
