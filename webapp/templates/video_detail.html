@@ -1,7 +1,6 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
 {% block content %}
-    {% if video.html5_embed_code %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
             <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
@@ -57,7 +56,7 @@
 
             <br style="clear:both;"/>
 
-            {% if video.html5_embed_code or video.html5_embed_code %}
+            {% if video.html_embed_code or video.html5_embed_code %}
 
             <div class="video-player" id="video-player-{{ video.id }}"
                     style="display:block;">
@@ -65,9 +64,9 @@
                     <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
                 </div>
 
-                <div  class="video-embed-wrapper" style="width:640px;height:480px;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:10px;">
+                <div  class="video-embed-wrapper" style="width:640px;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:10px;">
                 {% autoescape off %}
-                    {{ video.html5_embed_code }}
+                    {{ video.html_embed_code }}
                 {% endautoescape %}
                 </div>
                 </div>
@@ -93,5 +92,4 @@
         </div>
         <div class="my-video-breaker"></div>
     </div>
-{% endif %}
 {% endblock %}

@@ -279,7 +279,7 @@ a:hover {
     border-radius: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
-    z-index:9999;
+    text-align:center;
 }
 
 ul.navigation {
@@ -999,7 +999,6 @@ video{
 
 .video-embed-container{
     width:640px;
-    height:480px;
     margin-left:auto;
     margin-right:auto;
     margin-top:14px;
