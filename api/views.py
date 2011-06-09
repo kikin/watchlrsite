@@ -30,11 +30,12 @@ def require_authentication(f):
             except (KeyError, Session.DoesNotExist):
                 raise Unauthorized()
 
-            user = User.objects.get(pk=session.get_decoded()['user_id'])
-            if not user.is_authenticated():
+            if session.expire_date <= datetime.now():
                 raise Unauthorized()
 
-        request.user = user
+            uid = session.get_decoded().get('_auth_user_id')
+            request.user = User.objects.get(pk=uid)
+
         return f(request, *args, **kwargs)
 
     return wrap
@@ -525,7 +526,7 @@ def swap(request, facebook_id):
         raise Unauthorized()
 
     session = SessionStore()
-    session['user_id'] = user.id
+    session['_auth_user_id'] = user.id
     session.save()
 
     return {'session_id': session.session_key}
