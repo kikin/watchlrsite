@@ -121,12 +121,13 @@ def video_player(request, video_id):
         
 def video_detail(request, video_id):
         try:
-            video = Video.objects.get(pk=video_id)
-            return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
-                                'settings':settings, 'video':video}, context_instance=RequestContext(request))
-        #in case of uncastable or invalid vid...
-        except Exception:
-            return HttpResponseNotFound
+            video = Video.objects.get(pk=int(video_id))
+        except (ValueError, Video.DoesNotExist):
+            #in case of uncastable or invalid vid...
+            return HttpResponseNotFound()
+        return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
+                            'settings':settings, 'video':video}, context_instance=RequestContext(request))
+
 
 def public_profile(request, username):
     try:
