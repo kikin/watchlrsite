@@ -158,6 +158,12 @@ class User(auth_models.User):
         user_video.save()
         return user_video
 
+    def followers(self):
+        return UserFollowsUser.objects.filter(followee=self)
+
+    def follows_users(self):
+        return UserFollowsUser.objects.filter(follower=self)
+
     def like_video(self, video, timestamp=None):
         '''
         Like a video. Creates an association between `User` and `Video` objects (if one doesn't exist already).
