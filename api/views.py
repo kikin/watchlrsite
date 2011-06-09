@@ -4,20 +4,16 @@ from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator, EmptyPage
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
-from django.contrib.sites.models import Site
-from social_auth.backends.facebook import FACEBOOK_SERVER
 
 from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, UserNotConnected
 from api.models import Video, User, UserVideo, Source, Notification, Preference, slugify, Thumbnail
 from api.utils import epoch, url_fix, MalformedURLException
-from api.tasks import fetch
+from api.tasks import fetch, push_like_to_fb
 
 from re import split
 from json import loads, dumps
 from decimal import Decimal
 from datetime import datetime
-from urllib import urlencode
-from urllib2 import urlopen
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -136,10 +132,6 @@ def get_host(request):
     return request.META.get('HTTP_REFERER')
 
 
-def get_server_name(request):
-    return '%s' % Site.objects.get_current().domain
-
-
 @json_view
 @require_authentication
 def like(request, video_id):
@@ -149,28 +141,7 @@ def like(request, video_id):
         raise VideoNotFound(video_id)
 
     user = request.user
-
-    if user.preferences()['syndicate'] == 1:
-        try:
-            UserVideo.objects.get(user=user, video=video, liked_timestamp__isnull=False)
-        except UserVideo.DoesNotExist:  
-            server_name = get_server_name(request)
-
-            params = {'access_token': user.facebook_access_token(),
-                      'link': '%s/%s' % (server_name, video.get_absolute_url()),
-                      'caption': server_name,
-                      'picture': video.get_thumbnail().url,
-                      'name': video.title,
-                      'description': video.description,
-                      'message': 'likes \'%s\' on kikin Video' % video.title}
-
-            url = 'https://%s/me/feed' % FACEBOOK_SERVER
-
-            try:
-                response = loads(urlopen(url, urlencode(params)).read())
-                logger.debug('Facebook post id: %s' % response['id'])
-            except:
-                logger.exception('Could not post to Facebook')
+    push_like_to_fb.delay(user, video)
 
     return do_request(request, video_id, 'like_video')
 
@@ -202,7 +173,10 @@ def like_by_url(request):
         user_video.save()
 
         # Fetch video metadata in background
-        fetch.delay(request.user.id, normalized_url, user_video.host)
+        fetch.delay(request.user.id,
+                    normalized_url,
+                    user_video.host,
+                    callback=push_like_to_fb.subtask((request.user, )))
 
     return as_dict(user_video)
 
