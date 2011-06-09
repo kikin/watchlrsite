@@ -107,8 +107,3 @@ def web_thumbnail_url(video):
     if len(thumbs) > 0:
         return thumbs[0].url
     return ""
-
-@register.filter
-def video_js(video_embed_code):
-    return video_embed_code.replace('<video', '<video class="video-js"').replace('controls="controls"', 'controls').replace('controls=""', 'controls')
-
