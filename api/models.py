@@ -77,6 +77,10 @@ class Video(models.Model):
         save_date = UserVideo.objects.get(video=self, user=user).saved_timestamp
         return save_date
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('video_detail', [str(self.id)])
+
 class Thumbnail(models.Model):
     '''
     Video thumbnails
@@ -389,7 +393,7 @@ class Notification(models.Model):
 
 
 DEFAULT_PREFERENCES = {
-    'syndicate': 1, # Syndicate likes to Facebook
+    'syndicate': 2, # Syndicate likes to Facebook
 }
 
 class Preference(models.Model):
