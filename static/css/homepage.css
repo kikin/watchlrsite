@@ -80,6 +80,8 @@ body {
     font-size: 13px;
     margin: 0;
     text-align: center;
+    background: url(/static/images/background_landing.png);
+    background-repeat:repeat-x;
 }
 
 a {
@@ -112,9 +114,6 @@ a:hover {
 /* Header */
 #header {
     height: 40px;
-    position: fixed;
-    width: 100%;
-    top: 0px;
     padding: 10px;
     background: #0c536f;
     z-index: 10;
@@ -122,6 +121,15 @@ a:hover {
     -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+#header-wrapper {
+    margin: 70px auto;
+    margin-top:0px;
+    text-align: left;
+    width: 980px;
+    top:-50px;
+    position:relative;
 }
 
 #header-logo {
@@ -207,8 +215,11 @@ a:hover {
 
 #wrapper {
     margin: 70px auto;
+    margin-bottom:0px;
     text-align: left;
-    max-width: 800px;
+    width: 900px;
+    position:relative;
+    top:-50px;
 }
 
 .section-title {
@@ -220,6 +231,16 @@ a:hover {
 }
 
 /* Content */
+
+.facebook_signup {
+	width:396px;
+	height:77px;
+	background:url('/static/images/facebook_signup.png') no-repeat;
+	cursor:pointer;
+}
+.facebook_signup:hover{
+	background:url('/static/images/facebook_signup.png') no-repeat 0px -80px;
+}
 
 #content {
     padding: 0;
@@ -267,6 +288,7 @@ a:hover {
     width:780px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: -30px;
     text-align: left;
 }
 
@@ -279,7 +301,7 @@ a:hover {
     border-radius: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
-    text-align:center;
+    z-index:9999;
 }
 
 ul.navigation {
@@ -991,28 +1013,4 @@ a#lnk-page-next:hover {
 
 .video-container{
     padding:14px;
-}
-
-video{
-    background-color: #000000;
-}
-
-.video-embed-container{
-    width:640px;
-    margin-left:auto;
-    margin-right:auto;
-    margin-top:14px;
-    margin-bottom:10px;
-}
-
-.shadow-10r{
--moz-box-shadow: 10px 10px 5px #888;
--webkit-box-shadow: 10px 10px 5px #888;
-box-shadow: 10px 10px 5px #888;
-}
-
-.shadow-5l{
-    -moz-box-shadow: -5x 5px 5px #888;
-    -webkit-box-shadow: -5px 5px 5px #888;
-    box-shadow: -5px 5px 5px #888;
 }

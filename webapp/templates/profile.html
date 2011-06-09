@@ -14,38 +14,42 @@
 
     <div id="user-info-container">
 				<div class="inner">
-					<div id="profile-image-container">
-                    <img id="facebook-thumbnail" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=small"/>
-					</div>
+                    <div id="facebook-img" class="shadow-5l" style="background-image:url('https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=normal');"></div>
 					<div id="username-display">
 							<div class="primary">
 								{{ user.username }}
 							</div>
 							<div class="sub">
-								{{ user.first_name }} {{ user.last_name }}
+								({{ user.first_name }} {{ user.last_name }})
 							</div>
-						<div class="profile-basic-statistics" style="left:205px;">
+						<div class="profile-basic-statistics shadow-5l" style="left:145px;">
 							{{ user|total_liked_videos }}
-							<div class="sub">
-							Saved<br>videos
-							</div>
-						</div>
-						<div class="profile-vertical-separator" style="left:245px;"></div>
-						<div class="profile-basic-statistics" style="left:260px;">
-							{{ user|total_saved_videos }}
-							<div class="sub">
+							<div class="profile-basic-statistics-sub">
 							Liked<br>videos
 							</div>
 						</div>
-						<!--<div id="follow-button">Follow</div>-->
+						<div class="profile-basic-statistics shadow-5l" style="left:258px;">
+							{{ user.followers|length }}
+							<div class="profile-basic-statistics-sub" style="margin-top:10px;">
+							Followers
+							</div>
+						</div>
+                        <div class="profile-basic-statistics shadow-5l" style="left:370px;">
+							{{ user.follows_users|length }}
+							<div class="profile-basic-statistics-sub">
+							Followed<br>users
+							</div>
+						</div>
+					    <div id="follow-button" class='shadow-5l'>Follow</div>
 					</div>
-					<img src="{{ settings.STATIC_URL }}images/profile/delta.png" id="delta-img"/>
 				</div>
 			</div>
 
     <div id="recent-activity-titlebar">
     {{ user.first_name|possessive }} video stream
     </div>
+    <div id="videoListWrapper">
+    <div id="videoList">
     {% for video in videos %}
         <div id="video-{{video.id}}" class="video-wrapper">
             <div class="video-container">
@@ -132,4 +136,6 @@
             <div class="my-video-breaker"></div>
         </div>
     {% endfor %}
+    </div>
+    </div>
 {% endblock content%}
