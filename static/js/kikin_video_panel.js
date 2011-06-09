@@ -42,6 +42,8 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_COUNT_META_SELECTOR = "meta[name=video_count]";
 
+    var UID_META_SELECTOR = "meta[name=profile_subject]";
+
     var INITIAL_PAGINATION_THRESHOLD = 10;
 
     var likedVideosPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
@@ -66,7 +68,7 @@ com.kikin.VideoPanelController = function(parent) {
     //of _populatePanel
     var initialLoad = true;
 
-    VideoJS.setupAllWhenReady();
+    var uid = $(UID_META_SELECTOR).attr('content');
    
     function _loadMoreVideos(){
         if(activeTab == TAB_SELECTORS.likes){
@@ -135,9 +137,9 @@ com.kikin.VideoPanelController = function(parent) {
 
     function _populatePanel() {
         
-                $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-                $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
-                                height:$(document).height()});
+            $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
+            $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
+                            height:$(document).height()});
             
 
             var contentSource, requestParams;
@@ -149,6 +151,9 @@ com.kikin.VideoPanelController = function(parent) {
                 contentSource = SAVED_VIDEOS_CONTENT_URL;
                 requestParams = {'start':0, 'count':savedVideosToLoad};
             }
+
+            if(uid)
+                requestParams.user_id = uid;
 
 
             $.get(contentSource, requestParams, function(data) {
@@ -315,7 +320,9 @@ com.kikin.VideoPanelController = function(parent) {
                     }
                 });
             });            
-        }
+        },
+
+        stylizeVideoTitles : _stylizeVideoTitles
     };
 
 };

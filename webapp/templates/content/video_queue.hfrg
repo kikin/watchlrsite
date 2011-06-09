@@ -32,7 +32,7 @@
 
             <div class="video-buttons">
                 {% if display_mode == 'saved' %}
-                <a href="/#!/remove?vid={{ video.id }}" title="remove">
+                <a href="#!/remove?vid={{ video.id }}" title="remove">
                     <div class="video-delete-button no-hover"></div>
                 </a>
                 {% endif %}
@@ -42,7 +42,7 @@
                     {{ video.total_likes }}
                 {%  endif %}
                 </div>
-                <a href="/#!/like?vid={{ video.id }}" title="like">
+                <a href="#!/like?vid={{ video.id }}" title="like">
                 {% if video in user.liked_videos %}
                     <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                 {% else %}
