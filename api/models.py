@@ -393,7 +393,7 @@ class Notification(models.Model):
 
 
 DEFAULT_PREFERENCES = {
-    'syndicate': -1, # Syndicate likes to Facebook
+    'syndicate': 2, # Syndicate likes to Facebook
 }
 
 class Preference(models.Model):
