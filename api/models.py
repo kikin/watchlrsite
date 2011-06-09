@@ -1,7 +1,8 @@
 from re import sub
 from unicodedata import normalize
 from datetime import datetime
-from operator import attrgetter
+from operator import itemgetter
+from itertools import chain
 
 from django.db import models
 from django.contrib.auth import models as auth_models
@@ -106,9 +107,10 @@ class Thumbnail(models.Model):
         return self.url
 
 class ActivityItem(object):
-    def __init__(self, user_video_list, timestamp=None):
+    def __init__(self, video, users, timestamp=None):
         super(ActivityItem, self).__init__()
-        self.user_video_list = user_video_list
+        self.video = video
+        self.users = users
         self.timestamp = timestamp
 
     def __cmp__(self, other):
@@ -288,26 +290,35 @@ class User(auth_models.User):
         >>> aquaman = User.objects.create(username='aquaman')
         >>> ghostface = User.objects.create(username='ghostface')
         >>> waveforms = Video.objects.create(url='http://www.vimeo.com/24532073')
-        >>> birdman.like_video(waveforms)
+        >>> birdman.like_video(waveforms, timestamp=datetime(2010, 6, 8))
         <UserVideo: UserVideo object>
         >>> aquaman.follow(birdman)
         <UserFollowsUser: UserFollowsUser object>
         >>> items = aquaman.activity()
-        >>> len(items), items[0]
+        >>> len(items), items[0].video.url
         (1, u'http://www.vimeo.com/24532073')
         >>> aquaman.follow(ghostface)
         <UserFollowsUser: UserFollowsUser object>
-        >>> ghostface.like_video(waveforms)
+        >>> ghostface.like_video(waveforms, timestamp=datetime(2010, 6, 9))
         <UserVideo: UserVideo object>
         >>> items = aquaman.activity()
-        >>> len(items), items[0]
+        >>> len(items), map(itemgetter(0), items[0].users)
         (1, [<User: ghostface>, <User: birdman>])
+        >>> sausage = Video.objects.create(url='http://www.youtube.com/watch?v=LOWL0KMAIek')
+        >>> ghostface.like_video(sausage, timestamp=datetime(2010, 6, 7))
+        <UserVideo: UserVideo object>
+        >>> aquaman.like_video(sausage, timestamp=datetime(2010, 6, 9, 4, 20))
+        <UserVideo: UserVideo object>
+        >>> items = aquaman.activity()
+        >>> len(items), items[0].video.url, map(itemgetter(0), items[0].users)
+        (2, u'http://www.youtube.com/watch?v=LOWL0KMAIek', [<User: aquaman>, <User: ghostface>])
         '''
+
         if since is None:
             since = datetime(1970, 1, 1)
 
         by_video = dict()
-        for user in self.following():
+        for user in chain(self.following(), [self,]):
 
             for video in user.liked_videos():
 
@@ -316,16 +327,17 @@ class User(auth_models.User):
                     if user_video.liked_timestamp < since:
                         continue
 
+                user_like_tuple = (user_video.user, user_video.liked_timestamp)
                 try:
-                    by_video[video].user_video_list.append(user_video)
+                    by_video[video].users.append(user_like_tuple)
                 except KeyError:
-                    by_video[video] = ActivityItem(user_video_list=[user_video,])
+                    by_video[video] = ActivityItem(video=user_video.video, users=[user_like_tuple])
 
-                by_video[video].timestamp = user_video.liked_timestamp
+                by_video[video].timestamp = user_like_tuple[1]
 
         items = sorted(by_video.values(), reverse=True)
         for item in items:
-            item.user_video_list.sort(key=attrgetter('liked_timestamp'), reverse=True)
+            item.users.sort(key=itemgetter(1), reverse=True)
 
         return items
 
