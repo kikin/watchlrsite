@@ -62,6 +62,7 @@ class Video(models.Model):
     html5_embed_code = models.TextField(max_length=3000, null=True)
     source = models.ForeignKey(Source, related_name='videos', null=True)
     fetched = models.DateTimeField(null=True, db_index=True)
+    state = models.CharField(max_length=10, null=True, db_index=True)
 
     def set_thumbnail(self, url, width, height, type='web'):
         try:
