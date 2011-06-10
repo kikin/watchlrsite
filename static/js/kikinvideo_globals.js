@@ -62,6 +62,10 @@ var GREYED_BACKGROUND_ELEMENT = '<div class="greyed-background" style="display: 
 
 var GREYED_BACKGROUND_SELECTOR = '.greyed-background';
 
+var LOADING_ICON_BACKGROUND = ".loading-container";
+
+var LOADING_ICON = ".loading";
+
 var PLAYBACK_POSITION_API_URL = '/api/seek/';//  /[vid]/[position]
 
 var TAB_SELECTORS = {
@@ -126,4 +130,11 @@ function showErrorDialog(msg){
 
 function hideErrorDialog(){
     $(ERROR_DIALOG_SELECTOR).fadeOut(600);
+}
+
+function trim(s) {
+	s = s.replace(/(^\s*)|(\s*$)/gi,"");
+	s = s.replace(/[ ]{2,}/gi," ");
+	s = s.replace(/\n /,"\n");
+	return s;
 }

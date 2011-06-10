@@ -149,7 +149,7 @@ def plugin_pitch(request):
 def activity(request):
     if request.user.is_authenticated():
         user = request.user
-        return render_to_response('content/activity_queue.html', \
+        return render_to_response('content/activity_queue.hfrg', \
                 {'user':user, 'settings':settings,'activity_items':user.activity()},\
                                         context_instance=RequestContext(request))
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
