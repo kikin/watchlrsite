@@ -109,12 +109,22 @@ def as_dict(obj):
                 'height': obj.height}
 
     elif isinstance(obj, Video):
+        try:
+            thumbnail = as_dict(obj.get_thumbnail())
+        except Thumbnail.DoesNotExist:
+            thumbnail = None
+
+        try:
+            source = as_dict(obj.source)
+        except Source.DoesNotExist:
+            source = None
+
         return {'id': obj.id,
                 'url': obj.url,
                 'title': obj.title,
                 'description': obj.description,
-                'thumbnail': as_dict(obj.get_thumbnail()),
-                'source': as_dict(obj.source),
+                'thumbnail': thumbnail,
+                'source': source,
                 'saves': UserVideo.save_count(obj),
                 'likes': UserVideo.like_count(obj)}
 
