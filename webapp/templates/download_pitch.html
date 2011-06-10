@@ -1,0 +1,42 @@
+{% extends "user_home.html" %}
+{% block style_refs %}
+    <link rel="stylesheet" type="text/css" href="{{ settings.STATIC_URL }}css/download.css?v=1" media="all"/>
+{% endblock style_refs %}
+
+{% block script_refs %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+         Cufon.replace('h3', {
+             fontFamily: 'vag',
+             forceHitArea: true,
+             hover: true
+         });
+    });
+    </script>
+{% endblock script_refs %}
+
+
+{% block content %}
+    <div style="padding-left:135px; padding-top:20px; padding-bottom:20px; width:775px;">
+        <h3 class="video-title" style="font-size: 36px; color: #0c536f;">Save Videos to Watch Later on Any Site</h3>
+    </div>
+    <img title="Save videos for later" src="{{ settings.STATIC_URL }}images/download/main.png" />
+    <br />
+    <div style="color:white; font-size: 24px; font-weight: bold; padding-top: 30px; padding-left: 175px;">
+        Download the kikin Video Browser App Today!
+    </div>
+    <br />
+    <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerMacFirefox.xpi" style="float:left; padding-left:10px;"><div title="kikin for Firefox Mac" class="firefox_mac"  /></div></a>
+    <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi" style="float:left; padding-left:105px;"><div title="kikin for Firefox Windows" class="firefox_win"  /></div></a>
+    <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWinChrome.crx" style="float:left; padding-left:90px;"><div title="kikin for Chrome Windows" class="chrome_win"  /></div></a>
+    <br />
+    <div style="margin-top:100px; padding-left:14px;">
+        <div class="featureTxt">
+            <h4>
+                Save Any Video For Later
+            </h4>
+            <p>Place your mouse on any video, on any webpage and kikin will add a "Watch Later" button.</p>
+            <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="padding-top:5px; padding-left: 0px;"/>
+        </div>
+    </div>
+{% endblock content %}
