@@ -41,64 +41,67 @@
 
         <div id="wrapper" style="height:370px;">
             <script type="text/javascript">
-                if (navigator.userAgent.indexOf("Firefox") > 0)
+                if ((navigator.userAgent.indexOf("Firefox")) > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ settings.STATIC_URL }}images/devices.png" style="position:absolute; top:32px; right:0px;" />');
+                }
+                else if ((navigator.userAgent.indexOf("MSIE")) > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ settings.STATIC_URL }}images/devices.png" style="position:absolute; top:31px; right:0px;" />');
+                }
+                else if (navigator.userAgent.indexOf("Firefox") > 0)
                 {
                     document.write('<img title="Play video on popular devices" src="{{ settings.STATIC_URL }}images/devices.png" style="position:absolute; top:21px; right:0px;" />');
                 }
+                else if (navigator.userAgent.indexOf("iPad") > 0)
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ settings.STATIC_URL }}images/devices.png" style="position:absolute; top:42px; right:0px;" />');
+                }
                 else
                 {
-                    document.write('<img title="Play video on popular devices" src="{{ settings.STATIC_URL }}images/devices.png" style="position:absolute; top:37px; right:0px;" />');
+                    document.write('<img title="Play video on popular devices" src="{{ settings.STATIC_URL }}images/devices.png" style="position:absolute; top:33px; right:0px;" />');
                 }
             </script>
 
             <img title="kikin Video" src="{{ settings.STATIC_URL }}images/logo_big.png" style="padding-left: 8px;"/>
             <br />
-            <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 28px; padding-top:20px; padding-left: 8px;">
+            <div style="font-family: Helvetica, Arial, sans-serif; font-size: 28px; padding-top:20px; padding-left: 8px;">
                 Save, share, and play<br />any video on any device.
             </div>
-            <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 19px; padding-top:20px; padding-left: 8px; font-style: italic;">
+            <div style="font-family: Helvetica, Arial, sans-serif; font-size: 19px; padding-top:20px; padding-left: 8px; font-style: italic;">
                 New Users
             </div>
-            <div title="Sign up" class="facebook_signup" src="{{ settings.STATIC_URL }}images/facebook_signup.png" /></div>
+            <a href="/login/facebook"><div title="Sign up" class="facebook_signup" src="{{ settings.STATIC_URL }}images/facebook_signup.png" /></div></a>
         </div>
         <div id="wrapper" style="width:980px; margin-top:45px;">
             <div style="width:300px; color:white; border-right: 1px solid white; float:left;">
                 <img title="Watch Later" src="{{ settings.STATIC_URL }}images/white_plus.png" style="float:left; padding-right:25px;"/>
-                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
                     Watch Later
                 </div>
-                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:bold;">
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
                     Don't have time?<br/>Save videos to watch later.
                 </div>
             </div>
-            <div style="width:330px; color:white; border-right: 1px solid white; padding-left:35px; float:left;">
+            <div style="width:320px; color:white; border-right: 1px solid white; padding-left:35px; float:left;">
                 <img title="Watch Later" src="{{ settings.STATIC_URL }}images/white_mobile.png" style="float:left; padding-right:25px;"/>
-                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
                     Mobile Friendly
                 </div>
-                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:bold;">
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
                     View kikin Video on<br/>iPhone, iPad and Android.
                 </div>
             </div>
-            <div style="width:310px; color:white; float:right;">
+            <div style="width:320px; color:white; float:right;">
                 <img title="Watch Later" src="{{ settings.STATIC_URL }}images/white_peeps.png" style="float:left; padding-left:25px; padding-right:25px;"/>
-                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
                     People Powered
                 </div>
-                <div style="font-family: HelveticaNeue-Light, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:bold;">
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
                     Share and discover videos<br/>through friends and influencers.
                 </div>
             </div>
             <div style="clear:both;"></div>
-        </div>
-        <div id="wrapper" style="margin-top:40px;">
-            <div class="featureTxt">
-                <h4>
-                    Save Any Video For Later
-                </h4>
-                <p>Place your mouse on any video, on any webpage and kikin will add a "Watch Later" button.</p>
-                <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="padding-top:5px; padding-left: 0px;"/>
-            </div>
         </div>
 
     <!-- footer -->
