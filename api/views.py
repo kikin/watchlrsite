@@ -141,7 +141,10 @@ def like(request, video_id):
         raise VideoNotFound(video_id)
 
     user = request.user
-    push_like_to_fb.delay(video, user)
+    try:
+        UserVideo.objects.get(user=user, video=video, liked_timestamp__isnull=False)
+    except UserVideo.DoesNotExist:
+        push_like_to_fb.delay(video, user)
 
     return do_request(request, video_id, 'like_video')
 
@@ -164,8 +167,14 @@ def like_by_url(request):
         raise BadRequest('Malformed URL:%s' % url)
 
     try:
+
+        try:
+            UserVideo.objects.get(user=request.user, video=video, liked_timestamp__isnull=False)
+        except UserVideo.DoesNotExist:
+            push_like_to_fb.delay(user_video.video, request.user)
+
         user_video = request.user.like_video(Video.objects.get(url=normalized_url))
-        push_like_to_fb.delay(user_video.video, request.user)
+
     except Video.DoesNotExist:
         video = Video(url=normalized_url)
         video.save()

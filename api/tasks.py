@@ -1123,24 +1123,20 @@ def push_like_to_fb(video, user):
         logger.debug('Not pushing to FB for user:%s' % user.username)
         return
 
+    server_name = '%s' % Site.objects.get_current().domain
+
+    params = {'access_token': user.facebook_access_token(),
+              'link': '%s/%s' % (server_name, video.get_absolute_url()),
+              'caption': server_name,
+              'picture': video.get_thumbnail().url,
+              'name': video.title,
+              'description': video.description,
+              'message': 'likes \'%s\'' % video.title}
+
+    url = 'https://%s/me/feed' % FACEBOOK_SERVER
     try:
-        UserVideo.objects.get(user=user, video=video, liked_timestamp__isnull=False)
-        logger.info('User:%s has liked video:%s before. Not pushing to FB.' % (user.username, video.url))
-    except UserVideo.DoesNotExist:
-        server_name = '%s' % Site.objects.get_current().domain
-
-        params = {'access_token': user.facebook_access_token(),
-                  'link': '%s/%s' % (server_name, video.get_absolute_url()),
-                  'caption': server_name,
-                  'picture': video.get_thumbnail().url,
-                  'name': video.title,
-                  'description': video.description,
-                  'message': 'likes \'%s\'' % video.title}
-
-        url = 'https://%s/me/feed' % FACEBOOK_SERVER
-        try:
-            response = json.loads(urllib2.urlopen(url, urlencode(params)).read())
-            logger.debug('Facebook post id: %s' % response['id'])
-        except:
-            logger.exception('Could not post to Facebook')
+        response = json.loads(urllib2.urlopen(url, urlencode(params)).read())
+        logger.debug('Facebook post id: %s' % response['id'])
+    except:
+        logger.exception('Could not post to Facebook')
 
