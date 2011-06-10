@@ -1120,10 +1120,12 @@ def push_like_to_fb(video, user):
     logger = push_like_to_fb.get_logger()
 
     if not user.preferences()['syndicate'] == 1:
+        logger.debug('Not pushing to FB for user:%s' % user.username)
         return
 
     try:
         UserVideo.objects.get(user=user, video=video, liked_timestamp__isnull=False)
+        logger.info('User:%s has liked video:%s before. Not pushing to FB.' % (user.username, video.url))
     except UserVideo.DoesNotExist:
         server_name = '%s' % Site.objects.get_current().domain
 
