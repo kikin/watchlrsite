@@ -48,7 +48,7 @@
                     &bull;
                     <a href="{{video.url}}">source</a>
                     &bull;
-                    {% if user.is_authenticated %}
+                    {% if user.is_authenticated and video in user.saved_videos %}
                         <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
                     {% endif %}
                 </div>
