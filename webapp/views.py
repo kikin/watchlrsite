@@ -151,5 +151,5 @@ def activity(request):
         user = request.user
         return render_to_response('content/activity_queue.html', \
                 {'user':user, 'settings':settings,'activity_items':user.activity()},\
-                                                    context=RequestContext(request))
+                                        context_instance=RequestContext(request))
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)

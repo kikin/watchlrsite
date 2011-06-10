@@ -150,6 +150,9 @@ com.kikin.video.HomeViewController = function() {
             }if(url_content.path == LIKED_QUEUE_PATH){
                 swapTab(TAB_SELECTORS.likes);
                 videoPanelController.populatePanel();
+            }if(url_content.path == ACTIVITY_QUEUE_PATH){
+                swapTab(TAB_SELECTORS.activity);
+                videoPanelController.populatePanel();
             }if(url_content.path == PROFILE_EDIT_PANEL_OPEN_PATH){
                 handleProfileEditPanelOpen();
             }if(url_content.path == PROFILE_SAVE_PATH){

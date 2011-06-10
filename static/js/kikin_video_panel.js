@@ -46,7 +46,7 @@ com.kikin.VideoPanelController = function(parent) {
 
     var LOADING_ICON = ".loading";
 
-    var VIDEO_COUNT_META_SELECTOR = "meta[name=video_count]";
+    var QUEUE_ITEM_COUNT_META_SELECTOR = "meta[name=queue_item_count]";
 
     var UID_META_SELECTOR = "meta[name=profile_subject]";
 
@@ -56,23 +56,19 @@ com.kikin.VideoPanelController = function(parent) {
 
     var saveVideosPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
 
+    var activityItemsPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
+
     //set to whatever num of these you want to initially load...
     var savedVideosToLoad = 10;
 
     var likedVideosToLoad = 10;
+
+    var activityItemsToLoad = 10;
     
     /*content that is displayed on tab switch...*/
     var LOADING_DIV_HTML = '<div class="loading-container">' +
             '<div class="loading"></div>' +
             '</div>';
-
-    /*content that is overlayed on video panel when more videos are
-    * being loaded (...pagination)*/
-    var LOADING_MORE_DIV = '<div id="loading-more"><img src="/static/images/loading_more.gif"/></div>';
-
-    //this is an ugly hack around a jQuery/css issue...see body
-    //of _populatePanel
-    var initialLoad = true;
 
     var uid = $(UID_META_SELECTOR).attr('content');
    
@@ -83,6 +79,9 @@ com.kikin.VideoPanelController = function(parent) {
         }else if(activeTab == TAB_SELECTORS.queue){
             savedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
             saveVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
+        }if(activeTab == TAB_SELECTORS.activity){
+            activityItemsToLoad += INITIAL_PAGINATION_THRESHOLD;
+            activityItemsPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
         }
         _populatePanel();
         //invalidate hash url (so a subsequent click of "load more" button will register as hash change)
@@ -156,6 +155,9 @@ com.kikin.VideoPanelController = function(parent) {
             }else if (activeTab == TAB_SELECTORS.queue){
                 contentSource = SAVED_VIDEOS_CONTENT_URL;
                 requestParams = {'start':0, 'count':savedVideosToLoad};
+            }else if (activeTab == TAB_SELECTORS.activity){
+                contentSource = ACTIVITY_CONTENT_URL;
+                requestParams = {'start':0, 'count':activityItemsToLoad};
             }
 
             if(uid)
@@ -168,16 +170,22 @@ com.kikin.VideoPanelController = function(parent) {
 
                 _bindVideoPanelEvents();
 
-                var videoCount = parseInt($(VIDEO_COUNT_META_SELECTOR).attr('content'));
+                var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
 
                 if(activeTab == TAB_SELECTORS.likes){
-                    if(videoCount >= likedVideosPaginationThreshold){
+                    if(queueItemCount >= likedVideosPaginationThreshold){
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                     }else{
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                     }
                 }else if(activeTab == TAB_SELECTORS.queue){
-                    if(videoCount >= saveVideosPaginationThreshold){
+                    if(queueItemCount >= saveVideosPaginationThreshold){
+                        $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
+                    }else{
+                        $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
+                    }
+                }else if(activeTab == TAB_SELECTORS.activity){
+                    if(queueItemCount >= activityItemsToLoad){
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                     }else{
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
