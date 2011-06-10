@@ -1116,7 +1116,7 @@ def fetch(user_id, url, host, callback=None):
 
 
 @task
-def push_like_to_fb(user, video):
+def push_like_to_fb(video, user):
     logger = push_like_to_fb.get_logger()
 
     if not user.preferences()['syndicate'] == 1:
