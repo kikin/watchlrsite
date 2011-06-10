@@ -112,10 +112,10 @@ a:hover {
 /* Header */
 #header {
     height: 40px;
-    position: fixed;
+    /*position: fixed;*/
     width: 100%;
     top: 0px;
-    padding: 10px;
+    padding-bottom: 10px;
     background: #0c536f;
     z-index: 10;
     -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
@@ -129,7 +129,8 @@ a:hover {
     width: 224px;
     height: 42px;
     background: url(/static/images/kikin_logo.png) no-repeat;
-    margin: 8px 0 0 0;
+    margin-top:10px;
+    margin-left:8px;
 }
 
 #header-logo a {
@@ -199,7 +200,7 @@ a:hover {
 }
 
 .options-breaker {
-    border-bottom: 5px solid #DDDDDD;
+    border-bottom: 0px solid #DDDDDD;
     margin: 38px 0 0 0;
 }
 
@@ -918,7 +919,7 @@ a#lnk-page-next:hover {
     position:absolute;;
     font-size:21px;
     margin-left:31px;
-    margin-top:2px;
+    margin-top:3px;
     font-weight:800;
     color:red;
 }
@@ -936,7 +937,7 @@ a#lnk-page-next:hover {
 }
 .save-video-button{
     position:absolute;
-    margin-left:0px;
+    margin-left:50px;
     margin-top:0px;
 }
 .save-video-button.no-hover{

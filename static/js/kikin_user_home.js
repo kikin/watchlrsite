@@ -5,8 +5,6 @@ com.kikin.video.HomeViewController = function() {
 
     var currentUser;
 
-    activeTab = TAB_SELECTORS.queue;
-
     var videoPanelController = new com.kikin.VideoPanelController(this);
 
 
@@ -158,8 +156,14 @@ com.kikin.video.HomeViewController = function() {
                 handleProfileSave();
             }if(url_content.path == LOAD_MORE_VIDEOS_PATH){
                 videoPanelController.loadMoreVideos();
+            }if(url_content.path == FOLLOW_USER_PATH){
+                videoPanelController.handleFollow(url_content.params.user);
+            }if(url_content.path == UNFOLLOW_USER_PATH){
+                videoPanelController.handleUnfollow(url_content.params.user);
             }
-        }
+        },
+
+        videoPanelController : videoPanelController
     }
 };
 var homeViewController;

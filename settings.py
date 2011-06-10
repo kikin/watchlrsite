@@ -39,7 +39,7 @@ database_configurations = {
 # Picks up database configuration from environment variable
 active_db = os.environ.get('VIDEO_ENV', 'local')
 
-DATABASES = { 'default': database_configurations['local_sqlite'] }
+DATABASES = { 'default': database_configurations[active_db] }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -153,6 +153,7 @@ INSTALLED_APPS = (
     'api',
     'djcelery',
     'djkombu',
+    'south',
 )
 
 # A sample logging configuration. The only tangible logging

@@ -5,9 +5,13 @@
 {% endblock style_refs %}
 
 {% block script_refs %}
-      <script src="{{ settings.STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{{ settings.STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_video_panel.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_home.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/String.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/Kikin.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/plugindetect.js"></script>
+
 {% endblock script_refs %}
 
 {% block header_right %}
@@ -48,7 +52,9 @@
 {% endblock header_right %}
 
 {% block content %}
-
+    {% if user %}
+        <meta name="user" content="{{ user.id }}"/>
+    {% endif %}
     <div id="video-section">
         <ul class="navigation">
             <li class="tabQueue selected">

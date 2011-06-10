@@ -1,6 +1,8 @@
 from re import sub
 from unicodedata import normalize
 from datetime import datetime
+from operator import itemgetter
+from itertools import chain
 
 from django.db import models
 from django.contrib.auth import models as auth_models
@@ -60,9 +62,19 @@ class Video(models.Model):
     html5_embed_code = models.TextField(max_length=3000, null=True)
     source = models.ForeignKey(Source, related_name='videos', null=True)
     fetched = models.DateTimeField(null=True, db_index=True)
+    state = models.CharField(max_length=10, null=True, db_index=True)
 
     def set_thumbnail(self, url, width, height, type='web'):
-        self.thumbnails.add(Thumbnail(url=url, width=width, height=height, type=type))
+        try:
+            thumbnail = Thumbnail.objects.get(video=self, type=type)
+        except Thumbnail.DoesNotExist:
+            thumbnail = Thumbnail(video=self, type=type)
+
+        thumbnail.url = url
+        thumbnail.width = width
+        thumbnail.height = height
+
+        thumbnail.save()
 
     def get_thumbnail(self, type='web'):
         return self.thumbnails.get(type=type)
@@ -74,6 +86,11 @@ class Video(models.Model):
     def date_saved(self, user):
         save_date = UserVideo.objects.get(video=self, user=user).saved_timestamp
         return save_date
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('video_detail', [str(self.id)])
+
 
 class Thumbnail(models.Model):
     '''
@@ -105,6 +122,17 @@ class Thumbnail(models.Model):
         return self.url
 
 
+class ActivityItem(object):
+    def __init__(self, video, users, timestamp=None):
+        super(ActivityItem, self).__init__()
+        self.video = video
+        self.users = users
+        self.timestamp = timestamp
+
+    def __cmp__(self, other):
+        return cmp(self.timestamp, other.timestamp)
+
+
 class User(auth_models.User):
     '''
     User object. Extends `django.contrib.auth.User`.
@@ -120,7 +148,7 @@ class User(auth_models.User):
     IntegrityError: duplicate key value violates unique constraint "auth_user_username_key"
     '''
     videos = models.ManyToManyField(Video, through='UserVideo')
-    follows = models.ManyToManyField('self', symmetrical=False)
+    follows = models.ManyToManyField('self', through='UserFollowsUser', symmetrical=False)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
@@ -159,11 +187,28 @@ class User(auth_models.User):
         return user_video
 
     def followers(self):
-        return UserFollowsUser.objects.filter(followee=self)
+        return UserFollowsUser.objects.filter(followee=self).all()
 
-    def follows_users(self):
-        return UserFollowsUser.objects.filter(follower=self)
+    def following(self):
+        return self.follows.all()
 
+    def follow(self, other):
+        if self == other:
+            return
+
+        try:
+            result = UserFollowsUser.objects.get(follower=self, followee=other)
+        except UserFollowsUser.DoesNotExist:
+            result = UserFollowsUser.objects.create(follower=self, followee=other, since=datetime.utcnow())
+
+        return result
+
+    def unfollow(self, other):
+        try:
+            UserFollowsUser.objects.get(follower=self, followee=other).delete()
+        except UserFollowsUser.DoesNotExist:
+            pass
+        
     def like_video(self, video, timestamp=None):
         '''
         Like a video. Creates an association between `User` and `Video` objects (if one doesn't exist already).
@@ -253,11 +298,73 @@ class User(auth_models.User):
             p.value = int(value)
             p.save()
 
+    def activity(self, since=None):
+        '''
+        Activity stream for user.
+
+        >>> birdman = User.objects.create(username='birdman')
+        >>> aquaman = User.objects.create(username='aquaman')
+        >>> ghostface = User.objects.create(username='ghostface')
+        >>> waveforms = Video.objects.create(url='http://www.vimeo.com/24532073')
+        >>> birdman.like_video(waveforms, timestamp=datetime(2010, 6, 8))
+        <UserVideo: UserVideo object>
+        >>> aquaman.follow(birdman)
+        <UserFollowsUser: UserFollowsUser object>
+        >>> items = aquaman.activity()
+        >>> len(items), items[0].video.url
+        (1, u'http://www.vimeo.com/24532073')
+        >>> aquaman.follow(ghostface)
+        <UserFollowsUser: UserFollowsUser object>
+        >>> ghostface.like_video(waveforms, timestamp=datetime(2010, 6, 9))
+        <UserVideo: UserVideo object>
+        >>> items = aquaman.activity()
+        >>> len(items), map(itemgetter(0), items[0].users)
+        (1, [<User: ghostface>, <User: birdman>])
+        >>> sausage = Video.objects.create(url='http://www.youtube.com/watch?v=LOWL0KMAIek')
+        >>> ghostface.like_video(sausage, timestamp=datetime(2010, 6, 7))
+        <UserVideo: UserVideo object>
+        >>> aquaman.like_video(sausage, timestamp=datetime(2010, 6, 9, 4, 20))
+        <UserVideo: UserVideo object>
+        >>> items = aquaman.activity()
+        >>> len(items), items[0].video.url, map(itemgetter(0), items[0].users)
+        (2, u'http://www.youtube.com/watch?v=LOWL0KMAIek', [<User: aquaman>, <User: ghostface>])
+        '''
+
+        if since is None:
+            since = datetime(1970, 1, 1)
+
+        by_video = dict()
+        for user in chain(self.following(), [self,]):
+
+            for video in user.liked_videos():
+
+                user_video = UserVideo.objects.get(user=user, video=video)
+                if since is not None:
+                    if user_video.liked_timestamp < since:
+                        continue
+
+                user_like_tuple = (user_video.user, user_video.liked_timestamp)
+                try:
+                    by_video[video].users.append(user_like_tuple)
+                except KeyError:
+                    by_video[video] = ActivityItem(video=user_video.video, users=[user_like_tuple])
+
+                by_video[video].timestamp = user_like_tuple[1]
+
+        items = sorted(by_video.values(), reverse=True)
+        for item in items:
+            item.users.sort(key=itemgetter(1), reverse=True)
+
+        return items
+
 
 class UserFollowsUser(models.Model):
-    follower = models.ForeignKey(User, related_name='followee', db_index=True)
-    followee = models.ForeignKey(User, related_name='follower', db_index=True)
+    follower = models.ForeignKey(User, related_name='follower_set', db_index=True)
+    followee = models.ForeignKey(User, related_name='followeee_set', db_index=True)
     since = models.DateTimeField(auto_now=True, db_index=True)
+
+    class Meta:
+        ordering = ['-since']
 
 
 class UserVideo(models.Model):
@@ -298,7 +405,7 @@ class Notification(models.Model):
 
 
 DEFAULT_PREFERENCES = {
-    'syndicate': 1, # Syndicate likes to Facebook
+    'syndicate': 2, # Syndicate likes to Facebook
 }
 
 class Preference(models.Model):
