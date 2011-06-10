@@ -14,9 +14,12 @@ import gdata.youtube.service
 from gdata.service import RequestError
 
 from celery.decorators import task
+from celery.task.sets import subtask
 from django.utils.html import strip_tags
+from django.contrib.sites.models import Site
+from social_auth.backends.facebook import FACEBOOK_SERVER
 
-from api.models import Video, Thumbnail, Source as VideoSource
+from api.models import Video, Thumbnail, Source as VideoSource, UserVideo
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -66,45 +69,30 @@ class OEmbed(object):
 
         video.fetched = datetime.utcnow()
 
-        try:
-            thumbnail = Thumbnail(url=meta['thumbnail_url'],
-                                  width=meta['thumbnail_width'],
-                                  height=meta['thumbnail_height'],
-                                  video=video)
+        if meta.get('thumbnail_url'):
+            video.set_thumbnail(meta['thumbnail_url'],
+                                meta['thumbnail_width'],
+                                meta['thumbnail_height'],
+                                type='web')
 
-            thumbnail.save()
-
-            video.thumbnails.add(thumbnail)
-
-        except KeyError:
-            pass
-
-        try:
-            mobile_thumbnail = Thumbnail(type='mobile',
-                                         url=meta['mobile_thumbnail_url'],
-                                         width=meta['mobile_thumbnail_width'],
-                                         height=meta['mobile_thumbnail_height'],
-                                         video=video)
-
-            mobile_thumbnail.save()
-
-            video.thumbnails.add(mobile_thumbnail)
-
-        except KeyError:
-            pass
+        if meta.get('mobile_thumbnail_url'):
+            video.set_thumbnail(meta['mobile_thumbnail_url'],
+                                meta['mobile_thumbnail_width'],
+                                meta['mobile_thumbnail_height'],
+                                type='mobile')
 
         try:
-            source = VideoSource.objects.get(url__exact=meta['source'].url)
+            source = VideoSource.objects.get(name=meta['source'].name)
         except VideoSource.DoesNotExist:
-            source = VideoSource(name=meta['source'].name,
-                                 url=meta['source'].url,
-                                 favicon=meta['source'].favicon)
-
-            source.save()
+            source = VideoSource.objects.create(name=meta['source'].name,
+                                                url=meta['source'].url,
+                                                favicon=meta['source'].favicon)
 
         video.source = source
+        video.state = 'fetched'
 
         video.save()
+        return video
 
     def fetch(self, user_id, url, host, logger):
         logger.info('Fetching metadata for url:%s' % url)
@@ -145,8 +133,7 @@ class OEmbed(object):
         else:
             raise UrlNotSupported(url)
 
-        self.update(url, meta, logger)
-        logger.info('Updated url:%s with metadata' % url)
+        return self.update(url, meta, logger)
 
 
 class EmbedlyFetcher(object):
@@ -856,7 +843,7 @@ class VimeoFetcher(object):
         meta['thumbnail_width'], meta['thumbnail_height'] = 200, 150
 
         meta['mobile_thumbnail_url'] = video['thumbnail_small']
-        meta['mobile_thumbnail_width'], meta['thumbnail_height'] = 100, 75
+        meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 100, 75
 
         meta['html'] = self.VIMEO_EMBED_TAG % {'id': id}
         meta['html5'] = self.VIMEO_HTML5_EMBED_TAG % {'id': id}
@@ -1111,5 +1098,34 @@ _facebook_fetcher = FacebookFetcher(_fetchers)
 _fetcher = OEmbed([_facebook_fetcher] + _fetchers)
 
 @task
-def fetch(user_id, url, host):
-    _fetcher.fetch(user_id, url, host, fetch.get_logger())
+def fetch(user_id, url, host, callback=None):
+    video = _fetcher.fetch(user_id, url, host, fetch.get_logger())
+    if callback is not None:
+        subtask(callback).delay(video)
+
+
+@task
+def push_like_to_fb(video, user):
+    logger = push_like_to_fb.get_logger()
+
+    if not user.preferences()['syndicate'] == 1:
+        logger.debug('Not pushing to FB for user:%s' % user.username)
+        return
+
+    server_name = '%s' % Site.objects.get_current().domain
+
+    params = {'access_token': user.facebook_access_token(),
+              'link': '%s/%s' % (server_name, video.get_absolute_url()),
+              'caption': server_name,
+              'picture': video.get_thumbnail().url,
+              'name': video.title,
+              'description': video.description,
+              'message': 'likes \'%s\'' % video.title}
+
+    url = 'https://%s/me/feed' % FACEBOOK_SERVER
+    try:
+        response = json.loads(urllib2.urlopen(url, urlencode(params)).read())
+        logger.debug('Facebook post id: %s' % response['id'])
+    except:
+        logger.exception('Could not post to Facebook')
+

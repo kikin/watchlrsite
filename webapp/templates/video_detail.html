@@ -32,7 +32,7 @@
             <a href="/#!/player?vid={{ video.id }}">
                 <div class="video-image" id="video-{{ video.id }}">
                     <div class="video-thumb-wrapper">
-                        <img class="video-thumbnail" src="{{video.get_thumbnail.url}}"
+                        <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"
                              onerror="this.style.visibility='hidden'"
                              onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
                     </div>

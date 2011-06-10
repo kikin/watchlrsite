@@ -42,7 +42,29 @@ def logout_view(request):
     return HttpResponseRedirect('/')
 
 def liked_video_queue(request):
-    if request.method == 'GET' and request.user.is_authenticated():
+    if request.method == 'GET' and 'user_id' in request.GET:
+        try:
+            user = User.objects.get(id__exact=long(request.GET['user_id']))
+            all_liked_vids = user.liked_videos()
+            start_index = int(request.GET['start'])
+            end_index = start_index + int(request.GET['count'])
+            if all_liked_vids.count() >= end_index:
+                vid_subset = all_liked_vids[start_index:end_index]
+            elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
+                vid_subset = all_liked_vids[start_index:]
+            else:
+                vid_subset = []
+        except Exception, e:
+            #means url was malformed...
+            return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+        else:
+            #just pass through all liked videos...
+            vid_subset = user.liked_videos()
+        return render_to_response('content/video_queue.hfrg',{'user':user,
+                                  'display_mode':'profile', 'settings': settings, 'videos': vid_subset},
+                                  context_instance=RequestContext(request))
+
+    elif request.method == 'GET' and request.user.is_authenticated():
         all_liked_vids = request.user.liked_videos()
         if 'start' in request.GET and 'count' in request.GET:
             try:
@@ -57,12 +79,9 @@ def liked_video_queue(request):
             except Exception, e:
                 #means url was malformed...
                 return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
-        else:
-            #just pass through all liked videos...
-            vid_subset = request.user.liked_videos()
-        return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                                  'display_mode':'liked', 'settings': settings, 'videos': vid_subset},
-                                  context_instance=RequestContext(request))
+            return render_to_response('content/video_queue.hfrg',{'user':request.user,
+                              'display_mode':'liked', 'settings': settings, 'videos': vid_subset},
+                              context_instance=RequestContext(request))
     return HttpResponseForbidden('you are not authorized to view this content, please log in')
 
 
@@ -100,29 +119,43 @@ def video_player(request, video_id):
         else:               
             return render_to_response('content/video_player.hfrg', {'video': video_query_set[0]})
         
-def video_detail(request):
-    if 'vid' in request.GET:
-        vid_str = request.GET['vid']
+def video_detail(request, video_id):
         try:
-            vid = long(vid_str)
-            video = Video.objects.get(pk=vid)
-            return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
-                                'settings':settings, 'video':video}, context_instance=RequestContext(request))
-        #in case of uncastable or invalid vid...
-        except ValueError:
-            return HttpResponseNotFound
+            video = Video.objects.get(pk=int(video_id))
+        except (ValueError, Video.DoesNotExist):
+            #in case of uncastable or invalid vid...
+            return HttpResponseNotFound()
+        return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
+                            'settings':settings, 'video':video}, context_instance=RequestContext(request))
+
 
 def public_profile(request, username):
     try:
         user = User.objects.get(username=username)
         if user == request.user:
-            return render_to_response('profile.html', {'user':user, 'settings':settings, 'is_own_profile':True,\
-                                                       'videos':user.liked_videos()}, context_instance=RequestContext(request))
+            return render_to_response('profile.html', {'profile_owner':user, 'user':user, 'settings':settings, 'display_mode':'profile',\
+                                                       'is_own_profile':True, 'videos':user.liked_videos()},\
+                                                        context_instance=RequestContext(request))
         else:
-            return render_to_response('profile.html', {'user':user, 'settings':settings, 'is_own_profile':False,\
-                                           'videos':user.liked_videos()}, context_instance=RequestContext(request))
+            return render_to_response('profile.html', {'user':request.user, 'profile_owner':user, 'settings':settings, 'display_mode':'profile',\
+                                                       'is_own_profile':False, 'videos':user.liked_videos()},\
+                                                        context_instance=RequestContext(request))
     except Exception, e:
         return HttpResponseNotFound('')
+<<<<<<< HEAD
 
 def download_pitch(request):
     return render_to_response('download_pitch.html', {'settings':settings, 'user':request.user})
+=======
+    
+def plugin_pitch(request):
+    return render_to_response('content/plugin_pitch.hfrg')
+
+def activity(request):
+    if request.user.is_authenticated():
+        user = request.user
+        return render_to_response('content/activity_queue.html', \
+                {'user':user, 'settings':settings,'activity_items':user.activity()},\
+                                                    context=RequestContext(request))
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+>>>>>>> 05b34edf87586cf4886e67ac86608bf181efb98a

@@ -8,7 +8,7 @@ from django.contrib.sessions.models import Session
 from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, UserNotConnected
 from api.models import Video, User, UserVideo, Source, Notification, Preference, slugify, Thumbnail
 from api.utils import epoch, url_fix, MalformedURLException
-from api.tasks import fetch
+from api.tasks import fetch, push_like_to_fb
 
 from re import split
 from json import loads, dumps
@@ -18,12 +18,33 @@ from datetime import datetime
 import logging
 logger = logging.getLogger('kikinvideo')
 
+def require_authentication(f):
+    def wrap(request, *args, **kwargs):
+        user = request.user
+
+        if not user.is_authenticated():
+            # Clients can send session key as a request parameter
+            try:
+                session_key = request.GET['session_id']
+                session = Session.objects.get(pk=session_key)
+            except (KeyError, Session.DoesNotExist):
+                raise Unauthorized()
+
+            if session.expire_date <= datetime.now():
+                raise Unauthorized()
+
+            uid = session.get_decoded().get('_auth_user_id')
+            request.user = User.objects.get(pk=uid)
+
+        return f(request, *args, **kwargs)
+
+    return wrap
+
 def json_view(f):
     def wrap(request, *args, **kwargs):
         response = None
         try:
             result = f(request, *args, **kwargs)
-            assert isinstance(result, dict)
             response = {'success': True,
                         'result': result}
 
@@ -88,12 +109,22 @@ def as_dict(obj):
                 'height': obj.height}
 
     elif isinstance(obj, Video):
+        try:
+            thumbnail = as_dict(obj.get_thumbnail())
+        except Thumbnail.DoesNotExist:
+            thumbnail = None
+
+        if obj.source is not None:
+            source = as_dict(obj.source)
+        else:
+            source = None
+
         return {'id': obj.id,
                 'url': obj.url,
                 'title': obj.title,
                 'description': obj.description,
-                'thumbnail': as_dict(obj.get_thumbnail()),
-                'source': as_dict(obj.source),
+                'thumbnail': thumbnail,
+                'source': source,
                 'saves': UserVideo.save_count(obj),
                 'likes': UserVideo.like_count(obj)}
 
@@ -101,20 +132,26 @@ def as_dict(obj):
 
 
 def do_request(request, video_id, method):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
     try:
         return as_dict(getattr(request.user, method)(Video.objects.get(pk=video_id)))
     except Video.DoesNotExist:
         raise VideoNotFound(video_id)
 
 
-def get_host(request):
-    return request.META.get('HTTP_REFERER')
-
-
 @json_view
+@require_authentication
 def like(request, video_id):
+    try:
+        video = Video.objects.get(pk=video_id)
+    except Video.DoesNotExist:
+        raise VideoNotFound(video_id)
+
+    user = request.user
+    try:
+        UserVideo.objects.get(user=user, video=video, liked_timestamp__isnull=False)
+    except UserVideo.DoesNotExist:
+        push_like_to_fb.delay(video, user)
+
     return do_request(request, video_id, 'like_video')
 
 
@@ -130,27 +167,42 @@ def like_by_url(request):
     querydict = request.GET if request.method == 'GET' else request.POST
     try:
         normalized_url = url_fix(querydict['url'])
+    except KeyError:
+        raise BadRequest('Parameter:url missing')
     except MalformedURLException:
         raise BadRequest('Malformed URL:%s' % url)
 
     try:
-        user_video = request.user.like_video(Video.objects.get(url=normalized_url))
-    except KeyError:
-        raise BadRequest('Parameter:url missing')
+        video = Video.objects.get(url=normalized_url)
+
+        try:
+            UserVideo.objects.get(user=request.user, video=video, liked_timestamp__isnull=False)
+        except UserVideo.DoesNotExist:
+            push_like_to_fb.delay(video, request.user)
+
+        user_video = request.user.like_video(video)
+
     except Video.DoesNotExist:
         video = Video(url=normalized_url)
         video.save()
 
-        user_video = UserVideo(user=request.user, video=video, host=get_host(request), liked=True)
+        user_video = UserVideo(user=request.user,
+                               video=video,
+                               host=request.META.get('HTTP_REFERER'),
+                               liked=True)
         user_video.save()
 
         # Fetch video metadata in background
-        fetch.delay(request.user.id, normalized_url, user_video.host)
+        fetch.delay(request.user.id,
+                    normalized_url,
+                    user_video.host,
+                    callback=push_like_to_fb.subtask((request.user, )))
 
     return as_dict(user_video)
 
 
 @json_view
+@require_authentication
 def unlike(request, video_id):
     return do_request(request, video_id, 'unlike_video')
 
@@ -179,6 +231,7 @@ def unlike_by_url(request):
 
 
 @json_view
+@require_authentication
 def save(request, video_id):
     return do_request(request, video_id, 'save_video')
 
@@ -194,12 +247,9 @@ def add(request):
 
     querydict = request.GET if request.method == 'GET' else request.POST
     try:
-        url = querydict['url']
+        normalized_url = url_fix(querydict['url'])
     except KeyError:
         raise BadRequest('Parameter:url missing')
-
-    try:
-        normalized_url = url_fix(url)
     except MalformedURLException:
         raise BadRequest('Malformed URL:%s' % url)
 
@@ -220,7 +270,7 @@ def add(request):
 
     user_video.saved = True
     user_video.saved_timestamp = datetime.utcnow()
-    user_video.host = get_host(request)
+    user_video.host = request.META.get('HTTP_REFERER')
     user_video.save()
 
     # Fetch video metadata in background
@@ -234,6 +284,7 @@ def add(request):
 
 
 @json_view
+@require_authentication
 def remove(request, video_id):
     return do_request(request, video_id, 'remove_video')
 
@@ -419,22 +470,10 @@ def profile(request):
     return as_dict(user)
 
 @json_view
+@require_authentication
 @require_http_methods(['GET',])
 def list(request):
     user = request.user
-
-    if not user.is_authenticated():
-        # iOS clients send session key as a request parameter
-        try:
-            session_key = request.GET['session_id']
-            session = Session.objects.get(pk=session_key)
-        except (KeyError, Session.DoesNotExist):
-            raise Unauthorized()
-
-        logger.info('DECODED=%s' % session.get_decoded())
-        user = User.objects.get(pk=session.get_decoded()['user_id'])
-        if not user.is_authenticated():
-            raise Unauthorized()
 
     try:
         count = int(request.GET['count'])
@@ -486,10 +525,8 @@ def list(request):
 
 @csrf_exempt
 @json_view
+@require_authentication
 def seek(request, video_id, position):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
-
     try:
         user_video = UserVideo.objects.filter(user=request.user, video__id=video_id)
     except UserVideo.DoesNotExist:
@@ -516,7 +553,64 @@ def swap(request, facebook_id):
         raise Unauthorized()
 
     session = SessionStore()
-    session['user_id'] = user.id
+    session['_auth_user_id'] = user.id
     session.save()
 
     return {'session_id': session.session_key}
+
+@json_view
+@require_authentication
+def follow(request, other):
+    user = request.user
+
+    try:
+        other = User.objects.get(pk=int(other))
+    except ValueError:
+        other = User.objects.get(username=other)
+    except User.DoesNotExist:
+        raise BadRequest('User:%s does not exist' % other)
+
+    user.follow(other)
+
+    return {'username': user.username,
+            'following': user.following().count(),
+            'followers': user.followers().count()}
+
+
+@json_view
+@require_authentication
+def unfollow(request, other):
+    user = request.user
+
+    try:
+        other = User.objects.get(pk=int(other))
+    except ValueError:
+        other = User.objects.get(username=other)
+    except User.DoesNotExist:
+        raise BadRequest('User:%s does not exist' % other)
+
+    user.unfollow(other)
+
+    return {'username': user.username,
+            'following': user.following().count(),
+            'followers': user.followers().count()}
+
+
+@json_view
+@require_authentication
+def activity(request):
+    user = request.user
+
+    items = []
+    for item in user.activity():
+
+        users = []
+        for user_like_tuple in item.users:
+            users.append({'timestamp': user_like_tuple[1],
+                          'user': user_like_tuple[0]})
+
+        items.append({'type': 'like',
+                      'video': as_dict(item.video),
+                      'users': users })
+
+    return items

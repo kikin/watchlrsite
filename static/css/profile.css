@@ -85,7 +85,7 @@
 	background-color:#e6e6e6;
 }
 
-#follow-button
+.follow-button
 {
 	position:absolute;
 	text-align:center;
@@ -104,7 +104,7 @@
     padding-bottom: 10px;
 }
 
-#follow-button:hover{
+.follow-button:hover{
     background-color: #4ab7e3;
 }
 
@@ -114,5 +114,6 @@
     font-family:Helvetica;
     margin-bottom:15px;
     margin-left: 5px;
+    font-weight:800;
     color:#0c536f;
 }

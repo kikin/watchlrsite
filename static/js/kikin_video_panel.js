@@ -20,6 +20,12 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
 
+    var FOLLOW_BUTTON_ID_PREFIX = "#follow-button-user-";
+
+    var FOLLOW_LINK_ID_PREFIX = "#follow-link-user-";
+
+    var FOLLOW_COUNT_CONTAINER_ID_PREFIX = "#follower-count-user-";
+
     var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
 
     var SAVE_VIDEO_BUTTON_CONTAINER = ".save-video-button";
@@ -41,6 +47,8 @@ com.kikin.VideoPanelController = function(parent) {
     var LOADING_ICON = ".loading";
 
     var VIDEO_COUNT_META_SELECTOR = "meta[name=video_count]";
+
+    var UID_META_SELECTOR = "meta[name=profile_subject]";
 
     var INITIAL_PAGINATION_THRESHOLD = 10;
 
@@ -66,7 +74,7 @@ com.kikin.VideoPanelController = function(parent) {
     //of _populatePanel
     var initialLoad = true;
 
-    VideoJS.setupAllWhenReady();
+    var uid = $(UID_META_SELECTOR).attr('content');
    
     function _loadMoreVideos(){
         if(activeTab == TAB_SELECTORS.likes){
@@ -135,9 +143,9 @@ com.kikin.VideoPanelController = function(parent) {
 
     function _populatePanel() {
         
-                $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-                $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
-                                height:$(document).height()});
+            $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
+            $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
+                            height:$(document).height()});
             
 
             var contentSource, requestParams;
@@ -149,6 +157,9 @@ com.kikin.VideoPanelController = function(parent) {
                 contentSource = SAVED_VIDEOS_CONTENT_URL;
                 requestParams = {'start':0, 'count':savedVideosToLoad};
             }
+
+            if(uid)
+                requestParams.user_id = uid;
 
 
             $.get(contentSource, requestParams, function(data) {
@@ -254,6 +265,7 @@ com.kikin.VideoPanelController = function(parent) {
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
+                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
                                         });
                                     }
                                 }
@@ -272,15 +284,14 @@ com.kikin.VideoPanelController = function(parent) {
                                 if(!data.result.liked){
                                     $(LIKED_ICON_ID_PREFIX+vid).removeClass('liked');
                                     if(data){
-                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
-                                            if(data.result.likes != 0){
-                                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
-                                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({'color':'#777777'});
-                                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
-                                            }
-                                        });
-
+                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+                                                if(data.result.likes != 0){
+                                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
+                                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
+                                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#d0d0d0'});
+                                                }
+                                            });
                                         if(activeTab == TAB_SELECTORS.likes){
                                             $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
                                                     $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
@@ -304,6 +315,44 @@ com.kikin.VideoPanelController = function(parent) {
              });
         },
 
+        handleFollow : function(user_id){
+            $.ajax({
+                url : '/api/follow/'+user_id,
+                success: function(response){
+                    if (response.success){
+                        $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
+                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/unfollow?user="+user_id);
+                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
+                        numFollowers++;
+                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                        window.location += '_';
+                    }
+                },
+                failure : function(err_msg){
+                    showErrorDialog(err_msg);
+                }
+            });
+        },
+
+        handleUnfollow : function(user_id){
+        $.ajax({
+            url : '/api/unfollow/'+user_id,
+            success: function(response){
+                if (response.success){
+                    $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
+                    $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/follow?user="+user_id);
+                    var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
+                    numFollowers--;
+                    $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                    window.location += '_';
+                }
+            },
+            failure : function(err_msg){
+                showErrorDialog(err_msg);
+            }
+        });
+    },
+
         removeVideo : function(vid){
             $.get('/api/remove/'+vid, function(data){
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(800, function(){
@@ -315,7 +364,9 @@ com.kikin.VideoPanelController = function(parent) {
                     }
                 });
             });            
-        }
+        },
+
+        stylizeVideoTitles : _stylizeVideoTitles
     };
 
 };
