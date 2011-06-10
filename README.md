@@ -138,7 +138,7 @@ Example usage of the models defined in api/models.py:
     >>>
     >>>  from api.models import *
     >>>
-    >>>  v_thumb_1 = ThumbnailImage()
+    >>>  v_thumb_1 = Thumbnail()
     >>>  v_thumb_1.width = 480
     >>>  v_thumb_1.height = 360
     >>>  v_thumb_1.url = 'http://i.ytimg.com/vi/UbDFS6cg1AI/0.jpg'
@@ -153,7 +153,7 @@ Example usage of the models defined in api/models.py:
     >>>  v_1.url = "http://www.youtube.com/watch?v=UbDFS6cg1AI"
     >>>  v_1.title='Can I Kick It?'
     >>>  v_1.description = "An awesome music video!"
-    >>>  v_1.thumbnail = v_thumb_1
+    >>>  v_1.thumbnails.add(v_thumb_1)
     >>>  v_1.source = v_source_1
     >>>  v_1.last_updated = datetime.datetime.now()
     >>>  v_1.save()
@@ -219,3 +219,17 @@ to the development server.
 
     git remote add dev ssh://dev-video.kikin.com/opt/video_env/kikinvideo
     git push dev
+
+Database Migration
+------------------
+
+We will be using [South](http://south.aeracode.org/) to handle database migrations.
+
+Initial run (make sure that your schema and models are up-to-date before you run this):
+
+    python manage.py migrate api 0001 --fake
+
+Subsequent runs (i.e., in case the data model changed):
+
+    python manage.py migrate api
+

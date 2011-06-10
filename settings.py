@@ -153,6 +153,7 @@ INSTALLED_APPS = (
     'api',
     'djcelery',
     'djkombu',
+    'south',
 )
 
 # A sample logging configuration. The only tangible logging

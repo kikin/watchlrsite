@@ -109,12 +109,22 @@ def as_dict(obj):
                 'height': obj.height}
 
     elif isinstance(obj, Video):
+        try:
+            thumbnail = as_dict(obj.get_thumbnail())
+        except Thumbnail.DoesNotExist:
+            thumbnail = None
+
+        if obj.source is not None:
+            source = as_dict(obj.source)
+        else:
+            source = None
+
         return {'id': obj.id,
                 'url': obj.url,
                 'title': obj.title,
                 'description': obj.description,
-                'thumbnail': as_dict(obj.get_thumbnail()),
-                'source': as_dict(obj.source),
+                'thumbnail': thumbnail,
+                'source': source,
                 'saves': UserVideo.save_count(obj),
                 'likes': UserVideo.like_count(obj)}
 
@@ -126,10 +136,6 @@ def do_request(request, video_id, method):
         return as_dict(getattr(request.user, method)(Video.objects.get(pk=video_id)))
     except Video.DoesNotExist:
         raise VideoNotFound(video_id)
-
-
-def get_host(request):
-    return request.META.get('HTTP_REFERER')
 
 
 @json_view
@@ -180,7 +186,10 @@ def like_by_url(request):
         video = Video(url=normalized_url)
         video.save()
 
-        user_video = UserVideo(user=request.user, video=video, host=get_host(request), liked=True)
+        user_video = UserVideo(user=request.user,
+                               video=video,
+                               host=request.META.get('HTTP_REFERER'),
+                               liked=True)
         user_video.save()
 
         # Fetch video metadata in background
@@ -238,12 +247,9 @@ def add(request):
 
     querydict = request.GET if request.method == 'GET' else request.POST
     try:
-        url = querydict['url']
+        normalized_url = url_fix(querydict['url'])
     except KeyError:
         raise BadRequest('Parameter:url missing')
-
-    try:
-        normalized_url = url_fix(url)
     except MalformedURLException:
         raise BadRequest('Malformed URL:%s' % url)
 
@@ -264,7 +270,7 @@ def add(request):
 
     user_video.saved = True
     user_video.saved_timestamp = datetime.utcnow()
-    user_video.host = get_host(request)
+    user_video.host = request.META.get('HTTP_REFERER')
     user_video.save()
 
     # Fetch video metadata in background
