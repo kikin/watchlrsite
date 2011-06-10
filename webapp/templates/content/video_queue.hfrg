@@ -60,15 +60,17 @@
             
                 {% if display_mode == 'profile' %}
 
+                    <a href="#!/like?vid={{ video.id }}">
                     {% if video in user.liked_videos %}
                         <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}
                         <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
                     {% endif %}
+                    <a href="#!/like?vid={{ video.id }}">
 
                {% else %}
 
-                    <a href="#!/like?vid={{ video.id }}" title="like">
+                    <a href="#!/like?vid={{ video.id }}">
                     {% if video in user.liked_videos %}
                         <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}

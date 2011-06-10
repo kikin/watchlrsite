@@ -16,6 +16,10 @@ com.kikin.VideoPanelController = function(parent) {
 
     var VIDEO_CONTAINER_ID_PREFIX = "#video-";
 
+    var ACTIVITY_ITEM_CONTAINER_ID_PREFIX = "#activity-queue-item-vid-";
+
+    var ACTIVITY_ITEM_HEADER_ID_PREFIX = "#activity-item-header-vid-";
+
     var VIDEO_CONTAINER_CLASS = "video-wrapper";
 
     var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
@@ -41,10 +45,6 @@ com.kikin.VideoPanelController = function(parent) {
     var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
 
     var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper-";
-
-    var LOADING_ICON_BACKGROUND = ".loading-container";
-
-    var LOADING_ICON = ".loading";
 
     var QUEUE_ITEM_COUNT_META_SELECTOR = "meta[name=queue_item_count]";
 
@@ -196,7 +196,7 @@ com.kikin.VideoPanelController = function(parent) {
         };
 
      function _stylizeVideoTitles() {
-	     Cufon.replace('h3.video-title, .section-title, h4', {
+	     Cufon.replace('.video-title, .activity-item-video-title, .section-title, h4', {
 	                 fontFamily: 'vag',
 	                 forceHitArea: true,
 	                 hover: true
@@ -274,6 +274,16 @@ com.kikin.VideoPanelController = function(parent) {
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
+                                            if(activeTab == TAB_SELECTORS.activity){
+                                                var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
+                                                var like_details = trim(activity_item_header.html());
+                                                like_details = 'You and '+like_details;
+                                                activity_item_header.fadeOut(500, function(){
+                                                    like_details = like_details.replace('likes', 'like');
+                                                    activity_item_header.html(like_details);
+                                                    activity_item_header.fadeIn(500);
+                                                });
+                                            }
                                         });
                                     }
                                 }
@@ -298,6 +308,27 @@ com.kikin.VideoPanelController = function(parent) {
                                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
                                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
                                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#d0d0d0'});
+                                                    if(activeTab == TAB_SELECTORS.activity){
+                                                        //replace text in the header to reflect updated
+                                                        // activity item state (i.e. "You and xxxx like this video"
+                                                        // becomes "xxxx likes this video")
+                                                        var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
+                                                        var like_details = trim(activity_item_header.html());
+                                                        if(data.result.likes == 1){
+                                                            like_details = like_details.replace('You and ', '');
+                                                            like_details = like_details.replace('like', 'likes');
+                                                        }else{
+                                                            like_details = like_details.replace('You and ', '');
+                                                        }
+                                                        activity_item_header.fadeOut(500, function(){
+                                                            activity_item_header.html(like_details);
+                                                            activity_item_header.fadeIn(500);
+                                                        });
+                                                    }
+                                                }else if(activeTab == TAB_SELECTORS.activity){
+                                                    //means that we are in activity queue AND had been the only
+                                                    //"liker" of this video, so we may gracefully remove it
+                                                    $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
                                                 }
                                             });
                                         if(activeTab == TAB_SELECTORS.likes){

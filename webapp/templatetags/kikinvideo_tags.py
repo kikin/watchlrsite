@@ -97,13 +97,68 @@ def source_url_root(video):
 
 @register.filter
 def truncate_text(text, letter_count):
-    return text[0:letter_count]
+    if len(text) > letter_count:
+        return text[0:letter_count] + '...'
+    else:
+        return text
+
+@register.filter
+def smart_truncate(text, letter_count):
+    if not text:
+        return ''
+    if len(text) > letter_count:
+        if text[letter_count] != ' ' and text.find(' ') != -1:
+            return text[0:text.rfind(' ')] + '...'
+        return text[0:letter_count] + '...'
+    else:
+        return text
 
 @register.filter
 def web_thumbnail_url(video):
     #until integrity assured, return the first of the web-type thumbs
     #associated with video.
     thumbs = video.thumbnails.filter(type='web')
+    if len(thumbs) == 0:
+        return '/static/images/default_video_item.png'
     if len(thumbs) > 0:
         return thumbs[0].url
     return ""
+
+@register.filter
+def fb_thumb_small(users, user):
+    for user_tuple in users:
+        if user_tuple[0] != user:
+           return  "https://graph.facebook.com/"+user_tuple[0].facebook_uid()+ "/picture?type=square"
+    return "https://graph.facebook.com/"+user.facebook_uid()+ "/picture?type=square"
+
+@register.filter
+def activity_item_heading(activity_item, user):
+    video = activity_item.video
+    content = ''
+    if activity_item.video in user.liked_videos():
+        content = "You"
+        if len(activity_item.users) == 1:
+            content += " like this."
+
+        elif len(activity_item.users) == 2:
+            if activity_item.users[0][0] != user:
+                content += ' and <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> like this.'
+            else:
+                content += ' and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> like this.'
+        elif len(activity_item.users) > 2:
+            if activity_item.users[0][0] != user:
+                content += ', <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
+            else:
+                content += ', <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[1][0].first_name+'</a> '
+            content += ' and ' + str(len(activity_item.users) - 2) + ' others like this.'
+    
+    else:
+        if len(activity_item.users) == 1:
+            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> likes this.'
+        if len(activity_item.users) == 2:
+            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
+            content += 'and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> like this.'
+        elif len(activity_item.users) > 2:
+            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
+            content += 'and ' + str(len(activity_item.users) - 1) + 'others like this.'
+    return content
