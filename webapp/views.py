@@ -123,4 +123,6 @@ def public_profile(request, username):
                                            'videos':user.liked_videos()}, context_instance=RequestContext(request))
     except Exception, e:
         return HttpResponseNotFound('')
-    
+
+def download_pitch(request):
+    return render_to_response('download_pitch.html', {'settings':settings, 'user':request.user})

@@ -1,0 +1,44 @@
+/* General */
+html {
+    background: url(/static/images/background_landing.png);
+    background-repeat:repeat-x;
+}
+
+#content {
+	width:900px;
+}
+
+#wrapper {
+	position:relative;
+	left:-40px;
+}
+
+.firefox_mac {
+	width:221px;
+	height:69px;
+	background:url('/static/images/download/firefox_mac.png') no-repeat;
+	cursor:pointer;
+}
+.firefox_mac:hover{
+	background:url('/static/images/download/firefox_mac.png') no-repeat 0px -70px;
+}
+
+.firefox_win {
+	width:221px;
+	height:69px;
+	background:url('/static/images/download/firefox_win.png') no-repeat;
+	cursor:pointer;
+}
+.firefox_win:hover{
+	background:url('/static/images/download/firefox_win.png') no-repeat 0px -70px;
+}
+
+.chrome_win {
+	width:221px;
+	height:69px;
+	background:url('/static/images/download/chrome_win.png') no-repeat;
+	cursor:pointer;
+}
+.chrome_win:hover{
+	background:url('/static/images/download/chrome_win.png') no-repeat 0px -70px;
+}
