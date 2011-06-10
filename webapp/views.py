@@ -142,11 +142,9 @@ def public_profile(request, username):
                                                         context_instance=RequestContext(request))
     except Exception, e:
         return HttpResponseNotFound('')
-<<<<<<< HEAD
 
 def download_pitch(request):
     return render_to_response('download_pitch.html', {'settings':settings, 'user':request.user})
-=======
     
 def plugin_pitch(request):
     return render_to_response('content/plugin_pitch.hfrg')
@@ -158,4 +156,3 @@ def activity(request):
                 {'user':user, 'settings':settings,'activity_items':user.activity()},\
                                         context_instance=RequestContext(request))
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
->>>>>>> 05b34edf87586cf4886e67ac86608bf181efb98a
