@@ -64,7 +64,16 @@ class Video(models.Model):
     fetched = models.DateTimeField(null=True, db_index=True)
 
     def set_thumbnail(self, url, width, height, type='web'):
-        self.thumbnails.add(Thumbnail(url=url, width=width, height=height, type=type))
+        try:
+            thumbnail = Thumbnail.objects.get(video=self, type=type)
+        except Thumbnail.DoesNotExist:
+            thumbnail = Thumbnail(type=type)
+
+        thumbnail.url = url
+        thumbnail.width = width
+        thumbnail.height = height
+
+        thumbnail.save()
 
     def get_thumbnail(self, type='web'):
         return self.thumbnails.get(type=type)
@@ -80,6 +89,7 @@ class Video(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('video_detail', [str(self.id)])
+
 
 class Thumbnail(models.Model):
     '''
@@ -109,6 +119,7 @@ class Thumbnail(models.Model):
 
     def __repr__(self):
         return self.url
+
 
 class ActivityItem(object):
     def __init__(self, video, users, timestamp=None):

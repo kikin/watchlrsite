@@ -138,10 +138,6 @@ def do_request(request, video_id, method):
         raise VideoNotFound(video_id)
 
 
-def get_host(request):
-    return request.META.get('HTTP_REFERER')
-
-
 @json_view
 @require_authentication
 def like(request, video_id):
@@ -190,7 +186,10 @@ def like_by_url(request):
         video = Video(url=normalized_url)
         video.save()
 
-        user_video = UserVideo(user=request.user, video=video, host=get_host(request), liked=True)
+        user_video = UserVideo(user=request.user,
+                               video=video,
+                               host=request.META.get('HTTP_REFERER'),
+                               liked=True)
         user_video.save()
 
         # Fetch video metadata in background
@@ -274,7 +273,7 @@ def add(request):
 
     user_video.saved = True
     user_video.saved_timestamp = datetime.utcnow()
-    user_video.host = get_host(request)
+    user_video.host = request.META.get('HTTP_REFERER')
     user_video.save()
 
     # Fetch video metadata in background
