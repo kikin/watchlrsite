@@ -70,37 +70,26 @@ class OEmbed(object):
         video.fetched = datetime.utcnow()
 
         if meta.get('thumbnail_url'):
-            try:
-                thumbnail = Thumbnail.objects.get(video=video, type='web')
-            except Thumbnail.DoesNotExist:
-                thumbnail = Thumbnail(video=video, type='web')
-
-            thumbnail.url = meta['thumbnail_url']
-            thumbnail.width = meta['thumbnail_width']
-            thumbnail.height = meta['thumbnail_height']
-            thumbnail.save()
+            video.set_thumbnail(meta['thumbnail_url'],
+                                meta['thumbnail_width'],
+                                meta['thumbnail_height'],
+                                type='web')
 
         if meta.get('mobile_thumbnail_url'):
-            try:
-                thumbnail = Thumbnail.objects.get(video=video, type='mobile')
-            except Thumbnail.DoesNotExist:
-                thumbnail = Thumbnail(video=video, type='mobile')
-
-            thumbnail.url = meta['mobile_thumbnail_url']
-            thumbnail.width = meta['mobile_thumbnail_width']
-            thumbnail.height = meta['mobile_thumbnail_height']
-            thumbnail.save()
+            video.set_thumbnail(meta['mobile_thumbnail_url'],
+                                meta['mobile_thumbnail_width'],
+                                meta['mobile_thumbnail_height'],
+                                type='mobile')
 
         try:
             source = VideoSource.objects.get(name=meta['source'].name)
         except VideoSource.DoesNotExist:
-            source = VideoSource(name=meta['source'].name,
-                                 url=meta['source'].url,
-                                 favicon=meta['source'].favicon)
-
-            source.save()
+            source = VideoSource.objects.create(name=meta['source'].name,
+                                                url=meta['source'].url,
+                                                favicon=meta['source'].favicon)
 
         video.source = source
+        video.state = 'fetched'
 
         video.save()
         return video
