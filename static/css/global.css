@@ -1000,6 +1000,7 @@ a#lnk-page-next:hover {
 .video-container{
     padding-left:14px;
     padding-right:14px;
+    margin-top:0px;
 }
 
 video{

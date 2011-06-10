@@ -109,6 +109,9 @@
                     {% if display_mode == 'saved' %}
                         <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
                     {% endif %}
+                    {% if display_mode == 'liked' %}
+                        <span class="video-timeago">{{ video|pretty_date_liked:user }}</span>
+                    {% endif %}
                 </div>
             </div>
 
