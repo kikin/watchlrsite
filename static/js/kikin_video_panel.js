@@ -219,17 +219,6 @@ com.kikin.VideoPanelController = function(parent) {
         }
      }
 
-    /*close video player on click outside its container....*/
-    $('body').click(
-        function(event)
-          {
-            if(event.target.className !== 'video-player')
-            {
-              _closePlayer(current_vid);
-            }
-          }
-    );
-
     return {
         loadMoreVideos : _loadMoreVideos,
         
@@ -254,7 +243,8 @@ com.kikin.VideoPanelController = function(parent) {
             var video_player_target_width = video_player_div.width();
             var video_player_target_height = video_player_div.height();
 
-            video_player_div.css({height:0});
+            video_player_div.css({top:'50%', 'margin-top':
+                    (video_player_div.height()*-.5)-30});
 
             video_embed_div.hide();
 
@@ -266,14 +256,14 @@ com.kikin.VideoPanelController = function(parent) {
             video_player_div.animate({width:video_player_target_width,
                         height:video_player_target_height}, 500,
                         function(){
-                            //video_embed_div.fadeIn(100);
                               var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
-
                                video_embed_div.show();
+                               /*close video player on click outside its container....*/
+                                $('.video-player-bg').click(function(){_closePlayer(current_vid)});
                             });
                                         //scroll to the video...
             $('html, body').animate({
-                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-40
+                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-250
                     }, 1000);
             
             current_vid = vid;

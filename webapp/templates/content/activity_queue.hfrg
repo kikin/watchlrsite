@@ -45,13 +45,13 @@
 
         <div class="video-buttons" style="margin-top: 10px;">
             {% if display_mode == 'profile' %}
-            <a href="#!/save?vid={{ video.id }}" title="save">
+            <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
                 <div class="save-video-button no-hover"></div>
             </a>
             {% endif %}
 
             {% if display_mode == 'saved' %}
-            <a href="#!/remove?vid={{ video.id }}" title="remove">
+            <a href="#!/remove?vid={{ activity_item.video.id }}" title="remove">
                 <div class="video-delete-button no-hover"></div>
             </a>
             {% endif %}
@@ -75,12 +75,40 @@
                 </a>
 
                 {% if activity_item.video not in user.saved_videos %}
-                <a href="#!/save?vid={{ video.id }}" title="save">
+                <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
                     <div class="save-video-button no-hover"></div>
                 </a>
                 {% endif %}
         </div>
 
+        {% if activity_item.video.html_embed_code %}
+
+            <div class="video-player" id="video-player-{{ activity_item.video.id }}">
+                <div class='video-embed-container' id="video-embed-container-{{ activity_item.video.id }}">
+
+                    <div  class="video-embed-wrapper" id="video-embed-wrapper-{{ activity_item.video.id }}">
+                        {% autoescape off %}
+                            {{ activity_item.video.html_embed_code }}
+                        {% endautoescape %}
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            <div class="videoplayerContainer">
+                <div class="video-player" id="video-player-{{ activity_item.video.id }}"
+                     style="background-color:#DEDEDE;font-size:16px;">
+                    <div class='video-embed-container' id="video-embed-container-{{ activity_item.video.id }}">
+                        <div class="video-no-embed-link">
+                            The host of the video you have selected requests that
+                            you access it at<br>
+                            <a href="{{ activity_item.video.url }}" target="_blank">{{ activity_item.video.url }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endif %}
     </div>
 
 </div>

@@ -32,7 +32,7 @@
 
             <div class="video-buttons">
                 {% if display_mode == 'profile' %}
-                <a href="#!/save?vid={{ video.id }}" title="save">
+                <a>
                     <div class="save-video-button no-hover"></div>
                 </a>
                 {% endif %}
@@ -60,13 +60,13 @@
             
                 {% if display_mode == 'profile' %}
 
-                    <a href="#!/like?vid={{ video.id }}">
+                    <a>
                     {% if video in user.liked_videos %}
                         <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}
                         <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
                     {% endif %}
-                    <a href="#!/like?vid={{ video.id }}">
+                    </a>
 
                {% else %}
 
@@ -120,9 +120,6 @@
             {% if video.html_embed_code %}
 
             <div class="video-player" id="video-player-{{ video.id }}">
-                <div>
-                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                </div>
                 <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
 
                 <div  class="video-embed-wrapper" id="video-embed-wrapper-{{ video.id }}">
@@ -137,9 +134,6 @@
             <div class="videoplayerContainer">
                 <div class="video-player" id="video-player-{{ video.id }}"
                         style="background-color:#DEDEDE;font-size:16px;">
-                    <div>
-                        <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                    </div>
                     <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
                         <div class="video-no-embed-link">
                             The host of the video you have selected requests that
