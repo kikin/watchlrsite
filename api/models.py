@@ -68,7 +68,7 @@ class Video(models.Model):
         try:
             thumbnail = Thumbnail.objects.get(video=self, type=type)
         except Thumbnail.DoesNotExist:
-            thumbnail = Thumbnail(type=type)
+            thumbnail = Thumbnail(video=self, type=type)
 
         thumbnail.url = url
         thumbnail.width = width

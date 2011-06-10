@@ -247,12 +247,9 @@ def add(request):
 
     querydict = request.GET if request.method == 'GET' else request.POST
     try:
-        url = querydict['url']
+        normalized_url = url_fix(querydict['url'])
     except KeyError:
         raise BadRequest('Parameter:url missing')
-
-    try:
-        normalized_url = url_fix(url)
     except MalformedURLException:
         raise BadRequest('Malformed URL:%s' % url)
 
