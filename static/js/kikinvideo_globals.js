@@ -14,6 +14,8 @@ var SAVED_QUEUE_PATH = '/saved_queue';
 
 var LIKED_QUEUE_PATH = '/liked_queue';
 
+var ACTIVITY_QUEUE_PATH = '/activity';
+
 var PROFILE_EDIT_PANEL_OPEN_PATH = '/edit_profile';
 
 var PROFILE_SAVE_PATH = '/save_profile';
@@ -23,6 +25,8 @@ var LOAD_MORE_VIDEOS_PATH = '/next';
 var LIKED_VIDEOS_CONTENT_URL = '/content/liked_videos';
 
 var SAVED_VIDEOS_CONTENT_URL = '/content/saved_videos';
+
+var ACTIVITY_CONTENT_URL = '/content/activity';
 
 var FOLLOW_USER_PATH = '/follow';
 
@@ -62,7 +66,8 @@ var PLAYBACK_POSITION_API_URL = '/api/seek/';//  /[vid]/[position]
 
 var TAB_SELECTORS = {
     queue : '.tabQueue',
-    likes : '.tabLikes'
+    likes : '.tabLikes',
+    activity : '.tabActivity'
 };
 
 var activeTab = TAB_SELECTORS.queue;

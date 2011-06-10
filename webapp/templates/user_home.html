@@ -2,6 +2,7 @@
 
 {% block style_refs %}
  <link rel="stylesheet" href="{{ settings.STATIC_URL }}video_player/video-js.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+ <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/activity_queue.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
 {% endblock style_refs %}
 
 {% block script_refs %}
@@ -62,6 +63,9 @@
             </li>
             <li class="tabLikes">
                 <a href="#!/liked_queue">Liked</a>
+            </li>
+            <li class="tabActivity">
+                <a href="#!/activity">Activity</a>
             </li>
         </ul>
         <br class="clear">

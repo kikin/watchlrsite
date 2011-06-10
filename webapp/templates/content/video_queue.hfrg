@@ -1,6 +1,6 @@
 {% load kikinvideo_tags %}
 
-<meta name="video_count" content="{{ videos|length }}"/>
+<meta name="queue_item_count" content="{{ videos|length }}"/>
 
 {% if videos|length_is:"0"%}
         <div class="video-container">
