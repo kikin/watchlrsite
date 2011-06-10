@@ -141,7 +141,7 @@ def like(request, video_id):
         raise VideoNotFound(video_id)
 
     user = request.user
-    push_like_to_fb.delay(user, video)
+    push_like_to_fb.delay(video, user)
 
     return do_request(request, video_id, 'like_video')
 
@@ -165,7 +165,7 @@ def like_by_url(request):
 
     try:
         user_video = request.user.like_video(Video.objects.get(url=normalized_url))
-        push_like_to_fb.delay(request.user, user_video.video)
+        push_like_to_fb.delay(user_video.video, request.user)
     except Video.DoesNotExist:
         video = Video(url=normalized_url)
         video.save()
