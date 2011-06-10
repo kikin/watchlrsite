@@ -13,7 +13,21 @@
               {{ activity_item|activity_item_heading:user }}
               {% endautoescape %}
           </div>
-         <div class="activity-queue-video-description">{{ activity_item.video.description|smart_truncate:200|urlize }}</div>
+
+         <div class="activity-queue-video-description">{{ activity_item.video.description|truncatewords:25|urlize }}
+         <br>
+            <div class="video-source-info">
+                <div class="video-source-favicon-wrapper">
+                    <a href="{{ activity_item.video|source_url_root }}" target="_blank">
+                    <img src="{{ activity_item.video|source_icon }}" style="width:16px;height:16px;"/>
+                    </a>
+                    &bull;
+                    <a href="{{ activity_item.video.source.url }}" target="_blank">Source</a>
+                </div>
+            </div>
+         </div>
+
+
          <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
           <a href="#!/player?vid={{ activity_item.video.id }}">
           <div class="video-image" id="video-{{ activity_item.video.id }}">
@@ -66,6 +80,7 @@
                 </a>
                 {% endif %}
         </div>
+
     </div>
 
 </div>

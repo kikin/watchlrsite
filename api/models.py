@@ -84,8 +84,11 @@ class Video(models.Model):
 
     #date when user saved video....
     def date_saved(self, user):
-        save_date = UserVideo.objects.get(video=self, user=user).saved_timestamp
-        return save_date
+        return UserVideo.objects.get(video=self, user=user).saved_timestamp
+
+    #date when user liked video....
+    def date_liked(self, user):
+        return UserVideo.objects.get(video=self, user=user).liked_timestamp
 
     @models.permalink
     def get_absolute_url(self):
