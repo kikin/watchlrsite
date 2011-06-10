@@ -70,6 +70,10 @@ com.kikin.VideoPanelController = function(parent) {
             '<div class="loading"></div>' +
             '</div>';
 
+    var VIDEO_PLAYER_BG_HTML = '<div class="video-player-bg"></div>';
+
+    var VIDEO_PLAYER_BG_SELECTOR = '.video-player-bg';
+
     var uid = $(UID_META_SELECTOR).attr('content');
    
     function _loadMoreVideos(){
@@ -203,6 +207,29 @@ com.kikin.VideoPanelController = function(parent) {
 	             });
      }
 
+     function _closePlayer(vid){
+        var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
+
+        $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
+            $(VIDEO_PLAYER_BG_SELECTOR).remove();
+        });
+        video_player_div.fadeOut();
+        if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
+            $(VIDEO_BUTTON_ID_PREFIX + vid).addClass(VIDEO_BUTTON_CLASS)
+        }
+     }
+
+    /*close video player on click outside its container....*/
+    $('body').click(
+        function(event)
+          {
+            if(event.target.className !== 'video-player')
+            {
+              _closePlayer(current_vid);
+            }
+          }
+    );
+
     return {
         loadMoreVideos : _loadMoreVideos,
         
@@ -227,14 +254,17 @@ com.kikin.VideoPanelController = function(parent) {
             var video_player_target_width = video_player_div.width();
             var video_player_target_height = video_player_div.height();
 
-            video_player_div.css({width:0, height:0, 'margin-left':'0px'});
+            video_player_div.css({height:0});
 
             video_embed_div.hide();
 
+
+            $('body').prepend(VIDEO_PLAYER_BG_HTML);
+            $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height()});
             video_player_div.fadeIn(100);
 
             video_player_div.animate({width:video_player_target_width,
-                        height:video_player_target_height, 'margin-left':'auto'}, 500,
+                        height:video_player_target_height}, 500,
                         function(){
                             //video_embed_div.fadeIn(100);
                               var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
@@ -250,11 +280,7 @@ com.kikin.VideoPanelController = function(parent) {
         },
 
         closePlayer : function(vid){
-            var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
-            video_player_div.fadeOut();
-            if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
-                $(VIDEO_BUTTON_ID_PREFIX + vid).addClass(VIDEO_BUTTON_CLASS)
-            }
+            _closePlayer(vid);
         },
 
         handleLike : function(vid){
