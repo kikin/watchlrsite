@@ -3,6 +3,8 @@
 
 {% block script_refs %}
     <script type="text/javascript">activeTab = TAB_SELECTORS.likes;</script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_video_panel.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_home.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_profile.js"></script>
 {% endblock script_refs %}
 
@@ -69,24 +71,19 @@
 
                 <div class="video-buttons">
 
-                    <a href="#!/save_video?vid={{ video.id }}" title="add to my queue">
-                        <div class="save-video-button no-hover" id="save-video-button-vid-{{ video.id }}"></div>
-                    </a>
-
-
                     <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                     {% if video.total_likes != 0 %}
                         {{ video.total_likes }}
                     {%  endif %}
                     </div>
 
-                    <a href="#!/like?vid={{ video.id }}">
+
                     {% if video in profile_owner.liked_videos %}
                         <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}
                         <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
                     {% endif %}
-                   </a>
+                   
 
                 </div>
                 <a href="#!/player?vid={{ video.id }}">
