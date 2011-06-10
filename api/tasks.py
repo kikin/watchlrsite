@@ -89,6 +89,7 @@ class OEmbed(object):
                                                 favicon=meta['source'].favicon)
 
         video.source = source
+        video.state = 'fetched'
 
         video.save()
         return video
