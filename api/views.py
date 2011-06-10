@@ -114,9 +114,9 @@ def as_dict(obj):
         except Thumbnail.DoesNotExist:
             thumbnail = None
 
-        try:
+        if obj.source is not None:
             source = as_dict(obj.source)
-        except Source.DoesNotExist:
+        else:
             source = None
 
         return {'id': obj.id,
