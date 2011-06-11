@@ -17,32 +17,32 @@ kikinvideo.ProfileViewController = function(){
     function _loadContent(){
         var uid = $(UID_META_SELECTOR).attr('content');
         $.get(LIKED_VIDEOS_CONTENT_URL, {'start':0, 'count':vidsToLoad, 'user_id':uid}, function(){
-            $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-            $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
-                            height:$(document).height()});
-        });
+                    $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
+                    $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
+                        height:$(document).height()});
+                });
     }
 
     return{
-             handleFollow : function(user_id){
-                $.ajax({
-                    url : '/api/follow/'+user_id,
-                    success: function(response){
-                        if (response.success){
-                            $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
-                            $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/unfollow?user="+user_id);
-                            var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
-                            numFollowers++;
-                            $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
-                        }
-                    },
-                    failure : function(err_msg){
-                        showErrorDialog(err_msg);
+        handleFollow : function(user_id){
+            $.ajax({
+                url : '/api/follow/'+user_id,
+                success: function(response){
+                    if (response.success){
+                        $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
+                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/unfollow?user="+user_id);
+                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
+                        numFollowers++;
+                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
                     }
-                });
-            },
+                },
+                failure : function(err_msg){
+                    showErrorDialog(err_msg);
+                }
+            });
+        },
 
-            handleUnfollow : function(user_id){
+        handleUnfollow : function(user_id){
             $.ajax({
                 url : '/api/unfollow/'+user_id,
                 success: function(response){

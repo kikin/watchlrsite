@@ -88,11 +88,11 @@ var activeTab = TAB_SELECTORS.savedQueue;
 /*utility functions*/
 
 /**
-* Function takes full #! url and returns the path + params
-* of this URL in a 2-element hash.
-*
-* @param hash_url the full hash bang url (including '#!').
-*/
+ * Function takes full #! url and returns the path + params
+ * of this URL in a 2-element hash.
+ *
+ * @param hash_url the full hash bang url (including '#!').
+ */
 function parseHashURL(hash_url) {
 
     var path;
@@ -128,18 +128,18 @@ function parseHashURL(hash_url) {
 
 /*util function to trim whitespace from beginning and end of string*/
 function trim(s) {
-	s = s.replace(/(^\s*)|(\s*$)/gi,"");
-	s = s.replace(/[ ]{2,}/gi," ");
-	s = s.replace(/\n /,"\n");
-	return s;
+    s = s.replace(/(^\s*)|(\s*$)/gi,"");
+    s = s.replace(/[ ]{2,}/gi," ");
+    s = s.replace(/\n /,"\n");
+    return s;
 }
 
 function stylizeVideoTitles() {
-     Cufon.replace('.video-title, .activity-item-video-title, .section-title, h4', {
-                 fontFamily: 'vag',
-                 forceHitArea: true,
-                 hover: true
-             });
+    Cufon.replace('.video-title, .activity-item-video-title, .section-title, h4', {
+        fontFamily: 'vag',
+        forceHitArea: true,
+        hover: true
+    });
 }
 
 function swapTab(selector) {
