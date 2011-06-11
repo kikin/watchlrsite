@@ -362,7 +362,7 @@ kikinvideo.HomeViewController = function() {
                     showErrorDialog(err_msg);
                 }
             });
-        },
+        }
 
     };
 
