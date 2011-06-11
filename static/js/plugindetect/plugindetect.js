@@ -1,14 +1,14 @@
-if(com.kikin.video.Kikin.isSupportedClientAgent()){
+if(kikinvideo.Kikin.isSupportedClientAgent()){
     var iChromePluginInitTries = 0;
     $(window).load(function() {
 
-        if(iChromePluginInitTries<5 && com.kikin.video.Kikin.isChromeInstallation() && !window.kikin){
+        if(iChromePluginInitTries<5 && kikinvideo.Kikin.isChromeInstallation() && !window.kikin){
             iChromePluginInitTries++
             setTimeout(arguments.callee, 500);
             return;
         }
 
-        if(!com.kikin.video.Kikin.createPlugin()){
+        if(!kikinvideo.Kikin.createPlugin()){
             $.get('/content/plugin_pitch', function(content){
                     $('body').prepend(content);
                     $('#plugin-pitch').fadeIn(1000);

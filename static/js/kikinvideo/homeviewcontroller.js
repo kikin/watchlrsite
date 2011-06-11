@@ -1,4 +1,4 @@
-com.kikin.VideoPanelController = function(parent) {
+kikinvideo.HomeViewController = function() {
 
     var current_vid;
 
@@ -77,10 +77,10 @@ com.kikin.VideoPanelController = function(parent) {
     var uid = $(UID_META_SELECTOR).attr('content');
    
     function _loadMoreVideos(){
-        if(activeTab == TAB_SELECTORS.likes){
+        if(activeTab == TAB_SELECTORS.likedQueue){
             likedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
             likedVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
-        }else if(activeTab == TAB_SELECTORS.queue){
+        }else if(activeTab == TAB_SELECTORS.savedQueue){
             savedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
             saveVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
         }if(activeTab == TAB_SELECTORS.activity){
@@ -153,10 +153,10 @@ com.kikin.VideoPanelController = function(parent) {
 
             var contentSource, requestParams;
 
-            if(activeTab == TAB_SELECTORS.likes){
+            if(activeTab == TAB_SELECTORS.likedQueue){
                 contentSource = LIKED_VIDEOS_CONTENT_URL;
                 requestParams = {'start':0, 'count':likedVideosToLoad};
-            }else if (activeTab == TAB_SELECTORS.queue){
+            }else if (activeTab == TAB_SELECTORS.savedQueue){
                 contentSource = SAVED_VIDEOS_CONTENT_URL;
                 requestParams = {'start':0, 'count':savedVideosToLoad};
             }else if (activeTab == TAB_SELECTORS.activity){
@@ -176,13 +176,13 @@ com.kikin.VideoPanelController = function(parent) {
 
                 var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
 
-                if(activeTab == TAB_SELECTORS.likes){
+                if(activeTab == TAB_SELECTORS.likedQueue){
                     if(queueItemCount >= likedVideosPaginationThreshold){
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                     }else{
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                     }
-                }else if(activeTab == TAB_SELECTORS.queue){
+                }else if(activeTab == TAB_SELECTORS.savedQueue){
                     if(queueItemCount >= saveVideosPaginationThreshold){
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                     }else{
@@ -250,16 +250,17 @@ com.kikin.VideoPanelController = function(parent) {
 
 
             $('body').prepend(VIDEO_PLAYER_BG_HTML);
-            $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height()});
+            $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none'});
+            $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
             video_player_div.fadeIn(100);
 
-            video_player_div.animate({width:video_player_target_width,
-                        height:video_player_target_height}, 500,
-                        function(){
+            video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
+
+            video_player_div.fadeIn(500, function(){
                               var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
                                video_embed_div.show();
                                /*close video player on click outside its container....*/
-                                $('.video-player-bg').click(function(){_closePlayer(current_vid)});
+                                $(VIDEO_PLAYER_BG_SELECTOR).click(function(){_closePlayer(current_vid)});
                             });
                                         //scroll to the video...
             $('html, body').animate({
@@ -347,7 +348,7 @@ com.kikin.VideoPanelController = function(parent) {
                                                     $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
                                                 }
                                             });
-                                        if(activeTab == TAB_SELECTORS.likes){
+                                        if(activeTab == TAB_SELECTORS.likedQueue){
                                             $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
                                                     $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
                                                     if($("."+VIDEO_CONTAINER_CLASS).length == 0){
@@ -412,7 +413,7 @@ com.kikin.VideoPanelController = function(parent) {
             $.get('/api/remove/'+vid, function(data){
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(800, function(){
                     $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
-                    if(activeTab == TAB_SELECTORS.queue){
+                    if(activeTab == TAB_SELECTORS.savedQueue){
                         if($("."+VIDEO_CONTAINER_CLASS).length == 0){
                             _populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                         }
