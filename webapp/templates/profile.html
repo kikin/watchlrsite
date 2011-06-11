@@ -2,9 +2,7 @@
 {% load kikinvideo_tags %}
 
 {% block script_refs %}
-    <script type="text/javascript">activeTab = TAB_SELECTORS.likes;</script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/userhome.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/main.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/userprofile.js"></script>
 {% endblock script_refs %}
 
@@ -112,9 +110,6 @@
                 {% if video.html_embed_code or video.html5_embed_code %}
 
                 <div class="video-player" id="video-player-{{ video.id }}">
-                    <div>
-                        <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                    </div>
                     <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
                     {% autoescape off %}
                         {{ video.html_embed_code }}
@@ -126,9 +121,6 @@
 
                 <div class="video-player" id="video-player-{{ video.id }}"
                         style="background-color:#DEDEDE;font-size:16px;">
-                    <div>
-                        <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                    </div>
                     <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
                         <div class="video-no-embed-link">
                             The host of the video you have selected requests that

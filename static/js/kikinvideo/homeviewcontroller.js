@@ -1,7 +1,5 @@
 kikinvideo.HomeViewController = function() {
 
-    var current_vid;
-
     var curVidEmbedObj;
 
     var currentUser;
@@ -20,31 +18,13 @@ kikinvideo.HomeViewController = function() {
 
     var ACTIVITY_ITEM_HEADER_ID_PREFIX = "#activity-item-header-vid-";
 
-    var VIDEO_CONTAINER_CLASS = "video-wrapper";
-
-    var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
-
-    var FOLLOW_BUTTON_ID_PREFIX = "#follow-button-user-";
-
-    var FOLLOW_LINK_ID_PREFIX = "#follow-link-user-";
-
-    var FOLLOW_COUNT_CONTAINER_ID_PREFIX = "#follower-count-user-";
-
-    var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
-
     var SAVE_VIDEO_BUTTON_CONTAINER = ".save-video-button";
 
     var SAVE_VIDEO_BUTTON_ID_PREFIX = "#save-video-button-vid-";
 
     var DELETE_VIDEO_ICON_CONTAINER = ".video-delete-button";
 
-    var VIDEO_PLAYER_ID_PREFIX = "#video-player-";
-
     var LOAD_MORE_VIDEOS_BUTTON_ID = "#lnk-page-next";
-
-    var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
-
-    var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper-";
 
     var QUEUE_ITEM_COUNT_META_SELECTOR = "meta[name=queue_item_count]";
 
@@ -70,12 +50,40 @@ kikinvideo.HomeViewController = function() {
             '<div class="loading"></div>' +
             '</div>';
 
-    var VIDEO_PLAYER_BG_HTML = '<div class="video-player-bg"></div>';
-
-    var VIDEO_PLAYER_BG_SELECTOR = '.video-player-bg';
-
     var uid = $(UID_META_SELECTOR).attr('content');
-   
+
+    /*initialization*/
+    $(window).hashchange(onHashChange);
+
+    onHashChange();
+
+    _populatePanel();
+
+    /*hashbang url routing...*/
+    function onHashChange(){
+        var url_content = parseHashURL(window.location.hash);
+        
+        if(url_content.path == LIKE_VIDEO_PATH){
+            homeViewController.handleLike(url_content.params.vid);
+        }if(url_content.path == REMOVE_VIDEO_PATH){
+            homeViewController.removeVideo(url_content.params.vid);
+        }if(url_content.path == SAVED_QUEUE_PATH){
+            swapTab(TAB_SELECTORS.savedQueue);
+            activeView = VIEWS.savedQueue;
+            _populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+        }if(url_content.path == LIKED_QUEUE_PATH){
+            swapTab(TAB_SELECTORS.likedQueue);
+            activeView = VIEWS.likedQueue;
+            _populatePanel();
+        }if(url_content.path == ACTIVITY_QUEUE_PATH){
+            swapTab(TAB_SELECTORS.activity);
+            activeView = VIEWS.activity;
+            _populatePanel();
+        }if(url_content.path == LOAD_MORE_VIDEOS_PATH){
+            homeViewController.loadMoreVideos();
+        }
+    }
+
     function _loadMoreVideos(){
         if(activeView == VIEWS.likedQueue){
             likedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
@@ -170,7 +178,7 @@ kikinvideo.HomeViewController = function() {
 
             $.get(contentSource, requestParams, function(data) {
                 $(VIDEO_PANEL_SELECTOR).html(data);
-                _stylizeVideoTitles();
+                stylizeVideoTitles();
 
                 _bindVideoPanelEvents();
 
@@ -199,80 +207,10 @@ kikinvideo.HomeViewController = function() {
             });
         };
 
-     function _stylizeVideoTitles() {
-	     Cufon.replace('.video-title, .activity-item-video-title, .section-title, h4', {
-	                 fontFamily: 'vag',
-	                 forceHitArea: true,
-	                 hover: true
-	             });
-     }
-
-     function _closePlayer(vid){
-        var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
-
-        $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
-            $(VIDEO_PLAYER_BG_SELECTOR).remove();
-        });
-        video_player_div.fadeOut();
-        if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
-            $(VIDEO_BUTTON_ID_PREFIX + vid).addClass(VIDEO_BUTTON_CLASS)
-        }
-     }
-
     return {
         loadMoreVideos : _loadMoreVideos,
         
         populatePanel : _populatePanel,
-        
-        loadPlayer : function(vid) {
-            if(current_vid){
-                $(VIDEO_PLAYER_ID_PREFIX + current_vid).hide();
-                if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
-                    $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
-                }
-            }
-
-            /*remove the 'play' button from the thumb...*/
-            if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
-                    $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
-                }
-            var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
-            var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
-
-            /*for nice expando effect...*/
-            var video_player_target_width = video_player_div.width();
-            var video_player_target_height = video_player_div.height();
-
-            video_player_div.css({top:'50%', 'margin-top':
-                    (video_player_div.height()*-.5)-30});
-
-            video_embed_div.hide();
-
-
-            $('body').prepend(VIDEO_PLAYER_BG_HTML);
-            $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none'});
-            $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
-            video_player_div.fadeIn(100);
-
-            video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
-
-            video_player_div.fadeIn(500, function(){
-                              var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
-                               video_embed_div.show();
-                               /*close video player on click outside its container....*/
-                                $(VIDEO_PLAYER_BG_SELECTOR).click(function(){_closePlayer(current_vid)});
-                            });
-                                        //scroll to the video...
-            $('html, body').animate({
-                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-250
-                    }, 1000);
-            
-            current_vid = vid;
-        },
-
-        closePlayer : function(vid){
-            _closePlayer(vid);
-        },
 
         handleLike : function(vid){
             if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
@@ -420,9 +358,7 @@ kikinvideo.HomeViewController = function() {
                     }
                 });
             });            
-        },
-
-        stylizeVideoTitles : _stylizeVideoTitles
+        }
     };
 
 };
