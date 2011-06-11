@@ -134,6 +134,22 @@ function trim(s) {
 	return s;
 }
 
+function stylizeVideoTitles() {
+     Cufon.replace('.video-title, .activity-item-video-title, .section-title, h4', {
+                 fontFamily: 'vag',
+                 forceHitArea: true,
+                 hover: true
+             });
+}
+
+function swapTab(selector) {
+    if (activeTab != selector) {
+        $(activeTab).removeClass('selected');
+        $(selector).addClass('selected');
+        activeTab = selector;
+    }
+};
+
 /*for displaying error messages...*/
 function showErrorDialog(msg){
     var error_info = "Error details:<br><br>";

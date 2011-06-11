@@ -7,7 +7,26 @@ $(document).ready(
 
             var currentUser;
 
-            var homeViewController = new kikinvideo.HomeViewController();
+            var current_vid;
+            
+            /*selectors*/
+            var VIDEO_CONTAINER_CLASS = "video-wrapper";
+
+            var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
+
+            var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
+
+            var VIDEO_PLAYER_BG_HTML = '<div class="video-player-bg"></div>';
+
+            var VIDEO_PLAYER_BG_SELECTOR = '.video-player-bg';
+
+            var VIDEO_PLAYER_ID_PREFIX = "#video-player-";
+
+            var VIDEO_CONTAINER_ID_PREFIX = "#video-";
+
+            var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
+
+            var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper-";
 
 
             /*initialization...*/
@@ -56,6 +75,64 @@ $(document).ready(
             };
 
 
+            function loadPlayer(vid) {
+                if(current_vid){
+                    $(VIDEO_PLAYER_ID_PREFIX + current_vid).hide();
+                    if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
+                        $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
+                    }
+                }
+
+                /*remove the 'play' button from the thumb...*/
+                if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
+                        $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
+                    }
+                var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
+                var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
+
+                /*for nice expando effect...*/
+                var video_player_target_width = video_player_div.width();
+                var video_player_target_height = video_player_div.height();
+
+                video_player_div.css({top:'50%', 'margin-top':
+                        (video_player_div.height()*-.5)-30});
+
+                video_embed_div.hide();
+
+
+                $('body').prepend(VIDEO_PLAYER_BG_HTML);
+                $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none'});
+                $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
+                video_player_div.fadeIn(100);
+
+                video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
+
+                video_player_div.fadeIn(500, function(){
+                                  var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
+                                   video_embed_div.show();
+                                   /*close video player on click outside its container....*/
+                                    $(VIDEO_PLAYER_BG_SELECTOR).click(function(){closePlayer(current_vid)});
+                                });
+                                            //scroll to the video...
+                $('html, body').animate({
+                            scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-250
+                        }, 1000);
+    
+                current_vid = vid;
+            }
+
+         function closePlayer(vid){
+                var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
+
+                $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
+                    $(VIDEO_PLAYER_BG_SELECTOR).remove();
+                });
+                video_player_div.fadeOut();
+                if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
+                    $(VIDEO_BUTTON_ID_PREFIX + vid).addClass(VIDEO_BUTTON_CLASS)
+                }
+          }
+
             function handleProfileEditPanelOpen(){
 
                 $('body').prepend(GREYED_BACKGROUND_ELEMENT);
@@ -99,17 +176,9 @@ $(document).ready(
                 }
             };
 
-            function swapTab(selector) {
-                if (activeTab != selector) {
-                    $(activeTab).removeClass('selected');
-                    $(selector).addClass('selected');
-                    activeTab = selector;
-                }
-            };
 
                function bindToUI() {
                     bindEvents();
-                    homeViewController.populatePanel();
                 }
 
                 function bindEvents() {
@@ -141,35 +210,13 @@ $(document).ready(
                 function onHashChange(hash_url) {
                     var url_content = parseHashURL(hash_url);
                     if(url_content.path == VIDEO_PLAYER_PATH){
-                        homeViewController.loadPlayer(url_content.params.vid);
+                        loadPlayer(url_content.params.vid);
                     }if(url_content.path == VIDEO_PLAYER_CLOSE_PATH){
-                        homeViewController.closePlayer(url_content.params.vid);
-                    }if(url_content.path == LIKE_VIDEO_PATH){
-                        homeViewController.handleLike(url_content.params.vid);
-                    }if(url_content.path == REMOVE_VIDEO_PATH){
-                        homeViewController.removeVideo(url_content.params.vid);
-                    }if(url_content.path == SAVED_QUEUE_PATH){
-                        swapTab(TAB_SELECTORS.savedQueue);
-                        activeView = VIEWS.savedQueue;
-                        homeViewController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
-                    }if(url_content.path == LIKED_QUEUE_PATH){
-                        swapTab(TAB_SELECTORS.likedQueue);
-                        activeView = VIEWS.likedQueue;
-                        homeViewController.populatePanel();
-                    }if(url_content.path == ACTIVITY_QUEUE_PATH){
-                        swapTab(TAB_SELECTORS.activity);
-                        activeView = VIEWS.activity;
-                        homeViewController.populatePanel();
+                        closePlayer(url_content.params.vid);
                     }if(url_content.path == PROFILE_EDIT_PANEL_OPEN_PATH){
                         handleProfileEditPanelOpen();
                     }if(url_content.path == PROFILE_SAVE_PATH){
                         handleProfileSave();
-                    }if(url_content.path == LOAD_MORE_VIDEOS_PATH){
-                        homeViewController.loadMoreVideos();
-                    }if(url_content.path == FOLLOW_USER_PATH){
-                        homeViewController.handleFollow(url_content.params.user);
-                    }if(url_content.path == UNFOLLOW_USER_PATH){
-                        homeViewController.handleUnfollow(url_content.params.user);
                     }
                 }
         })()
