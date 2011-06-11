@@ -150,12 +150,15 @@ $(document).ready(
                         homeViewController.removeVideo(url_content.params.vid);
                     }if(url_content.path == SAVED_QUEUE_PATH){
                         swapTab(TAB_SELECTORS.savedQueue);
+                        activeView = VIEWS.savedQueue;
                         homeViewController.populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                     }if(url_content.path == LIKED_QUEUE_PATH){
                         swapTab(TAB_SELECTORS.likedQueue);
+                        activeView = VIEWS.likedQueue;
                         homeViewController.populatePanel();
                     }if(url_content.path == ACTIVITY_QUEUE_PATH){
                         swapTab(TAB_SELECTORS.activity);
+                        activeView = VIEWS.activity;
                         homeViewController.populatePanel();
                     }if(url_content.path == PROFILE_EDIT_PANEL_OPEN_PATH){
                         handleProfileEditPanelOpen();

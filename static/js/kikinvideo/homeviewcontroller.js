@@ -77,13 +77,13 @@ kikinvideo.HomeViewController = function() {
     var uid = $(UID_META_SELECTOR).attr('content');
    
     function _loadMoreVideos(){
-        if(activeTab == TAB_SELECTORS.likedQueue){
+        if(activeView == VIEWS.likedQueue){
             likedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
             likedVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
-        }else if(activeTab == TAB_SELECTORS.savedQueue){
+        }else if(activeView == VIEWS.savedQueue){
             savedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
             saveVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
-        }if(activeTab == TAB_SELECTORS.activity){
+        }if(activeView == VIEWS.activity){
             activityItemsToLoad += INITIAL_PAGINATION_THRESHOLD;
             activityItemsPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
         }
@@ -153,13 +153,13 @@ kikinvideo.HomeViewController = function() {
 
             var contentSource, requestParams;
 
-            if(activeTab == TAB_SELECTORS.likedQueue){
+            if(activeView == VIEWS.likedQueue){
                 contentSource = LIKED_VIDEOS_CONTENT_URL;
                 requestParams = {'start':0, 'count':likedVideosToLoad};
-            }else if (activeTab == TAB_SELECTORS.savedQueue){
+            }else if (activeView == VIEWS.savedQueue){
                 contentSource = SAVED_VIDEOS_CONTENT_URL;
                 requestParams = {'start':0, 'count':savedVideosToLoad};
-            }else if (activeTab == TAB_SELECTORS.activity){
+            }else if (activeView == VIEWS.activity){
                 contentSource = ACTIVITY_CONTENT_URL;
                 requestParams = {'start':0, 'count':activityItemsToLoad};
             }
@@ -176,19 +176,19 @@ kikinvideo.HomeViewController = function() {
 
                 var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
 
-                if(activeTab == TAB_SELECTORS.likedQueue){
+                if(activeView == VIEWS.likedQueue){
                     if(queueItemCount >= likedVideosPaginationThreshold){
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                     }else{
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                     }
-                }else if(activeTab == TAB_SELECTORS.savedQueue){
+                }else if(activeView == VIEWS.savedQueue){
                     if(queueItemCount >= saveVideosPaginationThreshold){
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                     }else{
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                     }
-                }else if(activeTab == TAB_SELECTORS.activity){
+                }else if(activeView == VIEWS.activity){
                     if(queueItemCount >= activityItemsToLoad){
                         $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                     }else{
@@ -291,7 +291,7 @@ kikinvideo.HomeViewController = function() {
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
-                                            if(activeTab == TAB_SELECTORS.activity){
+                                            if(activeView == VIEWS.activity){
                                                 var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
                                                 var like_details = trim(activity_item_header.html());
                                                 like_details = 'You and '+like_details;
@@ -325,7 +325,7 @@ kikinvideo.HomeViewController = function() {
                                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
                                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
                                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#d0d0d0'});
-                                                    if(activeTab == TAB_SELECTORS.activity){
+                                                    if(activeView == VIEWS.activity){
                                                         //replace text in the header to reflect updated
                                                         // activity item state (i.e. "You and xxxx like this video"
                                                         // becomes "xxxx likes this video")
@@ -342,13 +342,13 @@ kikinvideo.HomeViewController = function() {
                                                             activity_item_header.fadeIn(500);
                                                         });
                                                     }
-                                                }else if(activeTab == TAB_SELECTORS.activity){
+                                                }else if(activeView == VIEWS.activity){
                                                     //means that we are in activity queue AND had been the only
                                                     //"liker" of this video, so we may gracefully remove it
                                                     $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
                                                 }
                                             });
-                                        if(activeTab == TAB_SELECTORS.likedQueue){
+                                        if(activeView == VIEWS.likedQueue){
                                             $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
                                                     $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
                                                     if($("."+VIDEO_CONTAINER_CLASS).length == 0){
@@ -413,7 +413,7 @@ kikinvideo.HomeViewController = function() {
             $.get('/api/remove/'+vid, function(data){
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(800, function(){
                     $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
-                    if(activeTab == TAB_SELECTORS.savedQueue){
+                    if(activeView == VIEWS.savedQueue){
                         if($("."+VIDEO_CONTAINER_CLASS).length == 0){
                             _populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                         }
