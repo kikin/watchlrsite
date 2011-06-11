@@ -1,4 +1,4 @@
-kikin.video.ProfileViewController = function(){
+kikinvideo.ProfileViewController = function(){
 
     var QUEUE_ITEM_COUNT_META_SELECTOR = "meta[name=queue_item_count]";
 

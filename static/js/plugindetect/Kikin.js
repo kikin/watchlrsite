@@ -1,4 +1,4 @@
-com.kikin.video.Kikin = {
+kikinvideo.Kikin = {
 	
 	isChromeInstallation: function() {
 		return navigator.plugins && navigator.plugins['kikin Plugin'];
@@ -48,9 +48,9 @@ com.kikin.video.Kikin = {
 		var plugin = this.getPlugin();
         if (plugin) {
             if (plugin.browserType.toLowerCase() == "cr") {
-                return com.kikin.video.String.hasRequiredVersion('1.24.5', this.getPlugin().version);
+                return kikinvideo.String.hasRequiredVersion('1.24.5', this.getPlugin().version);
             } else {
-                return com.kikin.video.String.hasRequiredVersion('2.12.5', this.getPlugin().version);
+                return kikinvideo.String.hasRequiredVersion('2.12.5', this.getPlugin().version);
             }
 
 		}
@@ -100,11 +100,11 @@ com.kikin.video.Kikin = {
 		if(this.isMac()){
 			return ($.browser.mozilla || $.browser.webkit);
 		}else if(this.isWindows()){
-			if($.browser.mozilla && com.kikin.video.String.hasRequiredVersion('1.9.2', $.browser.version)){
+			if($.browser.mozilla && kikinvideo.String.hasRequiredVersion('1.9.2', $.browser.version)){
 				return true;
-			}else if($.browser.webkit && com.kikin.video.String.hasRequiredVersion('533', $.browser.version)){
+			}else if($.browser.webkit && kikinvideo.String.hasRequiredVersion('533', $.browser.version)){
 				return true;
-			}else if($.browser.msie && com.kikin.video.String.hasRequiredVersion('8', $.browser.version)){
+			}else if($.browser.msie && kikinvideo.String.hasRequiredVersion('8', $.browser.version)){
 				return true;
 			}
 		}else if(this.isMobile()){

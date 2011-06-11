@@ -1,5 +1,5 @@
 //project namesapce...
-var com = { kikin : {video : {'util':{}}}};
+var kikinvideo = {'util':{}};
 
 //the path, in #! url, that indicates video player should be opened
 var VIDEO_PLAYER_PATH = '/player';
@@ -69,12 +69,23 @@ var LOADING_ICON = ".loading";
 var PLAYBACK_POSITION_API_URL = '/api/seek/';//  /[vid]/[position]
 
 var TAB_SELECTORS = {
-    queue : '.tabQueue',
-    likes : '.tabLikes',
+    savedQueue : '.tabQueue',
+    likedQueue : '.tabLikes',
     activity : '.tabActivity'
 };
 
-var activeTab = TAB_SELECTORS.queue;
+var VIEWS = {
+    savedQueue:0,
+    likedQueue:1,
+    activity:2,
+    profile:3
+}
+
+var activeView = VIEWS.likedQueue;
+
+var activeTab = TAB_SELECTORS.savedQueue;
+
+/*utility functions*/
 
 /**
 * Function takes full #! url and returns the path + params
@@ -115,7 +126,15 @@ function parseHashURL(hash_url) {
     }
 }
 
+/*util function to trim whitespace from beginning and end of string*/
+function trim(s) {
+	s = s.replace(/(^\s*)|(\s*$)/gi,"");
+	s = s.replace(/[ ]{2,}/gi," ");
+	s = s.replace(/\n /,"\n");
+	return s;
+}
 
+/*for displaying error messages...*/
 function showErrorDialog(msg){
     var error_info = "Error details:<br><br>";
     if(!msg){
@@ -130,11 +149,4 @@ function showErrorDialog(msg){
 
 function hideErrorDialog(){
     $(ERROR_DIALOG_SELECTOR).fadeOut(600);
-}
-
-function trim(s) {
-	s = s.replace(/(^\s*)|(\s*$)/gi,"");
-	s = s.replace(/[ ]{2,}/gi," ");
-	s = s.replace(/\n /,"\n");
-	return s;
 }
