@@ -78,7 +78,7 @@ kikinvideo.HomeViewController = function() {
     }
 
     $(window).hashchange(function() {
-         onHashChange(window.location.hash);
+        onHashChange(window.location.hash);
     });
 
     function _loadMoreVideos(){
@@ -99,110 +99,110 @@ kikinvideo.HomeViewController = function() {
 
     function _bindVideoPanelEvents(){
         $(LIKED_ICON_CONTAINER).each(function() {
-                    $(this).mouseover(function() {
-                        if ($(this).hasClass('no-hover'))
-                            $(this).removeClass('no-hover');
-                        if (!$(this).hasClass('hovered'))
-                            $(this).addClass('hovered');
-                    });
+            $(this).mouseover(function() {
+                if ($(this).hasClass('no-hover'))
+                    $(this).removeClass('no-hover');
+                if (!$(this).hasClass('hovered'))
+                    $(this).addClass('hovered');
+            });
 
-                    $(this).mouseout(function() {
-                        if ($(this).hasClass('hovered'))
-                            $(this).removeClass('hovered');
-                        if (!$(this).hasClass('no-hover'))
-                            $(this).addClass('no-hover');
-                    });
-                });
+            $(this).mouseout(function() {
+                if ($(this).hasClass('hovered'))
+                    $(this).removeClass('hovered');
+                if (!$(this).hasClass('no-hover'))
+                    $(this).addClass('no-hover');
+            });
+        });
 
-                $(DELETE_VIDEO_ICON_CONTAINER).each(function() {
-                    $(this).mouseover(function() {
-                        if ($(this).hasClass('no-hover'))
-                            $(this).removeClass('no-hover');
-                        if (!$(this).hasClass('hovered'))
-                            $(this).addClass('hovered');
-                    });
+        $(DELETE_VIDEO_ICON_CONTAINER).each(function() {
+            $(this).mouseover(function() {
+                if ($(this).hasClass('no-hover'))
+                    $(this).removeClass('no-hover');
+                if (!$(this).hasClass('hovered'))
+                    $(this).addClass('hovered');
+            });
 
-                    $(this).mouseout(function() {
-                        if ($(this).hasClass('hovered'))
-                            $(this).removeClass('hovered');
-                        if (!$(this).hasClass('no-hover'))
-                            $(this).addClass('no-hover');
-                    });
+            $(this).mouseout(function() {
+                if ($(this).hasClass('hovered'))
+                    $(this).removeClass('hovered');
+                if (!$(this).hasClass('no-hover'))
+                    $(this).addClass('no-hover');
+            });
 
-                });
+        });
 
-                $(SAVE_VIDEO_BUTTON_CONTAINER).each(function() {
-                    $(this).mouseover(function() {
-                        if ($(this).hasClass('no-hover'))
-                            $(this).removeClass('no-hover');
-                        if (!$(this).hasClass('hovered'))
-                            $(this).addClass('hovered');
-                    });
+        $(SAVE_VIDEO_BUTTON_CONTAINER).each(function() {
+            $(this).mouseover(function() {
+                if ($(this).hasClass('no-hover'))
+                    $(this).removeClass('no-hover');
+                if (!$(this).hasClass('hovered'))
+                    $(this).addClass('hovered');
+            });
 
-                    $(this).mouseout(function() {
-                        if ($(this).hasClass('hovered'))
-                            $(this).removeClass('hovered');
-                        if (!$(this).hasClass('no-hover'))
-                            $(this).addClass('no-hover');
-                    });
+            $(this).mouseout(function() {
+                if ($(this).hasClass('hovered'))
+                    $(this).removeClass('hovered');
+                if (!$(this).hasClass('no-hover'))
+                    $(this).addClass('no-hover');
+            });
 
-                });
+        });
     }
 
     function _populatePanel() {
 
-            $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-            $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
-                            height:$(document).height()});
+        $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
+        $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
+            height:$(document).height()});
 
 
-            var contentSource, requestParams;
+        var contentSource, requestParams;
+
+        if(activeView == VIEWS.likedQueue){
+            contentSource = LIKED_VIDEOS_CONTENT_URL;
+            requestParams = {'start':0, 'count':likedVideosToLoad};
+        }else if (activeView == VIEWS.savedQueue){
+            contentSource = SAVED_VIDEOS_CONTENT_URL;
+            requestParams = {'start':0, 'count':savedVideosToLoad};
+        }else if (activeView == VIEWS.activity){
+            contentSource = ACTIVITY_CONTENT_URL;
+            requestParams = {'start':0, 'count':activityItemsToLoad};
+        }
+
+        if(uid)
+            requestParams.user_id = uid;
+
+
+        $.get(contentSource, requestParams, function(data) {
+            $(VIDEO_PANEL_SELECTOR).html(data);
+            stylizeVideoTitles();
+
+            _bindVideoPanelEvents();
+
+            var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
 
             if(activeView == VIEWS.likedQueue){
-                contentSource = LIKED_VIDEOS_CONTENT_URL;
-                requestParams = {'start':0, 'count':likedVideosToLoad};
-            }else if (activeView == VIEWS.savedQueue){
-                contentSource = SAVED_VIDEOS_CONTENT_URL;
-                requestParams = {'start':0, 'count':savedVideosToLoad};
-            }else if (activeView == VIEWS.activity){
-                contentSource = ACTIVITY_CONTENT_URL;
-                requestParams = {'start':0, 'count':activityItemsToLoad};
+                if(queueItemCount >= likedVideosPaginationThreshold){
+                    $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
+                }else{
+                    $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
+                }
+            }else if(activeView == VIEWS.savedQueue){
+                if(queueItemCount >= saveVideosPaginationThreshold){
+                    $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
+                }else{
+                    $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
+                }
+            }else if(activeView == VIEWS.activity){
+                if(queueItemCount >= activityItemsToLoad){
+                    $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
+                }else{
+                    $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
+                }
             }
 
-            if(uid)
-                requestParams.user_id = uid;
-
-
-            $.get(contentSource, requestParams, function(data) {
-                $(VIDEO_PANEL_SELECTOR).html(data);
-                stylizeVideoTitles();
-
-                _bindVideoPanelEvents();
-
-                var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
-
-                if(activeView == VIEWS.likedQueue){
-                    if(queueItemCount >= likedVideosPaginationThreshold){
-                        $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
-                    }else{
-                        $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
-                    }
-                }else if(activeView == VIEWS.savedQueue){
-                    if(queueItemCount >= saveVideosPaginationThreshold){
-                        $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
-                    }else{
-                        $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
-                    }
-                }else if(activeView == VIEWS.activity){
-                    if(queueItemCount >= activityItemsToLoad){
-                        $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
-                    }else{
-                        $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
-                    }
-                }
-
-            });
-        };
+        });
+    };
 
     function removeVideo(vid){
         $.get('/api/remove/'+vid, function(data){
@@ -218,95 +218,95 @@ kikinvideo.HomeViewController = function() {
     }
 
     function handleLike(vid){
-            if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
-            {window.location="#!/liked?vid="+vid;
-                $.get('/api/like/'+vid, function(data){
-                   var video_properties = data.result;
-                   if(video_properties){
-                        if(video_properties.liked){
-                            //update the icon...
-                            if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
-                                if(data.result.liked){
-                                    $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
-                                    if(data){
-                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
+        {window.location="#!/liked?vid="+vid;
+            $.get('/api/like/'+vid, function(data){
+                var video_properties = data.result;
+                if(video_properties){
+                    if(video_properties.liked){
+                        //update the icon...
+                        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
+                            if(data.result.liked){
+                                $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
+                                if(data){
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
+                                        if(activeView == VIEWS.activity){
+                                            var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
+                                            var like_details = trim(activity_item_header.html());
+                                            like_details = 'You and '+like_details;
+                                            activity_item_header.fadeOut(500, function(){
+                                                like_details = like_details.replace('likes', 'like');
+                                                activity_item_header.html(like_details);
+                                                activity_item_header.fadeIn(500);
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }else{
+            window.location="#!/unliked?vid="+vid;
+            $.get('/api/unlike/'+vid, function(data){
+                var video_properties = data.result;
+                if(video_properties){
+                    if(!video_properties.liked){
+                        //update the icon...
+                        if($(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
+                            if(!data.result.liked){
+                                $(LIKED_ICON_ID_PREFIX+vid).removeClass('liked');
+                                if(data){
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+                                        if(data.result.likes != 0){
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
+                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#d0d0d0'});
                                             if(activeView == VIEWS.activity){
+                                                //replace text in the header to reflect updated
+                                                // activity item state (i.e. "You and xxxx like this video"
+                                                // becomes "xxxx likes this video")
                                                 var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
                                                 var like_details = trim(activity_item_header.html());
-                                                like_details = 'You and '+like_details;
+                                                if(data.result.likes == 1){
+                                                    like_details = like_details.replace('You and ', '');
+                                                    like_details = like_details.replace('like', 'likes');
+                                                }else{
+                                                    like_details = like_details.replace('You and ', '');
+                                                }
                                                 activity_item_header.fadeOut(500, function(){
-                                                    like_details = like_details.replace('likes', 'like');
                                                     activity_item_header.html(like_details);
                                                     activity_item_header.fadeIn(500);
                                                 });
+                                            }
+                                        }else if(activeView == VIEWS.activity){
+                                            //means that we are in activity queue AND had been the only
+                                            //"liker" of this video, so we may gracefully remove it
+                                            $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
+                                        }
+                                    });
+                                    if(activeView == VIEWS.likedQueue){
+                                        $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
+                                            $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
+                                            if($("."+VIDEO_CONTAINER_CLASS).length == 0){
+                                                _populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
                                             }
                                         });
                                     }
                                 }
                             }
                         }
-                   }
-                });
-            }else{
-              window.location="#!/unliked?vid="+vid;
-              $.get('/api/unlike/'+vid, function(data){
-                   var video_properties = data.result;
-                   if(video_properties){
-                        if(!video_properties.liked){
-                            //update the icon...
-                            if($(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
-                                if(!data.result.liked){
-                                    $(LIKED_ICON_ID_PREFIX+vid).removeClass('liked');
-                                    if(data){
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
-                                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
-                                                if(data.result.likes != 0){
-                                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
-                                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
-                                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#d0d0d0'});
-                                                    if(activeView == VIEWS.activity){
-                                                        //replace text in the header to reflect updated
-                                                        // activity item state (i.e. "You and xxxx like this video"
-                                                        // becomes "xxxx likes this video")
-                                                        var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
-                                                        var like_details = trim(activity_item_header.html());
-                                                        if(data.result.likes == 1){
-                                                            like_details = like_details.replace('You and ', '');
-                                                            like_details = like_details.replace('like', 'likes');
-                                                        }else{
-                                                            like_details = like_details.replace('You and ', '');
-                                                        }
-                                                        activity_item_header.fadeOut(500, function(){
-                                                            activity_item_header.html(like_details);
-                                                            activity_item_header.fadeIn(500);
-                                                        });
-                                                    }
-                                                }else if(activeView == VIEWS.activity){
-                                                    //means that we are in activity queue AND had been the only
-                                                    //"liker" of this video, so we may gracefully remove it
-                                                    $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
-                                                }
-                                            });
-                                        if(activeView == VIEWS.likedQueue){
-                                            $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
-                                                    $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
-                                                    if($("."+VIDEO_CONTAINER_CLASS).length == 0){
-                                                        _populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
-                                                    }
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                   }
-                });
-            }
+                    }
+                }
+            });
         }
+    }
 
 
     return {
@@ -321,9 +321,9 @@ kikinvideo.HomeViewController = function() {
         removeVideo : removeVideo,
 
         handleSave : function(vid){
-             $.get('/api/save?vid='+vid, function(data){
+            $.get('/api/save?vid='+vid, function(data){
 
-             });
+            });
         },
 
         handleFollow : function(user_id){
@@ -346,25 +346,25 @@ kikinvideo.HomeViewController = function() {
         },
 
         handleUnfollow : function(user_id){
-        $.ajax({
-            url : '/api/unfollow/'+user_id,
-            success: function(response){
-                if (response.success){
-                    $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
-                    $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/follow?user="+user_id);
-                    var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
-                    numFollowers--;
-                    $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
-                    window.location += '_';
+            $.ajax({
+                url : '/api/unfollow/'+user_id,
+                success: function(response){
+                    if (response.success){
+                        $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
+                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/follow?user="+user_id);
+                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
+                        numFollowers--;
+                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                        window.location += '_';
+                    }
+                },
+                failure : function(err_msg){
+                    showErrorDialog(err_msg);
                 }
-            },
-            failure : function(err_msg){
-                showErrorDialog(err_msg);
-            }
-        });
-    },
+            });
+        },
 
-  };
+    };
 
 };
 
