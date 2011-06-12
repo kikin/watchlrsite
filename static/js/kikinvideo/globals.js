@@ -16,6 +16,8 @@ var LIKED_QUEUE_PATH = '/liked_queue';
 
 var ACTIVITY_QUEUE_PATH = '/activity';
 
+var SAVE_VIDEO_PATH = '/save'
+
 var PROFILE_EDIT_PANEL_OPEN_PATH = '/edit_profile';
 
 var PROFILE_SAVE_PATH = '/save_profile';
@@ -78,7 +80,8 @@ var VIEWS = {
     savedQueue:0,
     likedQueue:1,
     activity:2,
-    profile:3
+    profile:3,
+    detail:4
 }
 
 var activeView = VIEWS.likedQueue;

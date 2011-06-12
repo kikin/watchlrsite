@@ -65,17 +65,19 @@ kikinvideo.HomeViewController = function() {
         }if(url_content.path == SAVED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.savedQueue);
             activeView = VIEWS.savedQueue;
-            _populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+            populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
         }if(url_content.path == LIKED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.likedQueue);
             activeView = VIEWS.likedQueue;
-            _populatePanel();
+            populatePanel();
         }if(url_content.path == ACTIVITY_QUEUE_PATH){
             swapTab(TAB_SELECTORS.activity);
             activeView = VIEWS.activity;
-            _populatePanel();
+            populatePanel();
         }if(url_content.path == LOAD_MORE_VIDEOS_PATH){
-            homeViewController.loadMoreVideos();
+            loadMoreVideos();
+        }if(url_content.path == SAVE_VIDEO_PATH){
+            handleSave(url_content.params.vid);
         }
     }
 
@@ -83,7 +85,7 @@ kikinvideo.HomeViewController = function() {
         onHashChange(window.location.hash);
     });
 
-    function _loadMoreVideos(){
+    function loadMoreVideos(){
         if(activeView == VIEWS.likedQueue){
             likedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
             likedVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
@@ -94,7 +96,7 @@ kikinvideo.HomeViewController = function() {
             activityItemsToLoad += INITIAL_PAGINATION_THRESHOLD;
             activityItemsPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
         }
-        _populatePanel();
+        populatePanel();
         //invalidate hash url (so a subsequent click of "load more" button will register as hash change)
         window.location.href += "_";
     }
@@ -151,7 +153,7 @@ kikinvideo.HomeViewController = function() {
         });
     }
 
-    function _populatePanel() {
+    function populatePanel() {
 
         $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
         $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
@@ -212,7 +214,7 @@ kikinvideo.HomeViewController = function() {
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
                 if(activeView == VIEWS.savedQueue){
                     if($("."+VIDEO_CONTAINER_CLASS).length == 0){
-                        _populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+                        populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                     }
                 }
             });
@@ -239,7 +241,12 @@ kikinvideo.HomeViewController = function() {
                                         if(activeView == VIEWS.activity){
                                             var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
                                             var like_details = trim(activity_item_header.html());
-                                            like_details = 'You and '+like_details;
+
+                                            if(data.result.likes == 2){
+                                                like_details = 'You and '+like_details;
+                                            }else{
+                                                like_details = 'You, '+like_details;
+                                            }
                                             activity_item_header.fadeOut(500, function(){
                                                 activity_item_header.html(like_details);
                                                 activity_item_header.fadeIn(500);
@@ -295,7 +302,7 @@ kikinvideo.HomeViewController = function() {
                                         $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
                                             $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
                                             if($("."+VIDEO_CONTAINER_CLASS).length == 0){
-                                                _populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
+                                                populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
                                             }
                                         });
                                     }
@@ -308,11 +315,18 @@ kikinvideo.HomeViewController = function() {
         }
     }
 
+    function handleSave(vid){
+        $.get('/api/save?vid='+vid, function(data){
 
+        });
+    }
+
+
+    /*expose public functions...*/
     return {
-        loadMoreVideos : _loadMoreVideos,
+        loadMoreVideos : loadMoreVideos,
 
-        populatePanel : _populatePanel,
+        populatePanel : populatePanel,
 
         onHashChange : onHashChange,
 
@@ -320,50 +334,7 @@ kikinvideo.HomeViewController = function() {
 
         removeVideo : removeVideo,
 
-        handleSave : function(vid){
-            $.get('/api/save?vid='+vid, function(data){
-
-            });
-        },
-
-        handleFollow : function(user_id){
-            $.ajax({
-                url : '/api/follow/'+user_id,
-                success: function(response){
-                    if (response.success){
-                        $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
-                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/unfollow?user="+user_id);
-                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
-                        numFollowers++;
-                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
-                        window.location += '_';
-                    }
-                },
-                failure : function(err_msg){
-                    showErrorDialog(err_msg);
-                }
-            });
-        },
-
-        handleUnfollow : function(user_id){
-            $.ajax({
-                url : '/api/unfollow/'+user_id,
-                success: function(response){
-                    if (response.success){
-                        $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
-                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/follow?user="+user_id);
-                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
-                        numFollowers--;
-                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
-                        window.location += '_';
-                    }
-                },
-                failure : function(err_msg){
-                    showErrorDialog(err_msg);
-                }
-            });
-        }
-
+        handleSave : handleSave,
     };
 
 };
