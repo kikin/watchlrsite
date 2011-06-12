@@ -142,27 +142,27 @@ def activity_item_heading(activity_item, user):
     if activity_item.video in user.liked_videos():
         content = "You"
         if len(activity_item.users) == 1:
-            content += " like this."
+            content += " liked..."
 
         elif len(activity_item.users) == 2:
             if activity_item.users[0][0] != user:
-                content += ' and <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> like this.'
+                content += ' and <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'
             else:
-                content += ' and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> like this.'
+                content += ' and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> liked...'
         elif len(activity_item.users) > 2:
             if activity_item.users[0][0] != user:
                 content += ', <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
             else:
                 content += ', <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[1][0].first_name+'</a> '
-            content += ' and ' + str(len(activity_item.users) - 2) + ' others like this.'
+            content += ' and ' + str(len(activity_item.users) - 2) + ' others liked...'
     
     else:
         if len(activity_item.users) == 1:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> likes this.'
+            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'
         if len(activity_item.users) == 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
-            content += 'and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> like this.'
+            content += 'and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> like...'
         elif len(activity_item.users) > 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
-            content += 'and ' + str(len(activity_item.users) - 1) + 'others like this.'
+            content += 'and ' + str(len(activity_item.users) - 1) + 'others liked...'
     return content

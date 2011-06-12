@@ -239,7 +239,6 @@ kikinvideo.HomeViewController = function() {
                                             var like_details = trim(activity_item_header.html());
                                             like_details = 'You and '+like_details;
                                             activity_item_header.fadeOut(500, function(){
-                                                like_details = like_details.replace('likes', 'like');
                                                 activity_item_header.html(like_details);
                                                 activity_item_header.fadeIn(500);
                                             });
@@ -276,7 +275,6 @@ kikinvideo.HomeViewController = function() {
                                                 var like_details = trim(activity_item_header.html());
                                                 if(data.result.likes == 1){
                                                     like_details = like_details.replace('You and ', '');
-                                                    like_details = like_details.replace('like', 'likes');
                                                 }else{
                                                     like_details = like_details.replace('You and ', '');
                                                 }
@@ -370,5 +368,4 @@ kikinvideo.HomeViewController = function() {
 
 $(document).ready(function(){
     var homeViewController = new kikinvideo.HomeViewController();
-    window.location = "/#!/saved_queue";
 });
