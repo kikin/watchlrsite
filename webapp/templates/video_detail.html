@@ -1,5 +1,19 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
+
+{% block style_refs %}
+    <style>
+
+    .video-detail-player{
+        margin-top:20px;
+        padding: 14px;
+        background-color:#1c1b1b;
+        text-align: center;
+    }
+
+    </style>
+{% endblock style_refs%}
+
 {% block script_refs %}
     <script src="{{ settings.STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
@@ -7,6 +21,8 @@
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/String.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/Kikin.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/plugindetect.js"></script>
+    <script type="text/javascript">activeView = VIEWS.detail;</script>
+
 {% endblock script_refs %}
 {% block content %}
     <div id="video-{{video.id}}" class="video-wrapper">
@@ -66,11 +82,8 @@
 
             {% if video.html_embed_code or video.html5_embed_code %}
 
-            <div class="video-player" id="video-player-{{ video.id }}"
+            <div class="video-detail-player" id="video-player-{{ video.id }}"
                     style="display:block;">
-                <div>
-                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                </div>
 
                 <div  class="video-embed-wrapper" style="width:640px;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:10px;">
                 {% autoescape off %}
@@ -82,11 +95,8 @@
 
             {% else %}
 
-            <div class="video-player" id="video-player-{{ video.id }}"
+            <div class="video-detail-player" id="video-player-{{ video.id }}"
                     style="background-color:#DEDEDE;font-size:16px;display:block;">
-                <div>
-                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                </div>
                 <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
                     <div class="video-no-embed-link">
                         The host of the video you have selected requests that
