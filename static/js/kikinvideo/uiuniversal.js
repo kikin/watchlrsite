@@ -109,7 +109,9 @@ $(document).ready(
                     var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
                     video_embed_div.show();
                     /*close video player on click outside its container....*/
-                    $(VIDEO_PLAYER_BG_SELECTOR).click(function(){closePlayer(current_vid)});
+                    $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
+                        window.location.hash = "!" + VIDEO_PLAYER_CLOSE_PATH + "?vid="+vid
+                    });
                 });
                 //scroll to the video...
                 $('html, body').animate({
@@ -117,6 +119,7 @@ $(document).ready(
                 }, 1000);
 
                 current_vid = vid;
+
             }
 
             function closePlayer(vid){
