@@ -14,6 +14,16 @@ kikinvideo.ProfileViewController = function(){
 
     var FOLLOW_COUNT_CONTAINER_ID_PREFIX = "#follower-count-user-";
 
+    /*bind hashchange listeners to corresponding event*/
+    $(window).hashchange(function() {
+        var url_content = parseHashURL(window.location.hash);
+        if(url_content.path == FOLLOW_USER_PATH){
+            profileViewController.handleFollow(url_content.params.user);
+        }if(url_content.path == UNFOLLOW_USER_PATH){
+            profileViewController.handleUnfollow(url_content.params.user);
+        }
+    });
+
     function _loadContent(){
         var uid = $(UID_META_SELECTOR).attr('content');
         $.get(LIKED_VIDEOS_CONTENT_URL, {'start':0, 'count':vidsToLoad, 'user_id':uid}, function(){
@@ -65,14 +75,5 @@ kikinvideo.ProfileViewController = function(){
 $(document).ready(
         function(){
             var profileViewController = new kikinvideo.ProfileViewController();
-            /*bind hashchange listeners to corresponding event*/
-            $(window).hashchange(function() {
-                var url_content = parseHashURL(window.location.hash);
-                if(url_content.path == FOLLOW_USER_PATH){
-                    profileViewController.handleFollow(url_content.params.user);
-                }if(url_content.path == UNFOLLOW_USER_PATH){
-                    profileViewController.handleUnfollow(url_content.params.user);
-                }
-            });
         }
 );

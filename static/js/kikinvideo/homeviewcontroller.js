@@ -12,6 +12,8 @@ kikinvideo.HomeViewController = function() {
 
     var LIKED_INFO_CONTAINER_ID_PREFIX = "#video-liked-info-vid-";
 
+    var VIDEO_CONTAINER_CLASS = "video-wrapper";
+
     var VIDEO_CONTAINER_ID_PREFIX = "#video-";
 
     var ACTIVITY_ITEM_CONTAINER_ID_PREFIX = "#activity-queue-item-vid-";
@@ -368,4 +370,5 @@ kikinvideo.HomeViewController = function() {
 
 $(document).ready(function(){
     var homeViewController = new kikinvideo.HomeViewController();
+    homeViewController.onHashChange(window.location.hash);
 });

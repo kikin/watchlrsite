@@ -1,5 +1,5 @@
 
-kikinvideo.String = {
+kikinvideo.util.String = {
 	/**
 	 * @param {String} minimum version number
 	 * @param {String} current version number
