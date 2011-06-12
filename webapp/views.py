@@ -21,7 +21,7 @@ def login_complete(request):
 
 def home(request):
     if request.user.is_authenticated():
-        return render_to_response('user_home.html', {'settings': settings}, context_instance=RequestContext(request))
+        return render_to_response('logged_in.html', {'settings': settings}, context_instance=RequestContext(request))
     else:
         return render_to_response('logged_out.html', {'settings': settings}, context_instance=RequestContext(request))
 

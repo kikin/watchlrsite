@@ -1,9 +1,17 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
+{% block script_refs %}
+    <script src="{{ settings.STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/String.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/Kikin.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/plugindetect.js"></script>
+{% endblock script_refs %}
 {% block content %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
-            <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
+            <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
 
             <div class="video-buttons">
                 <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
