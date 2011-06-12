@@ -68,6 +68,10 @@ var LOADING_ICON_BACKGROUND = ".loading-container";
 
 var LOADING_ICON = ".loading";
 
+var ERROR_DIALOG_SELECTOR = '#error-msg-dialog';
+
+var ERROR_DIALOG_MESSAGE_BODY_SELECTOR = '#error-msg-dialog .msg-body'
+
 var PLAYBACK_POSITION_API_URL = '/api/seek/';//  /[vid]/[position]
 
 var TAB_SELECTORS = {
