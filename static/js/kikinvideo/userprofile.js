@@ -18,9 +18,9 @@ kikinvideo.ProfileViewController = function(){
     $(window).hashchange(function() {
         var url_content = parseHashURL(window.location.hash);
         if(url_content.path == FOLLOW_USER_PATH){
-            profileViewController.handleFollow(url_content.params.user);
+            handleFollow(url_content.params.user);
         }if(url_content.path == UNFOLLOW_USER_PATH){
-            profileViewController.handleUnfollow(url_content.params.user);
+            handleUnfollow(url_content.params.user);
         }
     });
 
@@ -33,8 +33,7 @@ kikinvideo.ProfileViewController = function(){
                 });
     }
 
-    return{
-        handleFollow : function(user_id){
+     function handleFollow(user_id){
             $.ajax({
                 url : '/api/follow/'+user_id,
                 success: function(response){
@@ -50,9 +49,9 @@ kikinvideo.ProfileViewController = function(){
                     showErrorDialog(err_msg);
                 }
             });
-        },
+        }
 
-        handleUnfollow : function(user_id){
+        function handleUnfollow(user_id){
             $.ajax({
                 url : '/api/unfollow/'+user_id,
                 success: function(response){
@@ -69,6 +68,11 @@ kikinvideo.ProfileViewController = function(){
                 }
             });
         }
+
+    return{
+        handleFollow : handleFollow,
+
+        handleUnfollow : handleUnfollow
     }
 }
 

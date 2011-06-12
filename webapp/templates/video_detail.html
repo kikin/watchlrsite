@@ -9,6 +9,9 @@
         padding: 14px;
         background-color:#1c1b1b;
         text-align: center;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        border-radius: 4px;
     }
 
     </style>
@@ -18,23 +21,16 @@
     <script src="{{ settings.STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/String.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/Kikin.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/plugindetect/plugindetect.js"></script>
-    <script type="text/javascript">activeView = VIEWS.detail;</script>
+    <script type="text/javascript">activeView = VIEWS.detail;stylizeVideoTitles();</script>
 
 {% endblock script_refs %}
 {% block content %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
-            <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
+            <h3 class="video-title" style="margin-bottom:20px;"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
 
-            <div class="video-buttons">
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
-                {% if video.total_likes != 0 %}
-                    {{ video.total_likes }}
-                {%  endif %}
-                </div>
+            <div class="video-buttons detail-view">
+
                 {% if user.is_authenticated %}
                     <a href="#!/like?vid={{ video.id }}" title="like">
                     {% if video in user.liked_videos %}
@@ -43,15 +39,32 @@
                         <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
                     {% endif %}
                     </a>
-                {% else %}
-                <a>
-                {% if video.total_likes > 0 %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+
+                    {% if video.total_likes != 0 %}
+                        {% if video in user.liked_videos %}
+                        <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                            {{ video.total_likes }}
+                        </div>
+                        {% else %}
+                        <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                            {{ video.total_likes }}
+                        </div>
+                        {%  endif %}
                     {% else %}
-                        <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"
+                            <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                            </div>
                     {% endif %}
-                {% endif %}
-                </a>
+
+                {% else %}
+                    <a>
+                    {% if video.total_likes > 0 %}
+                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                        {% else %}
+                            <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"
+                        {% endif %}
+                    {% endif %}
+                    </a>
+                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;"></div>
             </div>
             <a href="/#!/player?vid={{ video.id }}">
                 <div class="video-image" id="video-{{ video.id }}">
@@ -63,7 +76,7 @@
                 </div>
             </a>
 
-            <div class="video-info">
+            <div class="video-info detail-view">
                 <div class="video-description">{{ video.description }}</div>
                 <div class="video-saved">
                    <a href="{{ video|source_url_root }}" target="_blank">

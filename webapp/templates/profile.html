@@ -3,7 +3,9 @@
 
 {% block script_refs %}
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/userprofile.js"></script>
+    <script type="text/javascript">activeView = VIEWS.profile;</script>
 {% endblock script_refs %}
 
 {% block style_refs %}
@@ -69,18 +71,34 @@
 
                 <div class="video-buttons">
 
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
-                    {% if video.total_likes != 0 %}
+                    {% if video.total_likes != 0 and video not in user.liked_videos %}
+                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#cccccc;">
                         {{ video.total_likes }}
-                    {%  endif %}
                     </div>
-
-
-                    {% if video in profile_owner.liked_videos %}
-                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}
-                        <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                        {{ video.total_likes }}
+                    </div>
                     {% endif %}
+
+
+                <a href="#!/like?vid={{ video.id }}">
+                {% if video in user.liked_videos %}
+                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                {% else %}
+                    <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                {% endif %}
+                </a>
+
+                {% if video not in user.saved_videos %}
+                <a href="#!/save?vid={{ video.id }}" title="save">
+                    <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
+                </a>
+                {% else %}
+                <a href="#!/save?vid={{ video.id }}" title="save">
+                    <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
+                </a>
+                {% endif %}
                    
 
                 </div>

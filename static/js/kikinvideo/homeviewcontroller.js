@@ -179,6 +179,7 @@ kikinvideo.HomeViewController = function() {
 
         $.get(contentSource, requestParams, function(data) {
             $(VIDEO_PANEL_SELECTOR).html(data);
+
             stylizeVideoTitles();
 
             _bindVideoPanelEvents();
@@ -316,8 +317,31 @@ kikinvideo.HomeViewController = function() {
     }
 
     function handleSave(vid){
-        $.get('/api/save?vid='+vid, function(data){
+        $.ajax({
+                url : '/api/save/'+vid,
+                success : function(response){
+                    if(!response.success){
+                        showErrorDialog();
+                    }else{
+                        if(response.result.saved){
+                            if($(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).hasClass('not-saved')){
+                                $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).removeClass('not-saved');
+                            }
+                            if(!$(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).hasClass('saved')){
+                                $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).addClass('saved');
+                            }
+                        }else if(!response.result.saved){
+                            if($(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).hasClass('saved')){
+                                $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).removeClass('saved');
+                            }
+                            if(!$(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).hasClass('not-saved')){
+                                $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).addClass('not-saved');
+                            }
+                        }
+                    }
 
+                },
+                failure : showErrorDialog()
         });
     }
 

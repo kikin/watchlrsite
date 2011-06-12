@@ -76,7 +76,11 @@
 
                 {% if activity_item.video not in user.saved_videos %}
                 <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
-                    <div class="save-video-button no-hover"></div>
+                    <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover"></div>
+                </a>
+                {% else %}
+                <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
+                    <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button saved no-hover"></div>
                 </a>
                 {% endif %}
         </div>

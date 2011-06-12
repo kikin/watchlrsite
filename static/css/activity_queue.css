@@ -2,7 +2,8 @@
     width:100%;
     min-height:260px;
     border-bottom: 1px solid #cccccc;
-    margin-bottom:14px;
+    padding-top:20px;
+    padding-bottom:10px;
 }
 
 .activity-queue-item.inner{
