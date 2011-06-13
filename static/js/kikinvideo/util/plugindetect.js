@@ -10,11 +10,11 @@ if(kikinvideo.util.Kikin.isSupportedClientAgent()){
 
         if(!kikinvideo.util.Kikin.createPlugin()){
             $.get('/content/plugin_pitch', function(content){
-                    $('body').prepend(content);
+                    $('.right-panel').prepend(content);
                     $('#plugin-pitch').fadeIn(1000);
-                    $('#plugin-pitch-close').click(function(){
-                            $('#plugin-pitch').fadeOut();
-                    });
+               //     $('#plugin-pitch-close').click(function(){
+               //             $('#plugin-pitch').fadeOut();
+               //     });
             });
         }
     });
