@@ -21,7 +21,11 @@ def login_complete(request):
 
 def home(request):
     if request.user.is_authenticated():
-        return render_to_response('logged_in.html', {'settings': settings}, context_instance=RequestContext(request))
+        all_users = list(User.objects.all())
+        #perhaps in the near future this can be done at the db query level, but for now...
+        suggested_followees = [x for x in all_users if x not in request.user.following() and x != request.user][:8]
+        return render_to_response('logged_in.html', {'settings': settings, 'suggested_followees':suggested_followees},\
+                                  context_instance=RequestContext(request))
     else:
         return render_to_response('logged_out.html', {'settings': settings}, context_instance=RequestContext(request))
 

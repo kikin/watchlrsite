@@ -136,6 +136,13 @@ def fb_thumb_small(users, user):
     return "https://graph.facebook.com/"+user.facebook_uid()+ "/picture?type=square"
 
 @register.filter
+def fb_thumb_href(users, user):
+    for user_tuple in users:
+        if user_tuple[0] != user:
+           return  "/"+user_tuple[0].username
+    return ""
+
+@register.filter
 def activity_item_heading(activity_item, user):
     video = activity_item.video
     content = ''
@@ -166,3 +173,7 @@ def activity_item_heading(activity_item, user):
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
             content += 'and ' + str(len(activity_item.users) - 1) + 'others liked...'
     return content
+
+@register.filter
+def full_name(user):
+    return user.first_name + ' ' + user.last_name

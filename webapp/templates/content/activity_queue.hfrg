@@ -3,7 +3,7 @@
 {% for activity_item in activity_items %}
 <div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
     <div class="inner">
-          <a href="/{{ activity_item.users.0.0.username }}">
+          <a href="{{  activity_item.users|fb_thumb_href:user }}">
               <div class="fb-thumb-wrapper">
                   <img src="{{ activity_item.users|fb_thumb_small:user }}"/>
               </div>
