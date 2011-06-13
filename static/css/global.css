@@ -1089,7 +1089,8 @@ box-shadow: 10px 10px 5px #888;
 
 .close-button-fancy{
     position:absolute;
-    top:2px;
+    top:-13px;
+	left:-15px;
     right:3px;
     width:30px;
     height:30px;
