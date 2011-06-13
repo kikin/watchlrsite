@@ -1,14 +1,14 @@
 <style>
     /* Download App Ad */
     .browser_app {
-        width:282px;
+        width:283px;
         height:282px;
         background:url('/static/images/download/app_ad.png') no-repeat;
         cursor:pointer;
         margin-bottom:30px;
     }
     .browser_app:hover{
-        background:url('/static/images/download/app_ad.png') no-repeat 0px -282px;
+       
     }
 
     #plugin-pitch{
