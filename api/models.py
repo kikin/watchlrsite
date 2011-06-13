@@ -77,7 +77,7 @@ class Video(models.Model):
         thumbnail.save()
 
     def get_thumbnail(self, type='web'):
-        return self.thumbnails.get(type=type)
+        return self.thumbnails.filter(type=type).order_by('-id').all()[0]
 
     def total_likes(self):
         return UserVideo.objects.filter(video=self, liked=True).count()
