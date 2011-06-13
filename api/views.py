@@ -191,7 +191,8 @@ def like_by_url(request):
         user_video = UserVideo(user=request.user,
                                video=video,
                                host=request.META.get('HTTP_REFERER'),
-                               liked=True)
+                               liked=True,
+                               liked_timestamp=datetime.utcnow())
         user_video.save()
 
         # Fetch video metadata in background
