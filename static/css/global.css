@@ -949,8 +949,8 @@ a#lnk-page-next:hover {
     margin-top: 0px;
 }
 .video-liked-info{
-    position:absolute;;
-    font-size:21px;
+    position:absolute;
+    font-size:28px;
     margin-left:31px;
     margin-top:2px;
     font-weight:800;
@@ -1089,9 +1089,10 @@ box-shadow: 10px 10px 5px #888;
 
 .close-button-fancy{
     position:absolute;
-    top:2px;
+    top:-13px;
+	left:-15px;
     right:3px;
-    width:15px;
-    height:15px;
-    background-image:url(/static/images/close_button_fancy.png);
+    width:30px;
+    height:30px;
+    background:url(/static/images/fancybox.png) no-repeat -40px 0px;
 }
