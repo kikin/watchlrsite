@@ -552,11 +552,11 @@ def swap(request, facebook_id):
     else:
         raise UserNotConnected()
 
-    if not user.is_authenticated():
+    if not request.user.is_authenticated():
         raise Unauthorized()
 
     session = SessionStore()
-    session['_auth_user_id'] = user.id
+    session['_auth_user_id'] = request.user.id
     session.save()
 
     return {'session_id': session.session_key}
