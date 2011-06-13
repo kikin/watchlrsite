@@ -887,20 +887,38 @@ a#lnk-page-next:hover {
 }
 
 /*thanks, IE...*/
-.heart-container.hovered {
+.heart-container.not-liked.hovered {
     background-image: url(/static/images/heart_maroon.png);
     width: 26px;
     height: 26px;
 
 }
 
-.heart-container.no-hover {
+.heart-container.not-liked.no-hover {
     background-image: url(/static/images/heart_grey.png);
     width: 26px;
     height: 26px;
 }
 
+.heart-container.not-liked {
+    background-image: url(/static/images/heart_grey.png);
+    width: 26px;
+    height: 26px;
+}
+
+.heart-container.liked.no-hover {
+    background-image: url(/static/images/heart_red.png);
+    width: 26px;
+    height: 26px;
+}
+
 .heart-container.liked {
+    background-image: url(/static/images/heart_red.png);
+    width: 26px;
+    height: 26px;
+}
+
+.heart-container.liked.hovered {
     background-image: url(/static/images/heart_red.png);
     width: 26px;
     height: 26px;
