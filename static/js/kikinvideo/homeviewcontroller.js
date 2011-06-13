@@ -232,12 +232,14 @@ kikinvideo.HomeViewController = function() {
                         //update the icon...
                         if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
                             if(data.result.liked){
-                                $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
                                 if(data){
+                                    $(LIKED_ICON_CONTAINER).addClass('liked');
+                                    if($(LIKED_ICON_CONTAINER).hasClass('hovered'))
+                                            $(LIKED_ICON_CONTAINER).removeClass('hovered');
                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
                                         $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
                                         $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
-                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(600);
                                         $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
                                         if(activeView == VIEWS.activity){
                                             var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
