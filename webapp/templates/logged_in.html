@@ -40,7 +40,7 @@
                     </a>
                     <div class="suggested-followees profile-link-container">
                         <a href="{{ kv_user.username }}">
-                            {{ kv_user|full_name|truncate_text:17 }}
+                            {{ kv_user|full_name|truncate_text:15 }}
                         </a>
                     </div>
                     <a href="#!/follow?user={{ kv_user.id }}" id="follow-link-user-{{ kv_user.id }}" class="follow-button-link">
