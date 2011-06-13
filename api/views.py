@@ -15,6 +15,8 @@ from json import loads, dumps
 from decimal import Decimal
 from datetime import datetime
 
+from celery.app import default_app
+
 import logging
 logger = logging.getLogger('kikinvideo')
 
@@ -128,7 +130,8 @@ def as_dict(obj):
                 'thumbnail': thumbnail,
                 'source': source,
                 'saves': UserVideo.save_count(obj),
-                'likes': UserVideo.like_count(obj)}
+                'likes': UserVideo.like_count(obj),
+                'state': default_app.backend.get_status(obj.task_id)}
 
     raise Exception('Unknown type:%s' % type(obj))
 
@@ -183,6 +186,7 @@ def like_by_url(request):
             push_like_to_fb.delay(video, request.user)
 
         user_video = request.user.like_video(video)
+        task_id = video.task_id
 
     except Video.DoesNotExist:
         video = Video(url=normalized_url)
@@ -196,12 +200,17 @@ def like_by_url(request):
         user_video.save()
 
         # Fetch video metadata in background
-        fetch.delay(request.user.id,
-                    normalized_url,
-                    user_video.host,
-                    callback=push_like_to_fb.subtask((request.user, )))
+        task = fetch.delay(request.user.id,
+                           normalized_url,
+                           user_video.host,
+                           callback=push_like_to_fb.subtask((request.user, )))
 
-    return as_dict(user_video)
+        task_id = task.task_id
+
+    info = as_dict(user_video)
+    info['task_id'] = task_id
+    info['first'] = request.user.notifications()['firstlike']
+    return info
 
 
 @json_view
@@ -277,11 +286,12 @@ def add(request):
     user_video.save()
 
     # Fetch video metadata in background
-    fetch.delay(request.user.id, normalized_url, user_video.host)
+    task = fetch.delay(request.user.id, normalized_url, user_video.host)
 
     info = as_dict(user_video)
     info.update({'first': request.user.saved_videos().count() == 1,
-                 'unwatched': request.user.unwatched_videos().count()})
+                 'unwatched': request.user.unwatched_videos().count(),
+                 'task_id': task.task_id})
 
     return info
 
