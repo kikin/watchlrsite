@@ -270,6 +270,9 @@ kikinvideo.HomeViewController = function() {
                         if($(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
                             if(!data.result.liked){
                                 $(LIKED_ICON_ID_PREFIX+vid).removeClass('liked');
+                                if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('not-liked')){
+                                    $(LIKED_ICON_ID_PREFIX+vid).addClass('not-liked');
+                                }
                                 if(data){
                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
                                         $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
