@@ -217,8 +217,12 @@ Pushing Changes to Development Server
 Assuming you have the SSH permissions on dev-video.kikin.com, the following steps illustrate pushing changes
 to the development server.
 
-    git remote add dev ssh://dev-video.kikin.com/opt/video_env/kikinvideo
+Setup:
+    git remote add dev ssh://root@dev-video.kikin.com/opt/video_env/kikinvideo.git
+
+Push procedure:
     git push dev
+    ssh root@dev-video.kikin.com updog
 
 Database Migration
 ------------------
