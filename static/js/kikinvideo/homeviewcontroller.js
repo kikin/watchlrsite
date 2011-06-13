@@ -302,14 +302,6 @@ kikinvideo.HomeViewController = function() {
                                             $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
                                         }
                                     });
-                                    if(activeView == VIEWS.likedQueue){
-                                        $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(1000,function(){
-                                            $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
-                                            if($("."+VIDEO_CONTAINER_CLASS).length == 0){
-                                                populatePanel(VIDEO_PANEL_SELECTOR, LIKED_VIDEOS_CONTENT_URL, {});
-                                            }
-                                        });
-                                    }
                                 }
                             }
                         }
