@@ -926,21 +926,20 @@ a#lnk-page-next:hover {
 
 .video-delete-button.hovered {
     background-image: url(/static/images/x_maroon.png);
-    width: 26px;
-    height: 26px;
+    width: 20px;
+    height: 20px;
 
 }
-
 .video-delete-button.no-hover {
     background-image: url(/static/images/x_grey.png);
-    width: 26px;
-    height: 26px;
+    width: 20px;
+    height: 20px;
 }
 
 .video-delete-button.clicked {
     background-image: url(/static/images/x_red.png);
-    width: 26px;
-    height: 26px;
+    width: 20px;
+    height: 20px;
 }
 
 .heart-container {
@@ -958,8 +957,8 @@ a#lnk-page-next:hover {
 }
 .video-delete-button {
     position: absolute;
-    margin-left: 50px;
-    margin-top: 1px;
+    margin-left: 52px;
+    margin-top: 4px;
 }
 
 .video-buttons {
@@ -1085,4 +1084,13 @@ box-shadow: 10px 10px 5px #888;
     background-color: #000000;
     opacity: 0.2;
     display:none;
+}
+
+.close-button-fancy{
+    position:absolute;
+    top:2px;
+    right:3px;
+    width:15px;
+    height:15px;
+    background-image:url(/static/images/close_button_fancy.png);
 }

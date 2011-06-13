@@ -913,20 +913,20 @@ a#lnk-page-next:hover {
 }
 
 .video-delete-button.hovered {
-    background-image: url(/static/images/x_maroon.png);
+    background-image: url(/static/images/x_maroon_.png);
     width: 26px;
     height: 26px;
 
 }
 
 .video-delete-button.no-hover {
-    background-image: url(/static/images/x_grey.png);
+    background-image: url(/static/images/x_grey_1.png);
     width: 26px;
     height: 26px;
 }
 
 .video-delete-button.clicked {
-    background-image: url(/static/images/x_red.png);
+    background-image: url(/static/images/x_red_.png);
     width: 26px;
     height: 26px;
 }
