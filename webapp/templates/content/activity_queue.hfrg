@@ -1,5 +1,7 @@
 {% load kikinvideo_tags %}
 
+<meta name="queue_item_count" content="{{ activity_items|length }}">
+
 {% for activity_item in activity_items %}
 <div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
     <div class="inner">

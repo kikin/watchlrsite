@@ -161,17 +161,23 @@ def activity_item_heading(activity_item, user):
                 content += ', <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
             else:
                 content += ', <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[1][0].first_name+'</a> '
-            content += ' and ' + str(len(activity_item.users) - 2) + ' others liked...'
+            if len(activity_item.users) - 2 == 1:
+                content += ' and 1 other liked...'
+            else:
+                content += ' and ' + str(len(activity_item.users) - 2) + ' others liked...'
     
     else:
         if len(activity_item.users) == 1:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'
         if len(activity_item.users) == 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
-            content += 'and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> like...'
+            content += 'and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> liked...'
         elif len(activity_item.users) > 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
-            content += 'and ' + str(len(activity_item.users) - 1) + 'others liked...'
+            if len(activity_item.users) - 2 == 1:
+                content += ' and 1 other liked...'
+            else:
+                content += 'and ' + str(len(activity_item.users) - 1) + 'others liked...'
     return content
 
 @register.filter
