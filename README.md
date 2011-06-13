@@ -222,7 +222,7 @@ Setup:
 
 Push procedure:
     git push dev
-    ssh root@dev-video.kikin.com updog
+    ssh root@dev-video.kikin.com /root/bin/updog
 
 Database Migration
 ------------------
