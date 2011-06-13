@@ -1,3 +1,8 @@
+/*
+*  Logic for UI components common to all (or many) views in the application, such as the
+* "settings" dialog through which users can edit their account settings, and the floating
+* video embed container.
+* */
 $(document).ready(
         function(){
 
@@ -88,7 +93,6 @@ $(document).ready(
                 var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
                 var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
 
-                /*for nice expando effect...*/
                 var video_player_target_width = video_player_div.width();
                 var video_player_target_height = video_player_div.height();
 
@@ -129,6 +133,8 @@ $(document).ready(
                     $(VIDEO_PLAYER_BG_SELECTOR).remove();
                 });
                 video_player_div.fadeOut();
+
+                /*restore the "play" button to the video thumb...*/
                 if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
                     $(VIDEO_BUTTON_ID_PREFIX + vid).addClass(VIDEO_BUTTON_CLASS)
                 }
@@ -136,6 +142,7 @@ $(document).ready(
 
             function handleProfileEditPanelOpen(){
 
+                /*grey overlay for all content outside of edit dialog*/
                 $('body').prepend(GREYED_BACKGROUND_ELEMENT);
 
                 $.get(PROFILE_EDIT_URL, function(data) {
