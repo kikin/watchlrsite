@@ -207,9 +207,8 @@ a:hover {
 /* Layout */
 
 #wrapper {
-    margin: 70px auto;
-    text-align: left;
-    max-width: 800px;
+    width:100%;
+    text-align: center;
 }
 
 .section-title {
@@ -224,7 +223,7 @@ a:hover {
 
 #content {
     padding: 0;
-    width: 800px;
+    width: 1000px;
     margin-left: auto;
     margin-right: auto;
     min-height: 300px;
@@ -256,6 +255,9 @@ a:hover {
 }
 
 #video-section {
+    width:1000px;
+    margin-left: auto;
+    margin-right: auto;
     padding-top: 15px;
     padding-bottom: 15px;
 }
@@ -263,6 +265,7 @@ a:hover {
 #videoList{
     background-color: #FFFFFF;
     border-radius: 8px;
+    -moz-border-radius: 8px;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     width:680px;
@@ -281,15 +284,13 @@ a:hover {
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
     text-align:center;
-    margin-left:auto;
-    margin-right:auto;
+    margin-left:0px;
 }
 
 ul.navigation { 
     width:700px; 
-    margin-left:auto;
-    margin-right:auto;
-    padding-left:10px;
+    margin-left:0px;
+    padding-left:5px;
    /* margin: 0px auto 0px auto;
     padding-left: 5px;*/
 }
