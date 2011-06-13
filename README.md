@@ -229,7 +229,12 @@ Initial run (make sure that your schema and models are up-to-date before you run
 
     python manage.py migrate api 0001 --fake
 
-Subsequent runs (i.e., in case the data model changed):
+In case you change the model:
+
+    python manage.py schemamigration api --auto
+
+Remember to add the created file (api/migrations/<seq#>_auto_<change_description>.py to git.
+
+Applying migrations:
 
     python manage.py migrate api
-

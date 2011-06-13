@@ -13,7 +13,7 @@ import gdata.youtube
 import gdata.youtube.service
 from gdata.service import RequestError
 
-from celery.decorators import task
+from celery.task import task
 from celery.task.sets import subtask
 from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
@@ -1097,15 +1097,26 @@ _facebook_fetcher = FacebookFetcher(_fetchers)
 
 _fetcher = OEmbed([_facebook_fetcher] + _fetchers)
 
-@task
+@task(max_retries=5, default_retry_delay=300)
 def fetch(user_id, url, host, callback=None):
-    video = _fetcher.fetch(user_id, url, host, fetch.get_logger())
-    if callback is not None:
-        subtask(callback).delay(video)
+    try:
+        video = _fetcher.fetch(user_id, url, host, fetch.get_logger())
+        if callback is not None:
+            subtask(callback).delay(video)
 
+    except UrlNotSupported:
+        pass
+
+    except Exception, exc:
+        fetch.retry(exc)
 
 @task
 def push_like_to_fb(video, user):
+    def encode(text):
+        if isinstance(text, unicode):
+            return text.encode('utf-8')
+        return text
+
     logger = push_like_to_fb.get_logger()
 
     if not user.preferences()['syndicate'] == 1:
@@ -1118,9 +1129,9 @@ def push_like_to_fb(video, user):
               'link': '%s/%s' % (server_name, video.get_absolute_url()),
               'caption': server_name,
               'picture': video.get_thumbnail().url,
-              'name': video.title,
-              'description': video.description,
-              'message': 'likes \'%s\'' % video.title}
+              'name': encode(video.title),
+              'description': encode(video.description),
+              'message': 'likes \'%s\'' % encode(video.title)}
 
     url = 'https://%s/me/feed' % FACEBOOK_SERVER
     try:
