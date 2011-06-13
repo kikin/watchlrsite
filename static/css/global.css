@@ -919,9 +919,10 @@ a#lnk-page-next:hover {
 }
 
 .heart-container.liked.hovered {
-    background-image: url(/static/images/heart_red.png);
-    width: 26px;
+    background-image: url(/static/images/heart_broken.png);
+    width: 34px;
     height: 26px;
+    margin-left: -6px;
 }
 
 .video-delete-button.hovered {
