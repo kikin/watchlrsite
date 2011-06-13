@@ -152,7 +152,23 @@ def plugin_pitch(request):
 def activity(request):
     if request.user.is_authenticated():
         user = request.user
+        if 'start' in request.GET and 'count' in request.GET:
+            try:
+                all_activity_items = user.activity()
+                start_index = int(request.GET['start'])
+                end_index = start_index + int(request.GET['count'])
+                if len(all_activity_items) >= end_index:
+                    vid_subset = all_activity_items[start_index:end_index]
+                elif start_index < len(all_activity_items) and end_index >= len(all_activity_items):
+                    vid_subset = all_activity_items[start_index:]
+                else:
+                    vid_subset = []
+            except Exception, e:
+                #means url was malformed...
+                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+        else:
+            vid_subset = request.user.activity()
         return render_to_response('content/activity_queue.hfrg', \
-                {'user':user, 'settings':settings,'activity_items':user.activity()},\
+                {'user':user, 'settings':settings,'activity_items':vid_subset},\
                                         context_instance=RequestContext(request))
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
