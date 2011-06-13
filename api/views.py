@@ -24,8 +24,10 @@ def require_authentication(f):
 
         if not user.is_authenticated():
             # Clients can send session key as a request parameter
+            querydict = request.GET if request.method == 'GET' else request.POST
+
             try:
-                session_key = request.GET['session_id']
+                session_key = querydict['session_id']
                 session = Session.objects.get(pk=session_key)
             except (KeyError, Session.DoesNotExist):
                 raise Unauthorized()
@@ -114,9 +116,9 @@ def as_dict(obj):
         except Thumbnail.DoesNotExist:
             thumbnail = None
 
-        if obj.source is not None:
+        try:
             source = as_dict(obj.source)
-        else:
+        except Source.DoesNotExist:
             source = None
 
         return {'id': obj.id,
@@ -412,11 +414,13 @@ class InvalidUsername(ApiError):
 
 @csrf_exempt
 @json_view
+@require_authentication
+@require_http_methods(['GET', 'POST'])
 def profile(request):
     '''
     Fetch and/or update user profile.
 
-    To update profile, make a POST request with one or more of the following parameters:
+    To update profile, make a GET/POST request with one or more of the following parameters:
         username, email, notifications, preferences
     notifications and preferences should be JSON serialized objects (like in the Fetch response).
 
@@ -430,16 +434,14 @@ def profile(request):
 
     user = request.user
 
-    if not user.is_authenticated():
-        raise Unauthorized()
+    querydict = request.POST if request.method == 'POST' else request.GET
 
-    if request.method == 'POST':
-        if any([request.POST.get(p) for p in ('username', 'email', 'notifications', 'preferences')]):
-            logger.info('Updating profile for user:%s, params:%s' % (request.user.id, str(request.POST)))
+    if querydict and not querydict.keys() == ['session_id']:
+        logger.info('Updating profile for user:%s, params:%s' % (user.username, str(querydict)))
 
         try:
-            username = slugify(request.POST['username'], user.id)
-            if not username == request.POST['username']:
+            username = slugify(querydict['username'], user.id)
+            if not username == querydict['username']:
                 raise InvalidUsername(username)
             user.username = username
         except KeyError:
@@ -447,19 +449,19 @@ def profile(request):
 
         try:
             # TODO: Email address validation
-            user.email = request.POST['email']
+            user.email = querydict['email']
         except KeyError:
             pass
 
         try:
-            user.set_notifications(loads(request.POST['notifications']))
+            user.set_notifications(loads(querydict['notifications']))
         except KeyError:
             pass
         except (TypeError, ValueError, Notification.DoesNotExist):
             raise BadRequest('Parameter:notifications malformed')
 
         try:
-            user.set_preferences(loads(request.POST['preferences']))
+            user.set_preferences(loads(querydict['preferences']))
         except KeyError:
             pass
         except (TypeError, ValueError, Preference.DoesNotExist):
