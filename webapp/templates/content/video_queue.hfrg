@@ -38,7 +38,7 @@
                 {% endif %}
 
                 {% if display_mode == 'saved' %}
-                <a href="#!/remove?vid={{ video.id }}" title="remove">
+                <a href="#!/remove?vid={{ video.id }}" title="remove from queue">
                     <div class="video-delete-button no-hover"></div>
                 </a>
                 {% endif %}
@@ -120,6 +120,9 @@
             {% if video.html_embed_code %}
 
             <div class="video-player" id="video-player-{{ video.id }}">
+                <a href="#!/close_player?vid={{ video.id }}">
+                    <div class="close-button-fancy"></div>
+                </a>
                 <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
 
                 <div  class="video-embed-wrapper" id="video-embed-wrapper-{{ video.id }}">
@@ -134,6 +137,9 @@
             <div class="videoplayerContainer">
                 <div class="video-player" id="video-player-{{ video.id }}"
                         style="background-color:#DEDEDE;font-size:16px;">
+                    <a href="#!/close_player?vid={{ video.id }}">
+                        <div class="close-button-fancy"></div>
+                    </a>
                     <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
                         <div class="video-no-embed-link">
                             The host of the video you have selected requests that

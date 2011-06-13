@@ -76,11 +76,11 @@
 
                 {% if activity_item.video not in user.saved_videos %}
                 <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
-                    <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover"></div>
+                    <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover" title="save to your queue"></div>
                 </a>
                 {% else %}
                 <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
-                    <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button saved no-hover"></div>
+                    <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button saved no-hover" title="saved"></div>
                 </a>
                 {% endif %}
         </div>
@@ -88,6 +88,9 @@
         {% if activity_item.video.html_embed_code %}
 
             <div class="video-player" id="video-player-{{ activity_item.video.id }}">
+                    <a href="#!/close_player?vid={{ activity_item.video.id }}">
+                        <div class="close-button-fancy"></div>
+                    </a>
                 <div class='video-embed-container' id="video-embed-container-{{ activity_item.video.id }}">
 
                     <div  class="video-embed-wrapper" id="video-embed-wrapper-{{ activity_item.video.id }}">
@@ -102,6 +105,9 @@
             <div class="videoplayerContainer">
                 <div class="video-player" id="video-player-{{ activity_item.video.id }}"
                      style="background-color:#DEDEDE;font-size:16px;">
+                    <a href="#!/close_player?vid={{ activity_item.video.id }}">
+                        <div class="close-button-fancy"></div>
+                    </a>
                     <div class='video-embed-container' id="video-embed-container-{{ activity_item.video.id }}">
                         <div class="video-no-embed-link">
                             The host of the video you have selected requests that
