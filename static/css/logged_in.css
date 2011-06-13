@@ -1,0 +1,63 @@
+.right-panel{
+    position:absolute;
+    width:280px;
+    margin-left:720px;
+    margin-top:14px;
+}
+
+.suggested-followees{
+    font-family: Arial;
+    background-color: #ffffff;
+    text-align: left;
+}
+
+.suggested-followees.title
+{
+    font-size: 18px;
+    border-bottom: 1px solid #000000;
+}
+
+.suggested-followee-item{
+    width:280px;
+    border-bottom: 1px solid #000000;
+    height:50px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.suggested-followee-item a{
+    color:#86cfec;
+}
+
+.suggested-followees.profile-link-container{
+    position:absolute;
+    width:160px;
+    font-size: 15px;
+    margin-left: 80px;
+    margin-top:14px;
+}
+
+
+.follow-button{
+    position:absolute;
+    margin-top:8px;
+    margin-left: 200px;
+    width:80px;
+    height:24px;
+    -webkit-border-radius:6px;
+    color:#ffffff;
+    background-color:#0c536f;
+    font-family: Arial;
+    font-size:14px;
+    font-weight: 800;
+    text-align:center;
+    padding-top:6px;
+}
+
+.follow-button:hover{
+    background-color: #4ab7e3;
+}
+
+.follow-button-link{
+    text-decoration:none;
+}

@@ -1,4 +1,10 @@
 {% extends "user_home.html" %}
+{% load kikinvideo_tags %}
+{% block style_refs %}
+    <link rel="stylesheet" href="{{ settings.STATIC_URL }}video_player/video-js.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+    <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/activity_queue.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+    <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/logged_in.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+{% endblock style_refs %}
 
 {% block script_refs %}
     <script type="text/javascript" src="{{ settings.STATIC_URL }}video_player/video.js"></script>
@@ -7,6 +13,7 @@
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/util/String.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/util/plugindetect.js"></script>
+    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/userprofile.js"></script>
 
     <script type="text/javascript">
     $(document).ready(function(){
@@ -15,3 +22,38 @@
     </script>
 
 {% endblock script_refs %}
+
+{% block right_panel %}
+    <div class="right-panel">
+    {% if not suggested_followees|length_is:0 %}
+    <div class="suggested-followees">
+        <div class="suggested-followees title">
+            People You May Know
+        </div>
+            {% for kv_user in suggested_followees %}
+                <div class="suggested-followee-item">
+                    <a href="/{{ kv_user.username }}">
+                        <div class="fb-thumb-wrapper">
+                            <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
+                        </div>
+                    </a>
+                    <div class="suggested-followees profile-link-container">
+                        <a href="{{ kv_user.username }}">
+                            {{ kv_user|full_name|truncate_text:17 }}
+                        </a>
+                    </div>
+                    <a href="#!/follow?user={{ kv_user.id }}" id="follow-link-user-{{ kv_user.id }}" class="follow-button-link">
+                        <div id="follow-button-user-{{ kv_user.id }}" class="follow-button" class='shadow-5l'>Follow</div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('#video-section').css({width:'700px', marginLeft:'auto', marginRight:'auto'});
+            })
+        </script>
+    {% endif %}
+    </div>
+{% endblock right_panel %}
