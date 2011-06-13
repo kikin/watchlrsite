@@ -217,8 +217,12 @@ Pushing Changes to Development Server
 Assuming you have the SSH permissions on dev-video.kikin.com, the following steps illustrate pushing changes
 to the development server.
 
-    git remote add dev ssh://dev-video.kikin.com/opt/video_env/kikinvideo
+Setup:
+    git remote add dev ssh://root@dev-video.kikin.com/opt/video_env/kikinvideo.git
+
+Push procedure:
     git push dev
+    ssh root@dev-video.kikin.com /root/bin/updog
 
 Database Migration
 ------------------
@@ -229,7 +233,12 @@ Initial run (make sure that your schema and models are up-to-date before you run
 
     python manage.py migrate api 0001 --fake
 
-Subsequent runs (i.e., in case the data model changed):
+In case you change the model:
+
+    python manage.py schemamigration api --auto
+
+Remember to add the created file (api/migrations/<seq#>_auto_<change_description>.py to git.
+
+Applying migrations:
 
     python manage.py migrate api
-
