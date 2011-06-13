@@ -23,56 +23,55 @@
     <meta name="profile_subject" content="{{ profile_owner.id }}"/>
     <div id="user-info-container" class="shadow-5l">
     <div class="user-info gradient"></div>
-    <img src="{{ settings.STATIC_URL }}images/profile/left_fold.png" id="left-fold"/>
-				<div class="inner">
-                    <div id="facebook-img" class="shadow-5l" style="background-image:url('https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=normal');"></div>
-					<div id="username-display">
-							<div class="primary">
-								{{ profile_owner.username }}
-							</div>
-							<div class="sub">
-								({{ profile_owner.first_name }} {{ profile_owner.last_name }})
-							</div>
-						<div class="profile-basic-statistics" style="left:160px;">
-							{{ profile_owner|total_liked_videos }}
-							<div class="profile-basic-statistics-sub">
-							Liked<br>videos
-							</div>
-						</div>
-						<div class="profile-basic-statistics with-breakers" style="left:250px;">
-                            <div id="follower-count-user-{{ profile_owner.id }}">
-							{{ profile_owner.followers|length }}
-                            </div>
-							<div class="profile-basic-statistics-sub" style="margin-top:10px;">
-							Followers
-							</div>
-						</div>
-                        <div class="profile-basic-statistics" style="left:365px;">
-							{{ profile_owner.following|length }}
-							<div class="profile-basic-statistics-sub">
-							Followed<br>users
-							</div>
-						</div>
-                        {% if not is_own_profile %}
-                            {% if profile_owner in user.following %}
-                                <a href="#!/unfollow?user={{ profile_owner.id }}" id="follow-link-user-{{ profile_owner.id }}">
-                                    <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Unfollow</div>
-                                </a>
-                            {% else %}
-                                {% if not user.is_authenticated %}
-                                <a href="javascript:alert('you must register an account with Kikin Video before you can follow users');">
-                                    <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
-                                </a>
-                                {% else %}
-                                <a href="#!/follow?user={{ profile_owner.id }}" id="follow-link-user-{{ profile_owner.id }}">
-                                    <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
-                                </a>
-                                {% endif %}
-                            {% endif %}
+        <div class="inner">
+            <div id="facebook-img" class="shadow-5l" style="background-image:url('https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=normal');"></div>
+            <div id="username-display">
+                    <div class="primary">
+                        {{ profile_owner.username }}
+                    </div>
+                    <div class="sub">
+                        ({{ profile_owner.first_name }} {{ profile_owner.last_name }})
+                    </div>
+                <div class="profile-basic-statistics" style="left:160px;">
+                    {{ profile_owner|total_liked_videos }}
+                    <div class="profile-basic-statistics-sub">
+                    Liked<br>videos
+                    </div>
+                </div>
+                <div class="profile-basic-statistics with-breakers" style="left:250px;">
+                    <div id="follower-count-user-{{ profile_owner.id }}">
+                    {{ profile_owner.followers|length }}
+                    </div>
+                    <div class="profile-basic-statistics-sub" style="margin-top:10px;">
+                    Followers
+                    </div>
+                </div>
+                <div class="profile-basic-statistics" style="left:365px;">
+                    {{ profile_owner.following|length }}
+                    <div class="profile-basic-statistics-sub">
+                    Followed<br>users
+                    </div>
+                </div>
+                {% if not is_own_profile %}
+                    {% if profile_owner in user.following %}
+                        <a href="#!/unfollow?user={{ profile_owner.id }}" id="follow-link-user-{{ profile_owner.id }}">
+                            <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Unfollow</div>
+                        </a>
+                    {% else %}
+                        {% if not user.is_authenticated %}
+                        <a href="javascript:alert('you must register an account with Kikin Video before you can follow users');">
+                            <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
+                        </a>
+                        {% else %}
+                        <a href="#!/follow?user={{ profile_owner.id }}" id="follow-link-user-{{ profile_owner.id }}">
+                            <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
+                        </a>
+                        {% endif %}
                     {% endif %}
-					</div>
-				</div>
-			</div>
+            {% endif %}
+            </div>
+        </div>
+    </div>
     <div id="videoListWrapper">
     <div id="videoList">
     {% for video in videos %}
