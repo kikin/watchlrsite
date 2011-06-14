@@ -889,6 +889,8 @@ a#lnk-page-next:hover {
 }
 
 .heart-container {
+    float:right;
+    margin-right: 8px;
     background-image: url(/static/images/heart_grey.png);
     width: 26px;
     height: 26px;
@@ -944,38 +946,33 @@ a#lnk-page-next:hover {
     height: 20px;
 }
 
-.heart-container {
-    position: absolute;
-    margin-left: 17px;
-    margin-top: 0px;
-}
-
 .heart-container.liked.hovered {
+    float:right;
+    margin-right:4px;
     background-image: url(/static/images/heart_broken.png);
     width: 34px;
     height: 26px;
-    margin-left: 13px;
 }
 
 .video-liked-info{
-    position:absolute;
+    float:right;
+    margin-right:4px;
     height:26px;
     font-size:26px;
-    margin-left:-5px;
-    padding-top:1.5px;
+    margin-top: 1.5px;
     font-weight:800;
     color:red;
 }
 .video-delete-button {
-    position: absolute;
-    margin-left: 52px;
+    float:right;
+   /* margin-left: 52px;*/
     margin-top: 4px;
 }
 
 .video-buttons {
     position:absolute;
-    margin-left:572px;
-    width: 110px;
+    margin-left:565px;
+    width: 90px;
     height: 34px;
 }
 
@@ -984,8 +981,8 @@ a#lnk-page-next:hover {
 }
 
 .save-video-button{
-    position:absolute;
-    margin-left:54px;
+    float: right;
+   /* margin-left:54px;*/
     margin-top:0px;
 }
 .save-video-button.not-saved.no-hover{
