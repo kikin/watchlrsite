@@ -1,5 +1,4 @@
 {% if video.html_embed_code %}
-
     <div class="video-player" id="video-player-{{ video.id }}">
         <a href="#!/close_player?vid={{ video.id }}">
             <div class="close-button-fancy"></div>
