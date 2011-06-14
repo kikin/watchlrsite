@@ -363,4 +363,6 @@ kikinvideo.HomeViewController = function() {
 $(document).ready(function(){
     var homeViewController = new kikinvideo.HomeViewController();
     homeViewController.onHashChange(window.location.hash);
+
+	kikinvideo.util.CSSHelper.addCSSBodyClass();
 });

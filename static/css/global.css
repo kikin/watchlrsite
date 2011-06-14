@@ -950,9 +950,12 @@ a#lnk-page-next:hover {
     margin-right:4px;
     height:26px;
     font-size:26px;
-    margin-top: 1.5px;
     font-weight:800;
     color:red;
+	margin-top:-1px;
+}
+.mozilla .video-liked-info{
+    margin-top:3px;
 }
 .video-delete-button {
     float:right;
