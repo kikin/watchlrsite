@@ -282,18 +282,19 @@ def add(request):
 
         user_video = UserVideo(user=request.user, video=video)
 
+        # Fetch video metadata in background
+        task = fetch.delay(request.user.id, normalized_url, user_video.host)
+        video.task_id = task.task_id
+
     user_video.saved = True
     user_video.saved_timestamp = datetime.utcnow()
     user_video.host = request.META.get('HTTP_REFERER')
     user_video.save()
 
-    # Fetch video metadata in background
-    task = fetch.delay(request.user.id, normalized_url, user_video.host)
-
     info = as_dict(user_video)
     info.update({'first': request.user.saved_videos().count() == 1,
                  'unwatched': request.user.unwatched_videos().count(),
-                 'task_id': task.task_id})
+                 'task_id': user_video.video.task_id})
 
     return info
 
