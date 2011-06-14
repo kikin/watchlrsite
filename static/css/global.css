@@ -951,9 +951,10 @@ a#lnk-page-next:hover {
 
 .video-liked-info{
     position:absolute;
-    font-size:25px;
+    height:26px;
+    font-size:26px;
     margin-left:-5px;
-    margin-top:3px;
+    padding-top:1.5px;
     font-weight:800;
     color:red;
 }
