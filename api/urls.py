@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls.defaults import patterns
 
 urlpatterns = patterns(
     'api',
@@ -17,5 +17,5 @@ urlpatterns = patterns(
     (r'^auth/swap/(?P<facebook_id>[0-9]+)$', 'views.swap'),
     (r'^follow/(?P<other>[a-zA-Z0-9]+)$', 'views.follow'),
     (r'^unfollow/(?P<other>[a-zA-Z0-9]+)$', 'views.unfollow'),
-    (r'^activity', 'views.activity')
+    (r'^activity', 'views.activity'),
 )
