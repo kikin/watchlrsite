@@ -1,5 +1,6 @@
 *.pyc
 *.swp
+*.orig
 .idea
 error.log
 scripts/

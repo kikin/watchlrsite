@@ -7,6 +7,7 @@ from kikinvideo.api.models import Video, User, Preference
 
 ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you have requested"
 MALFORMED_URL_MESSAGE = 'Error: malformed URL supplied to host'
+NUM_SUGGESTED_FOLLOWEES = 8
 
 def login_complete(request):
     # Client requires that we pass in a Set-Kke header with session key so as to persist it
@@ -21,9 +22,13 @@ def login_complete(request):
 
 def home(request):
     if request.user.is_authenticated():
-        all_users = list(User.objects.all())
+
         #perhaps in the near future this can be done at the db query level, but for now...
-        suggested_followees = [x for x in all_users if x not in request.user.following() and x != request.user][:8]
+        all_users = list(User.objects.all())
+		#num of suggested followees
+        suggested_followees = [x for x in all_users if x not in request.user.following()\
+ 										and x != request.user][:NUM_SUGGESTED_FOLLOWEES]
+
         return render_to_response('logged_in.html', {'settings': settings, 'suggested_followees':suggested_followees},\
                                   context_instance=RequestContext(request))
     else:
