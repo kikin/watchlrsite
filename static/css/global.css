@@ -918,13 +918,6 @@ a#lnk-page-next:hover {
     height: 26px;
 }
 
-.heart-container.liked.hovered {
-    background-image: url(/static/images/heart_broken.png);
-    width: 34px;
-    height: 26px;
-    margin-left: -6px;
-}
-
 .video-delete-button.hovered {
     background-image: url(/static/images/x_maroon.png);
     width: 20px;
@@ -945,14 +938,22 @@ a#lnk-page-next:hover {
 
 .heart-container {
     position: absolute;
-    margin-left: 0px;
+    margin-left: 17px;
     margin-top: 0px;
 }
+
+.heart-container.liked.hovered {
+    background-image: url(/static/images/heart_broken.png);
+    width: 34px;
+    height: 26px;
+    margin-left: 13px;
+}
+
 .video-liked-info{
     position:absolute;
-    font-size:28px;
-    margin-left:31px;
-    margin-top:2px;
+    font-size:25px;
+    margin-left:-5px;
+    margin-top:3px;
     font-weight:800;
     color:red;
 }
