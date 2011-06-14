@@ -114,7 +114,7 @@ class Video(models.Model):
     def get_absolute_url(self):
         return ('video_detail', [str(self.id)])
 
-    def state(self):
+    def status(self):
         return default_app.backend.get_status(self.task_id)
 
 
