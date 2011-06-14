@@ -139,30 +139,8 @@
 
                 <br style="clear:both;"/>
 
-                {% if video.html_embed_code or video.html5_embed_code %}
+            {% video_player video %}
 
-                <div class="video-player" id="video-player-{{ video.id }}">
-                    <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                    {% autoescape off %}
-                        {{ video.html_embed_code }}
-                    {% endautoescape %}
-                    </div>
-                </div>
-
-                {% else %}
-
-                <div class="video-player" id="video-player-{{ video.id }}"
-                        style="background-color:#DEDEDE;font-size:16px;">
-                    <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                        <div class="video-no-embed-link">
-                            The host of the video you have selected requests that
-                            you access it at<br>
-                            <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
-                        </div>
-                    </div>
-                </div>
-
-                {% endif %}
             </div>
         </div>
     {% endfor %}
