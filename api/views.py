@@ -119,7 +119,9 @@ def as_dict(obj):
             thumbnail = None
 
         try:
-            source = as_dict(obj.source)
+            source = obj.source
+            if source is not None:
+                source = as_dict(source)
         except Source.DoesNotExist:
             source = None
 
