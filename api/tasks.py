@@ -872,8 +872,7 @@ class FacebookFetcher(object):
             try:
                 logger.debug('Forwarding metadata fetched for url:%s by fetcher:%s' %\
                              (url, str(fetcher)))
-                meta = fetcher.fetch(url, **kwargs)
-                return meta
+                return fetcher.fetch(url, logger, **kwargs)
             except UrlNotSupported:
                 pass
         else:
@@ -895,12 +894,12 @@ class FacebookFetcher(object):
         # Facebook sometimes does this for facebook-videos!
         if not response:
             fb_url = self.EMBEDLY_FACEBOOK_URL % match.group(1)
-            meta = self.forward(fb_url, **kwargs)
+            meta = self.forward(fb_url, logger, **kwargs)
 
         else:
             # Link to original video?
             try:
-                meta = self.forward(response['link'])
+                meta = self.forward(response['link'], logger)
 
             except KeyError:
                 meta = dict()
@@ -1108,7 +1107,7 @@ def fetch(user_id, url, host, callback=None):
         pass
 
     except Exception, exc:
-        fetch.retry(exc)
+        fetch.retry(exc=exc)
 
 @task
 def push_like_to_fb(video, user):
