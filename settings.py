@@ -14,6 +14,14 @@ ADMINS = (
 MANAGERS = ADMINS
 
 database_configurations = {
+    'prod': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kikinvideo',
+        'USER': 'webapp',
+        'PASSWORD': 'savemore',
+        'HOST': '',
+        'PORT': '',
+        },
     'dev': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'kikinvideo',
