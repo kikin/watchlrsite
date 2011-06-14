@@ -543,9 +543,9 @@ def list(request):
 @require_authentication
 def seek(request, video_id, position):
     try:
-        user_video = UserVideo.objects.filter(user=request.user, video__id=video_id)
+        user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
     except UserVideo.DoesNotExist:
-        raise BadRequest('')
+        raise BadRequest('Video:%s invalid for user:%s' % (request.user.id, video.id))
 
     user_video.position = Decimal(position)
     user_video.save()
