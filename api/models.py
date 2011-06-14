@@ -104,6 +104,10 @@ class Video(models.Model):
     def date_liked(self, user):
         return UserVideo.objects.get(video=self, user=user).liked_timestamp
 
+    #list of all users who have liked video...
+    def all_likers(self):
+        return UserVideo.objects.filter(video=self, liked=True).values_list('user', flat=True)
+
     @models.permalink
     def get_absolute_url(self):
         return ('video_detail', [str(self.id)])

@@ -40,7 +40,7 @@
     padding-right: 50px;
 }
 
-#facebook-img
+#facebook-img-container
 {
     position:absolute;
 	width:100px;
@@ -52,8 +52,8 @@
     border-radius: 8px;
 }
 
-facebook-img-holder{
-    
+facebook-img{
+    width: 100%;
 }
 
 #username-display

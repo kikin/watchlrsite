@@ -183,3 +183,7 @@ def activity_item_heading(activity_item, user):
 @register.filter
 def full_name(user):
     return user.first_name + ' ' + user.last_name
+
+@register.inclusion_tag('content/video_player.hfrg')
+def video_player(video):
+    return { 'video' : video }

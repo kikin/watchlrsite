@@ -1,6 +1,6 @@
 .activity-queue-item {
     width:100%;
-    min-height:260px;
+    min-height:248px;
     border-bottom: 1px solid #cccccc;
     padding-top:20px;
     padding-bottom:10px;
@@ -11,8 +11,8 @@
 }
 
 .activity-queue-item .video-image{
-    margin-left:85px;
-    margin-top:86px;
+    margin-left:81px;
+    margin-top:68px;
 }
 
 .fb-thumb-wrapper{
@@ -24,7 +24,6 @@
     position: absolute;
     width:400px;
     margin-left: 80px;
-    margin-top:18px;
     font-size:16px;
 }
 
@@ -36,15 +35,15 @@
     padding-bottom: 5px;
     width: 450px;
     margin-left: 80px;
-    margin-top:45px;
+    margin-top:27px;
 }
 
 .activity-queue-video-description{
     position:absolute;
     width:280px;
     height:120px;
-    margin-left: 310px;
-    margin-top:88px;
+    margin-left: 304px;
+    margin-top:70px;
 }
 
 .video-source-info{
