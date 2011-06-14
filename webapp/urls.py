@@ -14,7 +14,7 @@ urlpatterns = patterns('webapp',
                        #any root-level urls must be defined here, ABOVE
                        #the public_profile view url routing rule...
                        #ex. (r'^about', 'views.about'),
-                       (r'^(?P<username>[a-zA-Z0-9]+)$', 'views.public_profile'),
+                       (r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile'),
                        (r'^content/plugin_pitch', 'views.plugin_pitch'),
                        )
 
