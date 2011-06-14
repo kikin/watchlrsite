@@ -14,6 +14,8 @@ from django.dispatch import receiver
 import logging
 logger = logging.getLogger(__name__)
 
+from celery.app import default_app
+
 
 # Value indicates if the notification message has been displayed and archived by user
 DEFAULT_NOTIFICATIONS = {
@@ -111,6 +113,9 @@ class Video(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('video_detail', [str(self.id)])
+
+    def status(self):
+        return default_app.backend.get_status(self.task_id)
 
 
 class Thumbnail(models.Model):
