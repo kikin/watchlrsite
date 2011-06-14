@@ -24,7 +24,7 @@
                     <img src="{{ activity_item.video|source_icon }}" style="width:16px;height:16px;"/>
                     </a>
                     &bull;
-                    <a href="{{ activity_item.video.source.url }}" target="_blank">Source</a>
+                    <a href="{{ activity_item.video.url }}" target="_blank">source</a>
                 </div>
             </div>
          </div>
