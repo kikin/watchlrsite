@@ -96,18 +96,30 @@ $(document).ready(
                 var video_player_target_width = video_player_div.width();
                 var video_player_target_height = video_player_div.height();
 
-                $(VIDEO_PLAYER_ID_PREFIX+vid).css({height:0, display:'block'});
+                video_player_div.css({top:'50%', 'margin-top':
+                        (video_player_div.height()*-.5)-30});
 
                 video_embed_div.hide();
 
-                video_player_div.animate({width:video_player_target_width, height:video_player_target_height}, 500,
-                    function(){
-                        video_embed_div.show();
-                    });
 
+                $('body').prepend(VIDEO_PLAYER_BG_HTML);
+                $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none'});
+                $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
+                video_player_div.fadeIn(100);
+
+                video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
+
+                video_player_div.fadeIn(500, function(){
+                    var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
+                    video_embed_div.show();
+                    /*close video player on click outside its container....*/
+                    $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
+                        window.location.hash = "!" + VIDEO_PLAYER_CLOSE_PATH + "?vid="+vid
+                    });
+                });
                 //scroll to the video...
                 $('html, body').animate({
-                    scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top+20
+                    scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-250
                 }, 1000);
 
                 current_vid = vid;
