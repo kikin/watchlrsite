@@ -82,10 +82,9 @@
                 </a>
                 {% endif %}
         </div>
-
-        {% video_player activity_item.video %}
-
     </div>
-
 </div>
+    <div id="video-player-container" style="margin-top:40px;">
+            {% video_player activity_item.video %}
+    </div>
 {% endfor %}

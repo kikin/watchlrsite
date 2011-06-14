@@ -1095,9 +1095,9 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .close-button-fancy{
-    position:absolute;
-    top:-13px;
-	right:15px;
+    float:right;
+    margin-top:-22px;
+    margin-right: -22px;
     width:30px;
     height:30px;
     background:url(/static/images/fancybox.png) no-repeat -40px 0px;
