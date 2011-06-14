@@ -46,17 +46,27 @@
           </a>
 
         <div class="video-buttons" style="margin-top: 10px;">
-            {% if display_mode == 'profile' %}
-            <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
-                <div class="save-video-button no-hover"></div>
-            </a>
-            {% endif %}
 
-            {% if display_mode == 'saved' %}
-            <a href="#!/remove?vid={{ activity_item.video.id }}" title="remove">
-                <div class="video-delete-button no-hover"></div>
-            </a>
-            {% endif %}
+
+                {% if activity_item.video not in user.saved_videos %}
+                <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
+                    <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover" title="save to your queue"></div>
+                </a>
+                {% endif %}
+
+                {% if display_mode == 'profile' %}
+                <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
+                    <div class="save-video-button no-hover"></div>
+                </a>
+                {% endif %}
+
+                <a href="#!/like?vid={{ activity_item.video.id }}">
+                {% if activity_item.video in user.liked_videos %}
+                    <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
+                {% else %}
+                    <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
+                {% endif %}
+                </a>
 
                 {% if activity_item.video in user.liked_videos %}
                 <div class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
@@ -67,20 +77,6 @@
                     {{ activity_item.video.total_likes }}
                 </div>
                 {%  endif %}
-
-                <a href="#!/like?vid={{ activity_item.video.id }}">
-                {% if activity_item.video in user.liked_videos %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
-                {% else %}
-                    <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
-                {% endif %}
-                </a>
-
-                {% if activity_item.video not in user.saved_videos %}
-                <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
-                    <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover" title="save to your queue"></div>
-                </a>
-                {% endif %}
         </div>
 
         {% video_player activity_item.video %}
