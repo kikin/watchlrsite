@@ -37,7 +37,7 @@ database_configurations = {
 }
 
 # Picks up database configuration from environment variable
-active_db = os.environ.get('VIDEO_ENV', 'local_sqlite')
+active_db = os.environ.get('VIDEO_ENV', 'local')
 
 DATABASES = { 'default': database_configurations[active_db] }
 
