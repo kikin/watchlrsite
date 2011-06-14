@@ -15,8 +15,6 @@ from json import loads, dumps
 from decimal import Decimal
 from datetime import datetime
 
-from celery.app import default_app
-
 import logging
 logger = logging.getLogger('kikinvideo')
 
@@ -133,7 +131,7 @@ def as_dict(obj):
                 'source': source,
                 'saves': UserVideo.save_count(obj),
                 'likes': UserVideo.like_count(obj),
-                'state': default_app.backend.get_status(obj.task_id)}
+                'state': obj.status()}
 
     raise Exception('Unknown type:%s' % type(obj))
 
