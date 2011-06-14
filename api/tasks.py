@@ -19,7 +19,7 @@ from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
 from social_auth.backends.facebook import FACEBOOK_SERVER
 
-from api.models import Video, Thumbnail, Source as VideoSource, UserVideo
+from api.models import Video, User, Source as VideoSource
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -872,8 +872,7 @@ class FacebookFetcher(object):
             try:
                 logger.debug('Forwarding metadata fetched for url:%s by fetcher:%s' %\
                              (url, str(fetcher)))
-                meta = fetcher.fetch(url, **kwargs)
-                return meta
+                return fetcher.fetch(url, logger, **kwargs)
             except UrlNotSupported:
                 pass
         else:
@@ -886,21 +885,21 @@ class FacebookFetcher(object):
 
         logger.debug('Fetching Facebook metadata for url:%s' % url)
 
-        user = User.get(pk=kwargs['user_id'])
+        user = User.objects.get(pk=kwargs['user_id'])
         access_token = user.facebook_access_token()
 
         url = '%s?%s' % (url, urlencode({'access_token': access_token}))
         response = json.loads(urllib2.urlopen(url).read())
 
         # Facebook sometimes does this for facebook-videos!
-        if response == False:
+        if not response:
             fb_url = self.EMBEDLY_FACEBOOK_URL % match.group(1)
-            meta = self.forward(fb_url, **kwargs)
+            meta = self.forward(fb_url, logger, **kwargs)
 
         else:
             # Link to original video?
             try:
-                meta = self.forward(response['link'])
+                meta = self.forward(response['link'], logger)
 
             except KeyError:
                 meta = dict()
@@ -1108,7 +1107,7 @@ def fetch(user_id, url, host, callback=None):
         pass
 
     except Exception, exc:
-        fetch.retry(exc)
+        fetch.retry(exc=exc)
 
 @task
 def push_like_to_fb(video, user):
