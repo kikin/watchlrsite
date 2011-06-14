@@ -454,7 +454,7 @@ def slugify(username, id):
     Also, checks and appends offset integer to ensure that username is unique.
     '''
     username = normalize('NFKD', username).encode('ascii', 'ignore')
-    username = basename = unicode(sub('[^0-9a-zA-Z]+', '', username).strip().lower())
+    username = basename = unicode(sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
 
     counter = 1
     while True:
