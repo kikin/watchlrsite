@@ -982,7 +982,7 @@ a#lnk-page-next:hover {
     height:26px;
 }
 .save-video-button.not-saved.hovered{
-    background-image:url(/static/images/save_video_green.png);
+    background-image:url(/static/images/save_video_button_green.png);
     width:26px;
     height:26px;
 }
