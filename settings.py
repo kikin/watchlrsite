@@ -4,7 +4,7 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
