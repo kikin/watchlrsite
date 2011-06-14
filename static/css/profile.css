@@ -20,7 +20,7 @@
 	height:130px;
     background-color: #FFFFFF;
     color:#0c536f;
-    z-index:9999;
+    z-index:100;
 }
 
 .user-info.gradient{
