@@ -92,7 +92,7 @@
                         <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
                     </a>
                     &bull;
-                    <a href="{{video.url}}">source</a>
+                    <a href="{{video.url}}" target="_blank">source</a>
                     {% if user.is_authenticated and video in user.saved_videos %}
                     	&bull;
                         <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
