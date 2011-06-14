@@ -226,7 +226,7 @@ a:hover {
     width: 1000px;
     margin-left: auto;
     margin-right: auto;
-    min-height: 300px;
+    min-height: 1000px;
 }
 
 .loading-container{
