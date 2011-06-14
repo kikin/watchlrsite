@@ -1,6 +1,6 @@
 {% if video.html_embed_code %}
-    <div class="video-player" id="video-player-{{ video.id }}" style="display: block;">
-        <a href="#!/close_player?vid={{ video.id }}" style="display: block;">
+    <div class="video-player" id="video-player-{{ video.id }}">
+        <a href="#!/close_player?vid={{ video.id }}">
             <div class="close-button-fancy"></div>
         </a>
         <div class='video-embed-container' id="video-embed-container-{{ video.id }}">

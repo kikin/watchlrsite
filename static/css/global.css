@@ -667,6 +667,7 @@ ul>span.cufon-canvas {
     -webkit-border-radius: 4px;
     border-radius: 4px;
     text-align: center;
+    display:none;
 }
 
 .video-player-close {
