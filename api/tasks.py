@@ -19,7 +19,7 @@ from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
 from social_auth.backends.facebook import FACEBOOK_SERVER
 
-from api.models import Video, Thumbnail, Source as VideoSource, UserVideo
+from api.models import Video, User, Source as VideoSource
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -886,14 +886,14 @@ class FacebookFetcher(object):
 
         logger.debug('Fetching Facebook metadata for url:%s' % url)
 
-        user = User.get(pk=kwargs['user_id'])
+        user = User.objects.get(pk=kwargs['user_id'])
         access_token = user.facebook_access_token()
 
         url = '%s?%s' % (url, urlencode({'access_token': access_token}))
         response = json.loads(urllib2.urlopen(url).read())
 
         # Facebook sometimes does this for facebook-videos!
-        if response == False:
+        if not response:
             fb_url = self.EMBEDLY_FACEBOOK_URL % match.group(1)
             meta = self.forward(fb_url, **kwargs)
 
