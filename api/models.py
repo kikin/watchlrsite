@@ -14,6 +14,20 @@ from django.dispatch import receiver
 import logging
 logger = logging.getLogger(__name__)
 
+
+# Value indicates if the notification message has been displayed and archived by user
+DEFAULT_NOTIFICATIONS = {
+    'welcome': False,    # Welcome experience for new users
+    'emptyq': False,     # Queue location education for first-time video save
+    'firstlike': False,  # User education for first liked video
+}
+
+
+DEFAULT_PREFERENCES = {
+    'syndicate': 2,      # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not yet set
+}
+
+
 class Source(models.Model):
     '''
     Video source
@@ -62,7 +76,7 @@ class Video(models.Model):
     html5_embed_code = models.TextField(max_length=3000, null=True)
     source = models.ForeignKey(Source, related_name='videos', null=True)
     fetched = models.DateTimeField(null=True, db_index=True)
-    state = models.CharField(max_length=10, null=True, db_index=True)
+    task_id = models.CharField(max_length=255, null=True, db_index=True)
 
     def set_thumbnail(self, url, width, height, type='web'):
         try:
@@ -89,6 +103,10 @@ class Video(models.Model):
     #date when user liked video....
     def date_liked(self, user):
         return UserVideo.objects.get(video=self, user=user).liked_timestamp
+
+    #list of all users who have liked video...
+    def all_likers(self):
+        return UserVideo.objects.filter(video=self, liked=True).values_list('user', flat=True)
 
     @models.permalink
     def get_absolute_url(self):
@@ -284,7 +302,20 @@ class User(auth_models.User):
         return Video.objects.filter(user__id=self.id, uservideo__watched=False).order_by('-uservideo__saved_timestamp')
 
     def notifications(self):
-        return dict([(n.message, int(not n.archived)) for n in self.notification_set.all()])
+        '''
+        Returns a dictionary of all notifications.
+        To be backwards compatible with the old API, the values are integers with any non-zero value to be
+        interpreted as an indication to display said notification to user.
+        Example:
+        >>> user = User.objects.create(username='birdman')
+        >>> user.notifications()
+        {u'welcome': 1, u'emptyq': 1, u'firstlike': 1}
+        '''
+        archived = dict([(n.message, int(not n.archived)) for n in self.notification_set.all()])
+        for notification in DEFAULT_NOTIFICATIONS:
+            if notification not in archived:
+                archived[notification] = 1
+        return archived
 
     def set_notifications(self, notifications):
         for msg, archived in notifications.items():
@@ -395,21 +426,12 @@ class UserVideo(models.Model):
         return cls.objects.filter(video=video, watched=True).count()
 
 
-DEFAULT_NOTIFICATIONS = {
-    'welcome': False, # Welcome experience for new users
-    'emptyq': False, # Queue location education for first-time video save
-}
-
 class Notification(models.Model):
     user = models.ForeignKey(User)
     message = models.CharField(max_length=200)
     archived = models.BooleanField(default=False, db_index=True)
     changed = models.DateTimeField(auto_now=True)
 
-
-DEFAULT_PREFERENCES = {
-    'syndicate': 2, # Syndicate likes to Facebook
-}
 
 class Preference(models.Model):
     user = models.ForeignKey(User)
