@@ -242,3 +242,62 @@ Remember to add the created file (api/migrations/<seq#>_auto_<change_description
 Applying migrations:
 
     python manage.py migrate api
+
+Git Workflow
+------------
+
+For a complete description see [this](http://nvie.com/posts/a-successful-git-branching-model/) blog post. You
+can also use [gitflow](http://github.com/nvie/gitflow) to make your life easier.
+
+To summarize:
+
++ All development should eventually end up on the <code>develop</code> branch.
+
++ Every new feature that you are participating in should ideally be on a separate feature branch.
+
+        $ git checkout -b myfeature develop  # branch off from develop branch
+        $ git push origin myfeature  # optional: if there are other people working on this feature
+        $ # hack on myfeature branch
+        $ git checkout develop
+        $ git merge --no-ff myfeature  # note the --no-ff option
+        $ git push origin develop
+
++ Release branches support preparation of a new production release.
+
+    + Creating release branches
+
+            $ git checkout -b release-1.4 develop
+            $ git push origin release-1.4
+
+    + Finishing a release branch
+
+            $ git checkout master
+            $ git merge --no-ff release-1.4
+            $ git tag -a 1.4
+
+    + Merging back changes in release branch to development
+
+            $ git checkout develop
+            $ git merge --no-ff release-1.4
+
++ Hotfix branches allow you to act immediately upon an undesired state of a live production version.
+
+    + Create a hotfix branch
+
+            $ git checkout -b hotfix-1.4.1 master
+            $ git push origin hotfix-1.4.1
+
+    + Fix issue
+
+             $ git commit -m "Fixed severe production problem"
+
+    + Finish up
+
+            $ git checkout master
+            $ git merge --no-ff hotfix-1.4.1
+            $ git tag -a 1.4.1
+
+    + Include fix in development
+
+            $ git checkout develop
+            $ git merge --no-ff hotfix-1.4.1
