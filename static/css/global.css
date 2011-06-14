@@ -646,9 +646,8 @@ ul>span.cufon-canvas {
 }
 
 .video-player {
-    display: none;
+    /*display: none;
     position:fixed;
-    /*margin: 10px 0 0;*/
     padding: 10px;
     background: #333;
     -moz-border-radius: 4px;
@@ -659,7 +658,16 @@ ul>span.cufon-canvas {
     margin-left: -320px;
     top:100px;
     width:640px;
-    z-index: 9999;
+    z-index: 9999;*/
+    width:640px;
+    margin-left:-5px;
+    padding: 10px;
+    background: #333;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    text-align: center;
+    display:none;
 }
 
 .video-player-close {
@@ -1090,9 +1098,9 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .close-button-fancy{
-    position:absolute;
-    top:-13px;
-    right:-13px;
+    float:right;
+    margin-top:-22px;
+    margin-right: -22px;
     width:30px;
     height:30px;
     background:url(/static/images/fancybox.png) no-repeat -40px 0px;
