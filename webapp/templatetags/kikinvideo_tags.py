@@ -196,6 +196,14 @@ def activity_item_heading(activity_item, user):
                 content += 'and ' + str(len(all_likers) - 1) + 'others liked...'
     return content
 
+#this is a stopgap, until we Video.status() is actually working...
+@register.filter
+def fetching_data(video):
+    if not video or not video.title or not video.description or not \
+        video.get_thumbnail().url:
+        return True
+    return False
+
 @register.filter
 def full_name(user):
     return user.first_name + ' ' + user.last_name
@@ -203,3 +211,7 @@ def full_name(user):
 @register.inclusion_tag('content/video_player.hfrg')
 def video_player(video):
     return { 'video' : video }
+
+@register.inclusion_tag('content/fetching_data.hfrg')
+def fetching_data(video):
+    return {'video':video}
