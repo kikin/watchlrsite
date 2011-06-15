@@ -194,7 +194,7 @@ def activity_item_heading(activity_item, user):
             if len(all_likers) - 2 == 1:
                 content += ' and 1 other liked...'
             else:
-                content += 'and ' + str(len(all_likers) - 1) + 'others liked...'
+                content += 'and ' + str(len(all_likers) - 1) + ' others liked...'
     return content
 
 #this is a stopgap, until we Video.status() is actually working...
