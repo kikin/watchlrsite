@@ -348,6 +348,9 @@ kikinvideo.HomeViewController = function() {
 
     /*expose public functions...*/
     return {
+
+        bindVideoPanelEvents : _bindVideoPanelEvents,
+        
         loadMoreVideos : loadMoreVideos,
 
         populatePanel : populatePanel,

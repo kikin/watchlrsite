@@ -82,5 +82,7 @@ var profileViewController;
 $(document).ready(
         function(){
             profileViewController = new kikinvideo.ProfileViewController();
+            if(activeView == VIEWS.profile)
+                homeViewController.bindVideoPanelEvents();
         }
 );
