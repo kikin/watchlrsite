@@ -3,6 +3,8 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+
 from kikinvideo.api.models import Video, User, Preference
 
 ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you have requested"
@@ -180,4 +182,24 @@ def activity(request):
         return render_to_response('content/activity_queue.hfrg', \
                 {'user':user, 'settings':settings,'activity_items':vid_subset},\
                                         context_instance=RequestContext(request))
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+
+def followers(request, user_id):
+    if request.user.is_authenticated():
+        try:
+            target_user = User.objects.get(id=int(user_id))
+            return render_to_response('user_list.html', {'users':target_user.followers()},\
+                                            context_instance=RequestContext(request))
+        except (ObjectDoesNotExist, ValueError), e:
+            return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+
+def following(request, user_id):
+    if request.user.is_authenticated():
+        try:
+            target_user = User.objects.get(id=int(user_id))
+            return render_to_response('user_list.html', {'users':target_user.following()},\
+                                            context_instance=RequestContext(request))
+        except (ObjectDoesNotExist, ValueError), e:
+            return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
