@@ -24,6 +24,8 @@ from api.models import Video, User, Source as VideoSource
 import logging
 logger = logging.getLogger('kikinvideo')
 
+IPAD_USER_AGENT = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
+
 class Source(dict):
     FAVICON_FETCHER = 'http://fav.us.kikin.com/favicon/s?%s'
 
@@ -456,8 +458,6 @@ class EmbedlyFetcher(object):
 
     KEY = '59772722865011e088ae4040f9f86dcd'
 
-    IPAD_USER_AGENT = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
-
     def __init__(self):
         self.providers = dict()
         sources = urllib2.urlopen(self.OEMBED_SERVICE_ENDPOINT).read()
@@ -532,7 +532,7 @@ class EmbedlyFetcher(object):
         query = urllib.urlencode(params)
 
         opener = urllib2.build_opener()
-        opener.addheaders = [('User-agent', self.IPAD_USER_AGENT)]
+        opener.addheaders = [('User-agent', IPAD_USER_AGENT)]
 
         fetch_url = '%s?%s' % (self.PRO_OEMBED_API_ENDPOINT, query)
 
@@ -1082,6 +1082,92 @@ class FoxFetcher(object):
         return meta
 
 
+class ESPNFetcher(object):
+    SOURCE = Source('ESPN',
+                    'http://espn.com/',
+                    'http://c2548752.cdn.cloudfiles.rackspacecloud.com/espn.ico')
+
+    ESPN_URL_SCHEME = re.compile(r'http://espn\.go\.com/video/clip\?id=([0-9]+)')
+
+    IMAGE_SCHEME = re.compile(r'(http://assets\.espn\.go\.com/media/motion/)(.+)_thumbnail_wsmall(\.jpg)', re.IGNORECASE)
+
+    ESPN_EMBED_TEMPLATE = '''<object width="576" height="324" type="application/x-shockwave-flash"
+    data="http://assets.espn.go.com/espnvideo/mpf32/prod/r_3_2_0_15/ESPN_Player.swf?id=%s">
+        <param name="flashVars" value="SWID=ECF783CB-BE64-4821-994E-5172301DE983&amp;adminOver=3805638&amp;player=videoHub09&amp;height=324&amp;width=576&amp;autostart=true&amp;localSite=undefined&amp;pageName=undefined">
+        <param name="bgcolor" value="#000000">
+        <param name="wmode" value="transparent">
+        <param name="allowscriptaccess" value="always">
+        <param name="quality" value="autohigh">
+        <param name="align" value="t">
+        <param name="swliveconnect" value="true">
+        <param name="menu" value="false">
+        <param name="play" value="true">
+        <param name="allowfullscreen" value="true">
+        <param name="seamlesstabbing" value="true">
+    </object>'''
+
+    ESPN_HTML5_EMBED_TEMPLATE = '''<video width="100%%" height="100%%" preload="none" style="z-index:inherit; position: relative;"
+    data-track-start="true" data-track-mid="true" data-track-end="true" tabindex="0"
+    src="http://brsseavideo-ak.espn.go.com/motion/%(id)s.mp4" poster="http://assests.espn.go.com/media/motion/%(id)s.jpg">
+    </video>'''
+
+    def sources(self):
+        return (self.SOURCE,)
+
+    def fetch(self, url, logger, **kwargs):
+        logger.debug('ESPN fetcher received url:%s' % url)
+
+        match = self.ESPN_URL_SCHEME.match(url)
+        if not match:
+            raise UrlNotSupported(url)
+        id = match.group(1)
+
+        opener = urllib2.build_opener()
+        opener.addheaders = [('User-agent', IPAD_USER_AGENT)]
+
+        tree = etree.parse(urllib2.urlopen(url), etree.HTMLParser())
+
+        meta = dict()
+
+        meta['title'] = tree.find('/head/title').text
+
+        for tag in tree.findall('/head/meta'):
+            try:
+                if tag.attrib['name'] == 'description':
+                    meta['description'] = tag.attrib['content']
+            except KeyError:
+                pass
+
+            try:
+                if tag.attrib['property'] == 'og:image':
+                    image = tag.attrib['content']
+                else:
+                    raise KeyError()
+            except KeyError:
+                continue
+
+            image_match = self.IMAGE_SCHEME.match(image)
+            if not image_match:
+                raise Exception('Image url:%s not of expected format' % image)
+
+            meta['mobile_thumbnail_url'] = image
+            meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 110, 61
+
+            meta['thumbnail_url'] = ''.join(image_match.groups())
+            meta['thumbnail_width'], meta['thumbnail_height'] = 576, 324
+
+
+        if 'thumbnail_url' not in meta:
+            raise Exception('Meta tag "og:image" missing')
+
+        meta['html'] = self.ESPN_EMBED_TEMPLATE % id
+        meta['html5'] = self.ESPN_HTML5_EMBED_TEMPLATE % {'id': image_match.group(2)}
+
+        meta['source'] = self.SOURCE
+
+        return meta
+
+
 _fetchers = [
         YoutubeFetcher(),
         VimeoFetcher(),
@@ -1089,6 +1175,7 @@ _fetchers = [
         AolVideoFetcher(),
         CBSNewsFetcher(),
         FoxFetcher(),
+        ESPNFetcher(),
         EmbedlyFetcher(),
         ]
 
