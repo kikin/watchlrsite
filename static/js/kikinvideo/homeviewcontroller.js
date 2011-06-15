@@ -191,19 +191,19 @@ kikinvideo.HomeViewController = function() {
             var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
 
             if(activeView == VIEWS.likedQueue){
-                if(queueItemCount >= likedVideosPaginationThreshold){
+                if(queueItemCount > likedVideosPaginationThreshold){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
             }else if(activeView == VIEWS.savedQueue){
-                if(queueItemCount >= saveVideosPaginationThreshold){
+                if(queueItemCount > saveVideosPaginationThreshold){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
             }else if(activeView == VIEWS.activity){
-                if(queueItemCount >= activityItemsToLoad){
+                if(queueItemCount > activityItemsToLoad){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
