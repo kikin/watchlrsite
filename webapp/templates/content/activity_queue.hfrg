@@ -38,7 +38,7 @@
 
 
              <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
-              <a href="#!/player?vid={{ activity_item.video.id }}">
+              <a href="javascript:UI.loadPlayer({{ activity_item.video.id }})">
               <div class="video-image" id="video-{{ activity_item.video.id }}">
                     <div class="video-thumb-wrapper">
                         <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"
@@ -56,18 +56,18 @@
 
 
                     {% if activity_item.video not in user.saved_videos %}
-                    <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
+                    <a href="javascript:homeViewController.handleSave({{ activity_item.video.id }})" title="save">
                         <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover" title="save to your queue"></div>
                     </a>
                     {% endif %}
 
                     {% if display_mode == 'profile' %}
-                    <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
+                    <a href="javascript:homeViewController.handleSave({{ activity_item.video.id }})" title="save">
                         <div class="save-video-button no-hover"></div>
                     </a>
                     {% endif %}
 
-                    <a href="#!/like?vid={{ activity_item.video.id }}">
+                    <a href="javascript:homeViewController.handleLike({{ activity_item.video.id }})">
                     {% if activity_item.video in user.liked_videos %}
                         <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
                     {% else %}

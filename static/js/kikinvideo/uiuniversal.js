@@ -3,7 +3,7 @@
 * "settings" dialog through which users can edit their account settings, and the floating
 * video embed container.
 * */
-$(document).ready(
+kikinvideo.UIUniversal = 
         function(){
 
             var profile_options_panel_visible = false;
@@ -156,6 +156,7 @@ $(document).ready(
                         $(PROFILE_EDIT_PANEL_SELECTOR).remove();
                         $(GREYED_BACKGROUND_SELECTOR).remove();
                     });
+                    
                 });
                 $.get('/api/auth/profile', function(data){
                     if(data && data.result){
@@ -228,5 +229,18 @@ $(document).ready(
                     handleProfileSave();
                 }
             }
-        }
-);
+
+            //expose public functions...
+            return {
+                closePlayer : closePlayer,
+                loadPlayer : loadPlayer,
+                handleProfileEditPanelOpen : handleProfileEditPanelOpen,
+                handleProfileSave : handleProfileSave
+            }
+        };
+
+var UI;
+$(document).ready(function(){
+    UI = new kikinvideo.UIUniversal();
+});
+

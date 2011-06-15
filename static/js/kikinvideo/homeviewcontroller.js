@@ -355,13 +355,15 @@ kikinvideo.HomeViewController = function() {
 
         removeVideo : removeVideo,
 
-        handleSave : handleSave,
+        handleSave : handleSave
     };
 
 };
 
+var homeViewController;
+
 $(document).ready(function(){
-    var homeViewController = new kikinvideo.HomeViewController();
+    homeViewController = new kikinvideo.HomeViewController();
     homeViewController.onHashChange(window.location.hash);
 
 	kikinvideo.util.CSSHelper.addCSSBodyClass();
