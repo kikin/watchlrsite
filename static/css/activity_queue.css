@@ -8,7 +8,7 @@
 
 .activity-queue.inner{
     margin:10px;
-    height:200px;
+    min-height:200px;
 }
 
 .activity-queue-item .video-image{
