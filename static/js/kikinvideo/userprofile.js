@@ -43,6 +43,9 @@ kikinvideo.ProfileViewController = function(){
                         var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
                         numFollowers++;
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                        if(activeView == VIEWS.activity){
+                            homeViewController.populatePanel();
+                        }
                     }
                 },
                 failure : function(err_msg){
