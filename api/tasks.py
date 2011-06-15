@@ -173,8 +173,8 @@ class EmbedlyFetcher(object):
             re.compile(r'http://www\.myspace\.com/index\.cfm\?fuseaction=.*&videoid.*'),
             re.compile(r'http://www\.metacafe\.com/watch/.*'),
             re.compile(r'http://www\.metacafe\.com/w/.*'),
-            re.compile(r'http://blip\.tv/file/.*'),
-            re.compile(r'http://.*\.blip\.tv/file/.*'),
+            re.compile(r'http://blip\.tv/.*'),
+            re.compile(r'http://.*\.blip\.tv/.*'),
             re.compile(r'http://video\.google\.com/videoplay\?.*'),
             re.compile(r'http://.*revver\.com/video/.*'),
             re.compile(r'http://video\.yahoo\.com/watch/.*/.*'),
@@ -521,6 +521,14 @@ class EmbedlyFetcher(object):
             meta['html5'] = self.fetch_html5(url)
         except:
             logger.error('Error fetching HTML5 embed code for: %s' % url)
+
+        # See issue #45
+        if meta['provider_name'] and meta['provider_name'].lower().startswith('cnn'):
+            try:
+                meta['title'] = meta['title'][0:meta['title'].index('cnn')]
+            except ValueError:
+                pass
+            meta['title'] = meta['title'].title()
 
         return meta
 
