@@ -280,18 +280,19 @@ def add(request):
 
         user_video = UserVideo(user=request.user, video=video)
 
+        # Fetch video metadata in background
+        task = fetch.delay(request.user.id, normalized_url, user_video.host)
+        video.task_id = task.task_id
+
     user_video.saved = True
     user_video.saved_timestamp = datetime.utcnow()
     user_video.host = request.META.get('HTTP_REFERER')
     user_video.save()
 
-    # Fetch video metadata in background
-    task = fetch.delay(request.user.id, normalized_url, user_video.host)
-
     info = as_dict(user_video)
     info.update({'first': request.user.saved_videos().count() == 1,
                  'unwatched': request.user.unwatched_videos().count(),
-                 'task_id': task.task_id})
+                 'task_id': user_video.video.task_id})
 
     return info
 
@@ -541,9 +542,9 @@ def list(request):
 @require_authentication
 def seek(request, video_id, position):
     try:
-        user_video = UserVideo.objects.filter(user=request.user, video__id=video_id)
+        user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
     except UserVideo.DoesNotExist:
-        raise BadRequest('')
+        raise BadRequest('Video:%s invalid for user:%s' % (request.user.id, video.id))
 
     user_video.position = Decimal(position)
     user_video.save()
