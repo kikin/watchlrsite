@@ -128,6 +128,6 @@
          <input type='checkbox' id="share-likes-checkbox"/>
         {% endif %}
     </span>
-    <a href="/#!/cancel_profile_edit"><button class="cancel-button">Cancel</button></a>
-    <a href="/#!/save_profile"><button class="save-button">Save</button></a>
+    <a><button class="cancel-button">Cancel</button></a>
+    <a href="javascript:UI.handleProfileSave({{ user.id }})"><button class="save-button">Save</button></a>
 </div>

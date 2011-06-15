@@ -20,7 +20,7 @@
 	height:130px;
     background-color: #FFFFFF;
     color:#0c536f;
-    z-index:9999;
+    z-index:100;
 }
 
 .user-info.gradient{
@@ -176,4 +176,8 @@ facebook-img{
     top:125px;
     right:2px;
     z-index:1;
+}
+
+.video-container{
+    margin-bottom: 30px;
 }

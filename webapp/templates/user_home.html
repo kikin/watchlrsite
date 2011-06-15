@@ -28,7 +28,10 @@
                 <div class="options-breaker"></div>
                 <ul>
                     <li>
-                        <a id="myProfile" href="/#!/edit_profile">Settings</a>
+                        <a id="myActualProfile" href="/{{ user.username }}">My Profile</a>
+                    </li>
+                    <li>
+                        <a id="myProfile" href="javascript:UI.handleProfileEditPanelOpen()">Settings</a>
                     </li>
                     <li>
                         <a href="https://webux.wufoo.com/forms/m7x1p5/"

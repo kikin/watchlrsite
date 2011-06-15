@@ -40,17 +40,17 @@
 
 .follow-button{
     position:absolute;
+    width: 70px;
     margin-top:8px;
-    margin-left: 200px;
-    width:80px;
-    height:24px;
+    margin-left: 210px;
+    height:22px;
     border-radius: 6px;
     -moz-border-radius:6px;
     -webkit-border-radius:6px;
     color:#ffffff;
     background-color:#0c536f;
     font-family: Arial;
-    font-size:14px;
+    font-size:13px;
     font-weight: 800;
     text-align:center;
     padding-top:6px;

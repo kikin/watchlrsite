@@ -17,6 +17,7 @@
 
     <script type="text/javascript">
     $(document).ready(function(){
+        if(!window.location.hash)
             window.location = "/#!/saved_queue";
     });
     </script>
@@ -43,7 +44,7 @@
                             {{ kv_user|full_name|truncate_text:13 }}
                         </a>
                     </div>
-                    <a href="#!/follow?user={{ kv_user.id }}" id="follow-link-user-{{ kv_user.id }}" class="follow-button-link">
+                    <a href="javascript:profileViewController.handleFollow({{ kv_user.id }})" id="follow-link-user-{{ kv_user.id }}" class="follow-button-link">
                         <div id="follow-button-user-{{ kv_user.id }}" class="follow-button" class='shadow-5l'>Follow</div>
                     </a>
                 </div>

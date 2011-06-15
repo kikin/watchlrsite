@@ -56,7 +56,7 @@
                 </div>
                 {% if not is_own_profile %}
                     {% if profile_owner in user.following %}
-                        <a href="#!/unfollow?user={{ profile_owner.id }}" id="follow-link-user-{{ profile_owner.id }}">
+                        <a href="javascript:profileViewController.handleUnfollow({{ profile_owner.id }})" id="follow-link-user-{{ profile_owner.id }}">
                             <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Unfollow</div>
                         </a>
                     {% else %}
@@ -65,7 +65,7 @@
                             <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
                         </a>
                         {% else %}
-                        <a href="#!/follow?user={{ profile_owner.id }}" id="follow-link-user-{{ profile_owner.id }}">
+                        <a href="javascript:profileViewController.handleFollow({{ profile_owner.id }})" id="follow-link-user-{{ profile_owner.id }}">
                             <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
                         </a>
                         {% endif %}
@@ -77,46 +77,47 @@
     <div id="videoListWrapper">
     <div id="videoList">
     {% for video in videos %}
+
+       {% if not video|fetching_data %}
         <div id="video-{{video.id}}" class="video-wrapper">
             <div class="video-container">
                 <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
-
                 <div class="video-buttons">
 
-                    {% if video.total_likes != 0 and video not in user.liked_videos %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#cccccc;">
-                        {{ video.total_likes }}
-                    </div>
-                    {% else %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
-                        {{ video.total_likes }}
-                    </div>
-                    {% endif %}
-
-
-                <a href="#!/like?vid={{ video.id }}">
-                {% if video in user.liked_videos or not user.is_authenticated %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                {% else %}
-                    <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-                {% endif %}
-                </a>
-
                 {% if video not in user.saved_videos and user.is_authenticated %}
-                <a href="#!/save?vid={{ video.id }}" title="save">
+                <a href="javascript:homeViewController.handleSave({{ video.id }})" title="save">
                     <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
                 </a>
                 {% else %}
                     {% if user.is_authenticated %}
-                    <a href="#!/save?vid={{ video.id }}" title="save">
+                    <a href="javascript:homeViewController.handleSave({{ video.id }})" title="save">
                         <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
                     </a>
                      {% endif %}
                 {% endif %}
+
+
+                <a href="javascript:homeViewController.handleLike({{ video.id }})">
+                {% if video in user.liked_videos or not user.is_authenticated %}
+                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                {% else %}
+                    <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                {% endif %}
+                </a>
                    
+                {% if video.total_likes != 0 and video not in user.liked_videos %}
+                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#cccccc;">
+                    {{ video.total_likes }}
+                </div>
+                {% else %}
+                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                    {{ video.total_likes }}
+                </div>
+                {% endif %}
+
 
                 </div>
-                <a href="#!/player?vid={{ video.id }}">
+                <a href="javascript:UI.loadPlayer({{ video.id }})">
                     <div class="video-image" id="video-{{ video.id }}">
                         <div class="video-thumb-wrapper">
                             <img class="video-thumbnail" src="{{video.get_thumbnail.url}}"
@@ -143,6 +144,7 @@
 
             </div>
         </div>
+      {% endif %}
     {% endfor %}
     </div>
     </div>

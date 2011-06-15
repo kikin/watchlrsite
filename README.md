@@ -79,7 +79,12 @@ http://www.pip-installer.org/en/latest/requirement-format.html for more informat
 
 To install all required dependencies, run the following command
 
-    pip install -r requirements.txt
+    $ pip install -r requirements.txt
+
+Note that this requires additional operating system level packages to be present. If you are
+running ubuntu you can install these by running the following command
+
+    $ apt-get install mysql-server libmysqlclient16-dev python-dev libxslt1-dev apache2 libapache2-mod-wsgi git-core pip
 
 Working on this app
 -------------------
@@ -114,14 +119,14 @@ i.e.:
 
 Before you can get to work, you will need to run
  
-    python manage.py syncdb
+    $ python manage.py syncdb
 
 from the top level project directory to create the database schema.
 
 			
 finally, to start your local development server, run
 
-    python manage.py runserver [port or addr:port]
+    $ python manage.py runserver [port or addr:port]
 
 the default addr/port is 127.0.0.1:8000, if you want your development server to be externally accessible, you
 could set the address to 0.0.0.0 (firewall/network config permitting).
@@ -190,7 +195,7 @@ Fetching Video Metadata
 Fetching video metadata is done in the background using a Celery task queue. You need to spawn the Celery worker
 server as follows:
 
-    python manage.py celeryd -l info
+    $ python manage.py celeryd -l info
 
 Note that this runs the server in the foreground. More information about Celery can be found at
 http://django-celery.readthedocs.org/en/latest/index.html
@@ -203,7 +208,7 @@ http://docs.djangoproject.com/en/dev/topics/testing/#writing-doctests
 
 Example:
 
-    python manage.py test api.User.like_video
+    $ python manage.py test api.User.like_video
 
 Deployment
 ----------
@@ -217,12 +222,9 @@ Pushing Changes to Development Server
 Assuming you have the SSH permissions on dev-video.kikin.com, the following steps illustrate pushing changes
 to the development server.
 
-Setup:
-    git remote add dev ssh://root@dev-video.kikin.com/opt/video_env/kikinvideo.git
-
 Push procedure:
-    git push dev
-    ssh root@dev-video.kikin.com /root/bin/updog
+
+    $ ssh root@dev-video.kikin.com /root/bin/updog
 
 Database Migration
 ------------------
@@ -231,17 +233,17 @@ We will be using [South](http://south.aeracode.org/) to handle database migratio
 
 Initial run (make sure that your schema and models are up-to-date before you run this):
 
-    python manage.py migrate api 0001 --fake
+    $ python manage.py migrate api 0001 --fake
 
 In case you change the model:
 
-    python manage.py schemamigration api --auto
+    $ python manage.py schemamigration api --auto
 
 Remember to add the created file (api/migrations/<seq#>_auto_<change_description>.py to git.
 
 Applying migrations:
 
-    python manage.py migrate api
+    $ python manage.py migrate api
 
 Git Workflow
 ------------

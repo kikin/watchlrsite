@@ -15,8 +15,6 @@ from json import loads, dumps
 from decimal import Decimal
 from datetime import datetime
 
-from celery.app import default_app
-
 import logging
 logger = logging.getLogger('kikinvideo')
 
@@ -133,7 +131,7 @@ def as_dict(obj):
                 'source': source,
                 'saves': UserVideo.save_count(obj),
                 'likes': UserVideo.like_count(obj),
-                'state': default_app.backend.get_status(obj.task_id)}
+                'state': obj.status()}
 
     raise Exception('Unknown type:%s' % type(obj))
 
@@ -173,14 +171,14 @@ def like_by_url(request):
 
     querydict = request.GET if request.method == 'GET' else request.POST
     try:
-        normalized_url = url_fix(querydict['url'])
+        url = url_fix(querydict['url'])
     except KeyError:
         raise BadRequest('Parameter:url missing')
     except MalformedURLException:
-        raise BadRequest('Malformed URL:%s' % url)
+        raise BadRequest('Malformed URL:%s' % querydict['url'])
 
     try:
-        video = Video.objects.get(url=normalized_url)
+        video = Video.objects.get(url=url)
 
         try:
             UserVideo.objects.get(user=request.user, video=video, liked_timestamp__isnull=False)
@@ -188,10 +186,17 @@ def like_by_url(request):
             push_like_to_fb.delay(video, request.user)
 
         user_video = request.user.like_video(video)
-        task_id = video.task_id
 
     except Video.DoesNotExist:
-        video = Video(url=normalized_url)
+        video = Video(url=url)
+
+        # Fetch video metadata in background
+        task = fetch.delay(request.user.id,
+                           url,
+                           request.META.get('HTTP_REFERER'),
+                           callback=push_like_to_fb.subtask((request.user, )))
+
+        video.task_id = task.task_id
         video.save()
 
         user_video = UserVideo(user=request.user,
@@ -201,16 +206,8 @@ def like_by_url(request):
                                liked_timestamp=datetime.utcnow())
         user_video.save()
 
-        # Fetch video metadata in background
-        task = fetch.delay(request.user.id,
-                           normalized_url,
-                           user_video.host,
-                           callback=push_like_to_fb.subtask((request.user, )))
-
-        task_id = task.task_id
-
     info = as_dict(user_video)
-    info['task_id'] = task_id
+    info['task_id'] = user_video.video.task_id
     info['first'] = request.user.notifications()['firstlike']
     return info
 
@@ -261,23 +258,28 @@ def add(request):
 
     querydict = request.GET if request.method == 'GET' else request.POST
     try:
-        normalized_url = url_fix(querydict['url'])
+        url = url_fix(querydict['url'])
     except KeyError:
         raise BadRequest('Parameter:url missing')
     except MalformedURLException:
-        raise BadRequest('Malformed URL:%s' % url)
+        raise BadRequest('Malformed URL:%s' % querydict['url'])
 
     try:
-        user_video = UserVideo.objects.get(user=request.user, video__url=normalized_url)
+        user_video = UserVideo.objects.get(user=request.user, video__url=url)
 
         if user_video.saved:
             raise BadRequest('Video:%s already saved with id:%s' % (user_video.video.url, user_video.video.id))
 
     except UserVideo.DoesNotExist:
         try:
-            video = Video.objects.get(url=normalized_url)
+            video = Video.objects.get(url=url)
         except Video.DoesNotExist:
-            video = Video(url=normalized_url)
+            video = Video(url=url)
+
+            # Fetch video metadata in background
+            task = fetch.delay(request.user.id, url, request.META.get('HTTP_REFERER'))
+            video.task_id = task.task_id
+
             video.save()
 
         user_video = UserVideo(user=request.user, video=video)
@@ -287,13 +289,10 @@ def add(request):
     user_video.host = request.META.get('HTTP_REFERER')
     user_video.save()
 
-    # Fetch video metadata in background
-    task = fetch.delay(request.user.id, normalized_url, user_video.host)
-
     info = as_dict(user_video)
     info.update({'first': request.user.saved_videos().count() == 1,
                  'unwatched': request.user.unwatched_videos().count(),
-                 'task_id': task.task_id})
+                 'task_id': user_video.video.task_id})
 
     return info
 
@@ -543,9 +542,9 @@ def list(request):
 @require_authentication
 def seek(request, video_id, position):
     try:
-        user_video = UserVideo.objects.filter(user=request.user, video__id=video_id)
+        user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
     except UserVideo.DoesNotExist:
-        raise BadRequest('')
+        raise BadRequest('Video:%s invalid for user:%s' % (request.user.id, video.id))
 
     user_video.position = Decimal(position)
     user_video.save()

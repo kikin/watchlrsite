@@ -1,91 +1,96 @@
 {% load kikinvideo_tags %}
 
 <meta name="queue_item_count" content="{{ activity_items|length }}">
-
-{% for activity_item in activity_items %}
-<div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
-    <div class="inner">
-          <a href="{{  activity_item.users|fb_thumb_href:user }}">
-              <div class="fb-thumb-wrapper">
-                  <img src="{{ activity_item.users|fb_thumb_small:user }}"/>
+{% if activity_items|length_is:0 %}
+    <div class="activity-queue-item" style="  min-height: 20px;">
+        <div class="activity-queue inner" style="min-height:50px;font-family: Helvetica;font-size: 20px;text-align: center;color:#4c4c4c;">
+        Nothing to see here!<br>
+        (You are not presently following any users and have yet to like a video)
+        </div>
+    </div>
+{% else %}
+    {% for activity_item in activity_items %}
+    <div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
+        <div class="activity-queue inner">
+              <a href="{{  activity_item.users|fb_thumb_href:user }}">
+                  <div class="fb-thumb-wrapper">
+                      <img src="{{ activity_item.users|fb_thumb_small:user }}"/>
+                  </div>
+              </a>
+              <div class="activity-item-header" id="activity-item-header-vid-{{ activity_item.video.id }}">
+                  {% autoescape off %}
+                  {{ activity_item|activity_item_heading:user }}
+                  {% endautoescape %}
               </div>
-          </a>
-          <div class="activity-item-header" id="activity-item-header-vid-{{ activity_item.video.id }}">
-              {% autoescape off %}
-              {{ activity_item|activity_item_heading:user }}
-              {% endautoescape %}
-          </div>
 
-         <div class="activity-queue-video-description">{{ activity_item.video.description|truncatewords:25|urlize }}
-         <br>
-            <div class="video-source-info">
-                <div class="video-source-favicon-wrapper">
-                    <a href="{{ activity_item.video|source_url_root }}" target="_blank">
-                    <img src="{{ activity_item.video|source_icon }}" style="width:16px;height:16px;"/>
-                    </a>
-                    &bull;
-                    <a href="{{ activity_item.video.url }}" target="_blank">source</a>
-                </div>
-            </div>
-         </div>
-
-
-         <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
-          <a href="#!/player?vid={{ activity_item.video.id }}">
-          <div class="video-image" id="video-{{ activity_item.video.id }}">
-                <div class="video-thumb-wrapper">
-                    <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"
-                         onerror="this.style.visibility='hidden'"
-                         onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
-
-                    <div class="abs-position">
-                        <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ activity_item.video.id }}"></div>
+             <div class="activity-queue-video-description">{{ activity_item.video.description|truncatewords:25|urlize }}
+             <br>
+                <div class="video-source-info">
+                    <div class="video-source-favicon-wrapper">
+                        <a href="{{ activity_item.video|source_url_root }}" target="_blank">
+                        <img src="{{ activity_item.video|source_icon }}" style="width:16px;height:16px;"/>
+                        </a>
+                        &bull;
+                        <a href="{{ activity_item.video.url }}" target="_blank">source</a>
+                        &bull;
+                        <span class="video-timeago">{{ activity_item.timestamp|pretty_date }}</span>
                     </div>
                 </div>
+             </div>
+
+
+             <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
+              <a href="javascript:UI.loadPlayer({{ activity_item.video.id }})">
+              <div class="video-image" id="video-{{ activity_item.video.id }}">
+                    <div class="video-thumb-wrapper">
+                        <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"
+                             onerror="this.style.visibility='hidden'"
+                             onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
+
+                        <div class="abs-position">
+                            <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ activity_item.video.id }}"></div>
+                        </div>
+                    </div>
+                </div>
+              </a>
+
+            <div class="video-buttons" style="margin-top: 10px;">
+
+
+                    {% if activity_item.video not in user.saved_videos %}
+                    <a href="javascript:homeViewController.handleSave({{ activity_item.video.id }})" title="save">
+                        <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover" title="save to your queue"></div>
+                    </a>
+                    {% endif %}
+
+                    {% if display_mode == 'profile' %}
+                    <a href="javascript:homeViewController.handleSave({{ activity_item.video.id }})" title="save">
+                        <div class="save-video-button no-hover"></div>
+                    </a>
+                    {% endif %}
+
+                    <a href="javascript:homeViewController.handleLike({{ activity_item.video.id }})">
+                    {% if activity_item.video in user.liked_videos %}
+                        <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
+                    {% else %}
+                        <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
+                    {% endif %}
+                    </a>
+
+                    {% if activity_item.video in user.liked_videos %}
+                    <div class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
+                        {{ activity_item.video.total_likes }}
+                    </div>
+                    {% else %}
+                    <div class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}" style="color:#d0d0d0;">
+                        {{ activity_item.video.total_likes }}
+                    </div>
+                    {%  endif %}
             </div>
-          </a>
-
-        <div class="video-buttons" style="margin-top: 10px;">
-            {% if display_mode == 'profile' %}
-            <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
-                <div class="save-video-button no-hover"></div>
-            </a>
-            {% endif %}
-
-            {% if display_mode == 'saved' %}
-            <a href="#!/remove?vid={{ activity_item.video.id }}" title="remove">
-                <div class="video-delete-button no-hover"></div>
-            </a>
-            {% endif %}
-
-                {% if activity_item.video in user.liked_videos %}
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
-                    {{ activity_item.video.total_likes }}
-                </div>
-                {% else %}
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}" style="color:#d0d0d0;">
-                    {{ activity_item.video.total_likes }}
-                </div>
-                {%  endif %}
-
-                <a href="#!/like?vid={{ activity_item.video.id }}">
-                {% if activity_item.video in user.liked_videos %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
-                {% else %}
-                    <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
-                {% endif %}
-                </a>
-
-                {% if activity_item.video not in user.saved_videos %}
-                <a href="#!/save?vid={{ activity_item.video.id }}" title="save">
-                    <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover" title="save to your queue"></div>
-                </a>
-                {% endif %}
         </div>
-
-        {% video_player activity_item.video %}
-
+        <div id="video-player-container" style="margin-top:40px;margin-left: 15px;">
+                {% video_player activity_item.video %}
+        </div>
     </div>
-
-</div>
-{% endfor %}
+    {% endfor %}
+{% endif %}

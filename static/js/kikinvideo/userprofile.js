@@ -39,10 +39,13 @@ kikinvideo.ProfileViewController = function(){
                 success: function(response){
                     if (response.success){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
-                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/unfollow?user="+user_id);
+                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "javascript:profileViewController.handleUnfollow("+user_id+");");
                         var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
                         numFollowers++;
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                        if(activeView == VIEWS.activity){
+                            homeViewController.populatePanel();
+                        }
                     }
                 },
                 failure : function(err_msg){
@@ -57,7 +60,7 @@ kikinvideo.ProfileViewController = function(){
                 success: function(response){
                     if (response.success){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
-                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "#!/follow?user="+user_id);
+                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "javascript:profileViewController.handleFollow("+user_id+")");
                         var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
                         numFollowers--;
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
@@ -75,9 +78,11 @@ kikinvideo.ProfileViewController = function(){
         handleUnfollow : handleUnfollow
     }
 }
-
+var profileViewController;
 $(document).ready(
         function(){
-            var profileViewController = new kikinvideo.ProfileViewController();
+            profileViewController = new kikinvideo.ProfileViewController();
+            if(activeView == VIEWS.profile)
+                homeViewController.bindVideoPanelEvents();
         }
 );

@@ -6,8 +6,9 @@
     padding-bottom:10px;
 }
 
-.activity-queue-item.inner{
+.activity-queue.inner{
     margin:10px;
+    min-height:200px;
 }
 
 .activity-queue-item .video-image{

@@ -169,10 +169,9 @@ a:hover {
 #options {
     display: none;
     background: transparent;
-    position: fixed;
-    top: 10px;
+    position: absolute;
     right: 5px;
-    padding-top: 10px;
+    padding-top: 3px;
     width: 120px;
 
     -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
@@ -226,7 +225,7 @@ a:hover {
     width: 1000px;
     margin-left: auto;
     margin-right: auto;
-    min-height: 1000px;
+    min-height: 600px;
 }
 
 .loading-container{
@@ -235,13 +234,11 @@ a:hover {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     position:absolute;
-    padding-top: 200px;
-    width: 100%;
-    height: 100%;
+    padding-top: 40px;
     top:0px;
     left:0px;
     z-index:9999;
-    background-color: #000000;
+    background-color: #FFFFFF;
     opacity: 0.2;
 }
 
@@ -416,7 +413,6 @@ ol li {
     -o-transition: height 0.4s ease-in-out;
     transition: height 0.4s ease-in-out;
     padding-top:25px;
-    padding-bottom:30px;
     border-bottom: 1px solid #cccccc;
 }
 
@@ -881,6 +877,8 @@ a#lnk-page-next:hover {
 }
 
 .heart-container {
+    float:right;
+    margin-right: 8px;
     background-image: url(/static/images/heart_grey.png);
     width: 26px;
     height: 26px;
@@ -936,38 +934,36 @@ a#lnk-page-next:hover {
     height: 20px;
 }
 
-.heart-container {
-    position: absolute;
-    margin-left: 17px;
-    margin-top: 0px;
-}
-
 .heart-container.liked.hovered {
+    float:right;
+    margin-right:4px;
     background-image: url(/static/images/heart_broken.png);
     width: 34px;
     height: 26px;
-    margin-left: 13px;
 }
 
 .video-liked-info{
-    position:absolute;
+    float:right;
+    margin-right:4px;
     height:26px;
     font-size:26px;
-    margin-left:-5px;
-    padding-top:1.5px;
     font-weight:800;
     color:red;
+	margin-top:-1px;
+}
+.mozilla .video-liked-info{
+    margin-top:3px;
 }
 .video-delete-button {
-    position: absolute;
-    margin-left: 52px;
+    float:right;
+   /* margin-left: 52px;*/
     margin-top: 4px;
 }
 
 .video-buttons {
     position:absolute;
-    margin-left:572px;
-    width: 110px;
+    margin-left:565px;
+    width: 90px;
     height: 34px;
 }
 
@@ -976,8 +972,8 @@ a#lnk-page-next:hover {
 }
 
 .save-video-button{
-    position:absolute;
-    margin-left:54px;
+    float: right;
+   /* margin-left:54px;*/
     margin-top:0px;
 }
 .save-video-button.not-saved.no-hover{
@@ -1090,9 +1086,9 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .close-button-fancy{
-    position:absolute;
-    top:-13px;
-    right:-13px;
+    float:right;
+    margin-top:-22px;
+    margin-right: -22px;
     width:30px;
     height:30px;
     background:url(/static/images/fancybox.png) no-repeat -40px 0px;
