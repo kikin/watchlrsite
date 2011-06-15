@@ -32,6 +32,8 @@
                         </a>
                         &bull;
                         <a href="{{ activity_item.video.url }}" target="_blank">source</a>
+                        &bull;
+                        <span class="video-timeago">{{ activity_item.timestamp|pretty_date }}</span>
                     </div>
                 </div>
              </div>

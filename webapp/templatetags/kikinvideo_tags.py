@@ -5,6 +5,7 @@ from kikinvideo.api.models import UserVideo
 
 register = template.Library()
 
+@register.filter
 def pretty_date(time=False):
     """
     Get a datetime object or a int() Epoch timestamp and return a
