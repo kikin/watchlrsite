@@ -60,6 +60,8 @@ var SYNDICATE_LIKES_CHECKBOX_ID = "#share-likes-checkbox";
 
 var PROFILE_EDIT_CANCEL_BUTTON_SELECTOR = '.cancel-button';
 
+var PROFILE_EDIT_SAVE_BUTTON_SELECTOR = '.save-button';
+
 var GREYED_BACKGROUND_ELEMENT = '<div class="greyed-background" style="display: block;"></div>';
 
 var GREYED_BACKGROUND_SELECTOR = '.greyed-background';

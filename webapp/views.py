@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
@@ -153,7 +153,7 @@ def public_profile(request, username):
                                                        'is_own_profile':False, 'videos':user.liked_videos()},\
                                                         context_instance=RequestContext(request))
     except Exception, e:
-        return HttpResponseNotFound('')
+        raise Http404
 
 def download_pitch(request):
     return render_to_response('download_pitch.html', {'settings':settings, 'user':request.user})

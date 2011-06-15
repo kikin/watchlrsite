@@ -54,6 +54,8 @@ kikinvideo.HomeViewController = function() {
 
     var uid = $(UID_META_SELECTOR).attr('content');
 
+    var initialLoad = true;
+
     /*hashbang url routing...*/
     function onHashChange(hash_url){
         var url_content = parseHashURL(hash_url);
@@ -155,11 +157,13 @@ kikinvideo.HomeViewController = function() {
 
     function populatePanel() {
 
+        if(!initialLoad){
         $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-        $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
-            height:$(document).height()});
-
-
+        $(LOADING_ICON_BACKGROUND).css({width:$(VIDEO_PANEL_SELECTOR).width(),
+            height:$(VIDEO_PANEL_SELECTOR).height(), left:$(VIDEO_PANEL_SELECTOR).offset().left,
+            top:$(VIDEO_PANEL_SELECTOR).offset().top});
+        }
+        initialLoad = false;
         var contentSource, requestParams;
 
         if(activeView == VIEWS.likedQueue){
@@ -207,7 +211,7 @@ kikinvideo.HomeViewController = function() {
             }
 
         });
-    };
+    }
 
     function removeVideo(vid){
         $.get('/api/remove/'+vid, function(data){
@@ -224,7 +228,7 @@ kikinvideo.HomeViewController = function() {
 
     function handleLike(vid){
         if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
-        {window.location="#!/liked?vid="+vid;
+        {
             $.get('/api/like/'+vid, function(data){
                 var video_properties = data.result;
                 if(video_properties){
@@ -263,7 +267,6 @@ kikinvideo.HomeViewController = function() {
                 }
             });
         }else{
-            window.location="#!/unliked?vid="+vid;
             $.get('/api/unlike/'+vid, function(data){
                 var video_properties = data.result;
                 if(video_properties){
@@ -345,6 +348,9 @@ kikinvideo.HomeViewController = function() {
 
     /*expose public functions...*/
     return {
+
+        bindVideoPanelEvents : _bindVideoPanelEvents,
+        
         loadMoreVideos : loadMoreVideos,
 
         populatePanel : populatePanel,
@@ -355,13 +361,15 @@ kikinvideo.HomeViewController = function() {
 
         removeVideo : removeVideo,
 
-        handleSave : handleSave,
+        handleSave : handleSave
     };
 
 };
 
+var homeViewController;
+
 $(document).ready(function(){
-    var homeViewController = new kikinvideo.HomeViewController();
+    homeViewController = new kikinvideo.HomeViewController();
     homeViewController.onHashChange(window.location.hash);
 
 	kikinvideo.util.CSSHelper.addCSSBodyClass();

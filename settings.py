@@ -4,7 +4,10 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-DEBUG = False
+VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local')
+
+# Turn DEBUG off if VIDEO_ENV is defined ('dev', 'prod', etc)
+DEBUG = VIDEO_ENV == 'local'
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -45,9 +48,7 @@ database_configurations = {
 }
 
 # Picks up database configuration from environment variable
-active_db = os.environ.get('VIDEO_ENV', 'local')
-
-DATABASES = { 'default': database_configurations[active_db] }
+DATABASES = { 'default': database_configurations[VIDEO_ENV] }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -207,8 +208,8 @@ djcelery.setup_loader()
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
 # Set up logging
-from logging import basicConfig, DEBUG
-basicConfig(level=DEBUG)
+from logging import basicConfig, DEBUG as LOG_DEBUG
+basicConfig(level=LOG_DEBUG)
 
 import logconfig
 logconfig.init()

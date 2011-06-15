@@ -1,6 +1,6 @@
 {% if video.html_embed_code %}
     <div class="video-player" id="video-player-{{ video.id }}">
-        <a href="#!/close_player?vid={{ video.id }}">
+        <a href="javascript: UI.closePlayer({{ video.id }})">
             <div class="close-button-fancy"></div>
         </a>
         <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
@@ -17,7 +17,7 @@
     <div class="videoplayerContainer">
         <div class="video-player" id="video-player-{{ video.id }}"
                 style="background-color:#DEDEDE;font-size:16px;">
-            <a href="#!/close_player?vid={{ video.id }}" >
+            <a href="javascript: UI.closePlayer({{ video.id }})" >
                 <div class="close-button-fancy"></div>
             </a>
             <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
