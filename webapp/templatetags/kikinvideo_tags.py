@@ -177,24 +177,24 @@ def activity_item_heading(activity_item, user):
         if len(activity_item.users) == 1 and len(all_likers) == 1:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'
         elif len(activity_item.users) == 1 and len(all_likers) == 2:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
+            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>'
             content += 'and 1 other liked...'
         elif len(activity_item.users) == 1 and len(all_likers) > 2:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
-            content += 'and ' + str(len(all_likers) - 1) + ' others liked...'
+            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>'
+            content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
         elif len(activity_item.users) == 2 and len(all_likers) == 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
-            content += 'and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> liked...'
+            content += ' and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> liked...'
         elif len(activity_item.users) == 2 and len(all_likers) > 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>, '
             content += '<a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a>'
-            content += 'and '+ str(len(all_likers)-2) + ' others liked...'
+            content += ' and '+ str(len(all_likers)-2) + ' others liked...'
         elif len(activity_item.users) > 2:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
+            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>'
             if len(all_likers) - 2 == 1:
                 content += ' and 1 other liked...'
             else:
-                content += 'and ' + str(len(all_likers) - 1) + ' others liked...'
+                content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
     return content
 
 #this is a stopgap, until we Video.status() is actually working...
