@@ -199,10 +199,17 @@ def activity_item_heading(activity_item, user):
 #this is a stopgap, until we Video.status() is actually working...
 @register.filter
 def fetching_data(video):
-    if not video or not video.title or not video.description or not \
-        video.get_thumbnail().url:
+    if not video.status() == u'SUCCESS':
         return True
     return False
+    #Alt implementation (uncomment and use if critical issue arises with
+    #with celery task queue).  Simply checks whether a few essential
+    #fields of the Video model are None and, if so, assumes data is still
+    #being fetched
+    #if not video or not video.title or not video.description or not \
+    #    video.get_thumbnail().url:
+    #    return True
+    #return False
 
 @register.filter
 def full_name(user):
