@@ -112,6 +112,7 @@ $(document).ready(
                 video_player_div.fadeIn(500, function(){
                     var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
                     video_embed_div.show();
+                    video_player_div.css({'z-index':10000});
                     /*close video player on click outside its container....*/
                     $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
                         window.location.hash = "!" + VIDEO_PLAYER_CLOSE_PATH + "?vid="+vid

@@ -77,10 +77,11 @@
     <div id="videoListWrapper">
     <div id="videoList">
     {% for video in videos %}
+
+       {% if not video|fetching_data %}
         <div id="video-{{video.id}}" class="video-wrapper">
             <div class="video-container">
-                <h3 class="video-title"><a href="/detail/{{video.id}}">{{ video.title }}</a></h3>
-
+                <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
                 <div class="video-buttons">
 
                 {% if video not in user.saved_videos and user.is_authenticated %}
@@ -143,6 +144,7 @@
 
             </div>
         </div>
+      {% endif %}
     {% endfor %}
     </div>
     </div>
