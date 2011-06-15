@@ -123,7 +123,7 @@ def web_thumbnail_url(video):
     #associated with video.
     thumbs = video.thumbnails.filter(type='web')
     if len(thumbs) == 0:
-        return '/static/images/default_video_item.png'
+        return '/static/images/default_video_icon.png'
     if len(thumbs) > 0:
         return thumbs[0].url
     return ""

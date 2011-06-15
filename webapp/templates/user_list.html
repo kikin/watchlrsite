@@ -1,1 +1,19 @@
-{% extends "logged_in.html" %}
+{% extends "user_home.html" %}
+
+{% block style_refs %}
+    <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/user_list.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+{% endblock style_refs %}
+
+{% block content %}
+    <div class="user-list wrapper">
+        <div class="user-list inner">
+            {% for related_user in users %}
+                <div id="user-list user-info wrapper">
+                    <div id="user-list user-info thumb-container">
+                        <img class="user-list fb-thumb-square" src="https://graph.facebook.com/{{ related_user.facebook_uid }}/picture?type=square"/>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}
