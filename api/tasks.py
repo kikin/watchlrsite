@@ -1107,7 +1107,7 @@ class ESPNFetcher(object):
     </object>'''
 
     ESPN_HTML5_EMBED_TEMPLATE = '''<video width="100%%" height="100%%" preload="none" style="z-index:inherit; position: relative;"
-    data-track-start="true" data-track-mid="true" data-track-end="true" tabindex="0"
+    data-track-start="true" data-track-mid="true" data-track-end="true" tabindex="0" controls
     src="http://brsseavideo-ak.espn.go.com/motion/%(id)s.mp4" poster="http://assests.espn.go.com/media/motion/%(id)s.jpg">
     </video>'''
 
