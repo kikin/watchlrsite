@@ -77,6 +77,8 @@
     <div id="videoListWrapper">
     <div id="videoList">
     {% for video in videos %}
+
+       {% if not video|fetching_data %}
         <div id="video-{{video.id}}" class="video-wrapper">
             <div class="video-container">
                 <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
@@ -142,6 +144,7 @@
 
             </div>
         </div>
+      {% endif %}
     {% endfor %}
     </div>
     </div>

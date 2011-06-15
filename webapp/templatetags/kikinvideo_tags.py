@@ -213,5 +213,5 @@ def video_player(video):
     return { 'video' : video }
 
 @register.inclusion_tag('content/fetching_data.hfrg')
-def fetching_data(video):
+def fetching_data_message(video):
     return {'video':video}
