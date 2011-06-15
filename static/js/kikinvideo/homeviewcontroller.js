@@ -54,6 +54,8 @@ kikinvideo.HomeViewController = function() {
 
     var uid = $(UID_META_SELECTOR).attr('content');
 
+    var initialLoad = true;
+
     /*hashbang url routing...*/
     function onHashChange(hash_url){
         var url_content = parseHashURL(hash_url);
@@ -155,11 +157,13 @@ kikinvideo.HomeViewController = function() {
 
     function populatePanel() {
 
+        if(!initialLoad){
         $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-        $(LOADING_ICON_BACKGROUND).css({width:$(document).width(),
-            height:$(document).height()});
-
-
+        $(LOADING_ICON_BACKGROUND).css({width:$(VIDEO_PANEL_SELECTOR).width(),
+            height:$(VIDEO_PANEL_SELECTOR).height(), left:$(VIDEO_PANEL_SELECTOR).offset().left,
+            top:$(VIDEO_PANEL_SELECTOR).offset().top});
+        }
+        initialLoad = false;
         var contentSource, requestParams;
 
         if(activeView == VIEWS.likedQueue){
@@ -207,7 +211,7 @@ kikinvideo.HomeViewController = function() {
             }
 
         });
-    };
+    }
 
     function removeVideo(vid){
         $.get('/api/remove/'+vid, function(data){
