@@ -3,6 +3,9 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 from kikinvideo.api.models import Video, User, Preference
 
 ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you have requested"
@@ -181,3 +184,39 @@ def activity(request):
                 {'user':user, 'settings':settings,'activity_items':vid_subset},\
                                         context_instance=RequestContext(request))
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+
+#view renders (paginated) user list (using templ. user_list.html)
+def user_page(request, user_id, relation):
+    if request.user.is_authenticated():
+            try:
+                target_user = User.objects.get(id=int(user_id))
+                if relation == 'followers':
+                    related_users = target_user.followers()
+                if relation == 'following':
+                    related_users = target_user.following()
+                
+                paginator = Paginator(related_users, 20)
+                if 'page' in request.GET:
+                    page = request.GET.get('page')
+                else:
+                    page = 1
+
+                try:
+                    related_users_subset = paginator.page(page)
+                except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                    related_users_subset = paginator.page(1)
+                except EmptyPage:
+                    # If page is out of range (e.g. 9999), deliver last page of results.
+                    related_users_subset = paginator.page(paginator.num_pages)
+                return render_to_response('user_list.html', {'users':related_users_subset,\
+                                        'settings':settings}, context_instance=RequestContext(request))
+            except (ObjectDoesNotExist, ValueError), e:
+                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+
+def followers(request, user_id):
+    return user_page(request, user_id, relation='followers')
+
+def following(request, user_id):
+    return user_page(request, user_id, relation='following')
