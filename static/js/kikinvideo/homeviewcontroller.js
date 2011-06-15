@@ -224,7 +224,7 @@ kikinvideo.HomeViewController = function() {
 
     function handleLike(vid){
         if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
-        {window.location="#!/liked?vid="+vid;
+        {
             $.get('/api/like/'+vid, function(data){
                 var video_properties = data.result;
                 if(video_properties){
@@ -263,7 +263,6 @@ kikinvideo.HomeViewController = function() {
                 }
             });
         }else{
-            window.location="#!/unliked?vid="+vid;
             $.get('/api/unlike/'+vid, function(data){
                 var video_properties = data.result;
                 if(video_properties){
