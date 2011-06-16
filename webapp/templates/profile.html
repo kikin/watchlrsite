@@ -93,6 +93,18 @@
     </div>
     <div id="videoListWrapper">
     <div id="videoList">
+    {% if videos|length_is:0 %}
+
+        <div id="video-{{video.id}}" class="video-wrapper">
+            <div class="video-container">
+                <div class="no-liked-videos">
+                    <div class="no-liked-videos inner">
+                        {{ profile_owner.first_name }} hasn't liked any videos yet
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
     {% for video in videos %}
 
        {% if not video|fetching_data %}
@@ -171,6 +183,7 @@
         </div>
       {% endif %}
     {% endfor %}
+    {% endif %}
     </div>
     </div>
 {% endblock content%}

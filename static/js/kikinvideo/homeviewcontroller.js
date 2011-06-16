@@ -60,11 +60,7 @@ kikinvideo.HomeViewController = function() {
     function onHashChange(hash_url){
         var url_content = parseHashURL(hash_url);
 
-        if(url_content.path == LIKE_VIDEO_PATH){
-            handleLike(url_content.params.vid);
-        }if(url_content.path == REMOVE_VIDEO_PATH){
-            removeVideo(url_content.params.vid);
-        }if(url_content.path == SAVED_QUEUE_PATH){
+        if(url_content.path == SAVED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.savedQueue);
             activeView = VIEWS.savedQueue;
             populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
@@ -78,8 +74,6 @@ kikinvideo.HomeViewController = function() {
             populatePanel();
         }if(url_content.path == LOAD_MORE_VIDEOS_PATH){
             loadMoreVideos();
-        }if(url_content.path == SAVE_VIDEO_PATH){
-            handleSave(url_content.params.vid);
         }
     }
 

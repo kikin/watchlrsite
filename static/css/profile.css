@@ -1,8 +1,8 @@
 #videoListWrapper{
     padding-top:20px;
-    border-radius: 0px;
-    -moz-border-radius: 0px;
-    -webkit-border-radius:0px;
+    border-radius: 0px 0px 8px 8px;
+    -moz-border-radius: 0px 0px 8px 8px;
+    -webkit-border-radius:0px 0px 8px 8px;;
     z-index:0;
     margin-bottom:200px;
     margin-left: auto;
@@ -172,4 +172,22 @@
 
 .video-container{
     margin-bottom: 30px;
+}
+
+
+.no-liked-videos{
+    width:100%;
+    background-color:#ffffff;
+    text-align: center;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+}
+
+.no-liked-videos.inner{
+    color:#4c4c4c;
+    font-family: Helvetica;
+    font-size: 20px;
+    padding-top: 30px;
+    min-height: 50px;
 }

@@ -14,16 +14,6 @@ kikinvideo.ProfileViewController = function(){
 
     var FOLLOW_COUNT_CONTAINER_ID_PREFIX = "#follower-count-user-";
 
-    /*bind hashchange listeners to corresponding event*/
-    $(window).hashchange(function() {
-        var url_content = parseHashURL(window.location.hash);
-        if(url_content.path == FOLLOW_USER_PATH){
-            handleFollow(url_content.params.user);
-        }if(url_content.path == UNFOLLOW_USER_PATH){
-            handleUnfollow(url_content.params.user);
-        }
-    });
-
     function _loadContent(){
         var uid = $(UID_META_SELECTOR).attr('content');
         $.get(LIKED_VIDEOS_CONTENT_URL, {'start':0, 'count':vidsToLoad, 'user_id':uid}, function(){
