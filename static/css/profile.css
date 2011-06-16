@@ -47,13 +47,11 @@
 	height:100px;
     overflow: hidden;
     margin-left:5px;
-    -moz-border-radius:8px;
-	-webkit-border-radius:8px;
-    border-radius: 8px;
+    z-index:10;
 }
 
-facebook-img{
-    width: 100%;
+#facebook-img{
+    z-index:1;
 }
 
 #username-display

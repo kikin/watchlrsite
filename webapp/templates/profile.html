@@ -10,6 +10,20 @@
     $(document).ready(function(){
         /*because we must use absolute...*/
         $('#content').css({height:$('#videoListWrapper').height()+$('#user-info-container').height()+100});
+
+        $('#facebook-img').load(function(){
+            //fb graph images are of fixed width and variable height...we must accommodate this...
+            if($('#facebook-img').width() > $('#facebook-img').height()){
+                $('#facebook-img').css({
+                    marginTop:(100-$('#facebook-img').height())/2
+                });
+
+                $('#facebook-img').addClass('shadow-5l');
+            }
+            else{
+                $('#facebook-img-container').addClass('shadow-5l');
+            }
+        });
         stylizeVideoTitles();
     });
     </script>
@@ -24,9 +38,9 @@
     <div id="user-info-container" class="shadow-5l">
     <div class="user-info gradient"></div>
         <div class="inner">
-            <div id="facebook-img-container" class="shadow-5l">
-                <img id='facebook-img'src="https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=normal"/>
-            </div>
+        <div id="facebook-img-container">
+           <img id='facebook-img'src="https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=normal"/>
+        </div>
             <div id="username-display">
                     <div class="primary">
                         {{ profile_owner.username }}
