@@ -1,19 +1,35 @@
-{% extends "user_home.html" %}
+{% extends "profile.html" %}
+
+{% load kikinvideo_tags %}
 
 {% block style_refs %}
-    <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/user_list.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+    <link rel='stylesheet' type='text/css' href='{{ settings.STATIC_URL }}css/profile.css'/>
+    <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/user_list.css" type="text/css" media="screen" charset="utf-8">
 {% endblock style_refs %}
 
-{% block content %}
-    <div class="user-list wrapper">
-        <div class="user-list inner">
-            {% for related_user in users %}
-                <div id="user-list user-info wrapper">
-                    <div id="user-list user-info thumb-container">
-                        <img class="user-list fb-thumb-square" src="https://graph.facebook.com/{{ related_user.facebook_uid }}/picture?type=square"/>
-                    </div>
+{% block video_section %}
+
+    <div id="user-list">
+<!--        <div class="heading">
+            {% autoescape off %}
+            {{ heading }}
+            {% endautoescape %}
+        </div>-->
+        <div class="user-list-wrapper">
+            <div id="videoListWrapper">
+                <div id="videoList">
+                    {% for related_user in users %}
+                        <div class="user-info wrapper">
+                                <a href="/{{ related_user.username }}">
+                                    <img class="fb-thumb-square" src="https://graph.facebook.com/{{ related_user.facebook_uid }}/picture?type=square"/>
+                                </a>
+                                <div class="username">
+                                    <a href="/{{ related_user.username }}">{{ related_user|full_name|truncate_text:25 }}</a>
+                                </div>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+            </div>
         </div>
     </div>
-{% endblock content %}
+{% endblock video_section %}
