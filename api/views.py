@@ -588,8 +588,8 @@ def follow(request, other):
     user.follow(other)
 
     return {'username': user.username,
-            'following': user.following().count(),
-            'followers': user.followers().count()}
+            'following': len(user.following()),
+            'followers': len(user.followers())}
 
 
 @json_view
@@ -607,8 +607,8 @@ def unfollow(request, other):
     user.unfollow(other)
 
     return {'username': user.username,
-            'following': user.following().count(),
-            'followers': user.followers().count()}
+            'following': len(user.following()),
+            'followers': len(user.followers())}
 
 
 @json_view
