@@ -53,26 +53,32 @@
                     <div class="sub">
                         ({{ profile_owner.first_name }} {{ profile_owner.last_name }})
                     </div>
-                <div class="profile-basic-statistics" style="left:160px;">
-                    {{ profile_owner|total_liked_videos }}
-                    <div class="profile-basic-statistics-sub">
-                    Liked<br>videos
+                <a href="/{{ profile_owner.username }}">
+                    <div class="profile-basic-statistics" style="left:160px;">
+                        {{ profile_owner|total_liked_videos }}
+                        <div class="profile-basic-statistics-sub">
+                            Liked<br>videos
+                        </div>
                     </div>
-                </div>
-                <div class="profile-basic-statistics with-breakers" style="left:250px;">
-                    <div id="follower-count-user-{{ profile_owner.id }}">
-                    {{ profile_owner.followers|length }}
+                </a>
+                <a href="/followers/{{ profile_owner.id }}">
+                    <div class="profile-basic-statistics with-breakers" style="left:250px;">
+                        <div id="follower-count-user-{{ profile_owner.id }}">
+                        {{ profile_owner.followers|length }}
+                        </div>
+                        <div class="profile-basic-statistics-sub" style="margin-top:10px;">
+                            Followers
+                        </div>
                     </div>
-                    <div class="profile-basic-statistics-sub" style="margin-top:10px;">
-                    Followers
+                </a>
+                <a href="/following/{{ profile_owner.id }}">
+                    <div class="profile-basic-statistics" style="left:365px;">
+                        {{ profile_owner.following|length }}
+                        <div class="profile-basic-statistics-sub">
+                            Followed<br>users
+                        </div>
                     </div>
-                </div>
-                <div class="profile-basic-statistics" style="left:365px;">
-                    {{ profile_owner.following|length }}
-                    <div class="profile-basic-statistics-sub">
-                    Followed<br>users
-                    </div>
-                </div>
+                </a>
                 {% if not is_own_profile %}
                     {% if profile_owner in user.following %}
                         <a href="javascript:profileViewController.handleUnfollow({{ profile_owner.id }})" id="follow-link-user-{{ profile_owner.id }}">
