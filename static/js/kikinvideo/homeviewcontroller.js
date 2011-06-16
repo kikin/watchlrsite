@@ -93,8 +93,6 @@ kikinvideo.HomeViewController = function() {
             activityItemsPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
         }
         populatePanel();
-        //invalidate hash url (so a subsequent click of "load more" button will register as hash change)
-        window.location.href += "_";
     }
 
     function _bindVideoPanelEvents(){
