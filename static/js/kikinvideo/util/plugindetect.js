@@ -11,6 +11,7 @@ $(window).load(function() {
         $.get('/content/plugin_pitch', function(content){
                 $('.right-panel').prepend(content);
                 $('#plugin-pitch').fadeIn(1000);
+                $('#content').css({'min-height':1100});
         });
     }
 });
