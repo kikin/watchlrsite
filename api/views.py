@@ -86,7 +86,7 @@ def as_dict(obj):
                 'likes': UserVideo.like_count(obj.video),
                 'saved': obj.saved,
                 'saves': UserVideo.save_count(obj.video),
-                'position': obj.position}
+                'position': odj.position and str(obj.position)}
 
     elif isinstance(obj, User):
         return {'name': ' '.join([obj.first_name, obj.last_name]),
