@@ -216,7 +216,7 @@ class User(auth_models.User):
         return [u.follower for u in UserFollowsUser.objects.filter(followee=self)]
 
     def following(self):
-        return self.follows.all()
+        return list(self.follows.all())
 
     def follow(self, other):
         if self == other:
