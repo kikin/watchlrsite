@@ -457,13 +457,43 @@ def user_post_save(sender, instance, signal, *args, **kwargs):
         for name, value in DEFAULT_PREFERENCES.items():
             Preference.objects.create(user=instance, name=name, value=value)
 
+# Read username blacklist file on module load
+read_user_blacklist = False
+if not read_user_blacklist:
+    import os.path
+    user_blacklist_file = os.path.join(os.path.dirname(__file__), 'data', 'blacklisted_usernames')
+    with open(user_blacklist_file, 'r') as f:
+        user_blacklist = frozenset([line.strip() for line in f.readlines()])
+    read_user_blacklist = True
+
 def slugify(username, id):
     '''
     Normalizes string, converts to lowercase, removes non-alphanumeric characters (including spaces).
     Also, checks and appends offset integer to ensure that username is unique.
+
+    >>> slugify('whatsherface', 123)
+    u'whatsherface'
+    >>> User.objects.create(username='whatsherface')
+    <User: whatsherface>
+    >>> slugify('whatsherface', 123)
+    u'whatsherface1'
+    >>> slugify('whats_her_face', 123)
+    u'whatsherface1'
+    >>> slugify('whatsherface2', 123)
+    u'whatsherface2'
+    >>> slugify('admin', 123)
+    u'user0'
+    >>> User.objects.create(username='user0')
+    <User: user0>
+    >>> slugify('about', 123)
+    u'user01'
     '''
     username = normalize('NFKD', username).encode('ascii', 'ignore')
     username = basename = unicode(sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
+
+    if username.lower() in user_blacklist:
+        logger.info('User:%s tried to use a blocked username:%s' % (id, username))
+        username = basename = u'user0'
 
     counter = 1
     while True:

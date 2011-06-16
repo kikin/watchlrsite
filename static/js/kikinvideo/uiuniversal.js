@@ -103,19 +103,18 @@ kikinvideo.UIUniversal =
 
 
                 $('body').prepend(VIDEO_PLAYER_BG_HTML);
-                $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none'});
+                $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none', 'z-index':1000});
                 $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
                 video_player_div.fadeIn(100);
 
                 video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
-
+                
                 video_player_div.fadeIn(500, function(){
                     var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
                     video_embed_div.show();
-                    video_player_div.css({'z-index':10000});
                     /*close video player on click outside its container....*/
                     $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
-                        window.location.hash = "!" + VIDEO_PLAYER_CLOSE_PATH + "?vid="+vid
+                        closePlayer(vid);
                     });
                 });
                 //scroll to the video...

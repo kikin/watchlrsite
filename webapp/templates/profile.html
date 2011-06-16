@@ -38,7 +38,7 @@
 
 {% block content %}
     <meta name="profile_subject" content="{{ profile_owner.id }}"/>
-    <div id="user-info-container" class="shadow-5l">
+    <div id="user-info-container">
     <div class="user-info gradient"></div>
         <div class="inner">
         <div id="facebook-img-container">
@@ -137,7 +137,7 @@
                 <a href="javascript:UI.loadPlayer({{ video.id }})">
                     <div class="video-image" id="video-{{ video.id }}">
                         <div class="video-thumb-wrapper">
-                            <img class="video-thumbnail" src="{{video.get_thumbnail.url}}"
+                            <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"
                                  onerror="this.style.visibility='hidden'"
                                  onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
 
@@ -148,12 +148,20 @@
                     </div>
                 </a>
 
-                <div class="video-info">
-                    <div class="video-description">{{ video.description }}</div>
-                    <div class="video-saved">
-                        <a href="{{video.url}}">{{ video.title }}</a>
-                    </div>
+            <div class="video-info">
+                <div class="video-description">{{ video.description|truncatewords:50|urlize }}</div>
+                <div class="video-saved">
+                    <a href="{{ video|source_url_root }}" target="_blank">
+                        <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
+                    </a>
+                    &bull;
+                    {% if video.source %}
+                        <a href="{{video.url}}" target="_blank">source</a>
+                    {% endif %}
+                    &bull;
+                    <span class="video-timeago">{{ video|pretty_date_saved:profile_owner }}</span>
                 </div>
+            </div>
 
                 <br style="clear:both;"/>
 
