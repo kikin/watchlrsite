@@ -213,7 +213,7 @@ class User(auth_models.User):
         return user_video
 
     def followers(self):
-        return [u.follower for u in self.follower_set.all()]
+        return [u.follower for u in UserFollowsUser.objects.filter(followee=self).all()]
 
     def following(self):
         return list(self.follows.all())
