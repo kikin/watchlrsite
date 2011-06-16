@@ -179,7 +179,7 @@ a:hover {
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
 
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-    z-index: 5;
+    z-index: 10000;
 }
 
 #options ul {
@@ -1097,4 +1097,10 @@ box-shadow: 10px 10px 5px #888;
 .video-source-image{
     width:16px;
     height:16px;
+}
+
+.rounded-corners-8{
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
 }
