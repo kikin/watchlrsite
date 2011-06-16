@@ -190,6 +190,8 @@ def user_page(request, user_id, relation):
     if request.user.is_authenticated():
             try:
                 target_user = User.objects.get(id=int(user_id))
+                is_own_profile = target_user == request.user
+
                 if relation == 'followers':
                     related_users = target_user.followers()
                     heading = 'Users following <a href="/%s">%s</a>:' % (target_user.username, target_user.first_name)
@@ -213,7 +215,8 @@ def user_page(request, user_id, relation):
                     related_users_subset = paginator.page(paginator.num_pages)
                 return render_to_response('user_list.html', {'users':related_users_subset.object_list,\
                                 'heading': heading, 'settings':settings, 'user':request.user,\
-                                'profile_owner':target_user}, context_instance=RequestContext(request))
+                                'profile_owner':target_user, 'is_own_profile':is_own_profile},\
+                                          context_instance=RequestContext(request))
             except (ObjectDoesNotExist, ValueError), e:
                 return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
