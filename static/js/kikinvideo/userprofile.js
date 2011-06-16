@@ -62,10 +62,18 @@ kikinvideo.ProfileViewController = function(){
             });
         }
 
+        function scrollToQueue(){                            //scroll to the video...
+            $('html, body').animate({
+                scrollTop: $(VIDEO_PANEL_SELECTOR).offset().top
+            }, 1000);
+        }
+
     return{
         handleFollow : handleFollow,
 
-        handleUnfollow : handleUnfollow
+        handleUnfollow : handleUnfollow,
+
+        scrollToQueue : scrollToQueue
     }
 }
 var profileViewController;
