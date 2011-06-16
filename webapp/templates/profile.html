@@ -67,7 +67,11 @@
                         {{ profile_owner.followers|length }}
                         </div>
                         <div class="profile-basic-statistics-sub" style="margin-top:10px;">
+                            {% if profile_owner.followers|length_is:1 %}
+                            Follower
+                            {% else %}
                             Followers
+                            {% endif %}
                         </div>
                     </div>
                 </a>
@@ -75,7 +79,11 @@
                     <div class="profile-basic-statistics" style="left:365px;">
                         {{ profile_owner.following|length }}
                         <div class="profile-basic-statistics-sub">
+                            {% if profile_owner.following|length_is:1 %}
+                            Followed<br>user
+                            {% else %}
                             Followed<br>users
+                            {% endif %}
                         </div>
                     </div>
                 </a>
