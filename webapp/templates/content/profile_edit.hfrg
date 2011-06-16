@@ -83,30 +83,15 @@
         margin-left: 10px;
     }
 
-    #profile-view-close {
-        background: none repeat scroll 0 0 #111111;
-        border: 1px solid #DEDEDE;
-        border-radius: 12px 12px 12px 12px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-        color: #DEDEDE;
-        cursor: pointer;
-        display: block;
-        float: right;
-        font-weight: bold;
-        height: 12px;
-        padding: 4px;
-        position: relative;
-        right: -10px;
-        text-align: center;
-        text-decoration: none;
-        top: -15px;
-        width: 12px;
+    #profile-view-close{
+        margin-top:-18px;
+        margin-right: -16px;
     }
 
 </style>
 
 <div id="profile-edit-panel">
-    <a id="profile-view-close" title="Close">X</a>
+    <a id="profile-view-close" class="close-button-fancy" title="Close"></a>
     <span id="fb-username">Edit Profile:</span>
     <img id="facebook-thumbnail" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=normal"/>
 
