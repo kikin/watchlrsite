@@ -33,7 +33,13 @@
     <script src="{{ settings.STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    <script type="text/javascript">activeView = VIEWS.detail;stylizeVideoTitles();</script>
+    <script type="text/javascript">
+        activeView = VIEWS.detail;stylizeVideoTitles();
+        $(document).ready(function(){
+            home.bindVideoPanelEvents();
+        });
+    </script>
+
 
 {% endblock script_refs %}
 {% block content %}
@@ -43,9 +49,9 @@
 			<!-- note: changed classnames here -->
             <div class="video-buttons-container">
                 {% if user.is_authenticated %}
-                    <a href="#!/like?vid={{ video.id }}" title="like">
+                    <a href="javascript:home.handleLike({{ video.id }})" title="like">
                     {% if video in user.liked_videos %}
-                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+                        <div class="heart-container liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}
                         <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
                     {% endif %}
