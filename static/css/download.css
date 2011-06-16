@@ -1,11 +1,15 @@
 /* General */
 html {
-    background: url(/static/images/background_landing.png);
+    background: url(/static/images/background_download.png);
     background-repeat:repeat-x;
 }
 
 #content {
 	width:900px;
+}
+
+#header-right {
+    visibility:hidden;
 }
 
 #wrapper {

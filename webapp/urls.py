@@ -12,8 +12,8 @@ urlpatterns = patterns('webapp',
                        (r'^content/profile_edit', 'views.profile_edit'),
                        url(r'^video/(?P<video_id>[0-9]+)', 'views.video_detail', name='video_detail'),
                        (r'^content/plugin_pitch', 'views.plugin_pitch'),
-                       # Any root-level urls must be defined ABOVE
-                       # ex. (r'^about', 'views.about'),
+                       (r'^following/(?P<user_id>[0-9]+)', 'views.following'),
+                       (r'^followers/(?P<user_id>[0-9]+)', 'views.followers'),
                        (r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile'),
                        )
 

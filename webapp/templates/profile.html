@@ -21,6 +21,7 @@
                 $('#facebook-img-container').css({width:108});
                 $('#facebook-img').addClass('shadow-5l');
                 $('#facebook-img').css({marginLeft:8});
+
             }
             else{
                 $('#facebook-img-container').addClass('shadow-5l');
@@ -41,7 +42,9 @@
     <div class="user-info gradient"></div>
         <div class="inner">
         <div id="facebook-img-container">
+           <a href="/{{ profile_owner.username }}">
            <img id='facebook-img'src="https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=normal"/>
+           </a>
         </div>
             <div id="username-display">
                     <div class="primary">
@@ -50,26 +53,40 @@
                     <div class="sub">
                         ({{ profile_owner.first_name }} {{ profile_owner.last_name }})
                     </div>
-                <div class="profile-basic-statistics" style="left:160px;">
-                    {{ profile_owner|total_liked_videos }}
-                    <div class="profile-basic-statistics-sub">
-                    Liked<br>videos
+                <a href="javascript:profileViewController.scrollToQueue()">
+                    <div class="profile-basic-statistics" style="left:160px;">
+                        {{ profile_owner|total_liked_videos }}
+                        <div class="profile-basic-statistics-sub">
+                            Liked<br>videos
+                        </div>
                     </div>
-                </div>
-                <div class="profile-basic-statistics with-breakers" style="left:250px;">
-                    <div id="follower-count-user-{{ profile_owner.id }}">
-                    {{ profile_owner.followers|length }}
+                </a>
+                <a href="/followers/{{ profile_owner.id }}">
+                    <div class="profile-basic-statistics with-breakers" style="left:250px;">
+                        <div id="follower-count-user-{{ profile_owner.id }}">
+                        {{ profile_owner.followers|length }}
+                        </div>
+                        <div class="profile-basic-statistics-sub" style="margin-top:10px;">
+                            {% if profile_owner.followers|length_is:1 %}
+                            Follower
+                            {% else %}
+                            Followers
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="profile-basic-statistics-sub" style="margin-top:10px;">
-                    Followers
+                </a>
+                <a href="/following/{{ profile_owner.id }}">
+                    <div class="profile-basic-statistics" style="left:365px;">
+                        {{ profile_owner.following|length }}
+                        <div class="profile-basic-statistics-sub">
+                            {% if profile_owner.following|length_is:1 %}
+                            Followed<br>user
+                            {% else %}
+                            Followed<br>users
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
-                <div class="profile-basic-statistics" style="left:365px;">
-                    {{ profile_owner.following|length }}
-                    <div class="profile-basic-statistics-sub">
-                    Followed<br>users
-                    </div>
-                </div>
+                </a>
                 {% if not is_own_profile %}
                     {% if profile_owner in user.following %}
                         <a href="javascript:profileViewController.handleUnfollow({{ profile_owner.id }})" id="follow-link-user-{{ profile_owner.id }}">
@@ -90,8 +107,21 @@
             </div>
         </div>
     </div>
+    {% block video_section %}
     <div id="videoListWrapper">
     <div id="videoList">
+    {% if videos|length_is:0 %}
+
+        <div id="video-{{video.id}}" class="video-wrapper">
+            <div class="video-container">
+                <div class="no-liked-videos">
+                    <div class="no-liked-videos inner">
+                        {{ profile_owner.first_name }} hasn't liked any videos yet
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
     {% for video in videos %}
 
        {% if not video|fetching_data %}
@@ -101,19 +131,19 @@
                 <div class="video-buttons">
 
                 {% if video not in user.saved_videos and user.is_authenticated %}
-                <a href="javascript:homeViewController.handleSave({{ video.id }})" title="save">
+                <a href="javascript:home.handleSave({{ video.id }})" title="save">
                     <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
                 </a>
                 {% else %}
                     {% if user.is_authenticated %}
-                    <a href="javascript:homeViewController.handleSave({{ video.id }})" title="save">
+                    <a href="javascript:home.handleSave({{ video.id }})" title="save">
                         <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
                     </a>
                      {% endif %}
                 {% endif %}
 
 
-                <a href="javascript:homeViewController.handleLike({{ video.id }})">
+                <a href="javascript:home.handleLike({{ video.id }})">
                 {% if video in user.liked_videos or not user.is_authenticated %}
                     <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                 {% else %}
@@ -170,6 +200,8 @@
         </div>
       {% endif %}
     {% endfor %}
+    {% endif %}
     </div>
     </div>
+    {% endblock video_section %}
 {% endblock content%}

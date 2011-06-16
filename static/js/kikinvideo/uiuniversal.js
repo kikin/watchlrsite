@@ -35,14 +35,6 @@ kikinvideo.UIUniversal =
             /*initialization...*/
             bindToUI();
 
-            /*bind hashchange listeners to corresponding event*/
-            $(window).hashchange(function() {
-                onHashChange(location.hash);
-            });
-
-            //in case we're refreshing...
-            onHashChange(location.hash);
-
             /*
              * Values accessible via jQuery for html checkboxes' "checked"
              * attribute are true and undefined, the latter of which cannot
@@ -213,21 +205,6 @@ kikinvideo.UIUniversal =
                 });
             }
 
-
-            /*hash-changes serve as the primary method of propogating state throughout this frontend...
-             * bind them to their corresponding UI-manipulation functions below*/
-            function onHashChange(hash_url) {
-                var url_content = parseHashURL(hash_url);
-                if(url_content.path == VIDEO_PLAYER_PATH){
-                    loadPlayer(url_content.params.vid);
-                }if(url_content.path == VIDEO_PLAYER_CLOSE_PATH){
-                    closePlayer(url_content.params.vid);
-                }if(url_content.path == PROFILE_EDIT_PANEL_OPEN_PATH){
-                    handleProfileEditPanelOpen();
-                }if(url_content.path == PROFILE_SAVE_PATH){
-                    handleProfileSave();
-                }
-            }
 
             //expose public functions...
             return {

@@ -14,16 +14,6 @@ kikinvideo.ProfileViewController = function(){
 
     var FOLLOW_COUNT_CONTAINER_ID_PREFIX = "#follower-count-user-";
 
-    /*bind hashchange listeners to corresponding event*/
-    $(window).hashchange(function() {
-        var url_content = parseHashURL(window.location.hash);
-        if(url_content.path == FOLLOW_USER_PATH){
-            handleFollow(url_content.params.user);
-        }if(url_content.path == UNFOLLOW_USER_PATH){
-            handleUnfollow(url_content.params.user);
-        }
-    });
-
     function _loadContent(){
         var uid = $(UID_META_SELECTOR).attr('content');
         $.get(LIKED_VIDEOS_CONTENT_URL, {'start':0, 'count':vidsToLoad, 'user_id':uid}, function(){
@@ -44,7 +34,7 @@ kikinvideo.ProfileViewController = function(){
                         numFollowers++;
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
                         if(activeView == VIEWS.activity){
-                            homeViewController.populatePanel();
+                            home.populatePanel();
                         }
                     }
                 },
@@ -72,10 +62,18 @@ kikinvideo.ProfileViewController = function(){
             });
         }
 
+        function scrollToQueue(){                            //scroll to the video...
+            $('html, body').animate({
+                scrollTop: $(VIDEO_PANEL_SELECTOR).offset().top
+            }, 1000);
+        }
+
     return{
         handleFollow : handleFollow,
 
-        handleUnfollow : handleUnfollow
+        handleUnfollow : handleUnfollow,
+
+        scrollToQueue : scrollToQueue
     }
 }
 var profileViewController;
@@ -83,6 +81,6 @@ $(document).ready(
         function(){
             profileViewController = new kikinvideo.ProfileViewController();
             if(activeView == VIEWS.profile)
-                homeViewController.bindVideoPanelEvents();
+                home.bindVideoPanelEvents();
         }
 );
