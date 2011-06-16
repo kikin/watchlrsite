@@ -1,6 +1,8 @@
 import os, logging, logging.config
 
 def init():
+    logging.basicConfig(level=logging.DEBUG)
+
     logger = logging.getLogger('kikinvideo')
     logger.setLevel(logging.DEBUG)
 

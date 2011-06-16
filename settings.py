@@ -44,7 +44,7 @@ database_configurations = {
     'local_sqlite':{
         'ENGINE':'django.db.backends.sqlite3',
         'NAME':'kikinvideo',
-    }
+        },
 }
 
 # Picks up database configuration from environment variable
@@ -208,9 +208,6 @@ djcelery.setup_loader()
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
 # Set up logging
-from logging import basicConfig, DEBUG as LOG_DEBUG
-basicConfig(level=LOG_DEBUG)
-
 import logconfig
 logconfig.init()
 
