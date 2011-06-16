@@ -34,7 +34,7 @@ kikinvideo.ProfileViewController = function(){
                         numFollowers++;
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
                         if(activeView == VIEWS.activity){
-                            homeViewController.populatePanel();
+                            home.populatePanel();
                         }
                     }
                 },
@@ -73,6 +73,6 @@ $(document).ready(
         function(){
             profileViewController = new kikinvideo.ProfileViewController();
             if(activeView == VIEWS.profile)
-                homeViewController.bindVideoPanelEvents();
+                home.bindVideoPanelEvents();
         }
 );

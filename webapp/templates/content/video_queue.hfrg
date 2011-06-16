@@ -42,7 +42,7 @@
             <div class="video-buttons">
 
                 {% if display_mode == 'saved' %}
-                <a href="javascript:homeViewController.removeVideo({{ video.id }})" title="remove from queue">
+                <a href="javascript:home.removeVideo({{ video.id }})" title="remove from queue">
                     <div class="video-delete-button no-hover"></div>
                 </a>
                 {% endif %}
@@ -60,7 +60,7 @@
 
                {% else %}
 
-                    <a href="javascript:homeViewController.handleLike({{ video.id }})">
+                    <a href="javascript:home.handleLike({{ video.id }})">
                     {% if video in user.liked_videos %}
                         <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                     {% else %}

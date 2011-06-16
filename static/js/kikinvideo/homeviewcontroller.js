@@ -360,11 +360,11 @@ kikinvideo.HomeViewController = function() {
 
 };
 
-var homeViewController;
+var home;
 
 $(document).ready(function(){
-    homeViewController = new kikinvideo.HomeViewController();
-    homeViewController.onHashChange(window.location.hash);
+    home = new kikinvideo.HomeViewController();
+    home.onHashChange(window.location.hash);
 
 	kikinvideo.util.CSSHelper.addCSSBodyClass();
 });

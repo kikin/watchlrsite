@@ -114,19 +114,19 @@
                 <div class="video-buttons">
 
                 {% if video not in user.saved_videos and user.is_authenticated %}
-                <a href="javascript:homeViewController.handleSave({{ video.id }})" title="save">
+                <a href="javascript:home.handleSave({{ video.id }})" title="save">
                     <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
                 </a>
                 {% else %}
                     {% if user.is_authenticated %}
-                    <a href="javascript:homeViewController.handleSave({{ video.id }})" title="save">
+                    <a href="javascript:home.handleSave({{ video.id }})" title="save">
                         <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
                     </a>
                      {% endif %}
                 {% endif %}
 
 
-                <a href="javascript:homeViewController.handleLike({{ video.id }})">
+                <a href="javascript:home.handleLike({{ video.id }})">
                 {% if video in user.liked_videos or not user.is_authenticated %}
                     <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
                 {% else %}
