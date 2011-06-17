@@ -23,9 +23,15 @@
                                 <a href="/{{ related_user.username }}">
                                     <img class="fb-thumb-square" src="https://graph.facebook.com/{{ related_user.facebook_uid }}/picture?type=square"/>
                                 </a>
+                                {% if related_user != user %}
                                 <div class="username">
                                     <a href="/{{ related_user.username }}">{{ related_user|full_name|truncate_text:25 }}</a>
                                 </div>
+                                {% else %}
+                                <div class="username">
+                                    <a href="/{{ related_user.username }}">You</a>
+                                </div>
+                                {% endif %}
 
                                 {% comment %}
                                 "follow" buttons
