@@ -187,39 +187,37 @@ def activity(request):
 
 #view renders (paginated) user list (using templ. user_list.html)
 def user_page(request, user_id, relation):
-    if request.user.is_authenticated():
-            try:
-                target_user = User.objects.get(id=int(user_id))
-                is_own_profile = target_user == request.user
+    try:
+        target_user = User.objects.get(id=int(user_id))
+        is_own_profile = target_user == request.user
 
-                if relation == 'followers':
-                    related_users = target_user.followers()
-                    heading = 'Users following <a href="/%s">%s</a>:' % (target_user.username, target_user.first_name)
-                if relation == 'following':
-                    related_users = target_user.following()
-                    heading = '<a href="/%s">%s</a> is following:' % (target_user.username, target_user.first_name)
-                
-                paginator = Paginator(related_users, 20)
-                if 'page' in request.GET:
-                    page = request.GET.get('page')
-                else:
-                    page = 1
+        if relation == 'followers':
+            related_users = target_user.followers()
+            heading = 'Users following <a href="/%s">%s</a>:' % (target_user.username, target_user.first_name)
+        if relation == 'following':
+            related_users = target_user.following()
+            heading = '<a href="/%s">%s</a> is following:' % (target_user.username, target_user.first_name)
 
-                try:
-                    related_users_subset = paginator.page(page)
-                except PageNotAnInteger:
-                # If page is not an integer, deliver first page.
-                    related_users_subset = paginator.page(1)
-                except EmptyPage:
-                    # If page is out of range (e.g. 9999), deliver last page of results.
-                    related_users_subset = paginator.page(paginator.num_pages)
-                return render_to_response('user_list.html', {'related_users':related_users_subset.object_list,\
-                                'heading': heading, 'settings':settings, 'user':request.user,\
-                                'profile_owner':target_user, 'is_own_profile':is_own_profile},\
-                                          context_instance=RequestContext(request))
-            except (ObjectDoesNotExist, ValueError), e:
-                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
-    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+        paginator = Paginator(related_users, 20)
+        if 'page' in request.GET:
+            page = request.GET.get('page')
+        else:
+            page = 1
+
+        try:
+            related_users_subset = paginator.page(page)
+        except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+            related_users_subset = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            related_users_subset = paginator.page(paginator.num_pages)
+        return render_to_response('user_list.html', {'related_users':related_users_subset.object_list,\
+                        'heading': heading, 'settings':settings, 'user':request.user,\
+                        'profile_owner':target_user, 'is_own_profile':is_own_profile},\
+                                  context_instance=RequestContext(request))
+    except (ObjectDoesNotExist, ValueError), e:
+        return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
 
 def followers(request, user_id):
     return user_page(request, user_id, relation='followers')
