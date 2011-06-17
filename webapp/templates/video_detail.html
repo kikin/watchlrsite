@@ -1,6 +1,5 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
-
 {% block style_refs %}
     <style>
 	
@@ -45,7 +44,7 @@
 {% block content %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
-            <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
+            <h3 class="video-title">{{ video.title }}</h3>
 			<!-- note: changed classnames here -->
             <div class="video-buttons-container">
                 {% if user.is_authenticated %}
@@ -83,13 +82,9 @@
                     </a>
                     <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;"></div>
             </div>
-            <a href="/#!/player?vid={{ video.id }}" class="video-thumb">
-                <div class="video-image" id="video-{{ video.id }}">
-                    <div class="video-thumb-wrapper">
-                        <img class="video-thumbnail" src="{{video|web_thumbnail_url}}" />
-                    </div>
-                </div>
-            </a>
+            <div class="video-image" id="video-{{ video.id }}">
+                <img class="video-thumbnail" src="{{video|web_thumbnail_url}}" />
+            </div>
 
             <div class="video-info detail-view">
                 <div class="video-description">{{ video.description }}</div>
