@@ -18,7 +18,7 @@
         <div class="user-list-wrapper">
             <div id="videoListWrapper">
                 <div id="videoList">
-                    {% for related_user in users %}
+                    {% for related_user in related_users %}
                         <div class="user-info wrapper">
                                 <a href="/{{ related_user.username }}">
                                     <img class="fb-thumb-square" src="https://graph.facebook.com/{{ related_user.facebook_uid }}/picture?type=square"/>
@@ -26,6 +26,31 @@
                                 <div class="username">
                                     <a href="/{{ related_user.username }}">{{ related_user|full_name|truncate_text:25 }}</a>
                                 </div>
+
+                                {% comment %}
+                                "follow" buttons
+                                {% endcomment %}
+                                {% if related_user != user %}
+                                    {% if related_user in user.following %}
+                                        <a href="javascript:profileViewController.handleUnfollow({{ related_user.id }})" id="follow-button-user-{{ related_user.id }}"
+                                                class="user-list-follow-button shadow-5l">
+                                            Unfollow
+                                        </a>
+                                    {% else %}
+                                        {% if not user.is_authenticated %}
+                                        <a href="javascript:alert('you must register an account with Kikin Video before you can follow users');"
+                                           id="follow-button-user-{{ related_user.id }}" class="user-list-follow-button shadow-5l">
+                                            Follow
+                                        </a>
+                                        {% else %}
+                                        <a href="javascript:profileViewController.handleFollow({{ related_user.id }})" id="follow-button-user-{{ related_user.id }}"
+                                                class="user-list-follow-button shadow-5l">
+                                            Follow
+                                        </a>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+
                         </div>
                     {% endfor %}
                 </div>
