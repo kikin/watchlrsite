@@ -287,6 +287,7 @@ kikinvideo.HomeViewController = function() {
                                                     like_details = like_details.replace('You and ', '');
                                                 }else{
                                                     like_details = like_details.replace('You and ', '');
+                                                    like_details = like_details.replace('You, ', '');
                                                 }
                                                 activity_item_header.fadeOut(500, function(){
                                                     activity_item_header.html(like_details);
