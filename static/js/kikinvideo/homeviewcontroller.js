@@ -40,6 +40,8 @@ kikinvideo.HomeViewController = function() {
 
     var activityItemsPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
 
+    var VID_LIKED_BY_CONTAINER_ID_PREFIX = "#video-liked-by-wrapper-vid-";
+
     //set to whatever num of these you want to initially load...
     var savedVideosToLoad = 10;
 
@@ -336,6 +338,10 @@ kikinvideo.HomeViewController = function() {
                 },
                 failure : showErrorDialog()
         });
+    }
+
+    function showVidLikedBy(vid){
+        $(VID_LIKED_BY_CONTAINER_ID_PREFIX+vid).fadeIn();
     }
 
 
