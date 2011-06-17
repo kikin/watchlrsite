@@ -964,7 +964,7 @@ a#lnk-page-next:hover {
 .video-buttons {
     position:absolute;
     margin-left:565px;
-    width: 90px;
+    min-width: 90px;
     height: 34px;
 }
 
