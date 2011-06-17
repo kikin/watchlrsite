@@ -1,0 +1,16 @@
+<div class="user-dropdown" id="user-dropdown-vid-{{ video.id }}">
+    <ul>
+    {% for user in users %}
+        <li>
+            <div class="item">
+                <a href="/{{ user.username }}" title="{{ user|full_name }}">
+                    <img class="fb-thumb" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=square"/>
+                </a>
+                <div class="username">
+                    <a href="/{{ user.username }}" title="{{ user|full_name }}">{{ user.username|truncate_text:15 }}</a>
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+</div>

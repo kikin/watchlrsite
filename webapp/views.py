@@ -226,3 +226,11 @@ def followers(request, user_id):
 
 def following(request, user_id):
     return user_page(request, user_id, relation='following')
+
+def vid_liked_by(request, video_id):
+    try:
+        video = Video.objects.get(pk=int(video_id))
+    except (ValueError, Video.DoesNotExist):
+        #in case of uncastable or invalid vid...
+        return HttpResponseNotFound()
+    return render_to_response('content/user_dropdown.hfrg', {'video':video, 'users':video.all_likers()})

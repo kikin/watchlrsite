@@ -14,6 +14,7 @@ urlpatterns = patterns('webapp',
                        (r'^content/plugin_pitch', 'views.plugin_pitch'),
                        (r'^following/(?P<user_id>[0-9]+)', 'views.following'),
                        (r'^followers/(?P<user_id>[0-9]+)', 'views.followers'),
+                       (r'vid_liked_by_dropdown/(?P<video_id>[0-9]+)', 'views.vid_liked_by'),
                        (r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile'),
                        )
 

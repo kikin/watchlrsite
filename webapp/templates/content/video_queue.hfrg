@@ -133,6 +133,9 @@
             <div id="video-player-container" style="margin-top:40px;">
                 {% video_player video %}
             </div>
+            <div id="video-liked-by-wrapper-vid-{{ video.id }}" class="video-liked-by wrapper">
+                {% user_dropdown %}
+            </div>
         </div>
     </div>
     {% endif %}

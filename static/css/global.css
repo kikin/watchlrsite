@@ -1106,3 +1106,42 @@ box-shadow: 10px 10px 5px #888;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
 }
+
+.user-dropdown{
+    width:640px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.user-dropdown .item{
+    float:left;
+    margin-right: 20px;
+    margin-top:20px;
+    width:170px;
+    height:70px;
+    font-family: Helvetica;
+    font-size:16px;
+    overflow: hidden;
+}
+
+.user-dropdown ul{
+    list-style-type: none;
+    display: inline;
+}
+
+.user-dropdown li{
+    display: inline;
+    list-style-type: none;
+}
+
+.user-dropdown .fb-thumb{
+    float:left;
+    margin-left: 10px;
+    margin-top:10px;
+}
+
+.user-dropdown .username{
+    float:left;
+    margin-top:25px;
+    margin-left: 15px;
+}
