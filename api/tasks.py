@@ -19,7 +19,7 @@ from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
 from social_auth.backends.facebook import FACEBOOK_SERVER
 
-from api.models import Video, User, Source as VideoSource
+from api.models import Video, User, Source as VideoSource, Thumbnail
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -1217,15 +1217,19 @@ def push_like_to_fb(video, user):
         logger.debug('Not pushing to FB for user:%s' % user.username)
         return
 
-    server_name = '%s' % Site.objects.get_current().domain
+    server_name = Site.objects.get_current().domain
 
     params = {'access_token': user.facebook_access_token(),
               'link': '%s/%s' % (server_name, video.get_absolute_url()),
               'caption': server_name,
-              'picture': video.get_thumbnail().url,
               'name': encode(video.title),
               'description': encode(video.description),
               'message': 'likes \'%s\'' % encode(video.title)}
+
+    try:
+        params['picture'] = video.get_thumbnail().url
+    except Thumbnail.DoesNotExist:
+        pass
 
     url = 'https://%s/me/feed' % FACEBOOK_SERVER
     try:
@@ -1233,4 +1237,3 @@ def push_like_to_fb(video, user):
         logger.debug('Facebook post id: %s' % response['id'])
     except:
         logger.exception('Could not post to Facebook')
-
