@@ -33,7 +33,7 @@ database_configurations = {
         'HOST': '',
         'PORT': '',
         },
-    'local': {
+    'local_mysql': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'kikinvideo',
         'USER': 'webapp',
@@ -41,7 +41,7 @@ database_configurations = {
         'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
         'PORT': '',
         },
-    'local_sqlite':{
+    'local':{
         'ENGINE':'django.db.backends.sqlite3',
         'NAME':'kikinvideo',
         },

@@ -955,6 +955,10 @@ a#lnk-page-next:hover {
 .mozilla .video-liked-info{
     margin-top:3px;
 }
+
+.win.mozilla .video-liked-info{
+    margin-top: -1px;
+}
 .video-delete-button {
     float:right;
    /* margin-left: 52px;*/
