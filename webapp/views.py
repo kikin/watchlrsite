@@ -213,7 +213,7 @@ def user_page(request, user_id, relation):
                 except EmptyPage:
                     # If page is out of range (e.g. 9999), deliver last page of results.
                     related_users_subset = paginator.page(paginator.num_pages)
-                return render_to_response('user_list.html', {'users':related_users_subset.object_list,\
+                return render_to_response('user_list.html', {'related_users':related_users_subset.object_list,\
                                 'heading': heading, 'settings':settings, 'user':request.user,\
                                 'profile_owner':target_user, 'is_own_profile':is_own_profile},\
                                           context_instance=RequestContext(request))
