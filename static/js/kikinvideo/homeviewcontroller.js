@@ -345,10 +345,8 @@ kikinvideo.HomeViewController = function() {
     function showVidLikedBy(vid, start, count){
         if(!start)
             var start=0;
-
-        if(!count)
-            var count=100;
-        
+        i
+        var count=20;
         $.ajax({
             url:'/video_liked_by/'+vid,
             data : {'start':start, 'count':count},
