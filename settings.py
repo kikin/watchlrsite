@@ -4,10 +4,10 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local_sqlite')
+VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local')
 
 # Turn DEBUG off if VIDEO_ENV is defined ('dev', 'prod', etc)
-DEBUG = VIDEO_ENV == 'local_sqlite'.
+DEBUG = VIDEO_ENV == 'local'
 
 TEMPLATE_DEBUG = DEBUG
 
