@@ -33,7 +33,7 @@ database_configurations = {
         'HOST': '',
         'PORT': '',
         },
-    'local_mysql': {
+    'local': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'kikinvideo',
         'USER': 'webapp',
@@ -41,7 +41,7 @@ database_configurations = {
         'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
         'PORT': '',
         },
-    'local':{
+    'local_sqlite':{
         'ENGINE':'django.db.backends.sqlite3',
         'NAME':'kikinvideo',
         },
@@ -127,6 +127,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.auth',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
 )
 
 AUTHENTICATION_BACKENDS = (

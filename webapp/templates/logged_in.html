@@ -1,19 +1,19 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
 {% block style_refs %}
-    <link rel="stylesheet" href="{{ settings.STATIC_URL }}video_player/video-js.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
-    <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/activity_queue.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
-    <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/logged_in.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+    <link rel="stylesheet" href="{{ STATIC_URL }}video_player/video-js.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
 {% endblock style_refs %}
 
 {% block script_refs %}
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}video_player/video.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/util/String.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/util/plugindetect.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/userprofile.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}video_player/video.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/plugindetect.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
 
     <script type="text/javascript">
     $(document).ready(function(){

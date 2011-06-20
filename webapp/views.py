@@ -21,7 +21,7 @@ def login_complete(request):
         response['Set-Kke'] = '_KVS=%s' % request.session.session_key
         return response
     else:
-        return render_to_response('logged_out.html', {'settings': settings}, context_instance=RequestContext(request))
+        return render_to_response('logged_out.html', context_instance=RequestContext(request))
 
 def home(request):
     if request.user.is_authenticated():
@@ -32,21 +32,20 @@ def home(request):
         suggested_followees = [x for x in all_users if x not in request.user.following()\
  										and x != request.user][:NUM_SUGGESTED_FOLLOWEES]
 
-        return render_to_response('logged_in.html', {'settings': settings, 'suggested_followees':suggested_followees},\
+        return render_to_response('logged_in.html', {'suggested_followees':suggested_followees},\
                                   context_instance=RequestContext(request))
     else:
-        return render_to_response('logged_out.html', {'settings': settings}, context_instance=RequestContext(request))
+        return render_to_response('logged_out.html', context_instance=RequestContext(request))
 
 #hard coding tag bindings so you can see how this will work...
 def profile(request):
-    return render_to_response('profile.html', {'settings': settings, 'user': user},
-                              context_instance=RequestContext(request))
+    return render_to_response('profile.html', context_instance=RequestContext(request))
 
 
 def profile_edit(request):
     syndicate = Preference.objects.get(user=request.user, name="syndicate").value
-    return render_to_response('content/profile_edit.hfrg', {'settings': settings, 'user': request.user,\
-                              'syndicate_likes':syndicate}, context_instance=RequestContext(request))
+    return render_to_response('content/profile_edit.hfrg', {'syndicate_likes':syndicate},\
+                            context_instance=RequestContext(request))
 
 
 def logout_view(request):
@@ -73,7 +72,7 @@ def liked_video_queue(request):
             #just pass through all liked videos...
             vid_subset = user.liked_videos()
         return render_to_response('content/video_queue.hfrg',{'user':user,
-                                  'display_mode':'profile', 'settings': settings, 'videos': vid_subset},
+                                  'display_mode':'profile', 'videos': vid_subset},
                                   context_instance=RequestContext(request))
 
     elif request.method == 'GET' and request.user.is_authenticated():
@@ -92,7 +91,7 @@ def liked_video_queue(request):
                 #means url was malformed...
                 return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
             return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                              'display_mode':'liked', 'settings': settings, 'videos': vid_subset},
+                              'display_mode':'liked', 'videos': vid_subset},
                               context_instance=RequestContext(request))
     return HttpResponseForbidden('you are not authorized to view this content, please log in')
 
@@ -119,7 +118,7 @@ def saved_video_queue(request):
             #just pass through all liked videos...
             vid_subset = request.user.saved_videos()
         return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                                  'display_mode':'saved', 'settings': settings, 'videos': vid_subset},
+                                  'display_mode':'saved', 'videos': vid_subset},
                                   context_instance=RequestContext(request))
 
 
@@ -138,25 +137,25 @@ def video_detail(request, video_id):
             #in case of uncastable or invalid vid...
             return HttpResponseNotFound()
         return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
-                            'settings':settings, 'video':video}, context_instance=RequestContext(request))
+                            'video':video}, context_instance=RequestContext(request))
 
 
 def public_profile(request, username):
     try:
         user = User.objects.get(username=username)
         if user == request.user:
-            return render_to_response('profile.html', {'profile_owner':user, 'user':user, 'settings':settings, 'display_mode':'profile',\
+            return render_to_response('profile.html', {'profile_owner':user, 'user':user, 'display_mode':'profile',\
                                                        'is_own_profile':True, 'videos':user.liked_videos()},\
                                                         context_instance=RequestContext(request))
         else:
-            return render_to_response('profile.html', {'user':request.user, 'profile_owner':user, 'settings':settings, 'display_mode':'profile',\
+            return render_to_response('profile.html', {'user':request.user, 'profile_owner':user, 'display_mode':'profile',\
                                                        'is_own_profile':False, 'videos':user.liked_videos()},\
                                                         context_instance=RequestContext(request))
     except Exception, e:
         raise Http404
 
 def download_pitch(request):
-    return render_to_response('download_pitch.html', {'settings':settings, 'user':request.user})
+    return render_to_response('download_pitch.html', context_instance=RequestContext(request))
     
 def plugin_pitch(request):
     return render_to_response('content/plugin_pitch.hfrg')
@@ -181,8 +180,7 @@ def activity(request):
         else:
             vid_subset = request.user.activity()
         return render_to_response('content/activity_queue.hfrg', \
-                {'user':user, 'settings':settings,'activity_items':vid_subset},\
-                                        context_instance=RequestContext(request))
+                {'activity_items':vid_subset},context_instance=RequestContext(request))
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 #view renders (paginated) user list (using templ. user_list.html)
@@ -213,9 +211,8 @@ def user_page(request, user_id, relation):
             # If page is out of range (e.g. 9999), deliver last page of results.
             related_users_subset = paginator.page(paginator.num_pages)
         return render_to_response('user_list.html', {'related_users':related_users_subset.object_list,\
-                        'heading': heading, 'settings':settings, 'user':request.user,\
-                        'profile_owner':target_user, 'is_own_profile':is_own_profile},\
-                                  context_instance=RequestContext(request))
+                        'heading': heading, 'profile_owner':target_user, \
+                        'is_own_profile':is_own_profile}, context_instance=RequestContext(request))
     except (ObjectDoesNotExist, ValueError), e:
         return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
 
