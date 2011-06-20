@@ -25,7 +25,9 @@
             }
             //if image is "portrait"...
             else if($('#facebook-img').width() < $('#facebook-img').height()){
-                
+                $('#facebook-img-container').css({height:108});
+                $('#facebook-img').css({height:100});
+                $('#facebook-img').addClass('shadow-5l');
             }
             else{
                 $('#facebook-img-container').addClass('shadow-5l');
