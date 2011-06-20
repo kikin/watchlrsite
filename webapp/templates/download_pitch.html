@@ -1,6 +1,6 @@
 {% extends "user_home.html" %}
 {% block style_refs %}
-    <link rel="stylesheet" type="text/css" href="{{ settings.STATIC_URL }}css/download.css?v=1" media="all"/>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/download.css?v=1" media="all"/>
 {% endblock style_refs %}
 
 {% block script_refs %}
@@ -20,7 +20,7 @@
     <div style="padding-left:115px; padding-top:20px; padding-bottom:20px; width:842px;">
         <h3 class="video-title" style="font-size: 36px; color: #0c536f;">Save Videos to Watch Later from Any Page</h3>
     </div>
-    <img title="Save videos for later" src="{{ settings.STATIC_URL }}images/download/main.png" />
+    <img title="Save videos for later" src="{{ STATIC_URL }}images/download/main.png" />
     <div style="color:white; font-size: 24px; font-weight: bold; padding-top: 55px; padding-left: 40px; padding-bottom: 15px;">
         Download the kikin Video Browser App Today!
     </div>
@@ -48,7 +48,7 @@
                 Save Any Video For Later
             </h4>
             <p>Place your mouse on any video, on any webpage and kikin will add a "Watch Later" button.</p>
-            <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="padding-top:5px; padding-left: 0px;"/>
+            <img class="featureImage" alt="Learn how to use kikin Video" src="{{ STATIC_URL }}images/education/empty_save_queue.png" style="padding-top:5px; padding-left: 0px;"/>
         </div>
     </div>
 {% endblock content %}
