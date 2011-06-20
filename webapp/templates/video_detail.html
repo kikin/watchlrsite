@@ -1,8 +1,10 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
 {% block style_refs %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css">
     <style>
-	
+
 	.video-wrapper{
 		text-align:left;
         width:700px;
@@ -21,11 +23,18 @@
         -webkit-border-radius: 4px;
         border-radius: 4px;
     }
-	
-	
+
 	.video-thumb{
 		clear:left;
 	}
+
+    .video-info{
+        margin-left:0px;
+    }
+
+    .right-panel{
+        margin-left: 740px;
+    }
 	
 	.video-buttons-container{float:right;}
     </style>
@@ -35,6 +44,10 @@
     <script src="{{ STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/plugindetect.js"></script>
+    
     <script type="text/javascript">
         activeView = VIEWS.detail;stylizeVideoTitles();
         $(document).ready(function(){
@@ -42,9 +55,11 @@
         });
     </script>
 
-
 {% endblock script_refs %}
+
 {% block content %}
+    <div class="right-panel" style="display: block;"></div>
+    <div id="video-section" style="width: 680px;">
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
             <h3 class="video-title">{{ video.title }}</h3>
@@ -147,6 +162,6 @@
 
             {% endif %}
         </div>
-
+        </div>
     </div>
 {% endblock %}

@@ -740,6 +740,7 @@ ul>span.cufon-canvas {
 
 .video-info.detail-view{
     width: 480px;
+    padding-left:0px;
 }
 
 a#lnk-page-next {
