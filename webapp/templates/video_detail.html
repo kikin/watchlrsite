@@ -80,12 +80,17 @@
                 {% else %}
                     <a href="/login/facebook">
                     {% if video.total_likes > 0 %}
-                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                        {% else %}
-                            <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"
-                        {% endif %}
+                        <div class="heart-container not-liked" id="liked-icon-vid-{{ video.id }}"></div>
+                        <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
+                            <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                                {{ video.total_likes }}
+                            </span>
+                        </a>
+                    {% else %}
+                        <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"
                     {% endif %}
                     </a>
+                {% endif %}
                     <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;"></div>
             </div>
             <div class="video-image" id="video-{{ video.id }}">
@@ -109,8 +114,11 @@
 
             <br style="clear:both;"/>
 
-            <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" style="text-align: left;width: 640px;"></div>
-        
+
+            <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}"
+                 style="text-align: left;width: 680px;border-top:1px solid #cccccc;margin-top:10px;"></div>
+
+
             {% if video.html_embed_code or video.html5_embed_code %}
 
             <div class="video-detail-player" id="video-player-{{ video.id }}"
