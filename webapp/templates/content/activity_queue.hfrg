@@ -40,8 +40,7 @@
 
 
              <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
-              <a href="javascript:UI.loadPlayer({{ activity_item.video.id }})" class="video-thumb-link">
-              <div class="video-image" id="video-{{ activity_item.video.id }}">
+              <a class="video-image" href="javascript:UI.loadPlayer({{ activity_item.video.id }})" id="video-{{ activity_item.video.id }}">
                     <div class="video-thumb-wrapper">
                         <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"
                              onerror="this.style.visibility='hidden'"
@@ -51,8 +50,7 @@
                             <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ activity_item.video.id }}"></div>
                         </div>
                     </div>
-                </div>
-              </a>
+                </a>
 
             <div class="video-buttons" style="margin-top: 10px;">
 

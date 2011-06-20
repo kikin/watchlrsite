@@ -14,7 +14,7 @@ NUM_SUGGESTED_FOLLOWEES = 8
 
 # num of users to display in each
 #"this video liked by..." dropdown
-_VID_LIKED_BY_PAGINATION_THRESHOLD = 15
+_VID_LIKED_BY_PAGINATION_THRESHOLD = 1
 
 def login_complete(request):
     # Client requires that we pass in a Set-Kke header with session key so as to persist it
