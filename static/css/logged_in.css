@@ -14,12 +14,12 @@
 .suggested-followees.title
 {
     font-size: 18px;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #144D63;
 }
 
 .suggested-followee-item{
     width:280px;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #144D63;
     height:50px;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -40,7 +40,7 @@
     position:absolute;
     width: 70px;
     margin-top:8px;
-    margin-left: 148px;
+    margin-left: 160px;
     height:22px;
     border-radius: 6px;
     -moz-border-radius:6px;
