@@ -41,7 +41,7 @@
                     </a>
                     <div class="suggested-followees profile-link-container">
                         <a href="{{ kv_user.username }}" title={{ kv_user|full_name }}>
-                            {{ kv_user|full_name|truncate_text:13 }}
+                            {{ kv_user|full_name|truncate_text:16 }}
                         </a>
                     </div>
                     <a href="javascript:profileViewController.handleFollow({{ kv_user.id }})" id="follow-button-user-{{ kv_user.id }}" class="follow-button shadow-5l">
