@@ -29,8 +29,10 @@ kikinvideo.ProfileViewController = function(){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).attr("href", "javascript:profileViewController.handleUnfollow("+user_id+");");
                         var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
-                        if(activeView == VIEWS.activity){
+                        if(activeView == VIEWS.activity || activeView == VIEWS.user_list){
                             home.populatePanel();
+                        }if(activeView == VIEWS.user_list){
+                            window.location.refresh(true);
                         }
                         numFollowers++;
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
@@ -52,8 +54,10 @@ kikinvideo.ProfileViewController = function(){
                         var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
                         numFollowers--;
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
-                        if(activeView == VIEWS.activity){
+                        if(activeView == VIEWS.activity ){
                             home.populatePanel();
+                        }if(activeView == VIEWS.user_list){
+                            window.location.refresh(true);
                         }
                     }
                 },

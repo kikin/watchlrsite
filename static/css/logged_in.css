@@ -26,15 +26,17 @@
 }
 
 .suggested-followees.profile-link-container{
+    font-family: Helvetica;
     position:absolute;
     width:160px;
     font-size: 15px;
-    margin-left: 60px;
+    margin-left: 74px;
     margin-top:14px;
+    font-weight: 500;
 }
 
 
-.follow-button{
+.suggested-followee-item .follow-button{
     position:absolute;
     width: 70px;
     margin-top:8px;
