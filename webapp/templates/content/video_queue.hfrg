@@ -70,20 +70,21 @@
                 {% endif %}
 
             {% if video.total_likes != 0 %}
-                    {% if video in user.liked_videos %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                {% if video in user.liked_videos %}
+                <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
+                    <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                         {{ video.total_likes }}
-                    </div>
+                    </span>
                     {% else %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                    <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
                         {{ video.total_likes }}
-                    </div>
+                    </span>
                     {%  endif %}
                 {% else %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
-                    </div>
+                    <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                    </span>
                 {% endif %}
-
+                </a>
                 {% if display_mode == 'profile' %}
                 <a>
                     <div class="save-video-button no-hover"></div>
@@ -133,10 +134,8 @@
             <div id="video-player-container" style="margin-top:40px;">
                 {% video_player video %}
             </div>
-            <div id="video-liked-by-wrapper-vid-{{ video.id }}" class="video-liked-by wrapper">
-                
-            </div>
         </div>
     </div>
+    <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
     {% endif %}
 {% endfor %}

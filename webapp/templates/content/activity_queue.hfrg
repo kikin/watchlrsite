@@ -40,7 +40,7 @@
 
 
              <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
-              <a href="javascript:UI.loadPlayer({{ activity_item.video.id }})">
+              <a href="javascript:UI.loadPlayer({{ activity_item.video.id }})" class="video-thumb-link">
               <div class="video-image" id="video-{{ activity_item.video.id }}">
                     <div class="video-thumb-wrapper">
                         <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"
@@ -78,13 +78,17 @@
                     </a>
 
                     {% if activity_item.video in user.liked_videos %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
+                    <a href="javascript:home.showVidLikedBy({{ activity_item.video.id }})" title="see who liked this video">
+                    <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
                         {{ activity_item.video.total_likes }}
-                    </div>
+                    </span>
+                    </a>
                     {% else %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}" style="color:#d0d0d0;">
+                    <a href="javascript:home.showVidLikedBy({{ activity_item.video.id }})" title="see who liked this video">
+                    <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}" style="color:#d0d0d0;">
                         {{ activity_item.video.total_likes }}
-                    </div>
+                    </span>
+                    </a>
                     {%  endif %}
             </div>
         </div>
@@ -92,5 +96,6 @@
                 {% video_player activity_item.video %}
         </div>
     </div>
+    <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
     {% endfor %}
 {% endif %}

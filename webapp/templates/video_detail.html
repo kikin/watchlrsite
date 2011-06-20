@@ -5,6 +5,9 @@
 	
 	.video-wrapper{
 		text-align:left;
+        width:700px;
+        margin-left: auto;
+        margin-right: auto;
 	}
 	h3.video-title{
 		margin-bottom:20px;
@@ -56,20 +59,23 @@
                     {% endif %}
                     </a>
 
+                    <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
                     {% if video.total_likes != 0 %}
                         {% if video in user.liked_videos %}
-                        <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                        <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                             {{ video.total_likes }}
-                        </div>
+                        </span>
                         {% else %}
-                        <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                        <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
                             {{ video.total_likes }}
-                        </div>
+                        </span>
                         {%  endif %}
                     {% else %}
-                            <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
-                            </div>
+
+                            <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                            </span>
                     {% endif %}
+                    </a>
 
                 {% else %}
                     <a href="/login/facebook">
@@ -103,6 +109,8 @@
 
             <br style="clear:both;"/>
 
+            <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" style="text-align: left;width: 640px;"></div>
+        
             {% if video.html_embed_code or video.html5_embed_code %}
 
             <div class="video-detail-player" id="video-player-{{ video.id }}"
@@ -131,6 +139,6 @@
 
             {% endif %}
         </div>
-        <div class="my-video-breaker"></div>
+
     </div>
 {% endblock %}

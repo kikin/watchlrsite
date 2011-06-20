@@ -952,6 +952,14 @@ a#lnk-page-next:hover {
 	margin-top:-1px;
 }
 
+.video-buttons a:hover{
+    color:#cccccc;
+}
+
+.video-buttons-container a:hover{
+    color:#cccccc;
+}
+
 .mozilla .video-liked-info{
     margin-top:3px;
 }
@@ -1115,27 +1123,26 @@ box-shadow: 10px 10px 5px #888;
     width:640px;
     margin-left: auto;
     margin-right: auto;
+    text-align: left;
+    display:block;
 }
 
-.user-dropdown .item{
-    float:left;
-    margin-right: 20px;
-    margin-top:20px;
+
+.user-dropdown ul{
+    list-style-type: none;
+    width: 640px;
+}
+
+.user-dropdown li{
+    display:inline-block;
+    margin-right: 35px;
+    margin-top:10px;
+    margin-bottom: 10px;
     width:170px;
     height:70px;
     font-family: Helvetica;
     font-size:16px;
     overflow: hidden;
-}
-
-.user-dropdown ul{
-    list-style-type: none;
-    display: inline;
-}
-
-.user-dropdown li{
-    display: inline;
-    list-style-type: none;
 }
 
 .user-dropdown .fb-thumb{
@@ -1148,4 +1155,20 @@ box-shadow: 10px 10px 5px #888;
     float:left;
     margin-top:25px;
     margin-left: 15px;
+}
+
+.liked-by-wrapper{
+    width:100%;
+    border-bottom: 1px solid #cccccc;
+    display:none;
+    text-align: center;
+}
+
+.user-dropdown .close-button{
+    width:15px;
+    height:15px;
+    float:right;
+    margin-top: 6px;
+    margin-right: -15px;
+    background-image:url(/static/images/close_button_fancy.png);
 }

@@ -17,7 +17,8 @@
 }
 
 .fb-thumb-wrapper{
-    position:absolute;
+    float:left;
+    margin-left: 10px;
 }
 
 .activity-item-header{
@@ -49,4 +50,9 @@
 .video-source-info{
     padding-top:10px;
     bottom:0px;
+}
+
+.video-thumb-link{
+    position:absolute;
+    left:100px;
 }

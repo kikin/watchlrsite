@@ -108,7 +108,7 @@ class Video(models.Model):
 
     #list of all users who have liked video...
     def all_likers(self):
-        return UserVideo.objects.filter(video=self, liked=True).values_list('user', flat=True)
+        return [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
 
     @models.permalink
     def get_absolute_url(self):

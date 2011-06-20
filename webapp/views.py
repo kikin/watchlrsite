@@ -12,6 +12,10 @@ ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you hav
 MALFORMED_URL_MESSAGE = 'Error: malformed URL supplied to host'
 NUM_SUGGESTED_FOLLOWEES = 8
 
+# num of users to display in each
+#"this video liked by..." dropdown
+_VID_LIKED_BY_PAGINATION_THRESHOLD = 15
+
 def login_complete(request):
     # Client requires that we pass in a Set-Kke header with session key so as to persist it
     # in its cookie jar. This is just an intermediary view which does exactly that and
@@ -222,10 +226,26 @@ def followers(request, user_id):
 def following(request, user_id):
     return user_page(request, user_id, relation='following')
 
-def vid_liked_by(request, video_id):
+def video_liked_by(request, video_id):
     try:
         video = Video.objects.get(pk=int(video_id))
+        has_next, has_prev, next_start_index, next_count = None, None, None, None
+        if 'start' in request.GET and 'count' in request.GET:
+            if int(request.GET['start']) != 0:
+                has_prev = True
+            likers = video.all_likers()[int(request.GET['start']):int(request.GET['count'])]
+
+            if int(request.GET['start']) + int(request.GET['count']) >= len(likers):
+                has_next = False
+            else:
+                has_next = True
+                next_start_index = int(request.GET['start']) + _VID_LIKED_BY_PAGINATION_THRESHOLD
+                next_count = _VID_LIKED_BY_PAGINATION_THRESHOLD
+        else:
+            likers = video.all_likers()
+            has_more = False
     except (ValueError, Video.DoesNotExist):
         #in case of uncastable or invalid vid...
         return HttpResponseNotFound()
-    return render_to_response('content/user_dropdown.hfrg', {'video':video, 'users':video.all_likers()})
+    return render_to_response('content/user_dropdown.hfrg', {'video':video, 'users':likers, 'has_next':has_next, 'has_prev':has_prev,\
+                                                             'next_start_index': next_start_index, 'next_count':next_count})
