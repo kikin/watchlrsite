@@ -216,6 +216,15 @@ djcelery.setup_loader()
 # broker transport
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
+# Periodic task definitions go here
+from datetime import timedelta
+CELERYBEAT_SCHEDULE = {
+    "refresh-friend-list-every-hour": {
+        "task": "api.tasks.refresh_friends_list",
+        "schedule": timedelta(hours=15)
+    },
+}
+
 # Set up logging
 import logconfig
 logconfig.init()
