@@ -390,7 +390,6 @@ kikinvideo.HomeViewController = function() {
                 }, 600, function(){
                     active_vid_liked_by_dropdown.hide();
                     active_vid_liked_by_dropdown.hide();
-                    active_vid_liked_by_dropdown.css({height:active_vid_liked_by_dropdown_orig_height});
             });
         }
     }

@@ -84,6 +84,7 @@
     }
 
     #user-info-container .inner{
+        position:absolute;
         color:#414141;
         text-align: left;
         font-size:17px;
@@ -93,6 +94,13 @@
     #user-info-container .fb-signup{
         position: absolute;
         margin-top:15px;
+        width:235px;
+        height:50px;
+        background-image: url(/static/images/education/fb_signup.png);
+    }
+
+    #user-info-container .fb-signup:hover{
+        background-image: url(/static/images/education/fb_signup_hover.png);
     }
 
 
@@ -117,11 +125,12 @@
 {% block content %}
     {% if not user.is_authenticated %}
     <div id="user-info-container">
+        <div class="user-info gradient"></div>
         <div class="inner">
             Kikin Video helps you <span class="blue">discover</span>, <span class="blue">share</span> and
             <span class="blue">save</span> videos to watch later.<br>
             Sign up using your existing Facebook account!<br>
-            <a class="fb-signup"><img src="/static/images/education/fb_signup.png"/></a>
+            <a class="fb-signup" href="/login/facebook"></a>
         </div>
     </div>
     {% endif %}
