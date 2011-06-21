@@ -474,36 +474,50 @@ class Preference(models.Model):
 # Note that since we are defining a custom User model, import and handler
 # registration MUST be done after model definition to avoid circular import issues.
 from social_auth.signals import pre_update
-from api.tasks import slugify
 
-def compose_username(sender, user, response, details, **kwargs):
+def social_auth_pre_update(sender, user, response, details, **kwargs):
     saved = user.username
-    fullname = '.'.join([user.first_name, user.last_name])
-    user.username = response.get('username', slugify(fullname, user.id))
 
+    # New user?
+    if getattr(user, 'is_new', False):
+        from api.tasks import slugify
+        fullname = '.'.join([user.first_name, user.last_name])
+        user.username = response.get('username', slugify(fullname, user.id))
+
+    # Ensure that status flag is set
+    # This flag promotes, possibly a facebook friend to a regular user
     registered = user.is_registered
-    user.is_registered = registered or True
+    user.is_registered = True
+
+    # Upgrade?
+    if not registered:
+        # Fetch user's facebook friends
+        from api.tasks import fetch_facebook_friends
+        fetch_facebook_friends.delay(user)
+
+        # Override `is_new` property
+        # This will ensure that the welcome experience gets triggered for this user
+        setattr(user, 'is_new', True)
 
     # Handlers must return True if any value was updated/changed
-    return saved == user.username or registered == user.is_registered
-
-pre_update.connect(compose_username, sender=None)
+    return not saved == user.username or not registered == user.is_registered
 
 
-from api.tasks import fetch_facebook_friends
+# We need to register for the `pre_update` signal as opposed to `socialauth_registered`
+# signal because we need to handle facebook friend user upgrades (for such users,
+# the `is_new` attribute is not set and hence, `socialauth_registered` signal does
+# not get fired).
+pre_update.connect(social_auth_pre_update, sender=None)
+
 
 @receiver(post_save, sender=User)
 def user_post_save(sender, instance, signal, *args, **kwargs):
     # Called at the end of `save()` method
 
-    # Set up default notifications and preferences for new user
+    # Set up default notifications and preferences for  user
     if not instance.notification_set.count():
         for msg, archived in DEFAULT_NOTIFICATIONS.items():
             Notification.objects.create(user=instance, message=msg, archived=archived)
-
+    if not instance.preference_set.count():
         for name, value in DEFAULT_PREFERENCES.items():
             Preference.objects.create(user=instance, name=name, value=value)
-
-        # Fetch new user's facebook friends
-        if instance.is_registered:
-            fetch_facebook_friends.delay(instance)

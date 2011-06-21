@@ -1349,7 +1349,7 @@ def fetch_facebook_friends(user):
             try:
                 fb_identity = UserSocialAuth.objects.get(uid=friend['id'])
             except UserSocialAuth.DoesNotExist:
-                fb_identity = UserSocialAuth.objects.create(user=fb_friend, uid=friend['id'], provider='facebook')
+                fb_identity = UserSocialAuth(uid=friend['id'], provider='facebook')
 
             try:
                 fb_friend = fb_identity.user
@@ -1366,6 +1366,9 @@ def fetch_facebook_friends(user):
                                                 last_name=last,
                                                 username=username,
                                                 is_registered=False)
+
+                fb_identity.user = fb_friend
+                fb_identity.save()
 
             try:
                 FacebookFriend.objects.get(user=user, fb_friend=fb_friend)
