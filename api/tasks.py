@@ -1350,9 +1350,12 @@ def fetch_facebook_friends(user):
         for friend in friends:
             try:
                 fb_identity = UserSocialAuth.objects.get(uid=friend['id'])
-                fb_friend = fb_identity.user
-
             except UserSocialAuth.DoesNotExist:
+                fb_identity = UserSocialAuth.objects.create(user=fb_friend, uid=friend['id'], provider='facebook')
+
+            try:
+                fb_friend = fb_identity.user
+            except User.DoesNotExist:
                 parts = friend['name'].split(None, 2)
                 if len(parts) == 2:
                     first, last = parts
@@ -1361,8 +1364,10 @@ def fetch_facebook_friends(user):
                     first, last = parts[0], ''
                     username = slugify(first, -1)
 
-                fb_friend = User.objects.create(first_name=first, last_name=last, username=username, is_registered=False)
-                UserSocialAuth.objects.create(user=fb_friend, uid=friend['id'], provider='facebook')
+                fb_friend = User.objects.create(first_name=first,
+                                                last_name=last,
+                                                username=username,
+                                                is_registered=False)
 
             try:
                 FacebookFriend.objects.get(user=user, fb_friend=fb_friend)
