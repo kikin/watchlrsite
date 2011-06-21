@@ -353,6 +353,10 @@ ul.navigation li.selected, ul.navigation li.selected a {
 #myConnections {
 }
 
+#myOptions:hover{
+    color:#ffffff;
+}
+
 .profilePic {
     width: 25px;
     height: 25px;

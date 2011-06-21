@@ -84,6 +84,7 @@
     }
 
     #user-info-container .inner{
+        position:absolute;
         color:#414141;
         text-align: left;
         font-size:17px;
@@ -124,6 +125,7 @@
 {% block content %}
     {% if not user.is_authenticated %}
     <div id="user-info-container">
+        <div class="user-info gradient"></div>
         <div class="inner">
             Kikin Video helps you <span class="blue">discover</span>, <span class="blue">share</span> and
             <span class="blue">save</span> videos to watch later.<br>
