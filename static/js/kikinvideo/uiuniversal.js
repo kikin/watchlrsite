@@ -86,6 +86,9 @@ kikinvideo.UIUniversal =
                     var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
                     var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
 
+                    if($.browser.webkit)
+                        video_embed_div.css({width:640, height:385});
+
                     var video_player_target_width = video_player_div.width();
                     var video_player_target_height = video_player_div.height();
 
@@ -100,10 +103,9 @@ kikinvideo.UIUniversal =
                     $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
                     video_player_div.fadeIn(100);
 
-                    video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
+                    video_player_div.css({display:'none'})
 
                     video_player_div.fadeIn(500, function(){
-                        var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
                         video_embed_div.show();
                         /*close video player on click outside its container....*/
                         $(VIDEO_PLAYER_BG_SELECTOR).click(function(){

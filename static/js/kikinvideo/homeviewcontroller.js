@@ -207,6 +207,7 @@ kikinvideo.HomeViewController = function() {
             }
 
         });
+
     }
 
     function removeVideo(vid){
