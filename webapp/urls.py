@@ -14,12 +14,8 @@ urlpatterns = patterns('webapp',
                        (r'^content/plugin_pitch', 'views.plugin_pitch'),
                        (r'^following/(?P<user_id>[0-9]+)', 'views.following'),
                        (r'^followers/(?P<user_id>[0-9]+)', 'views.followers'),
-<<<<<<< HEAD
-                       url(r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile', name='user_profile'),
-=======
                        (r'video_liked_by/(?P<video_id>[0-9]+)', 'views.video_liked_by'),
-                       (r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile'),
->>>>>>> a7361ea04255911c74c397a1372c189b6a2d1c90
+                       url(r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile', name='user_profile'),
                        )
 
 urlpatterns += patterns('',
