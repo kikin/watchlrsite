@@ -1330,10 +1330,8 @@ def fetch_facebook_friends(user):
     logger = fetch_facebook_friends.get_logger()
     logger.info('Fetching facebook friends for user:%s' % user.username)
 
+    url = 'https://%s/me/friends?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
     try:
-        params = {'access_token': user.facebook_access_token()}
-        url = 'https://%s/me/friends?%s' % (FACEBOOK_SERVER, urllib.urlencode(params))
-
         response = urllib2.urlopen(url)
 
         code = response.getcode()
@@ -1380,8 +1378,13 @@ def fetch_facebook_friends(user):
         logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
 
     except urllib2.URLError, exc:
-        logger.error('Error opening facebook friends resource', exc_info=True)
-        return fetch_facebook_friends.retry(exc=exc)
+        if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
+            logger.info('User:%s revoked access from facebook... disabling' % user.username)
+            user.is_registered = False
+            user.save()
+        else:
+            logger.error('Error opening facebook friends resource: %s' % url, exc_info=True)
+            return fetch_facebook_friends.retry(exc=exc)
 
 
 @task

@@ -219,9 +219,9 @@ BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 # Periodic task definitions go here
 from datetime import timedelta
 CELERYBEAT_SCHEDULE = {
-    "refresh-friend-list-every-hour": {
+    "refresh-friend-list-every-15-mins": {
         "task": "api.tasks.refresh_friends_list",
-        "schedule": timedelta(hours=15)
+        "schedule": timedelta(minutes=15)
     },
 }
 

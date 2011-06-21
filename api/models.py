@@ -480,7 +480,12 @@ def compose_username(sender, user, response, details, **kwargs):
     saved = user.username
     fullname = '.'.join([user.first_name, user.last_name])
     user.username = response.get('username', slugify(fullname, user.id))
-    return saved == user.username
+
+    registered = user.is_registered
+    user.is_registered = registered or True
+
+    # Handlers must return True if any value was updated/changed
+    return saved == user.username or registered == user.is_registered
 
 pre_update.connect(compose_username, sender=None)
 
