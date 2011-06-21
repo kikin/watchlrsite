@@ -29,7 +29,7 @@ def home(request):
         #perhaps in the near future this can be done at the db query level, but for now...
         all_users = list(User.objects.all())
 		#num of suggested followees
-        suggested_followees = [x for x in all_users if x not in request.user.following()\
+        suggested_followees = [x for x in all_users if x.is_registered and x not in request.user.following()\
  										and x != request.user][:NUM_SUGGESTED_FOLLOWEES]
 
         return render_to_response('logged_in.html', {'settings': settings, 'suggested_followees':suggested_followees},\

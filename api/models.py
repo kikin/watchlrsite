@@ -1,20 +1,17 @@
-from re import sub
-from unicodedata import normalize
 from datetime import datetime
 from operator import itemgetter
 from itertools import chain
 
 from django.db import models
-from django.contrib.auth import models as auth_models
-
-from django.template.defaultfilters import stringfilter
 from django.db.models.signals import post_save
+from django.contrib.auth import models as auth_models
 from django.dispatch import receiver
+from django.core.urlresolvers import reverse
+
+from celery.app import default_app
 
 import logging
 logger = logging.getLogger(__name__)
-
-from celery.app import default_app
 
 
 # Value indicates if the notification message has been displayed and archived by user
@@ -175,6 +172,9 @@ class User(auth_models.User):
     '''
     videos = models.ManyToManyField(Video, through='UserVideo')
     follows = models.ManyToManyField('self', through='UserFollowsUser', symmetrical=False)
+    is_registered = models.BooleanField(default=True)
+    fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_user_set', symmetrical=False)
+    fb_friends_fetched = models.DateTimeField(null=True)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
@@ -396,6 +396,26 @@ class User(auth_models.User):
 
         return items
 
+    def get_absolute_url(self):
+        if self.is_registered:
+            return reverse('user_profile', args=[str(self.id)])
+        return 'http://www.facebook.com/profile.php?id=%s' % self.facebook_uid()
+
+    def invite_friends_list(self):
+
+        # Return empty list if we have not fetched friend list yet
+        if not self.fb_friends_fetched:
+            return []
+
+        invite_list = list()
+
+        # TODO: Need some way of ordering the invite list
+        for friend in self.fb_friends:
+            if not friend.invited_on:
+                invite_list.append(friend)
+
+        return invite_list
+
 
 class UserFollowsUser(models.Model):
     follower = models.ForeignKey(User, related_name='follower_set', db_index=True)
@@ -404,6 +424,12 @@ class UserFollowsUser(models.Model):
 
     class Meta:
         ordering = ['-since']
+
+
+class FacebookFriend(models.Model):
+    user = models.ForeignKey('User', related_name='fb_user_set', db_index=True)
+    fb_friend = models.ForeignKey('User', related_name='fb_friend_set', db_index=True)
+    invited_on = models.DateTimeField(null=True)
 
 
 class UserVideo(models.Model):
@@ -445,6 +471,22 @@ class Preference(models.Model):
     changed = models.DateTimeField(auto_now=True)
 
 
+# Note that since we are defining a custom User model, import and handler
+# registration MUST be done after model definition to avoid circular import issues.
+from social_auth.signals import pre_update
+from api.tasks import slugify
+
+def compose_username(sender, user, response, details, **kwargs):
+    saved = user.username
+    fullname = '.'.join([user.first_name, user.last_name])
+    user.username = response.get('username', slugify(fullname, user.id))
+    return saved == user.username
+
+pre_update.connect(compose_username, sender=None)
+
+
+from api.tasks import fetch_facebook_friends
+
 @receiver(post_save, sender=User)
 def user_post_save(sender, instance, signal, *args, **kwargs):
     # Called at the end of `save()` method
@@ -457,69 +499,6 @@ def user_post_save(sender, instance, signal, *args, **kwargs):
         for name, value in DEFAULT_PREFERENCES.items():
             Preference.objects.create(user=instance, name=name, value=value)
 
-# Read username blacklist file on module load
-read_user_blacklist = False
-if not read_user_blacklist:
-    import os.path
-    user_blacklist_file = os.path.join(os.path.dirname(__file__), 'data', 'blacklisted_usernames')
-    with open(user_blacklist_file, 'r') as f:
-        user_blacklist = frozenset([line.strip() for line in f.readlines()])
-    read_user_blacklist = True
-
-def slugify(username, id):
-    '''
-    Normalizes string, converts to lowercase, removes non-alphanumeric characters (including spaces).
-    Also, checks and appends offset integer to ensure that username is unique.
-
-    >>> slugify('whatsherface', 123)
-    u'whatsherface'
-    >>> User.objects.create(username='whatsherface')
-    <User: whatsherface>
-    >>> slugify('whatsherface', 123)
-    u'whatsherface1'
-    >>> slugify('whats_her_face', 123)
-    u'whatsherface1'
-    >>> slugify('whatsherface2', 123)
-    u'whatsherface2'
-    >>> slugify('admin', 123)
-    u'user0'
-    >>> User.objects.create(username='user0')
-    <User: user0>
-    >>> slugify('about', 123)
-    u'user01'
-    '''
-    username = normalize('NFKD', username).encode('ascii', 'ignore')
-    username = basename = unicode(sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
-
-    if username.lower() in user_blacklist:
-        logger.info('User:%s tried to use a blocked username:%s' % (id, username))
-        username = basename = u'user0'
-
-    counter = 1
-    while True:
-        try:
-            found = User.objects.get(username=username)
-            if found.id == id:
-                return username
-        except User.DoesNotExist:
-            break
-        username = '%s%d' % (basename, counter)
-        counter += 1
-
-    return username
-
-slugify.is_safe = True
-slugify = stringfilter(slugify)
-
-# Note that since we are defining a custom User model, import and handler
-# registration MUST be done after model definition to avoid circular import issues.
-
-from social_auth.signals import pre_update
-
-def compose_username(sender, user, response, details, **kwargs):
-    saved = user.username
-    fullname = ''.join([user.first_name, user.last_name])
-    user.username = response.get('username', slugify(fullname, user.id))
-    return saved == user.username
-
-pre_update.connect(compose_username, sender=None)
+        # Fetch new user's facebook friends
+        if instance.is_registered:
+            fetch_facebook_friends.delay(instance)

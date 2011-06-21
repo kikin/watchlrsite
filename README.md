@@ -195,7 +195,7 @@ Fetching Video Metadata
 Fetching video metadata is done in the background using a Celery task queue. You need to spawn the Celery worker
 server as follows:
 
-    $ python manage.py celeryd -l info
+    $ python manage.py celeryd -B -l info
 
 Note that this runs the server in the foreground. More information about Celery can be found at
 http://django-celery.readthedocs.org/en/latest/index.html

@@ -6,9 +6,9 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 
 from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, UserNotConnected
-from api.models import Video, User, UserVideo, Source, Notification, Preference, slugify, Thumbnail
+from api.models import Video, User, UserVideo, Source, Notification, Preference, Thumbnail
 from api.utils import epoch, url_fix, MalformedURLException
-from api.tasks import fetch, push_like_to_fb
+from api.tasks import fetch, push_like_to_fb, slugify
 
 from re import split
 from json import loads, dumps
