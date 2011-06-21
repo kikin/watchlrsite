@@ -131,87 +131,9 @@
         </div>
     {% else %}
     {% for video in videos %}
+        
+        {% video_queue_item %}
 
-       {% if not video|fetching_data %}
-        <div id="video-{{video.id}}" class="video-wrapper">
-            <div class="video-container">
-                <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
-                <div class="video-buttons">
-
-                {% if video not in user.saved_videos and user.is_authenticated %}
-                <a href="javascript:home.handleSave({{ video.id }})" title="save">
-                    <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
-                </a>
-                {% else %}
-                    {% if user.is_authenticated %}
-                    <a href="javascript:home.handleSave({{ video.id }})" title="save">
-                        <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
-                    </a>
-                     {% endif %}
-                {% endif %}
-
-
-                <a href="javascript:home.handleLike({{ video.id }})">
-                {% if video in user.liked_videos or not user.is_authenticated %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                {% else %}
-                    <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-                {% endif %}
-                </a>
-                   
-                {% if video.total_likes != 0 and video not in user.liked_videos %}
-                <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
-                <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#cccccc;">
-                    {{ video.total_likes }}
-                </span>
-                </a>
-                {% else %}
-                <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
-                <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
-                    {{ video.total_likes }}
-                </span>
-                </a>
-                {% endif %}
-
-
-                </div>
-                <a href="javascript:UI.loadPlayer({{ video.id }})">
-                    <div class="video-image" id="video-{{ video.id }}">
-                        <div class="video-thumb-wrapper">
-                            <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"
-                                 onerror="this.style.visibility='hidden'"
-                                 onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
-
-                            <div class="abs-position">
-                                <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-
-            <div class="video-info">
-                <div class="video-description">{{ video.description|truncatewords:50|urlize }}</div>
-                <div class="video-saved">
-                    <a href="{{ video|source_url_root }}" target="_blank">
-                        <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
-                    </a>
-                    &bull;
-                    {% if video.source %}
-                        <a href="{{video.url}}" target="_blank">source</a>
-                    {% endif %}
-                    &bull;
-                    <span class="video-timeago">{{ video|pretty_date_liked:profile_owner }}</span>
-                </div>
-            </div>
-
-                <br style="clear:both;"/>
-
-            {% video_player video %}
-
-            </div>
-        </div>
-        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
-      {% endif %}
     {% endfor %}
     {% endif %}
     </div>

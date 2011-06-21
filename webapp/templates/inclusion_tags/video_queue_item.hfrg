@@ -14,6 +14,21 @@
 
     <div class="video-buttons">
 
+
+        {% if display_mode == 'profile' %}
+            {% if video not in user.saved_videos and user.is_authenticated %}
+                <a href="javascript:home.handleSave({{ video.id }})" title="save">
+                    <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
+                </a>
+                {% else %}
+                    {% if user.is_authenticated %}
+                    <a href="javascript:home.handleSave({{ video.id }})" title="save">
+                        <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
+                    </a>
+                 {% endif %}
+            {% endif %}
+        {% endif %}
+
         {% if display_mode == 'saved' %}
         <a href="javascript:home.removeVideo({{ video.id }})" title="remove from queue">
             <div class="video-delete-button no-hover"></div>
@@ -21,26 +36,14 @@
         {% endif %}
 
 
-        {% if display_mode == 'profile' %}
 
-            <a>
-            {% if video in user.liked_videos %}
-                <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-            {% else %}
-                <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-            {% endif %}
-            </a>
-
-       {% else %}
-
-            <a href="javascript:home.handleLike({{ video.id }})">
-            {% if video in user.liked_videos %}
-                <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-            {% else %}
-                <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-            {% endif %}
-            </a>
+        <a href="javascript:home.handleLike({{ video.id }})">
+        {% if video in user.liked_videos %}
+            <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+        {% else %}
+            <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
         {% endif %}
+        </a>
 
     {% if video.total_likes != 0 %}
         <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
@@ -58,12 +61,6 @@
             <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
             </span>
         {% endif %}
-        {% if display_mode == 'profile' %}
-        <a>
-            <div class="save-video-button no-hover"></div>
-        </a>
-        {% endif %}
-
 
     </div>
     <a href="javascript:UI.loadPlayer({{ video.id }})">
@@ -104,10 +101,18 @@
 
     <br style="clear:both;"/>
 
+
+    {% if display_mode == 'detail' %}
+        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}"></div>
+    {% endif %}
+
     <div id="video-player-container" style="margin-top:40px;">
         {% video_player video %}
     </div>
 </div>
 </div>
-<div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
+
+    {% if display_mode != 'detail' %}
+        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
+    {% endif %}
 {% endif %}

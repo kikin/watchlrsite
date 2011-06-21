@@ -140,7 +140,7 @@ def video_detail(request, video_id):
         except (ValueError, Video.DoesNotExist):
             #in case of uncastable or invalid vid...
             return HttpResponseNotFound()
-        return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
+        return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'detail', \
                             'video':video}, context_instance=RequestContext(request))
 
 
