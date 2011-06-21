@@ -363,6 +363,8 @@ kikinvideo.HomeViewController = function() {
 
                 $("#liked-by-wrapper-vid-"+vid).css({height:0, display:'block'});
 
+                $('#content').css({height:$('#content').height()+liked_by_wrapper_target_height});
+
                 $("#liked-by-wrapper-vid-"+vid).animate({
                     height:liked_by_wrapper_target_height
                 }, 600, function(){

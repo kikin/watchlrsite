@@ -71,51 +71,52 @@ kikinvideo.UIUniversal =
 
 
             function loadPlayer(vid) {
-                if(current_vid){
-                    $(VIDEO_PLAYER_ID_PREFIX + current_vid).hide();
-                    if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
-                        $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
+                if(activeView != VIEWS.detail){
+                    if(current_vid){
+                        $(VIDEO_PLAYER_ID_PREFIX + current_vid).hide();
+                        if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
+                            $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
+                        }
                     }
-                }
 
-                /*remove the 'play' button from the thumb...*/
-                if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
-                    $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
-                }
-                var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
-                var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
+                    /*remove the 'play' button from the thumb...*/
+                    if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
+                        $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
+                    }
+                    var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
+                    var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
 
-                var video_player_target_width = video_player_div.width();
-                var video_player_target_height = video_player_div.height();
+                    var video_player_target_width = video_player_div.width();
+                    var video_player_target_height = video_player_div.height();
 
-                video_player_div.css({top:'50%', 'margin-top':
-                        (video_player_div.height()*-.5)-30});
+                    video_player_div.css({top:'50%', 'margin-top':
+                            (video_player_div.height()*-.5)-30});
 
-                video_embed_div.hide();
+                    video_embed_div.hide();
 
 
-                $('body').prepend(VIDEO_PLAYER_BG_HTML);
-                $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none', 'z-index':1000});
-                $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
-                video_player_div.fadeIn(100);
+                    $('body').prepend(VIDEO_PLAYER_BG_HTML);
+                    $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none', 'z-index':1000});
+                    $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
+                    video_player_div.fadeIn(100);
 
-                video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
-                
-                video_player_div.fadeIn(500, function(){
-                    var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
-                    video_embed_div.show();
-                    /*close video player on click outside its container....*/
-                    $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
-                        closePlayer(vid);
+                    video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
+
+                    video_player_div.fadeIn(500, function(){
+                        var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
+                        video_embed_div.show();
+                        /*close video player on click outside its container....*/
+                        $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
+                            closePlayer(vid);
+                        });
                     });
-                });
-                //scroll to the video...
-                $('html, body').animate({
-                    scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-250
-                }, 1000);
+                    //scroll to the video...
+                    $('html, body').animate({
+                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-250
+                    }, 1000);
 
-                current_vid = vid;
-
+                    current_vid = vid;
+                }
             }
 
             function closePlayer(vid){
