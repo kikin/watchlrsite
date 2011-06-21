@@ -218,6 +218,10 @@ def fetching_data(video):
 
 @register.filter
 def full_name(user):
+    if not user.last_name:
+        return user.first_name
+    if not user.first_name:
+        return user.last_name
     return user.first_name + ' ' + user.last_name
 
 @register.inclusion_tag('inclusion_tags/video_player.hfrg')
