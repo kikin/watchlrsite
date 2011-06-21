@@ -6,11 +6,26 @@
     <link rel='stylesheet' href='{{ STATIC_URL }}css/profile.css' type='text/css'/>
     <style>
 
+    {% if not user.is_authenticated %}
+        #video-section{
+            padding-top: 0px;
+        }
+    {% else %}
+        #videoListWrapper{
+            border-radius: 8px 8px 8px 8px;
+            -webkit-border-radius:8px 8px 8px 8px;;
+            -moz-border-radius: 8px 8px 8px 8px;
+            padding-top: 12px;
+        }
+    {% endif %}
+
 	.video-wrapper{
 		text-align:left;
         width:700px;
         margin-left: auto;
         margin-right: auto;
+        border-bottom: none;
+        padding-bottom: 5px;
 	}
 	h3.video-title{
 		margin-bottom:20px;
@@ -60,6 +75,27 @@
         margin-right:0px;
     }
 
+    .blue{
+        color:#4cb3de;
+    }
+
+    #user-info-container{
+        width: 760px;
+    }
+
+    #user-info-container .inner{
+        color:#414141;
+        text-align: left;
+        font-size:17px;
+        font-family: "Helvetica Neue";
+    }
+
+    #user-info-container .fb-signup{
+        position: absolute;
+        margin-top:15px;
+    }
+
+
     </style>
 {% endblock style_refs%}
 
@@ -79,6 +115,16 @@
 {% endblock script_refs %}
 
 {% block content %}
+    {% if not user.is_authenticated %}
+    <div id="user-info-container">
+        <div class="inner">
+            Kikin Video helps you <span class="blue">discover</span>, <span class="blue">share</span> and
+            <span class="blue">save</span> videos to watch later.<br>
+            Sign up using your existing Facebook account!<br>
+            <a class="fb-signup"><img src="/static/images/education/fb_signup.png"/></a>
+        </div>
+    </div>
+    {% endif %}
     <div id="video-section" style="width: 680px;">
         <div id="videoListWrapper">
             <div id="videoList">
