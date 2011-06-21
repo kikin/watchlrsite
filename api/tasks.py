@@ -6,7 +6,7 @@ import json
 from re import sub
 from unicodedata import normalize
 from time import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from traceback import format_exc
 from lxml import etree
 from urllib import urlencode
@@ -1350,12 +1350,24 @@ def fetch_facebook_friends(user):
         for friend in friends:
             try:
                 fb_identity = UserSocialAuth.objects.get(uid=friend['id'])
-                fb_friend = fb_identity.user
             except UserSocialAuth.DoesNotExist:
-                first, last = friend['name'].split(None, 2)
-                username = slugify('.'.join([first, last]), -1)
-                fb_friend = User.objects.create(first_name=first, last_name=last, username=username, is_registered=False)
-                UserSocialAuth.objects.create(user=fb_friend, uid=friend['id'], provider='facebook')
+                fb_identity = UserSocialAuth.objects.create(user=fb_friend, uid=friend['id'], provider='facebook')
+
+            try:
+                fb_friend = fb_identity.user
+            except User.DoesNotExist:
+                parts = friend['name'].split(None, 2)
+                if len(parts) == 2:
+                    first, last = parts
+                    username = slugify('.'.join([first, last]), -1)
+                else:
+                    first, last = parts[0], ''
+                    username = slugify(first, -1)
+
+                fb_friend = User.objects.create(first_name=first,
+                                                last_name=last,
+                                                username=username,
+                                                is_registered=False)
 
             try:
                 FacebookFriend.objects.get(user=user, fb_friend=fb_friend)
@@ -1379,7 +1391,7 @@ def refresh_friends_list():
     for user in User.objects.filter(is_registered=True):
 
         # Skip over users who have been refreshed in the last hour
-        if user.fb_friends_fetched and datetime.utcnow() - user.fb_friends_fetched < datetime.timedelta(hours=1):
+        if user.fb_friends_fetched and datetime.utcnow() - user.fb_friends_fetched < timedelta(hours=1):
             logger.debug('Skipping over user:%s, last refresh:%s' % (user.username, user.fb_friends_fetched))
             continue
 
