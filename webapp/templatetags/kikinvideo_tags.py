@@ -220,10 +220,16 @@ def fetching_data(video):
 def full_name(user):
     return user.first_name + ' ' + user.last_name
 
-@register.inclusion_tag('content/video_player.hfrg')
+@register.inclusion_tag('inclusion_tags/video_player.hfrg')
 def video_player(video):
     return { 'video' : video }
 
-@register.inclusion_tag('content/fetching_data.hfrg')
+@register.inclusion_tag('inclusion_tags/fetching_data.hfrg')
 def fetching_data_message(video):
     return {'video':video}
+
+@register.inclusion_tag('inclusion_tags/video_queue_item.hfrg', takes_context=True)
+def video_queue_item(context):
+    queue_ctx = {'user':context['user'], 'video':context['video'], 'display_mode':context['display_mode']}
+    if 'profile_owner' in context: queue_ctx['profile_owner'] = context['profile_owner']
+    return queue_ctx
