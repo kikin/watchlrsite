@@ -133,9 +133,13 @@
 }
 
 .follow-button:hover{
+    text-decoration:none;
     background-color: #4ab7e3;
 }
 
+.follow-link{
+    text-decoration: none;
+}
 
 #recent-activity-titlebar{
     width:700px;
@@ -193,5 +197,5 @@
 }
 
 #user-info-container a{
-    color:#000000;
+    text-decoration: none;
 }

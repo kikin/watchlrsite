@@ -12,13 +12,12 @@
 }
 
 .activity-queue-item .video-image{
-    margin-left:81px;
+    margin-left:20px;
     margin-top:68px;
 }
 
 .fb-thumb-wrapper{
-    position:absolute;
-    margin-left:15px;
+    float:left;
 }
 
 .activity-item-header{
@@ -50,4 +49,9 @@
 .video-source-info{
     padding-top:10px;
     bottom:0px;
+}
+
+.video-thumb-link{
+    position:absolute;
+    left:110px;
 }

@@ -2,9 +2,9 @@
 {% load kikinvideo_tags %}
 
 {% block script_refs %}
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/userprofile.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
     <script type="text/javascript">
     activeView = VIEWS.profile;
     $(document).ready(function(){
@@ -23,6 +23,12 @@
                 $('#facebook-img').css({marginLeft:8});
 
             }
+            //if image is "portrait"...
+            else if($('#facebook-img').width() < $('#facebook-img').height()){
+                $('#facebook-img-container').css({height:108});
+                $('#facebook-img').css({height:100});
+                $('#facebook-img').addClass('shadow-5l');
+            }
             else{
                 $('#facebook-img-container').addClass('shadow-5l');
             }
@@ -30,10 +36,11 @@
         stylizeVideoTitles();
     });
     </script>
+    {% block script_ext %}{% endblock script_ext %}
 {% endblock script_refs %}
 
 {% block style_refs %}
-    <link rel='stylesheet' type='text/css' href='{{ settings.STATIC_URL }}css/profile.css'/>
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}css/profile.css'/>
 {% endblock style_refs %}
 
 {% block content %}
@@ -87,17 +94,20 @@
                 </a>
                 {% if not is_own_profile %}
                     {% if profile_owner in user.following %}
-                        <a href="javascript:profileViewController.handleUnfollow({{ profile_owner.id }})" id="follow-link-user-{{ profile_owner.id }}">
-                            <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Unfollow</div>
+                        <a href="javascript:profileViewController.handleUnfollow({{ profile_owner.id }})" id="follow-button-user-{{ profile_owner.id }}"
+                                class="follow-button shadow-5l">
+                            Unfollow
                         </a>
                     {% else %}
                         {% if not user.is_authenticated %}
-                        <a href="javascript:alert('you must register an account with Kikin Video before you can follow users');">
-                            <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
+                        <a href="javascript:alert('you must register an account with Kikin Video before you can follow users');"
+                           id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">
+                            Follow
                         </a>
                         {% else %}
-                        <a href="javascript:profileViewController.handleFollow({{ profile_owner.id }})" id="follow-link-user-{{ profile_owner.id }}">
-                            <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
+                        <a href="javascript:profileViewController.handleFollow({{ profile_owner.id }})" id="follow-button-user-{{ profile_owner.id }}"
+                                class="follow-button shadow-5l">
+                            Follow
                         </a>
                         {% endif %}
                     {% endif %}
@@ -150,13 +160,17 @@
                 </a>
                    
                 {% if video.total_likes != 0 and video not in user.liked_videos %}
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#cccccc;">
+                <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
+                <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#cccccc;">
                     {{ video.total_likes }}
-                </div>
+                </span>
+                </a>
                 {% else %}
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
+                <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                     {{ video.total_likes }}
-                </div>
+                </span>
+                </a>
                 {% endif %}
 
 
@@ -196,6 +210,7 @@
 
             </div>
         </div>
+        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
       {% endif %}
     {% endfor %}
     {% endif %}

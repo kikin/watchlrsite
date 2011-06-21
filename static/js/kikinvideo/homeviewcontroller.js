@@ -40,12 +40,16 @@ kikinvideo.HomeViewController = function() {
 
     var activityItemsPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
 
+    var VID_LIKED_BY_CONTAINER_ID_PREFIX = "#video-liked-by-wrapper-vid-";
+
     //set to whatever num of these you want to initially load...
     var savedVideosToLoad = 10;
 
     var likedVideosToLoad = 10;
 
     var activityItemsToLoad = 10;
+
+    var active_vid_liked_by_dropdown;
 
     /*content that is displayed on tab switch...*/
     var LOADING_DIV_HTML = '<div class="loading-container">' +
@@ -287,6 +291,7 @@ kikinvideo.HomeViewController = function() {
                                                     like_details = like_details.replace('You and ', '');
                                                 }else{
                                                     like_details = like_details.replace('You and ', '');
+                                                    like_details = like_details.replace('You, ', '');
                                                 }
                                                 activity_item_header.fadeOut(500, function(){
                                                     activity_item_header.html(like_details);
@@ -337,6 +342,56 @@ kikinvideo.HomeViewController = function() {
         });
     }
 
+    function showVidLikedBy(vid, start, count){
+        if(!start)
+            var start=0;
+        if(!count)
+            var count=20;
+        
+        $.ajax({
+            url:'/video_liked_by/'+vid,
+            data : {'start':start, 'count':count},
+            success : function(response){
+
+                if(active_vid_liked_by_dropdown){
+                    active_vid_liked_by_dropdown.hide();
+                }
+
+                $("#liked-by-wrapper-vid-"+vid).html(response);
+
+                var liked_by_wrapper_target_height = $("#liked-by-wrapper-vid-"+vid).height();
+
+                $("#liked-by-wrapper-vid-"+vid).css({height:0, display:'block'});
+
+                $("#liked-by-wrapper-vid-"+vid).animate({
+                    height:liked_by_wrapper_target_height
+                }, 600, function(){
+                    $('#user-dropdown-vid-'+vid).fadeIn();
+                });
+
+                active_vid_liked_by_dropdown = $("#liked-by-wrapper-vid-"+vid);
+            },
+            failure : function(msg){
+                showErrorDialog(msg);
+            }
+        });
+    }
+
+
+    function hideVidLikedBy(){
+        if(active_vid_liked_by_dropdown){
+
+            var active_vid_liked_by_dropdown_orig_height = active_vid_liked_by_dropdown.height();
+
+            active_vid_liked_by_dropdown.animate({
+                    height:0
+                }, 600, function(){
+                    active_vid_liked_by_dropdown.hide();
+                    active_vid_liked_by_dropdown.hide();
+                    active_vid_liked_by_dropdown.css({height:active_vid_liked_by_dropdown_orig_height});
+            });
+        }
+    }
 
     /*expose public functions...*/
     return {
@@ -353,7 +408,11 @@ kikinvideo.HomeViewController = function() {
 
         removeVideo : removeVideo,
 
-        handleSave : handleSave
+        handleSave : handleSave,
+
+        showVidLikedBy : showVidLikedBy,
+
+        hideVidLikedBy : hideVidLikedBy
     };
 
 };

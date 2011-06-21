@@ -1,11 +1,15 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
-
 {% block style_refs %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css">
     <style>
-	
+
 	.video-wrapper{
 		text-align:left;
+        width:700px;
+        margin-left: auto;
+        margin-right: auto;
 	}
 	h3.video-title{
 		margin-bottom:20px;
@@ -19,20 +23,31 @@
         -webkit-border-radius: 4px;
         border-radius: 4px;
     }
-	
-	
+
 	.video-thumb{
 		clear:left;
 	}
+
+    .video-info{
+        margin-left:0px;
+    }
+
+    .right-panel{
+        margin-left: 740px;
+    }
 	
 	.video-buttons-container{float:right;}
     </style>
 {% endblock style_refs%}
 
 {% block script_refs %}
-    <script src="{{ settings.STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script src="{{ STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/plugindetect.js"></script>
+    
     <script type="text/javascript">
         activeView = VIEWS.detail;stylizeVideoTitles();
         $(document).ready(function(){
@@ -40,12 +55,14 @@
         });
     </script>
 
-
 {% endblock script_refs %}
+
 {% block content %}
+    <div class="right-panel" style="display: block;"></div>
+    <div id="video-section" style="width: 680px;">
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
-            <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
+            <h3 class="video-title">{{ video.title }}</h3>
 			<!-- note: changed classnames here -->
             <div class="video-buttons-container">
                 {% if user.is_authenticated %}
@@ -57,39 +74,43 @@
                     {% endif %}
                     </a>
 
+                    <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
                     {% if video.total_likes != 0 %}
                         {% if video in user.liked_videos %}
-                        <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                        <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                             {{ video.total_likes }}
-                        </div>
+                        </span>
                         {% else %}
-                        <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                        <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
                             {{ video.total_likes }}
-                        </div>
+                        </span>
                         {%  endif %}
                     {% else %}
-                            <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
-                            </div>
+
+                            <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                            </span>
                     {% endif %}
+                    </a>
 
                 {% else %}
                     <a href="/login/facebook">
                     {% if video.total_likes > 0 %}
-                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                        {% else %}
-                            <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"
-                        {% endif %}
+                        <div class="heart-container not-liked" id="liked-icon-vid-{{ video.id }}"></div>
+                        <a href="javascript:home.showVidLikedBy({{ video.id }})" title="see who liked this video">
+                            <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                                {{ video.total_likes }}
+                            </span>
+                        </a>
+                    {% else %}
+                        <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"
                     {% endif %}
                     </a>
+                {% endif %}
                     <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;"></div>
             </div>
-            <a href="/#!/player?vid={{ video.id }}" class="video-thumb">
-                <div class="video-image" id="video-{{ video.id }}">
-                    <div class="video-thumb-wrapper">
-                        <img class="video-thumbnail" src="{{video|web_thumbnail_url}}" />
-                    </div>
-                </div>
-            </a>
+            <div class="video-image" id="video-{{ video.id }}">
+                <img class="video-thumbnail" src="{{video|web_thumbnail_url}}" />
+            </div>
 
             <div class="video-info detail-view">
                 <div class="video-description">{{ video.description }}</div>
@@ -107,6 +128,11 @@
             </div>
 
             <br style="clear:both;"/>
+
+
+            <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}"
+                 style="text-align: left;width: 680px;border-top:1px solid #cccccc;margin-top:10px;"></div>
+
 
             {% if video.html_embed_code or video.html5_embed_code %}
 
@@ -136,6 +162,6 @@
 
             {% endif %}
         </div>
-        <div class="my-video-breaker"></div>
+        </div>
     </div>
 {% endblock %}

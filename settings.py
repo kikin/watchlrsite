@@ -8,6 +8,7 @@ VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local')
 
 # Turn DEBUG off if VIDEO_ENV is defined ('dev', 'prod', etc)
 DEBUG = VIDEO_ENV == 'local'
+
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -125,8 +126,9 @@ TEMPLATE_LOADERS = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
-    'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.auth',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -196,6 +198,13 @@ FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
 FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
 
 LOGIN_REDIRECT_URL = '/login_complete'
+
+
+# the django-social-auth module uses the @login_required
+# decorator, which directs browsers to settings.LOGIN_URL
+# after either a successful OR failed login
+LOGIN_URL = '/'
+
 LOGOUT_URL = '/'
 
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'

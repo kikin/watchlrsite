@@ -185,7 +185,11 @@ def activity_item_heading(activity_item, user):
         elif len(activity_item.users) == 2 and len(all_likers) == 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
             content += ' and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> liked...'
-        elif len(activity_item.users) == 2 and len(all_likers) > 2:
+        elif len(activity_item.users) == 2 and len(all_likers) == 3:
+            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>, '
+            content += '<a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a>'
+            content += ' and 1 other liked...'
+        elif len(activity_item.users) == 2 and len(all_likers) > 3:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>, '
             content += '<a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a>'
             content += ' and '+ str(len(all_likers)-2) + ' others liked...'

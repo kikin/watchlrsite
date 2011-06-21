@@ -14,35 +14,33 @@
 .suggested-followees.title
 {
     font-size: 18px;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #144D63;
 }
 
 .suggested-followee-item{
     width:280px;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #144D63;
     height:50px;
     padding-top: 10px;
     padding-bottom: 10px;
 }
 
-.suggested-followee-item a{
-    color:#86cfec;
-}
-
 .suggested-followees.profile-link-container{
+    font-family: Helvetica;
     position:absolute;
     width:160px;
     font-size: 15px;
-    margin-left: 80px;
+    margin-left: 74px;
     margin-top:14px;
+    font-weight: 500;
 }
 
 
-.follow-button{
+.suggested-followee-item .follow-button{
     position:absolute;
     width: 70px;
     margin-top:8px;
-    margin-left: 210px;
+    margin-left: 160px;
     height:22px;
     border-radius: 6px;
     -moz-border-radius:6px;
@@ -53,13 +51,10 @@
     font-size:13px;
     font-weight: 800;
     text-align:center;
-    padding-top:6px;
+    padding-top:7px;
 }
 
 .follow-button:hover{
+    text-decoration: none;
     background-color: #4ab7e3;
-}
-
-.follow-button-link{
-    text-decoration:none;
 }
