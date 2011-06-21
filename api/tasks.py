@@ -23,9 +23,6 @@ from django.template.defaultfilters import stringfilter
 
 from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend
 
-from social_auth.models import UserSocialAuth
-from social_auth.backends.facebook import FACEBOOK_SERVER
-
 import logging
 logger = logging.getLogger('kikinvideo')
 
@@ -1233,41 +1230,6 @@ def fetch(user_id, url, host, callback=None):
         fetch.retry(exc=exc)
 
 
-@task
-def push_like_to_fb(video, user):
-    def encode(text):
-        if isinstance(text, unicode):
-            return text.encode('utf-8')
-        return text
-
-    logger = push_like_to_fb.get_logger()
-
-    if not user.preferences()['syndicate'] == 1:
-        logger.debug('Not pushing to FB for user:%s' % user.username)
-        return
-
-    server_name = Site.objects.get_current().domain
-
-    params = {'access_token': user.facebook_access_token(),
-              'link': '%s/%s' % (server_name, video.get_absolute_url()),
-              'caption': server_name,
-              'name': encode(video.title),
-              'description': encode(video.description),
-              'message': 'likes \'%s\'' % encode(video.title)}
-
-    try:
-        params['picture'] = video.get_thumbnail().url
-    except Thumbnail.DoesNotExist:
-        pass
-
-    url = 'https://%s/me/feed' % FACEBOOK_SERVER
-    try:
-        response = json.loads(urllib2.urlopen(url, urlencode(params)).read())
-        logger.debug('Facebook post id: %s' % response['id'])
-    except:
-        logger.exception('Could not post to Facebook')
-
-
 # Read username blacklist file on module load
 read_user_blacklist = False
 if not read_user_blacklist:
@@ -1324,10 +1286,48 @@ slugify.is_safe = True
 slugify = stringfilter(slugify)
 
 
+@task
+def push_like_to_fb(video, user):
+    from social_auth.backends.facebook import FACEBOOK_SERVER
+    def encode(text):
+        if isinstance(text, unicode):
+            return text.encode('utf-8')
+        return text
+
+    logger = push_like_to_fb.get_logger()
+
+    if not user.preferences()['syndicate'] == 1:
+        logger.debug('Not pushing to FB for user:%s' % user.username)
+        return
+
+    server_name = Site.objects.get_current().domain
+
+    params = {'access_token': user.facebook_access_token(),
+              'link': '%s/%s' % (server_name, video.get_absolute_url()),
+              'caption': server_name,
+              'name': encode(video.title),
+              'description': encode(video.description),
+              'message': 'likes \'%s\'' % encode(video.title)}
+
+    try:
+        params['picture'] = video.get_thumbnail().url
+    except Thumbnail.DoesNotExist:
+        pass
+
+    url = 'https://%s/me/feed' % FACEBOOK_SERVER
+    try:
+        response = json.loads(urllib2.urlopen(url, urlencode(params)).read())
+        logger.debug('Facebook post id: %s' % response['id'])
+    except:
+        logger.exception('Could not post to Facebook')
+
+
 @task(max_retries=3)
 def fetch_facebook_friends(user):
-    logger = fetch_facebook_friends.get_logger()
+    from social_auth.backends.facebook import FACEBOOK_SERVER
+    from social_auth.models import UserSocialAuth
 
+    logger = fetch_facebook_friends.get_logger()
     logger.info('Fetching facebook friends for user:%s' % user.username)
 
     try:
