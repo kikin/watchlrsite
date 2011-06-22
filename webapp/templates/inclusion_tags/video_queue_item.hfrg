@@ -106,7 +106,7 @@
     {% endif %}
 
     <div id="video-player-container" style="margin-top:40px;">
-        {% video_player video %}
+        {% video_player video request %}
     </div>
 </div>
 </div>
