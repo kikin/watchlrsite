@@ -9,6 +9,7 @@ from django.dispatch import receiver
 from django.core.urlresolvers import reverse
 
 from celery.app import default_app
+from celery import states
 
 import logging
 logger = logging.getLogger(__name__)
