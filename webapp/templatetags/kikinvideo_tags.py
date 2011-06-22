@@ -237,3 +237,10 @@ def video_queue_item(context):
     queue_ctx = {'user':context['user'], 'video':context['video'], 'display_mode':context['display_mode']}
     if 'profile_owner' in context: queue_ctx['profile_owner'] = context['profile_owner']
     return queue_ctx
+
+@register.filter
+def user_profile_link(user):
+    target = 'href=%s' % user.get_absolute_url()
+    if not user.is_registered:
+        target += ' target=_blank'
+    return target
