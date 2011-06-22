@@ -611,7 +611,7 @@ ul>span.cufon-canvas {
     float: left;
 }
 
-.video-thumb-wrapper {
+/*.video-thumb-wrapper {
     cursor: pointer;
     background: #000;
     min-height: 140px;
@@ -619,9 +619,8 @@ ul>span.cufon-canvas {
 
 .video-thumbnail,
 .video-thumbnail-btn {
-    width: 200px;
-    max-height: 147px;
-    min-height: 120px;
+    width: 125px;
+    height:92px;
 }
 
 .video-thumbnail-btn {
@@ -629,7 +628,7 @@ ul>span.cufon-canvas {
     background: url(/static/images/kkn-video-sprites.png) no-repeat -275px 40px;
     position: relative;
     top: -143px;
-}
+}*/
 
 .video-description {
     max-height: 98px;

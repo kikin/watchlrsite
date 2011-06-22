@@ -67,13 +67,9 @@
     <a href="javascript:UI.loadPlayer({{ video.id }})">
         <div class="video-image" id="video-{{ video.id }}">
             <div class="video-thumb-wrapper">
-                <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"
-                     onerror="this.style.visibility='hidden'"
-                     onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
+                <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"/>
 
-                <div class="abs-position">
-                    <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
-                </div>
+                <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
             </div>
         </div>
     </a>
