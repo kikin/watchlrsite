@@ -1330,6 +1330,10 @@ def fetch_facebook_friends(user):
     logger = fetch_facebook_friends.get_logger()
     logger.info('Fetching facebook friends for user:%s' % user.username)
 
+    if user.social_auth.get().extra_data is None:
+        logger.info('Facebook credentials unavailable...sleeping')
+        fetch_facebook_friends.retry()
+
     url = 'https://%s/me/friends?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
     try:
         response = urllib2.urlopen(url)
@@ -1394,6 +1398,7 @@ def fetch_facebook_friends(user):
 def refresh_friends_list():
     logger = refresh_friends_list.get_logger()
 
+    queued = 0
     for user in User.objects.filter(is_registered=True):
 
         # Skip over users who have been refreshed in the last hour
@@ -1402,3 +1407,6 @@ def refresh_friends_list():
             continue
 
         fetch_facebook_friends.delay(user)
+        queued += 1
+
+    logger.info('Refreshing %d user friend lists' % queued)
