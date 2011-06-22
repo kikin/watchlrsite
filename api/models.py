@@ -400,7 +400,7 @@ class User(auth_models.User):
 
     def get_absolute_url(self):
         if self.is_registered:
-            return reverse('user_profile', args=[str(self.id)])
+            return reverse('user_profile', args=[str(self.username)])
         return 'http://www.facebook.com/profile.php?id=%s' % self.facebook_uid()
 
     def follow_suggestions(self, num=10):
