@@ -51,6 +51,8 @@ kikinvideo.HomeViewController = function() {
 
     var active_vid_liked_by_dropdown;
 
+    var active_vid_liked_by_liker_count;
+
     /*content that is displayed on tab switch...*/
     var LOADING_DIV_HTML = '<div class="loading-container">' +
             '<div class="loading"></div>' +
@@ -358,25 +360,30 @@ kikinvideo.HomeViewController = function() {
             data : {'start':start, 'count':count},
             success : function(response){
 
-                if(active_vid_liked_by_dropdown){
-                    active_vid_liked_by_dropdown.hide();
+                if(active_vid_liked_by_dropdown &&
+                        active_vid_liked_by_dropdown.selector == "#liked-by-wrapper-vid-"+vid
+                        && !active_vid_liked_by_dropdown.is(":hidden")){
+                    hideVidLikedBy();
                 }
+                else{
+                    $("#liked-by-wrapper-vid-"+vid).html(response);
 
-                $("#liked-by-wrapper-vid-"+vid).html(response);
+                    $("#liked-by-wrapper-vid-"+vid).css({height:0, display:'block'});
 
-                var liked_by_wrapper_target_height = $("#liked-by-wrapper-vid-"+vid).height();
+                    /*this is a pretty motley hack -- determine container height
+                    * by counting num of list items, multiplying by their height and adding
+                    * a constant....*/
+                    var target_height =
+                            Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/3) *
+                            $("#liked-by-wrapper-vid-"+vid + ' .item').height()
+                            + Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/3) * 40;
 
-                $("#liked-by-wrapper-vid-"+vid).css({height:0, display:'block'});
+                    $("#liked-by-wrapper-vid-"+vid).animate({
+                        height:target_height
+                    }, 600);
 
-                $('#content').css({height:$('#content').height()+liked_by_wrapper_target_height});
-
-                $("#liked-by-wrapper-vid-"+vid).animate({
-                    height:liked_by_wrapper_target_height
-                }, 600, function(){
-                    $('#user-dropdown-vid-'+vid).fadeIn();
-                });
-
-                active_vid_liked_by_dropdown = $("#liked-by-wrapper-vid-"+vid);
+                    active_vid_liked_by_dropdown = $("#liked-by-wrapper-vid-"+vid);
+                }
             },
             failure : function(msg){
                 showErrorDialog(msg);
@@ -394,7 +401,7 @@ kikinvideo.HomeViewController = function() {
                     height:0
                 }, 600, function(){
                     active_vid_liked_by_dropdown.hide();
-                    active_vid_liked_by_dropdown.hide();
+                    active_vid_liked_by_dropdown.height(active_vid_liked_by_dropdown_orig_height);
             });
         }
     }

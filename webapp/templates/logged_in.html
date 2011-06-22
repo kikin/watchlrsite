@@ -20,6 +20,14 @@
     $(document).ready(function(){
         if(!window.location.hash)
             window.location = "/#!/saved_queue";
+
+        {% if suggested_followees|length_is:0 and invite_list|length_is:0 %}
+
+        $('#video-section').css({width:'700px', marginLeft:'auto', marginRight:'auto'});
+        $('#lnk-page-next').css({marginLeft:'auto', marginRight:'auto'});
+
+        {% endif %}
+
     });
     </script>
 
@@ -51,13 +59,6 @@
                 </div>
             {% endfor %}
         </div>
-        {% else %}
-        <script type="text/javascript">
-            $(document).ready(function(){
-                    $('#video-section').css({width:'700px', marginLeft:'auto', marginRight:'auto'});
-                    $('#lnk-page-next').css({marginLeft:'auto', marginRight:'auto'});
-            })
-        </script>
     {% endif %}
 
     {% if not invite_list|length_is:0 %}
@@ -67,7 +68,11 @@
         </div>
             {% for kv_user in invite_list %}
                 <div class="suggested-followee-item">
+                    {% if kv_user.is_registered %}
                     <a href="{{ kv_user.get_absolute_url }}">
+                    {% else %}
+                    <a href="{{ kv_user.get_absolute_url }}" target="_blank">
+                    {%  endif %}
                         <div class="fb-thumb-wrapper">
                             <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
                         </div>
@@ -83,13 +88,6 @@
                 </div>
             {% endfor %}
         </div>
-        {% else %}
-        <script type="text/javascript">
-            $(document).ready(function(){
-                    $('#video-section').css({width:'700px', marginLeft:'auto', marginRight:'auto'});
-                    $('#lnk-page-next').css({marginLeft:'auto', marginRight:'auto'});
-            })
-        </script>
     {% endif %}
     </div>
 {% endblock right_panel %}

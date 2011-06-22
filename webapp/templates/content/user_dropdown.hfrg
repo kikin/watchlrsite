@@ -1,6 +1,5 @@
 {% load kikinvideo_tags %}
 <div class="user-dropdown" id="user-dropdown-vid-{{ video.id }}">
-    <a class="close-button" href="javascript:home.hideVidLikedBy()"></a>
     <div class="heading" style="font-family: Helvetica;font-size:15px;font-weight:700;margin-top: 14px;color:#575757;">
     Liked By...
     </div>
