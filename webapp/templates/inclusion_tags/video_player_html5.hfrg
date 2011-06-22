@@ -8,7 +8,7 @@
         </a>
         <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
 
-        <div  class="video-embed-wrapper" id="video-embed-wrapper-{{ video.id }}" style="width:640;height:385;">
+        <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}" style="width:640;height:385;">
         {% autoescape off %}
             {{ video.html5_embed_code }}
         {% endautoescape %}

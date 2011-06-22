@@ -206,6 +206,10 @@ kikinvideo.HomeViewController = function() {
                 }
             }
 
+            //because HTML5 videos don't respect display:'none'
+            //like swf object embeds do...
+            videoController.prepareEmbeds();
+
         });
 
     }
