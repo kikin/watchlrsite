@@ -371,7 +371,7 @@ kikinvideo.HomeViewController = function() {
                     var target_height =
                             Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/3) *
                             $("#liked-by-wrapper-vid-"+vid + ' .item').height()
-                            + 40;
+                            + Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/3) * 40;
 
                     $("#liked-by-wrapper-vid-"+vid).animate({
                         height:target_height
