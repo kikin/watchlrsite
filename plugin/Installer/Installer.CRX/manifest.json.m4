@@ -20,6 +20,6 @@
    },
    "name": "kikin Video",
    "permissions": [ "tabs",  "http://*/*" , "https://*/*" ],
-   "version": "1.0.0",
+   "version": "__K_MAJOR_VERSION__.__K_MINOR_VERSION__.__K_BUILD_NUMBER__",
    "update_url": "https://kbp.de.kikin.com/wbp-data/updates/update.xml"
 }
