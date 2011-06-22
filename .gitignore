@@ -9,3 +9,8 @@ kikinvideo
 .DS_Store
 kikin_video_env
 celerybeat-schedule.db
+plugin/Chrome.crx
+Thumbs.db
+plugin/Installer/Installer.CRX/.gitignore
+plugin/Installer/Installer.CRX/Chrome.CRX
+

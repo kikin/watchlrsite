@@ -33,6 +33,12 @@
                 $('#facebook-img-container').addClass('shadow-5l');
             }
         });
+
+        //fade in signup pitch...
+        if($('#signup-pitch').length != 0){
+            $('#signup-pitch').css('visibility','visible').hide().fadeIn(1200);
+        }
+
         stylizeVideoTitles();
     });
     </script>
@@ -44,6 +50,18 @@
 {% endblock style_refs %}
 
 {% block content %}
+
+    {% if not user.is_authenticated %}
+        <div id="signup-pitch">
+            <div class="inner">
+                {{ profile_owner|full_name }} is on Kikin Video.<br>
+                Discover, save and share videos online. Sign up with Facebook to get started now!
+                <a class="fb-signup" href="/login/facebook"></a>
+            </div>
+        </div>
+    {% endif %}
+
+
     <meta name="profile_subject" content="{{ profile_owner.id }}"/>
     <div id="user-info-container">
     <div class="user-info gradient"></div>
