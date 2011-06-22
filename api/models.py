@@ -171,10 +171,12 @@ class User(auth_models.User):
     IntegrityError: duplicate key value violates unique constraint "auth_user_username_key"
     '''
     videos = models.ManyToManyField(Video, through='UserVideo')
-    follows = models.ManyToManyField('self', through='UserFollowsUser', symmetrical=False)
+    follows = models.ManyToManyField('self', through='UserFollowsUser', related_name='r_follows', symmetrical=False)
     is_registered = models.BooleanField(default=True)
-    fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_user_set', symmetrical=False)
+    fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_fb_friends', symmetrical=False)
     fb_friends_fetched = models.DateTimeField(null=True)
+    dismissed_user_suggestions = models.ManyToManyField('self', through='DismissedUserSuggestions',
+                                                        related_name='r_dismissed_user_suggestions', symmetrical=False)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
@@ -401,7 +403,22 @@ class User(auth_models.User):
             return reverse('user_profile', args=[str(self.id)])
         return 'http://www.facebook.com/profile.php?id=%s' % self.facebook_uid()
 
-    def invite_friends_list(self):
+    def follow_suggestions(self, num=10):
+        suggestions = list()
+
+        following = self.following()
+        dismissed = list(self.dismissed_user_suggestions.all())
+
+        for user in self.fb_friends.filter(is_registered=True):
+            if num <= 0:
+                break
+            if user not in following and user not in dismissed:
+                suggestions.append(user)
+                num -= 1
+
+        return suggestions
+
+    def invite_friends_list(self, num=10):
 
         # Return empty list if we have not fetched friend list yet
         if not self.fb_friends_fetched:
@@ -409,17 +426,24 @@ class User(auth_models.User):
 
         invite_list = list()
 
+        # List of dismissed suggestions for user
+        dismissed = list(self.dismissed_user_suggestions.all())
+
         # TODO: Need some way of ordering the invite list
-        for friend in self.fb_friends:
-            if not friend.invited_on:
-                invite_list.append(friend)
+        for friend in FacebookFriend.objects.filter(user=self, invited_on__isnull=True):
+            if num <= 0:
+                break
+            fb_user = friend.fb_friend
+            if not fb_user.is_registered and fb_user not in dismissed:
+                invite_list.append(fb_user)
+                num -= 1
 
         return invite_list
 
 
 class UserFollowsUser(models.Model):
-    follower = models.ForeignKey(User, related_name='follower_set', db_index=True)
-    followee = models.ForeignKey(User, related_name='followeee_set', db_index=True)
+    follower = models.ForeignKey(User, related_name='+', db_index=True)
+    followee = models.ForeignKey(User, related_name='+', db_index=True)
     since = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
@@ -427,9 +451,15 @@ class UserFollowsUser(models.Model):
 
 
 class FacebookFriend(models.Model):
-    user = models.ForeignKey('User', related_name='fb_user_set', db_index=True)
-    fb_friend = models.ForeignKey('User', related_name='fb_friend_set', db_index=True)
+    user = models.ForeignKey(User, related_name='+', db_index=True)
+    fb_friend = models.ForeignKey(User, related_name='+', db_index=True)
     invited_on = models.DateTimeField(null=True)
+
+
+class DismissedUserSuggestions(models.Model):
+    user = models.ForeignKey(User, related_name='+', db_index=True)
+    suggested_user = models.ForeignKey(User, related_name='+', db_index=True)
+    dismissed_on = models.DateTimeField(auto_now=True)
 
 
 class UserVideo(models.Model):
@@ -479,7 +509,9 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
     saved = user.username
 
     # New user?
-    if getattr(user, 'is_new', False):
+    is_new = getattr(user, 'is_new', False)
+
+    if is_new:
         from api.tasks import slugify
         fullname = '.'.join([user.first_name, user.last_name])
         user.username = response.get('username', slugify(fullname, user.id))
@@ -490,10 +522,13 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
     user.is_registered = True
 
     # Upgrade?
-    if not registered:
-        # Fetch user's facebook friends
-        from api.tasks import fetch_facebook_friends
-        fetch_facebook_friends.delay(user)
+    if not registered or is_new:
+
+        # Fetch new user's facebook friends
+        if not getattr(user, 'is_friend_fetch_scheduled', False):
+            from api.tasks import fetch_facebook_friends
+            fetch_facebook_friends.delay(user)
+            setattr(user, 'is_friend_fetch_scheduled', True)
 
         # Override `is_new` property
         # This will ensure that the welcome experience gets triggered for this user

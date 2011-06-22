@@ -34,18 +34,50 @@
         </div>
             {% for kv_user in suggested_followees %}
                 <div class="suggested-followee-item">
-                    <a href="/{{ kv_user.username }}">
+                    <a href="{{ kv_user.get_absolute_url }}">
                         <div class="fb-thumb-wrapper">
                             <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
                         </div>
                     </a>
                     <div class="suggested-followees profile-link-container">
-                        <a href="{{ kv_user.username }}" title={{ kv_user|full_name }}>
+                        <a href="{{ kv_user.get_absolute_url }}" title={{ kv_user|full_name }}>
                             {{ kv_user|full_name|truncate_text:16 }}
                         </a>
                     </div>
                     <a href="javascript:profileViewController.handleFollow({{ kv_user.id }})" id="follow-button-user-{{ kv_user.id }}" class="follow-button shadow-5l">
                         Follow
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                    $('#video-section').css({width:'700px', marginLeft:'auto', marginRight:'auto'});
+                    $('#lnk-page-next').css({marginLeft:'auto', marginRight:'auto'});
+            })
+        </script>
+    {% endif %}
+
+    {% if not invite_list|length_is:0 %}
+    <div class="suggested-followees">
+        <div class="suggested-followees title">
+            Spread the Love
+        </div>
+            {% for kv_user in invite_list %}
+                <div class="suggested-followee-item">
+                    <a href="{{ kv_user.get_absolute_url }}">
+                        <div class="fb-thumb-wrapper">
+                            <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
+                        </div>
+                    </a>
+                    <div class="suggested-followees profile-link-container">
+                        <a href="{{ kv_user.get_absolute_url }}" title={{ kv_user|full_name }}>
+                            {{ kv_user|full_name|truncate_text:16 }}
+                        </a>
+                    </div>
+                    <a href="#" id="invite-button-user-{{ kv_user.id }}" class="follow-button shadow-5l">
+                        Invite
                     </a>
                 </div>
             {% endfor %}
