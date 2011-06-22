@@ -15,6 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from celery.app import default_app
+from celery import states
 
 
 # Value indicates if the notification message has been displayed and archived by user
@@ -115,6 +116,8 @@ class Video(models.Model):
         return ('video_detail', [str(self.id)])
 
     def status(self):
+        if self.fetched is not None:
+            return states.SUCCESS
         return default_app.backend.get_status(self.task_id)
 
 
