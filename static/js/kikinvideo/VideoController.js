@@ -21,16 +21,25 @@ kikinvideo.VideoController =
         }
 
          function prepareVidForPlayback(vid){
-             
+
+             seekToLastPlaybackPos(vid);
          }
 
          function pauseVideo(vid){
-             
+             if(vid_player_mappings[vid].type == 'YouTube'){
+                 vid_player_mappings[vid].player.pauseVideo();
+             }
          }
 
          function playVideo(vid){
              
          }
+
+        function seekToLastPlaybackPos(vid){
+             if(vid_player_mappings[vid].type == 'YouTube'){
+                 vid_player_mappings[vid].player.seekTo(50);
+             }
+        }
 
          function prepareEmbeds(){
             $('.video-embed-wrapper.html5').each(function()
@@ -58,33 +67,34 @@ kikinvideo.VideoController =
                     }
 
                     if(embed.is('iframe')){
-                        var source = embed.attr('src');
-                        if (isYouTube(source)){
-                            if (source.indexOf("youtube.com/") >= 0 || source.indexOf("player.vimeo.com") >= 0)
-                                source = source.replace("autoplay=1", "autoplay=0");
-                            source += "&enablejsapi=1";
-                            embed.attr('src', source);
+                        /*we're likely dealing with either a YouTube or a Vimeo embed...*/
 
-                            var ytVID = youtubeVID(source);
+                        var source = embed.attr('src');
+
+                        /*remove the damn autoplay flag*/
+                        if(isYouTube(source) || isVimeo(source)){
+                            source = source.replace("autoplay=1", "autoplay=0");
+                        }
+
+
+                        if (isYouTube(source)){
+
+                           source += "&enablejsapi=1";
+                           embed.attr('src', source);
+
+                           var ytVID = youtubeVID(source);
 
                             embed.attr('id', 'youtube-iframe-'+ytVID);
                             
                             var player = new YT.Player(embed.attr('id'), {
-                              videoId: ytVID,
-                              events:{
-                                  'onReady': function(event){
-                                //        alert('woo');
-                                    }
-                              }
+                              videoId: ytVID
                             });
 
-                            vid_player_mappings[vid] = player;
+                            vid_player_mappings[vid] = {player:player, type:'YouTube'};
                         }
                         if(isVimeo(source)){
-                            if (source.indexOf("http://www.youtube.com/") == 0 || source.indexOf("http://player.vimeo.com") == 0)
-                                source = source.replace("autoplay=1", "autoplay=0");
-                            source += "&api=1";
-                            embed.attr('src', source);
+                           source += "&api=1";
+                           embed.attr('src', source);
                         }
                     }
                 }

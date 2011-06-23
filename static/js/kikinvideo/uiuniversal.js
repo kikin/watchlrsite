@@ -123,8 +123,9 @@ kikinvideo.UIUniversal =
                     current_vid = vid;
 
                     //finally, prepare html5 videos...
-                    if($.browser.webkit)
+                    if($.browser.webkit){
                         videoController.prepareVidForPlayback(vid);
+                    }
                 }
             }
 
@@ -140,6 +141,11 @@ kikinvideo.UIUniversal =
                 if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
                     $(VIDEO_BUTTON_ID_PREFIX + vid).addClass(VIDEO_BUTTON_CLASS)
                 }
+
+                //pause video if it is html5
+                if($.browser.webkit){
+                        videoController.pauseVideo(vid);
+                    }
             }
 
             function handleProfileEditPanelOpen(){
