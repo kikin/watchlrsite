@@ -10,18 +10,22 @@ kikinvideo.VideoController =
         //because we must control YouTube and Vimeo vids through
         //these services' javascript APIs, we can't just manipulate
         //<video> obj controls -- we need to store player->vid mappings.
-         vid_player_mappings = {}
+        var vid_player_mappings = {}
+
+        //this is unfortunately also necessary for fast vid lookup...
+        var player_vid_mappings = {};
 
         //youtube api requires that this be in the global namespace...unfortunate, yes...
         function onPlayerReady(event){
-            var x=1;
+            var player = vid_player_mappings[player_vid_mappings[event.target]];
+            vid_player_mappings[player_vid_mappings[event.target]].ready = true;
         }
 
 
         function handleStateChange(newstate){
-            if(newstate.data == YT.PlayerState.PAUSED){
+            //if(newstate.data == YT.PlayerState.PAUSED){
                 //savePosition(curVID);
-            }
+            //}
         }
 
          function prepareVidForPlayback(vid){
@@ -47,8 +51,10 @@ kikinvideo.VideoController =
          }
 
          function savePosition(vid){
-              if(vid_player_mappings[vid].type == 'YouTube'){
-                 doSavePosition(vid, vid_player_mappings[vid].player.getCurrentTime());
+             if(vid_player_mappings[vid]){
+                 if(vid_player_mappings[vid].type == 'YouTube'){
+                     doSavePosition(vid, vid_player_mappings[vid].player.getCurrentTime());
+                 }
              }
          }
 
@@ -67,9 +73,11 @@ kikinvideo.VideoController =
          }
 
          function pauseVideo(vid){
-             if(vid_player_mappings[vid].type == 'YouTube'){
-                 if(vid_player_mappings[vid].player)
-                    vid_player_mappings[vid].player.pauseVideo();
+             if(vid_player_mappings[vid] && vid_player_mappings[vid].ready){
+                 if(vid_player_mappings[vid].type == 'YouTube'){
+                     if(vid_player_mappings[vid].player)
+                        vid_player_mappings[vid].player.pauseVideo();
+                 }
              }
          }
 
@@ -78,10 +86,12 @@ kikinvideo.VideoController =
          }
 
         function seekTo(vid, pos){
-             if(vid_player_mappings[vid].type == 'YouTube'){
-                 if(vid_player_mappings[vid].player)
-                    vid_player_mappings[vid].player.seekTo(pos);
-             }
+            if(vid_player_mappings[vid] && vid_player_mappings[vid].ready){
+                 if(vid_player_mappings[vid].type == 'YouTube'){
+                     if(vid_player_mappings[vid].player)
+                        vid_player_mappings[vid].player.seekTo(pos);
+                 }
+            }
         }
 
          function prepareEmbeds(){
@@ -133,7 +143,8 @@ kikinvideo.VideoController =
 
                             });
 
-                            vid_player_mappings[vid] = {player:player, type:'YouTube'};
+                            vid_player_mappings[vid] = {player:player, type:'YouTube', ready:false};
+                            player_vid_mappings[player] = vid;
                         }
                         if(isVimeo(source)){
                            source = source.replace("autoplay=1", "autoplay=0");
