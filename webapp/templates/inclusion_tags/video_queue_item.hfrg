@@ -83,7 +83,7 @@
             {% if video.source %}
                 <a href="{{video.url}}" target="_blank">source</a>
             {% endif %}
-            {% if display_mode != 'public_profile' %}
+            {% if display_mode != 'detail' %}
             &bull;
             {% endif %}
             {% if display_mode == 'saved' %}
@@ -91,6 +91,9 @@
             {% endif %}
             {% if display_mode == 'liked' %}
                 <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
+            {% endif %}
+            {% if display_mode == 'profile' %}
+                <span class="video-timeago">{{ video|pretty_date_saved:profile_owner }}</span>
             {% endif %}
         </div>
     </div>

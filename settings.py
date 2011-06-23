@@ -6,9 +6,8 @@ sys.path.append(os.getcwd())
 
 VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local')
 
-# Turn DEBUG off if VIDEO_ENV is defined ('dev', 'prod', etc)
-DEBUG = VIDEO_ENV == 'local'
-
+# Turn DEBUG on only if running locally
+DEBUG = VIDEO_ENV.startswith('local')
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -233,3 +232,18 @@ logconfig.init()
 SESSION_COOKIE_AGE = 2592000 # 30 days in seconds
 SESSION_COOKIE_NAME = '_KVS_' # Plugin converts this into a kikin cookie
 SESSION_COOKIE_DOMAIN = '.kikin.com' # Cross-domain!
+
+# Caching
+cache_configurations = {
+    'local': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'dev': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'prod': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+CACHES = { 'default': cache_configurations[VIDEO_ENV] }
