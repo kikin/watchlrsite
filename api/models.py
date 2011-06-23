@@ -14,9 +14,6 @@ from celery import states
 import logging
 logger = logging.getLogger(__name__)
 
-from celery.app import default_app
-from celery import states
-
 
 # Value indicates if the notification message has been displayed and archived by user
 DEFAULT_NOTIFICATIONS = {
@@ -27,7 +24,8 @@ DEFAULT_NOTIFICATIONS = {
 
 
 DEFAULT_PREFERENCES = {
-    'syndicate': 2,      # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not yet set
+    'syndicate': 2,     # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not yet set
+    'follow_email': 1,  # Send email to user when someone follows them
 }
 
 
@@ -49,6 +47,9 @@ class Source(models.Model):
     name = models.CharField(max_length=100, unique=True)
     url = models.URLField(max_length=750, verify_exists=False)
     favicon = models.URLField(max_length=750, verify_exists=False, null=True)
+
+    def json(self):
+        return { 'name': self.name, 'url': self.url, 'favicon': self.favicon }
 
 
 class Video(models.Model):
@@ -99,26 +100,49 @@ class Video(models.Model):
     def total_likes(self):
         return UserVideo.objects.filter(video=self, liked=True).count()
 
-    #date when user saved video....
+    # Date when user saved video
     def date_saved(self, user):
         return UserVideo.objects.get(video=self, user=user).saved_timestamp
 
-    #date when user liked video....
+    # Date when user liked video
     def date_liked(self, user):
         return UserVideo.objects.get(video=self, user=user).liked_timestamp
 
-    #list of all users who have liked video...
+    # List of all users who have liked this video
     def all_likers(self):
         return [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
 
     @models.permalink
     def get_absolute_url(self):
-        return ('video_detail', [str(self.id)])
+        return 'video_detail', [str(self.id)]
 
     def status(self):
         if self.fetched is not None:
             return states.SUCCESS
         return default_app.backend.get_status(self.task_id)
+    
+    def json(self):
+        try:
+            thumbnail = self.get_thumbnail().json()
+        except Thumbnail.DoesNotExist:
+            thumbnail = None
+
+        try:
+            source = self.source
+            if source is not None:
+                source = source.json()
+        except Source.DoesNotExist:
+            source = None
+
+        return { 'id': self.id,
+                 'url': self.url,
+                 'title': self.title,
+                 'description': self.description,
+                 'thumbnail': thumbnail,
+                 'source': source,
+                 'saves': UserVideo.save_count(self),
+                 'likes': UserVideo.like_count(self),
+                 'state': self.status() }
 
 
 class Thumbnail(models.Model):
@@ -149,6 +173,9 @@ class Thumbnail(models.Model):
 
     def __repr__(self):
         return self.url
+
+    def json(self):
+        return { 'url': self.url, 'width': self.width, 'height': self.height }
 
 
 class ActivityItem(object):
@@ -223,8 +250,14 @@ class User(auth_models.User):
     def followers(self):
         return [u.follower for u in UserFollowsUser.objects.filter(followee=self).all()]
 
+    def follower_count(self):
+        return UserFollowsUser.objects.filter(followee=self).count()
+
     def following(self):
         return list(self.follows.all())
+
+    def following_count(self):
+        return self.follows.count()
 
     def follow(self, other):
         if self == other:
@@ -445,6 +478,20 @@ class User(auth_models.User):
                 num -= 1
 
         return invite_list
+    
+    def json(self):
+        return { 'name': ' '.join([self.first_name, self.last_name]),
+                 'username': self.username,
+                 'picture': self.picture(),
+                 'email': self.email,
+                 'notifications': self.notifications(),
+                 'preferences': self.preferences(),
+                 'queued': self.saved_videos().count(),
+                 'saved': self.videos.count(),
+                 'watched': self.watched_videos().count(),
+                 'liked': self.liked_videos().count(),
+                 'following': self.following_count(),
+                 'followers': self.follower_count() }
 
 
 class UserFollowsUser(models.Model):
@@ -491,6 +538,15 @@ class UserVideo(models.Model):
     @classmethod
     def watch_count(cls, video):
         return cls.objects.filter(video=video, watched=True).count()
+
+    def json(self):
+        return { 'url': self.video.url,
+                 'id': self.video.id,
+                 'liked': self.liked,
+                 'likes': self.like_count(self.video),
+                 'saved': self.saved,
+                 'saves': self.save_count(self.video),
+                 'position': self.position and str(self.position) }
 
 
 class Notification(models.Model):
