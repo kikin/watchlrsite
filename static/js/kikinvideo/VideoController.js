@@ -13,7 +13,7 @@ kikinvideo.VideoController =
         //because we must control YouTube and Vimeo vids through
         //these services' javascript APIs, we can't just manipulate
         //<video> obj controls -- we need to store player->vid mappings.
-         player_vid_mappings = {}
+         vid_player_mappings = {}
 
         //youtube api requires that this be in the global namespace...unfortunate, yes...
         function onPlayerReady(event){
@@ -40,7 +40,19 @@ kikinvideo.VideoController =
                     *  been set to true/1.  It is necessary, therefore, to iterate over
                     *  all of them client-side and rectify this.
                     * */
+
                     var embed = $(this).children(0);
+
+                    var container_id = $(this).attr('id');
+                    /*<hack>*/
+                    //parse vid by looking @ container id...
+                    var vid;
+                    try{
+                        vid = parseInt(container_id.substr('video-embed-wrapper-'.length));
+                    }catch(exception){}
+                    /*</hack>*/
+                    
+
                     if(embed.is('video')){
                         
                     }
@@ -54,15 +66,19 @@ kikinvideo.VideoController =
                             embed.attr('src', source);
 
                             var ytVID = youtubeVID(source);
-                            var player = new YT.Player('player', {
+
+                            embed.attr('id', 'youtube-iframe-'+ytVID);
+                            
+                            var player = new YT.Player(embed.attr('id'), {
                               videoId: ytVID,
                               events:{
                                   'onReady': function(event){
-                                        alert('woo');
+                                //        alert('woo');
                                     }
                               }
                             });
-                            x=1;
+
+                            vid_player_mappings[vid] = player;
                         }
                         if(isVimeo(source)){
                             if (source.indexOf("http://www.youtube.com/") == 0 || source.indexOf("http://player.vimeo.com") == 0)
