@@ -490,14 +490,15 @@ def list(request):
 @csrf_exempt
 @jsonp_view
 @require_authentication
-def seek(request, video_id, position):
+def seek(request, video_id, position=None):
     try:
         user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
     except UserVideo.DoesNotExist:
         raise BadRequest('Video:%s invalid for user:%s' % (request.user.id, video_id))
 
-    user_video.position = Decimal(position)
-    user_video.save()
+    if position:
+        user_video.position = Decimal(position)
+        user_video.save()
 
     return user_video.json()
 
