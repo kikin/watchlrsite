@@ -2,13 +2,10 @@ function onYouTubePlayerAPIReady(){
 
 }
 
-
-function onPlayerReady(event){
-    alert('');
-}
-
 kikinvideo.VideoController =
     function(){
+
+        var curVID;
 
         //because we must control YouTube and Vimeo vids through
         //these services' javascript APIs, we can't just manipulate
@@ -17,27 +14,73 @@ kikinvideo.VideoController =
 
         //youtube api requires that this be in the global namespace...unfortunate, yes...
         function onPlayerReady(event){
-            alert('ready');
+            var x=1;
+        }
+
+
+        function handleStateChange(newstate){
+            if(newstate.data == YT.PlayerState.PAUSED){
+                //savePosition(curVID);
+            }
         }
 
          function prepareVidForPlayback(vid){
+             /*no preparation can occur until the player has loaded,
+             * so proper prep logic is in onPlayerReady callback*/
+             curVID = vid;
+             if(curVID){
+                $.ajax({
+                     url : '/api/seek/'+curVID,
+                     success : function(response){
+                         if(response.success){
+                             var video = response.result;
+                             if(video.position){
+                                 seekTo(curVID, parseFloat(video.position));
+                                 pauseVideo(curVID);
+                             }
+                         }else
+                             showErrorDialog();
+                    },
+                    failure : showErrorDialog
+                 });
+                }
+         }
 
-             seekToLastPlaybackPos(vid);
+         function savePosition(vid){
+              if(vid_player_mappings[vid].type == 'YouTube'){
+                 doSavePosition(vid, vid_player_mappings[vid].player.getCurrentTime());
+             }
+         }
+
+         function doSavePosition(vid, position){
+              if(position && !isNaN(position)){
+                  
+                  $.ajax({
+                     type : 'POST',
+                     url : '/api/seek/'+vid+'/'+Math.floor(position),
+                     success : function(response){
+                         //....
+                    },
+                    failure : showErrorDialog
+                 });
+              }
          }
 
          function pauseVideo(vid){
              if(vid_player_mappings[vid].type == 'YouTube'){
-                 vid_player_mappings[vid].player.pauseVideo();
+                 if(vid_player_mappings[vid].player)
+                    vid_player_mappings[vid].player.pauseVideo();
              }
          }
 
          function playVideo(vid){
-             
+
          }
 
-        function seekToLastPlaybackPos(vid){
+        function seekTo(vid, pos){
              if(vid_player_mappings[vid].type == 'YouTube'){
-                 vid_player_mappings[vid].player.seekTo(50);
+                 if(vid_player_mappings[vid].player)
+                    vid_player_mappings[vid].player.seekTo(pos);
              }
         }
 
@@ -71,14 +114,9 @@ kikinvideo.VideoController =
 
                         var source = embed.attr('src');
 
-                        /*remove the damn autoplay flag*/
-                        if(isYouTube(source) || isVimeo(source)){
-                            source = source.replace("autoplay=1", "autoplay=0");
-                        }
-
-
                         if (isYouTube(source)){
-
+                           /*remove the damn autoplay flag*/
+                           source = source.replace("autoplay=1", "autoplay=0");
                            source += "&enablejsapi=1";
                            embed.attr('src', source);
 
@@ -87,12 +125,18 @@ kikinvideo.VideoController =
                             embed.attr('id', 'youtube-iframe-'+ytVID);
                             
                             var player = new YT.Player(embed.attr('id'), {
-                              videoId: ytVID
+                              videoId: ytVID,
+                              events : {
+                                  'onReady':onPlayerReady,
+                                  'onStateChange': handleStateChange
+                              }
+
                             });
 
                             vid_player_mappings[vid] = {player:player, type:'YouTube'};
                         }
                         if(isVimeo(source)){
+                           source = source.replace("autoplay=1", "autoplay=0");
                            source += "&api=1";
                            embed.attr('src', source);
                         }
@@ -132,7 +176,8 @@ kikinvideo.VideoController =
         return {
             prepareVidForPlayback : prepareVidForPlayback,
             prepareEmbeds : prepareEmbeds,
-            pauseVideo : pauseVideo
+            pauseVideo : pauseVideo,
+            savePosition : savePosition
         }
     }
 
