@@ -619,9 +619,8 @@ ul>span.cufon-canvas {
 
 .video-thumbnail,
 .video-thumbnail-btn {
-    width: 200px;
-    max-height: 147px;
-    min-height: 120px;
+    width: 125px;
+    height:92px;
 }
 
 .video-thumbnail-btn {
