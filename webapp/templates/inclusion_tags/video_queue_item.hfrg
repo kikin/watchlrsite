@@ -61,11 +61,7 @@
             <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
             </span>
         {% endif %}
-<<<<<<< Updated upstream
         </a>
-=======
->>>>>>> Stashed changes
-
     </div>
     <a href="javascript:UI.loadPlayer({{ video.id }})">
         <div class="video-image" id="video-{{ video.id }}">
@@ -111,7 +107,7 @@
 
 {% if display_mode == 'detail' %}
     <div id="video-player-container">
-        {% video_player video %}
+        {% video_player video request %}
     </div>
 {% endif %}
 

@@ -88,7 +88,7 @@ kikinvideo.UIUniversal =
 
 
                     //for html5 videos, fix dimensions of player container, because
-                    // our embed codes always specify 100% x 100% as sz...
+                    // our embed c  odes always specify 100% x 100% as sz...
                     if($.browser.webkit)
                         video_embed_div.css({width:640, height:385});
 
