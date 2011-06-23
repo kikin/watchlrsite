@@ -9,17 +9,24 @@
     font-family: Arial;
     background-color: #ffffff;
     text-align: left;
+    padding-left: 6px;
+    padding-top:10px;
+    padding-right:10px;
+    padding-bottom:10px;
+}
+
+.suggested-followees.container{
+    border-radius: 8px;
 }
 
 .suggested-followees.title
 {
     font-size: 18px;
-    border-bottom: 1px solid #144D63;
 }
 
 .suggested-followee-item{
-    width:280px;
-    border-bottom: 1px solid #144D63;
+    width:260px;
+    border-top: 1px solid #144D63;
     height:50px;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -29,9 +36,9 @@
     font-family: Helvetica;
     position:absolute;
     width:160px;
-    font-size: 15px;
-    margin-left: 74px;
-    margin-top:14px;
+    font-size: 14px;
+    margin-left: 54px;
+    margin-top:8px;
     font-weight: 500;
 }
 
@@ -40,7 +47,7 @@
     position:absolute;
     width: 70px;
     margin-top:8px;
-    margin-left: 160px;
+    margin-left: 135px;
     height:22px;
     border-radius: 6px;
     -moz-border-radius:6px;

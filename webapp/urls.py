@@ -3,6 +3,9 @@ from django.conf import settings
 
 urlpatterns = patterns('webapp',
                        (r'^$', 'views.home'),
+                       (r'^terms_of_service', 'views.tos'),
+                       (r'^about', 'views.about'),
+                       (r'^contact', 'views.contact'),
                        (r'^download', 'views.download_pitch'),
                        (r'^login_complete$', 'views.login_complete'),
                        (r'^logout', 'views.logout_view'),

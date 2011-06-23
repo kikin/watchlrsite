@@ -39,6 +39,8 @@
             $('#signup-pitch').css('visibility','visible').hide().fadeIn(1200);
         }
 
+        $('.video-container:last').css('border-bottom', 'none');
+
         stylizeVideoTitles();
     });
     </script>
@@ -46,6 +48,9 @@
 {% endblock script_refs %}
 
 {% block style_refs %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
     <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}css/profile.css'/>
 {% endblock style_refs %}
 
@@ -78,12 +83,14 @@
                     <div class="sub">
                         ({{ profile_owner.first_name }} {{ profile_owner.last_name }})
                     </div>
+                <a href="/{{ profile_owner.username }}">
                     <div class="profile-basic-statistics" style="left:160px;">
                         {{ profile_owner|total_liked_videos }}
                         <div class="profile-basic-statistics-sub">
                             Liked<br>videos
                         </div>
                     </div>
+                </a>
                 <a href="/followers/{{ profile_owner.id }}">
                     <div class="profile-basic-statistics with-breakers" style="left:250px;">
                         <div id="follower-count-user-{{ profile_owner.id }}">

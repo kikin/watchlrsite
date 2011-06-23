@@ -2,8 +2,8 @@
 
 <meta name="queue_item_count" content="{{ activity_items|length }}">
 {% if activity_items|length_is:0 %}
-    <div class="activity-queue-item" style="  min-height: 20px;">
-        <div class="activity-queue inner" style="min-height:50px;font-family: Helvetica;font-size: 20px;text-align: center;color:#4c4c4c;">
+    <div class="activity-queue-item" style="height:85px;border-bottom: none;">
+        <div class="activity-queue inner" style="min-height:30px;font-family: Helvetica;font-size: 18px;text-align: center;color:#4c4c4c;">
         Nothing to see here!<br>
         (You are not presently following any users and have yet to like a video)
         </div>
@@ -42,13 +42,8 @@
              <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
               <a class="video-image" href="javascript:UI.loadPlayer({{ activity_item.video.id }})" id="video-{{ activity_item.video.id }}">
                     <div class="video-thumb-wrapper">
-                        <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"
-                             onerror="this.style.visibility='hidden'"
-                             onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
-
-                        <div class="abs-position">
-                            <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ activity_item.video.id }}"></div>
-                        </div>
+                        <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"/>
+                        <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ activity_item.video.id }}"></div>
                     </div>
                 </a>
 

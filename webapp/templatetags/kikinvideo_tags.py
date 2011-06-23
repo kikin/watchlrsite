@@ -201,6 +201,10 @@ def activity_item_heading(activity_item, user):
                 content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
     return content
 
+@register.filter
+def last_element(list):
+    return list[-1]
+
 #this is a stopgap, until we Video.status() is actually working...
 @register.filter
 def fetching_data(video):
@@ -260,3 +264,4 @@ def video_queue_item(context):
                  'display_mode':context['display_mode'], 'request':context['request']}
     if 'profile_owner' in context: queue_ctx['profile_owner'] = context['profile_owner']
     return queue_ctx
+

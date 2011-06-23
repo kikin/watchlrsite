@@ -194,18 +194,21 @@ kikinvideo.HomeViewController = function() {
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
+                $('.video-container:last').css('border-bottom', 'none');
             }else if(activeView == VIEWS.savedQueue){
                 if(queueItemCount >= saveVideosPaginationThreshold){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
+                $('.video-container:last').css('border-bottom', 'none');
             }else if(activeView == VIEWS.activity){
                 if(queueItemCount >= activityItemsToLoad){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
+                $('.activity-queue-item:last').css('border-bottom', 'none');
             }
 
             //because HTML5 videos don't respect display:'none'

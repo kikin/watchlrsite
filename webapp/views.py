@@ -156,8 +156,17 @@ def public_profile(request, username):
         raise Http404
 
 def download_pitch(request):
-    return render_to_response('download_pitch.html', context_instance=RequestContext(request))
-    
+    return render_to_response('boilerplate/download_pitch.html', context_instance=RequestContext(request))
+
+def contact(request):
+    return render_to_response('boilerplate/contact.html', context_instance=RequestContext(request))
+
+def about(request):
+    return render_to_response('boilerplate/about.html', context_instance=RequestContext(request))
+
+def tos(request):
+    return render_to_response('boilerplate/tos.html', context_instance=RequestContext(request))
+
 def plugin_pitch(request):
     return render_to_response('content/plugin_pitch.hfrg')
 

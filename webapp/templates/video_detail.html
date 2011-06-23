@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
     <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
     <link rel='stylesheet' href='{{ STATIC_URL }}css/profile.css' type='text/css'/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
     <link rel='stylesheet' href="{{ STATIC_URL }}css/video_detail.css"/>
     <style>
     {% if not user.is_authenticated %}
@@ -32,6 +33,11 @@
         stylizeVideoTitles();
         $(document).ready(function(){
             home.bindVideoPanelEvents();
+            $(".liked-info-link").click(function(){
+                $('html, body').animate({
+                    scrollTop: 600
+                });
+            });
         });
     </script>
 
