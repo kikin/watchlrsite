@@ -12,8 +12,10 @@ h3.video-title{
 .video-player{
 position:static;
 width:640px;
-margin-left:-5px;
 padding: 10px;
+margin-left: 10px;
+margin-right: 10px;
+margin-bottom:10px;
 background: #333;
 -moz-border-radius: 4px;
 -webkit-border-radius: 4px;
@@ -30,10 +32,6 @@ display:block;
     clear:left;
 }
 
-.video-info{
-    margin-left:30px;
-}
-
 .right-panel{
     margin-left: 740px;
 }
@@ -46,8 +44,10 @@ display:block;
 
 .liked-by-wrapper{
     width:640px;
+    margin-left:auto;
+    margin-right: auto;
     border-top: 1px solid #cccccc;
-    margin-top: 20px;
+    border-bottom: none;
 }
 
 .user-dropdown .close-button{
@@ -87,4 +87,8 @@ display:block;
     height:120px;
     margin-left: auto;
     margin-right: auto;
+}
+
+.video-player-container{
+    margin-top: 20px;
 }

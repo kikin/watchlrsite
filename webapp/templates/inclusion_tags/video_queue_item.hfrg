@@ -47,7 +47,7 @@
 
     {% if video.total_likes != 0 %}
 
-        <a href="javascript:home.showVidLikedBy({{ video.id }})">
+        <a class="liked-info-link" href="javascript:home.showVidLikedBy({{ video.id }})">
         {% if video in user.liked_videos %}
             <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                 {{ video.total_likes }}
@@ -67,13 +67,9 @@
     <a href="javascript:UI.loadPlayer({{ video.id }})">
         <div class="video-image" id="video-{{ video.id }}">
             <div class="video-thumb-wrapper">
-                <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"
-                     onerror="this.style.visibility='hidden'"
-                     onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
+                <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"/>
 
-                <div class="abs-position">
-                    <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
-                </div>
+                <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
             </div>
         </div>
     </a>
@@ -103,17 +99,19 @@
     <br style="clear:both;"/>
 
 
-    {% if display_mode == 'detail' %}
-        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}"></div>
-    {% endif %}
-
+    {% if display_mode != 'detail' %}
     <div id="video-player-container" style="margin-top:40px;">
         {% video_player video %}
     </div>
-</div>
+    {% endif %}
 </div>
 
-    {% if display_mode != 'detail' %}
+{% if display_mode == 'detail' %}
+    <div id="video-player-container">
+        {% video_player video %}
+    </div>
+{% endif %}
+
+</div>
         <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
-    {% endif %}
 {% endif %}
