@@ -54,6 +54,8 @@
                     <a href="javascript:home.handleSave({{ activity_item.video.id }})" title="save">
                         <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover" title="save to your queue"></div>
                     </a>
+                    {% else %}
+                        <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button saved no-hover" title="save to your queue"></div>
                     {% endif %}
 
                     {% if display_mode == 'profile' %}
