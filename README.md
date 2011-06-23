@@ -85,7 +85,7 @@ Note that this requires additional operating system level packages to be present
 running ubuntu you can install these by running the following command
 
     $ apt-get install mysql-server libmysqlclient16-dev python-dev libxslt1-dev apache2 libapache2-mod-wsgi \
-      git-core python-pip
+      git-core python-pip cronolog
 
 Working on this app
 -------------------
