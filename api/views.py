@@ -75,7 +75,7 @@ def jsonp_view(f):
         if not callback:
             jsonp, mimetype = json, "application/json"
         else:
-            jsonp, mimetype = '%s(%s);' % (json, callback), "text/javascript"
+            jsonp, mimetype = '%s(%s);' % (callback, json), "text/javascript"
 
         return HttpResponse(jsonp, mimetype=mimetype)
 
