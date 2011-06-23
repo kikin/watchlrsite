@@ -15,13 +15,13 @@
     <div class="video-buttons">
 
 
-        {% if display_mode == 'profile' %}
+        {% if display_mode == 'profile' or display_mode == 'liked' %}
             {% if video not in user.saved_videos and user.is_authenticated %}
                 <a href="javascript:home.handleSave({{ video.id }})" title="save">
                     <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
                 </a>
                 {% else %}
-                    {% if user.is_authenticated %}
+                    {% if user.is_authenticated and display_mode != 'liked' %}
                     <a href="javascript:home.handleSave({{ video.id }})" title="save">
                         <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
                     </a>
@@ -84,7 +84,7 @@
             {% if video.source %}
                 <a href="{{video.url}}" target="_blank">source</a>
             {% endif %}
-            {% if display_mode != 'public_profile' %}
+            {% if display_mode != 'detail' %}
             &bull;
             {% endif %}
             {% if display_mode == 'saved' %}
@@ -92,6 +92,9 @@
             {% endif %}
             {% if display_mode == 'liked' %}
                 <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
+            {% endif %}
+            {% if display_mode == 'profile' %}
+                <span class="video-timeago">{{ video|pretty_date_saved:profile_owner }}</span>
             {% endif %}
         </div>
     </div>

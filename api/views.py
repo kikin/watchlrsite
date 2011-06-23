@@ -105,7 +105,7 @@ def like(request, video_id):
         push_like_to_fb.delay(video, user)
 
     user_video = do_request(request, video_id, 'like_video')
-    return user_video.json()
+    return user_video
 
 
 # See note on `profile()` method about CSRF exemption

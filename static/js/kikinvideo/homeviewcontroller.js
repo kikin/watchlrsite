@@ -211,7 +211,12 @@ kikinvideo.HomeViewController = function() {
                 $('.activity-queue-item:last').css('border-bottom', 'none');
             }
 
+            //because HTML5 videos don't respect display:'none'
+            //like swf object embeds do...
+            videoController.prepareEmbeds();
+
         });
+
     }
 
     function removeVideo(vid){
@@ -352,7 +357,7 @@ kikinvideo.HomeViewController = function() {
             var start=0;
         if(!count)
             var count=20;
-        
+
         $.ajax({
             url:'/video_liked_by/'+vid,
             data : {'start':start, 'count':count},
@@ -374,7 +379,7 @@ kikinvideo.HomeViewController = function() {
                     var target_height =
                             Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/3) *
                             $("#liked-by-wrapper-vid-"+vid + ' .item').height()
-                            + Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/3) * 40;
+                            + 40 + (Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/3)-1) * 30;
 
                     $("#liked-by-wrapper-vid-"+vid).animate({
                         height:target_height
