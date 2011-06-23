@@ -81,12 +81,14 @@
                     <div class="sub">
                         ({{ profile_owner.first_name }} {{ profile_owner.last_name }})
                     </div>
+                <a href="/{{ profile_owner.username }}">
                     <div class="profile-basic-statistics" style="left:160px;">
                         {{ profile_owner|total_liked_videos }}
                         <div class="profile-basic-statistics-sub">
                             Liked<br>videos
                         </div>
                     </div>
+                </a>
                 <a href="/followers/{{ profile_owner.id }}">
                     <div class="profile-basic-statistics with-breakers" style="left:250px;">
                         <div id="follower-count-user-{{ profile_owner.id }}">
