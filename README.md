@@ -84,7 +84,8 @@ To install all required dependencies, run the following command
 Note that this requires additional operating system level packages to be present. If you are
 running ubuntu you can install these by running the following command
 
-    $ apt-get install mysql-server libmysqlclient16-dev python-dev libxslt1-dev apache2 libapache2-mod-wsgi git-core pip
+    $ apt-get install mysql-server libmysqlclient16-dev python-dev libxslt1-dev apache2 libapache2-mod-wsgi \
+      git-core python-pip
 
 Working on this app
 -------------------
