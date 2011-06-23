@@ -37,7 +37,7 @@
     <div class="right-panel">
     
     {% if not suggested_followees|length_is:0 %}
-    <div class="suggested-followees">
+    <div class="suggested-followees container">
         <div class="suggested-followees title">
             People You May Know
         </div>
@@ -50,7 +50,7 @@
                     </a>
                     <div class="suggested-followees profile-link-container">
                         <a href="{{ kv_user.get_absolute_url }}" title={{ kv_user|full_name }}>
-                            {{ kv_user|full_name|truncate_text:16 }}
+                            {{ kv_user|full_name|truncate_text:13 }}
                         </a>
                     </div>
                     <a href="javascript:profileViewController.handleFollow({{ kv_user.id }})" id="follow-button-user-{{ kv_user.id }}" class="follow-button shadow-5l">
@@ -62,7 +62,7 @@
     {% endif %}
 
     {% if not invite_list|length_is:0 %}
-    <div class="suggested-followees">
+    <div class="suggested-followees container">
         <div class="suggested-followees title">
             Spread the Love
         </div>
@@ -79,7 +79,7 @@
                     </a>
                     <div class="suggested-followees profile-link-container">
                         <a href="{{ kv_user.get_absolute_url }}" title={{ kv_user|full_name }}>
-                            {{ kv_user|full_name|truncate_text:16 }}
+                            {{ kv_user|full_name|truncate_text:13 }}
                         </a>
                     </div>
                     <a href="#" id="invite-button-user-{{ kv_user.id }}" class="follow-button shadow-5l">
