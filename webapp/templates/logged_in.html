@@ -43,13 +43,13 @@
         </div>
             {% for kv_user in suggested_followees %}
                 <div class="suggested-followee-item">
-                    <a href="{{ kv_user.get_absolute_url }}">
+                    <a {{ kv_user|user_profile_link }}>
                         <div class="fb-thumb-wrapper">
                             <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
                         </div>
                     </a>
                     <div class="suggested-followees profile-link-container">
-                        <a href="{{ kv_user.get_absolute_url }}" title={{ kv_user|full_name }}>
+                        <a {{ kv_user|user_profile_link }}>
                             {{ kv_user|full_name|truncate_text:13 }}
                         </a>
                     </div>
@@ -68,17 +68,13 @@
         </div>
             {% for kv_user in invite_list %}
                 <div class="suggested-followee-item">
-                    {% if kv_user.is_registered %}
-                    <a href="{{ kv_user.get_absolute_url }}">
-                    {% else %}
-                    <a href="{{ kv_user.get_absolute_url }}" target="_blank">
-                    {%  endif %}
+                    <a {{ kv_user|user_profile_link }}>
                         <div class="fb-thumb-wrapper">
                             <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
                         </div>
                     </a>
                     <div class="suggested-followees profile-link-container">
-                        <a href="{{ kv_user.get_absolute_url }}" title={{ kv_user|full_name }}>
+                        <a {{ kv_user|user_profile_link }}>
                             {{ kv_user|full_name|truncate_text:13 }}
                         </a>
                     </div>
