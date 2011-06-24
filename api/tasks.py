@@ -1312,7 +1312,7 @@ def push_like_to_fb(video, user):
     try:
         params['picture'] = video.get_thumbnail().url
     except Thumbnail.DoesNotExist:
-        pass
+        params['picture'] = '%s%s' % (server_name, '/static/images/default_video_icon.png')
 
     url = 'https://%s/me/feed' % FACEBOOK_SERVER
     try:
