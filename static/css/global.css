@@ -12,7 +12,7 @@ html {
 
 
 body{
-    /*background: #EEE url(/static/images/bg/bg_soft.png) repeat;*/
+    /*background: #EEE url(/static/images/bg/bg_soft.jpg) repeat;*/
 }
 
 body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td {
@@ -133,7 +133,7 @@ a:hover {
     position: absolute;
     width: 224px;
     height: 42px;
-    background: url(/static/images/watchlr_logo.png) no-repeat;
+    background: url(/static/images/kikin_logo.png) no-repeat;
     margin-top:10px;
     margin-left:8px;
 }
@@ -1087,9 +1087,9 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .shadow-5l{
-    -moz-box-shadow: -3x 3px 3px #ccc;
-    -webkit-box-shadow: -3px 3px 3px #ccc;
-    box-shadow: -3px 3px 3px #ccc;
+    -moz-box-shadow: -5x 5px 5px #888;
+    -webkit-box-shadow: -5px 5px 5px #888;
+    box-shadow: -5px 5px 5px #888;
 }
 
 .video-player-bg{

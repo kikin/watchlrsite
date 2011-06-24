@@ -8,131 +8,126 @@
 </div>
 
 {% else %}
-
-    {% if video|fetching_data %}
-    <div id="video-{{video.id}}" class="video-wrapper">
-        <div class="video-container">
-             {% fetching_data_message video %}
-        </div>
-    </div>
-
-    {% else %}
-
-    <div id="video-{{video.id}}" class="video-wrapper">
+{% if video|fetching_data %}
+<div id="video-{{video.id}}" class="video-wrapper">
     <div class="video-container">
-        <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:50 }}</a></h3>
+         {% fetching_data_message video %}
+    </div>
+</div>
 
-        <div class="video-buttons">
+{% else %}
+<div id="video-{{video.id}}" class="video-wrapper">
+<div class="video-container">
+    <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:50 }}</a></h3>
 
-
-            {% if display_mode == 'profile' or display_mode == 'liked' %}
-                {% if user.is_authenticated and video not in user.saved_videos%}
-                    <a href="javascript:home.handleSave({{ video.id }})" title="save">
-                        <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
-                    </a>
-                 {% comment %}
-                 ...because Greg is going to change his mind about this...(only showing check marks immediately
-                 after video save...
-                    {% else %}
-                        {% if user.is_authenticated and display_mode != 'liked'%}
-                        <a href="javascript:home.handleSave({{ video.id }})" title="save">
-                            <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
-                        </a>
-                     {% endif %}
-                 {% endcomment %}
-                {% endif %}
-            {% endif %}
-
-            {% if display_mode == 'saved' %}
-            <a href="javascript:home.removeVideo({{ video.id }})" title="remove from queue">
-                <div class="video-delete-button no-hover"></div>
-            </a>
-            {% endif %}
+    <div class="video-buttons">
 
 
-
-            <a href="javascript:home.handleLike({{ video.id }})">
-            {% if video in user.liked_videos %}
-                <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-            {% else %}
-                <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-            {% endif %}
-            </a>
-
-        {% if video.total_likes != 0 %}
-
-            <a class="liked-info-link" href="javascript:home.showVidLikedBy({{ video.id }})">
-            {% if video in user.liked_videos %}
-                <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
-                    {{ video.total_likes }}
-                </span>
+        {% if display_mode == 'profile' or display_mode == 'liked' %}
+            {% if user.is_authenticated and video not in user.saved_videos%}
+                <a href="javascript:home.handleSave({{ video.id }})" title="save">
+                    <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
+                </a>
+             {% comment %}
+             ...because Greg is going to change his mind about this...(only showing check marks immediately
+             after video save)...
                 {% else %}
-                <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
-                    {{ video.total_likes }}
-                </span>
-            {%  endif %}
-            {% else %}
-                <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
-                </span>
+                    {% if user.is_authenticated and display_mode != 'liked'%}
+                    <a href="javascript:home.handleSave({{ video.id }})" title="save">
+                        <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
+                    </a>
+                 {% endif %}
+             {% endcomment %}
             {% endif %}
-            </a>
+        {% endif %}
 
-        </div>
-        <a href="javascript:UI.loadPlayer({{ video.id }})">
-            <div class="video-image" id="video-{{ video.id }}">
-                <div class="video-thumb-wrapper">
-                    <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"/>
+        {% if display_mode == 'saved' %}
+        <a href="javascript:home.removeVideo({{ video.id }})" title="remove from queue">
+            <div class="video-delete-button no-hover"></div>
+        </a>
+        {% endif %}
 
-                    <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
-                </div>
-            </div>
+
+
+        <a href="javascript:home.handleLike({{ video.id }})">
+        {% if video in user.liked_videos %}
+            <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+        {% else %}
+            <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+        {% endif %}
         </a>
 
-        <div class="video-info">
-            <div class="video-description">{{ video.description|truncatewords:50|urlize }}</div>
-            <div class="video-saved">
-                <a href="{{ video|source_url_root }}" target="_blank">
-                    <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
-                </a>
-                &bull;
-                {% if video.source %}
-                    <a href="{{video.url}}" target="_blank">source</a>
-                {% endif %}
-                {% if display_mode != 'detail' %}
-                &bull;
-                {% endif %}
-                {% if display_mode == 'saved' %}
-                    <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
-                {% endif %}
-                {% if display_mode == 'liked' %}
-                    <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
-                {% endif %}
-                {% if display_mode == 'profile' %}
-                    <span class="video-timeago">{{ video|pretty_date_saved:profile_owner }}</span>
-                {% endif %}
+    {% if video.total_likes != 0 %}
+
+        <a class="liked-info-link" href="javascript:home.showVidLikedBy({{ video.id }})">
+        {% if video in user.liked_videos %}
+            <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
+                {{ video.total_likes }}
+            </span>
+            {% else %}
+            <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+                {{ video.total_likes }}
+            </span>
+        {%  endif %}
+        {% else %}
+            <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
+            </span>
+        {% endif %}
+        </a>
+
+    </div>
+    <a href="javascript:UI.loadPlayer({{ video.id }})">
+        <div class="video-image" id="video-{{ video.id }}">
+            <div class="video-thumb-wrapper">
+                <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"/>
+
+                <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
             </div>
         </div>
+    </a>
 
-        <br style="clear:both;"/>
-
-
-        {% if display_mode != 'detail' %}
-        <div id="video-player-container" style="margin-top:40px;">
-            {% video_player video %}
+    <div class="video-info">
+        <div class="video-description">{{ video.description|truncatewords:50|urlize }}</div>
+        <div class="video-saved">
+            <a href="{{ video|source_url_root }}" target="_blank">
+                <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
+            </a>
+            &bull;
+            {% if video.source %}
+                <a href="{{video.url}}" target="_blank">source</a>
+            {% endif %}
+            {% if display_mode != 'detail' %}
+            &bull;
+            {% endif %}
+            {% if display_mode == 'saved' %}
+                <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
+            {% endif %}
+            {% if display_mode == 'liked' %}
+                <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
+            {% endif %}
+            {% if display_mode == 'profile' %}
+                <span class="video-timeago">{{ video|pretty_date_saved:profile_owner }}</span>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 
-    {% if display_mode == 'detail' %}
-        <div id="video-player-container">
-            {% video_player video %}
-        </div>
-    {% endif %}
+    <br style="clear:both;"/>
 
+
+    {% if display_mode != 'detail' %}
+    <div id="video-player-container" style="margin-top:40px;">
+        {% video_player video %}
     </div>
-
-    <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
-
     {% endif %}
+</div>
 
+{% if display_mode == 'detail' %}
+    <div id="video-player-container">
+        {% video_player video %}
+    </div>
+{% endif %}
+
+</div>
+        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
+{% endif %}
 {% endif %}
