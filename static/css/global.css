@@ -1141,13 +1141,13 @@ box-shadow: 10px 10px 5px #888;
 .user-dropdown ul{
     list-style-type: none;
     width: 640px;
+    margin-top:10px;
 }
 
 .user-dropdown li{
     display:inline-block;
     margin-right: 35px;
     margin-top:10px;
-    margin-bottom: 10px;
     height:70px;
     font-family: Helvetica;
     font-size:16px;
