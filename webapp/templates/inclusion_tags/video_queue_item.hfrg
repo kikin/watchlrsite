@@ -127,14 +127,14 @@
     {% endif %}
 </div>
 {% if display_mode == 'detail' %}
-    {% if not video|no_likes %}
-        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" style="display:block;border-bottom:1px solid #cccccc;margin-bottom:20px;border-top:none;">
-            {% liked_by_panel video %}
-        </div>
-    {% endif %}
     <div id="video-player-container">
         {% video_player video %}
     </div>
+    {% if not video|no_likes %}
+    <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" style="display:block;border-bottom:1px solid #cccccc;margin-left:20px;border-bottom:none;margin-top:20px;">
+        {% liked_by_panel video %}
+    </div>
+    {% endif %}
 {% endif %}
 
 </div>

@@ -377,9 +377,9 @@ kikinvideo.HomeViewController = function() {
                     * by counting num of list items, multiplying by their height and adding
                     * a constant....*/
                     var target_height =
-                            Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/3) *
+                            Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/7) *
                             $("#liked-by-wrapper-vid-"+vid + ' .item').height()
-                            + 40 + (Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/3)-1) * 30;
+                            + 40 + (Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/7)-1) * 14;
 
                     $("#liked-by-wrapper-vid-"+vid).animate({
                         height:target_height

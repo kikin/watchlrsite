@@ -3,6 +3,8 @@ from datetime import datetime
 from urlparse import urlparse
 from kikinvideo.api.models import UserVideo
 
+from celery import states
+
 register = template.Library()
 
 @register.filter
@@ -211,7 +213,6 @@ def last_element(list):
 
 @register.filter
 def fetching_data(video):
-    from celery import states
     if not video.status() == states.SUCCESS:
         return True
     return False
@@ -226,7 +227,6 @@ def fetching_data(video):
 
 @register.filter
 def error_fetching_data(video):
-    from celery import states
     if video.status() in states.PROPAGATE_STATES:
         return True
     return False

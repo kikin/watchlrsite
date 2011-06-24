@@ -204,6 +204,11 @@
     background-image: url(/static/images/education/fb_signup.png);
 }
 
+.mozilla .fb-signup{
+    margin-top:40px;
+    left:15px;
+}
+
 .fb-signup:hover{
     background-image: url(/static/images/education/fb_signup_hover.png);
 }
