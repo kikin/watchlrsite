@@ -31,6 +31,6 @@
         </a>
     </div>
     <div class="fetching-data inner">
-        We were unable to fetch video data.<br>Please click <a href="{{video.host}}">here</a> to visit the original page.<br>
+        We were unable to fetch video data.<br>Please click <a href="{{ user_video.host }}">here</a> to visit the original page.<br>
     </div>
 </div>

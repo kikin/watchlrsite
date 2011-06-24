@@ -3,7 +3,7 @@
 {% if video|error_fetching_data %}
 <div id="video-{{video.id}}" class="video-wrapper">
     <div class="video-container">
-         {% error_fetching_data_message video %}
+         {% error_fetching_data_message user video %}
     </div>
 </div>
 
@@ -59,7 +59,10 @@
 
     {% if video.total_likes != 0 %}
 
+        {% if display_mode != 'detail' %}
         <a class="liked-info-link" href="javascript:home.showVidLikedBy({{ video.id }})">
+        {% endif %}
+
         {% if video in user.liked_videos %}
             <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
                 {{ video.total_likes }}
@@ -73,7 +76,10 @@
             <span class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
             </span>
         {% endif %}
+
+        {% if display_mode != 'detail' %}
         </a>
+        {% endif %}
 
     </div>
     <a href="javascript:UI.loadPlayer({{ video.id }})">
@@ -120,8 +126,12 @@
     </div>
     {% endif %}
 </div>
-
 {% if display_mode == 'detail' %}
+    {% if not video|no_likes %}
+        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" style="display:block;border-bottom:1px solid #cccccc;margin-bottom:20px;border-top:none;">
+            {% liked_by_panel video %}
+        </div>
+    {% endif %}
     <div id="video-player-container">
         {% video_player video %}
     </div>
