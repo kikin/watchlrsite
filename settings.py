@@ -7,7 +7,7 @@ sys.path.append(os.getcwd())
 VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local_sqlite')
 
 # Turn DEBUG on only if running locally
-DEBUG = VIDEO_ENV.startswith('local_sqlite')
+DEBUG = VIDEO_ENV.startswith('local')
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
