@@ -10,7 +10,7 @@
 
 <div id="video-{{video.id}}" class="video-wrapper">
 <div class="video-container">
-    <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title|truncate_text:50 }}</a></h3>
+    <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:50 }}</a></h3>
 
     <div class="video-buttons">
 
