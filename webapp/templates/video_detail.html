@@ -28,19 +28,6 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
     
-    <script type="text/javascript">
-        activeView = VIEWS.detail;
-        stylizeVideoTitles();
-        $(document).ready(function(){
-            home.bindVideoPanelEvents();
-            $(".liked-info-link").click(function(){
-                $('html, body').animate({
-                    scrollTop: 600
-                });
-            });
-        });
-    </script>
-
 {% endblock script_refs %}
 
 {% block content %}
