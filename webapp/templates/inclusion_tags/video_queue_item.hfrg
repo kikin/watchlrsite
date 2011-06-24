@@ -8,6 +8,7 @@
 </div>
 
 {% else %}
+
     {% if video|fetching_data %}
     <div id="video-{{video.id}}" class="video-wrapper">
         <div class="video-container">
@@ -19,22 +20,26 @@
 
     <div id="video-{{video.id}}" class="video-wrapper">
     <div class="video-container">
-        <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
+        <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:50 }}</a></h3>
 
         <div class="video-buttons">
 
 
             {% if display_mode == 'profile' or display_mode == 'liked' %}
-                {% if video not in user.saved_videos and user.is_authenticated %}
+                {% if user.is_authenticated and video not in user.saved_videos%}
                     <a href="javascript:home.handleSave({{ video.id }})" title="save">
                         <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
                     </a>
+                 {% comment %}
+                 ...because Greg is going to change his mind about this...(only showing check marks immediately
+                 after video save...
                     {% else %}
-                        {% if user.is_authenticated and display_mode != 'liked' %}
+                        {% if user.is_authenticated and display_mode != 'liked'%}
                         <a href="javascript:home.handleSave({{ video.id }})" title="save">
                             <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
                         </a>
                      {% endif %}
+                 {% endcomment %}
                 {% endif %}
             {% endif %}
 
@@ -50,7 +55,7 @@
             {% if video in user.liked_videos %}
                 <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
             {% else %}
-                <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+                <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
             {% endif %}
             </a>
 
@@ -129,5 +134,5 @@
     <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
 
     {% endif %}
-    
+
 {% endif %}
