@@ -10,6 +10,11 @@ html {
     background: #FFF;
 }
 
+
+body{
+    /*background: #EEE url(/static/images/bg/bg_soft.png) repeat;*/
+}
+
 body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td {
     margin: 0;
     padding: 0;
@@ -121,7 +126,7 @@ a:hover {
     -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.4);
 }
 
 #header-logo {
@@ -266,6 +271,7 @@ a:hover {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     width:680px;
+    min-height:200px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;
@@ -353,6 +359,10 @@ ul.navigation li.selected, ul.navigation li.selected a {
 #myConnections {
 }
 
+#myOptions:hover{
+    color:#ffffff;
+}
+
 .profilePic {
     width: 25px;
     height: 25px;
@@ -412,8 +422,7 @@ ol li {
     -moz-transition: height 0.4s ease-in-out;
     -o-transition: height 0.4s ease-in-out;
     transition: height 0.4s ease-in-out;
-    padding-top:25px;
-    border-bottom: 1px solid #cccccc;
+    padding-top:20px;
 }
 
 .video-saved {
@@ -607,7 +616,7 @@ ul>span.cufon-canvas {
     float: left;
 }
 
-.video-thumb-wrapper {
+/*.video-thumb-wrapper {
     cursor: pointer;
     background: #000;
     min-height: 140px;
@@ -615,9 +624,8 @@ ul>span.cufon-canvas {
 
 .video-thumbnail,
 .video-thumbnail-btn {
-    width: 200px;
-    max-height: 147px;
-    min-height: 120px;
+    width: 125px;
+    height:92px;
 }
 
 .video-thumbnail-btn {
@@ -625,7 +633,7 @@ ul>span.cufon-canvas {
     background: url(/static/images/kkn-video-sprites.png) no-repeat -275px 40px;
     position: relative;
     top: -143px;
-}
+}*/
 
 .video-description {
     max-height: 98px;
@@ -740,6 +748,7 @@ ul>span.cufon-canvas {
 
 .video-info.detail-view{
     width: 480px;
+    padding-left:0px;
 }
 
 a#lnk-page-next {
@@ -963,9 +972,8 @@ a#lnk-page-next:hover {
 .mozilla .video-liked-info{
     margin-top:3px;
 }
-
 .win.mozilla .video-liked-info{
-    margin-top: -1px;
+    margin-top:-1px;
 }
 .video-delete-button {
     float:right;
@@ -975,7 +983,7 @@ a#lnk-page-next:hover {
 
 .video-buttons {
     position:absolute;
-    margin-left:565px;
+    margin-left:545px;
     min-width: 90px;
     height: 34px;
 }
@@ -1052,10 +1060,12 @@ a#lnk-page-next:hover {
 }
 
 .video-container{
-    padding-left:14px;
-    padding-right:14px;
+    width:640px;
     margin-top:0px;
     z-index:11000;
+    margin-left:auto;
+    margin-right:auto;
+    border-bottom: 1px solid #cccccc;
 }
 
 video{

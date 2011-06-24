@@ -11,6 +11,7 @@ from kikinvideo.api.models import Video, User, Preference
 ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you have requested"
 MALFORMED_URL_MESSAGE = 'Error: malformed URL supplied to host'
 NUM_SUGGESTED_FOLLOWEES = 8
+INVITE_LIST_SIZE = 5
 
 # num of users to display in each
 #"this video liked by..." dropdown
@@ -29,14 +30,10 @@ def login_complete(request):
 
 def home(request):
     if request.user.is_authenticated():
-
-        #perhaps in the near future this can be done at the db query level, but for now...
-        all_users = list(User.objects.all())
-		#num of suggested followees
-        suggested_followees = [x for x in all_users if x not in request.user.following()\
- 										and x != request.user][:NUM_SUGGESTED_FOLLOWEES]
-
-        return render_to_response('logged_in.html', {'suggested_followees':suggested_followees},\
+        suggested_followees = request.user.follow_suggestions(NUM_SUGGESTED_FOLLOWEES)
+        invite_list = request.user.invite_friends_list(INVITE_LIST_SIZE)
+        return render_to_response('logged_in.html',
+                                  {'suggested_followees': suggested_followees, 'invite_list': invite_list},
                                   context_instance=RequestContext(request))
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
@@ -132,7 +129,7 @@ def video_player(request, video_id):
         if len(video_query_set) == 0:
             return HttpResponseNotFound()
         else:               
-            return render_to_response('content/video_player.hfrg', {'video': video_query_set[0]})
+            return render_to_response('inclusion_tags/video_player.hfrg', {'video': video_query_set[0]})
         
 def video_detail(request, video_id):
         try:
@@ -140,7 +137,7 @@ def video_detail(request, video_id):
         except (ValueError, Video.DoesNotExist):
             #in case of uncastable or invalid vid...
             return HttpResponseNotFound()
-        return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'saved', \
+        return render_to_response('video_detail.html',{'user':request.user, 'display_mode':'detail', \
                             'video':video}, context_instance=RequestContext(request))
 
 
@@ -159,8 +156,17 @@ def public_profile(request, username):
         raise Http404
 
 def download_pitch(request):
-    return render_to_response('download_pitch.html', context_instance=RequestContext(request))
-    
+    return render_to_response('boilerplate/download_pitch.html', context_instance=RequestContext(request))
+
+def contact(request):
+    return render_to_response('boilerplate/contact.html', context_instance=RequestContext(request))
+
+def about(request):
+    return render_to_response('boilerplate/about.html', context_instance=RequestContext(request))
+
+def tos(request):
+    return render_to_response('boilerplate/tos.html', context_instance=RequestContext(request))
+
 def plugin_pitch(request):
     return render_to_response('content/plugin_pitch.hfrg')
 

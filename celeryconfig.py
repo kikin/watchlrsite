@@ -16,7 +16,3 @@ CELERY_ALWAYS_EAGER = True
 TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'
 
 CELERYD_CONCURRENCY = 10
-
-CELERYD_LOG_FILE = "celeryd.log"
-CELERYD_LOG_LEVEL = "DEBUG"
-  

@@ -3,6 +3,9 @@ from django.conf import settings
 
 urlpatterns = patterns('webapp',
                        (r'^$', 'views.home'),
+                       (r'^terms_of_service', 'views.tos'),
+                       (r'^about', 'views.about'),
+                       (r'^contact', 'views.contact'),
                        (r'^download', 'views.download_pitch'),
                        (r'^login_complete$', 'views.login_complete'),
                        (r'^logout', 'views.logout_view'),
@@ -15,7 +18,7 @@ urlpatterns = patterns('webapp',
                        (r'^following/(?P<user_id>[0-9]+)', 'views.following'),
                        (r'^followers/(?P<user_id>[0-9]+)', 'views.followers'),
                        (r'video_liked_by/(?P<video_id>[0-9]+)', 'views.video_liked_by'),
-                       (r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile'),
+                       url(r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile', name='user_profile'),
                        )
 
 urlpatterns += patterns('',

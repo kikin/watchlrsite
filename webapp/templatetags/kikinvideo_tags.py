@@ -201,6 +201,10 @@ def activity_item_heading(activity_item, user):
                 content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
     return content
 
+@register.filter
+def last_element(list):
+    return list[-1]
+
 #this is a stopgap, until we Video.status() is actually working...
 @register.filter
 def fetching_data(video):
@@ -218,12 +222,30 @@ def fetching_data(video):
 
 @register.filter
 def full_name(user):
+    if not user.last_name:
+        return user.first_name
+    if not user.first_name:
+        return user.last_name
     return user.first_name + ' ' + user.last_name
 
-@register.inclusion_tag('content/video_player.hfrg')
+@register.inclusion_tag('inclusion_tags/video_player.hfrg')
 def video_player(video):
     return { 'video' : video }
 
-@register.inclusion_tag('content/fetching_data.hfrg')
+@register.inclusion_tag('inclusion_tags/fetching_data.hfrg')
 def fetching_data_message(video):
     return {'video':video}
+
+@register.inclusion_tag('inclusion_tags/video_queue_item.hfrg', takes_context=True)
+def video_queue_item(context):
+    queue_ctx = {'user':context['user'], 'video':context['video'], 'display_mode':context['display_mode']}
+    if 'profile_owner' in context: queue_ctx['profile_owner'] = context['profile_owner']
+    return queue_ctx
+
+@register.filter
+def user_profile_link(user):
+    target = 'href=%s' % user.get_absolute_url()
+    if not user.is_registered:
+        target += ' target=_blank'
+    return target
+

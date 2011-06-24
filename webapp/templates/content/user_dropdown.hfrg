@@ -1,17 +1,16 @@
 {% load kikinvideo_tags %}
 <div class="user-dropdown" id="user-dropdown-vid-{{ video.id }}">
-    <a class="close-button" href="javascript:home.hideVidLikedBy()"></a>
     <div class="heading" style="font-family: Helvetica;font-size:15px;font-weight:700;margin-top: 14px;color:#575757;">
     Liked By...
     </div>
     <ul>
-    {% for user in users %}
+    {% for u in users %}
         <li class="item">
-                <a href="/{{ user.username }}" title="{{ user|full_name }}" target="_blank">
-                    <img class="fb-thumb" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=square"/>
+                <a href="/{{ u.username }}" title="{{ u|full_name }}" target="_blank">
+                    <img class="fb-thumb" src="https://graph.facebook.com/{{ u.facebook_uid }}/picture?type=square"/>
                 </a>
                 <div class="username">
-                    <a href="/{{ user.username }}" target="_blank" title="{{ user|full_name }}">{{ user.username|truncate_text:15 }}</a>
+                    <a href="/{{ u.username }}" target="_blank" title="{{ u|full_name }}">{{ u.username|truncate_text:10}}</a>
                 </div>
         </li>
     {% endfor %}

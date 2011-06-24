@@ -2,7 +2,7 @@
 
 {% block style_refs %}
     <link rel="stylesheet" href="{{ STATIC_URL }}video_player/video-js.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
 {% endblock style_refs %}
 
 {% block script_refs %}
@@ -73,9 +73,12 @@
         <br class="clear">
         {% block right_panel %}
         {% endblock right_panel %}
-        <div id="videoListWrapper">
+        <div id="videoListWrapper" class="shadow-4">
             <div id="video-wrapper-left-filler" style="position:absolute;height:40px;width:10px;margin-left:0px;margin-top:-8px;background-color:#E5EFF3;z-index:0;"></div>
             <div id="videoList">
+                    <div class="loading-container"  style="position:static;width:200px;margin-left: auto;margin-right: auto;">
+                        <div class="loading"></div>
+                    </div>
                 {% block videolist %}
                 {% endblock videolist %}
             </div>

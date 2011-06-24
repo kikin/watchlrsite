@@ -174,10 +174,6 @@
     z-index:1;
 }
 
-.video-container{
-    margin-bottom: 30px;
-}
-
 
 .no-liked-videos{
     width:100%;
@@ -198,4 +194,40 @@
 
 #user-info-container a{
     text-decoration: none;
+}
+
+.fb-signup{
+    position: absolute;
+    margin-top:15px;
+    width:235px;
+    height:50px;
+    background-image: url(/static/images/education/fb_signup.png);
+}
+
+.fb-signup:hover{
+    background-image: url(/static/images/education/fb_signup_hover.png);
+}
+
+#signup-pitch{
+    width:760px;
+    height:140px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:20px;
+    margin-bottom: 30px;
+    visibility: hidden;
+
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+
+    background-image: url(/static/images/profile/reg_pitch.png);
+}
+
+#signup-pitch .inner{
+    position:absolute;
+    padding: 15px;
+    text-align: left;
+    font-family: "Helvetica Neue";
+    font-size: 16px;
 }

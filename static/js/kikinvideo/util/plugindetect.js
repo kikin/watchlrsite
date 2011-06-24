@@ -15,8 +15,8 @@ $(window).load(function() {
                 $('.right-panel').prepend(content);
                 $('#plugin-pitch').fadeIn(1000);
                 $('#content').css({'min-height':1100});
-                $('#video-section').css({marginLeft:'0px', marginRight:'0px'});
-                $('#lnk-page-next').css({marginLeft:'0px', marginRight:'0px'});
+                $('#video-section').css({marginLeft:'0px'});
+                $('#lnk-page-next').css({marginLeft:'0px'});
         });
     }
 });
