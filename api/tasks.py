@@ -540,13 +540,13 @@ class EmbedlyFetcher(object):
                     video_tag = etree.fromstring(meta['html5'])
                     poster = video_tag.get('poster', '')
 
-                    poster_match = re.match(r'(.+?\.cnn.)(\d{2,4})x(\d{2,4})\.jpg', poster)
+                    poster_match = re.match(r'(.+?\.cnn\.)(\d+)x(\d+)\.jpg', poster)
                     if poster_match:
                         meta['thumbnail'] = '%s%dx%d.jpg' % (poster_match.group(1), 320, 240)
-                        meta['thumbnail_height'] = meta['thumbnail_width'] = 320, 240
+                        meta['thumbnail_height'], meta['thumbnail_width'] = 320, 240
 
                         meta['mobile_thumbnail_url'] = '%s%dx%d.jpg' % (poster_match.group(1), 120, 90)
-                        meta['mobile_thumbnail_height'] = meta['mobile_thumbnail_width'] = 120, 90
+                        meta['mobile_thumbnail_height'], meta['mobile_thumbnail_width'] = 120, 90
 
                     else:
                         logger.warning('CNN poster url not of expected format:%s' % video_tag)
