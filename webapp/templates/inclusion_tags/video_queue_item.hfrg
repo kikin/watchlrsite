@@ -10,7 +10,7 @@
 
 <div id="video-{{video.id}}" class="video-wrapper">
 <div class="video-container">
-    <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
+    <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title|truncate_text:40 }}</a></h3>
 
     <div class="video-buttons">
 
@@ -21,6 +21,8 @@
                     <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
                 </a>
              {% comment %}
+             ...because Greg is going to change his mind about this...(only showing check marks immediately
+             after video save...
                 {% else %}
                     {% if user.is_authenticated and display_mode != 'liked'%}
                     <a href="javascript:home.handleSave({{ video.id }})" title="save">
