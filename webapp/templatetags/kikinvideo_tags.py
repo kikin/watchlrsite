@@ -244,8 +244,9 @@ def fetching_data_message(video):
     return {'video':video}
 
 @register.inclusion_tag('inclusion_tags/error_fetching_data.hfrg')
-def error_fetching_data_message(video):
-    return {'video':video}
+def error_fetching_data_message(user, video):
+    user_video = UserVideo.objects.get(user=user, video=video)
+    return {'video':video, 'user_video': user_video}
 
 @register.inclusion_tag('inclusion_tags/video_queue_item.hfrg', takes_context=True)
 def video_queue_item(context):

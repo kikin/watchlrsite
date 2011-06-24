@@ -3,7 +3,7 @@
 {% if video|error_fetching_data %}
 <div id="video-{{video.id}}" class="video-wrapper">
     <div class="video-container">
-         {% error_fetching_data_message video %}
+         {% error_fetching_data_message user video %}
     </div>
 </div>
 
