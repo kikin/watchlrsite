@@ -15,8 +15,10 @@ import gdata.youtube
 import gdata.youtube.service
 from gdata.service import RequestError
 
+from celery import states
 from celery.task import task
 from celery.task.sets import subtask
+
 from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
 from django.template.defaultfilters import stringfilter
@@ -536,18 +538,18 @@ class EmbedlyFetcher(object):
             if meta['html5']:
                 try:
                     video_tag = etree.fromstring(meta['html5'])
-                    poster = video_tag['poster']
+                    poster = video_tag.get('poster', '')
 
-                    poster_match = re.match(r'(.+?\.cnn.)(\d{2,4})x(\d{2,4})\.jpg', poster)
+                    poster_match = re.match(r'(.+?\.cnn\.)(\d+)x(\d+)\.jpg', poster)
                     if poster_match:
                         meta['thumbnail'] = '%s%dx%d.jpg' % (poster_match.group(1), 320, 240)
-                        meta['thumbnail_height'] = meta['thumbnail_width'] = 320, 240
+                        meta['thumbnail_width'], meta['thumbnail_height'] = 320, 240
 
                         meta['mobile_thumbnail_url'] = '%s%dx%d.jpg' % (poster_match.group(1), 120, 90)
-                        meta['mobile_thumbnail_height'] = meta['mobile_thumbnail_width'] = 120, 90
+                        meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 120, 90
 
                     else:
-                        logger.warning('CNN poster url not of expected format:%s' % poster)
+                        logger.warning('CNN poster url not of expected format:%s' % video_tag)
 
                 except etree.XMLSyntaxError:
                     logger.warning('Error parsing HTML5 video tag', exc_info=True)
@@ -1286,7 +1288,7 @@ slugify.is_safe = True
 slugify = stringfilter(slugify)
 
 
-@task
+@task(max_retries=3, default_retry_delay=30)
 def push_like_to_fb(video, user):
     from social_auth.backends.facebook import FACEBOOK_SERVER
     def encode(text):
@@ -1296,18 +1298,22 @@ def push_like_to_fb(video, user):
 
     logger = push_like_to_fb.get_logger()
 
+    if not video.status() == states.SUCCESS:
+        logger.info('Video metadata unavailable...sleeping')
+        return push_like_to_fb.retry()
+
     if not user.preferences()['syndicate'] == 1:
         logger.debug('Not pushing to FB for user:%s' % user.username)
         return
 
     server_name = Site.objects.get_current().domain
 
-    params = {'access_token': user.facebook_access_token(),
-              'link': '%s/%s' % (server_name, video.get_absolute_url()),
-              'caption': server_name,
-              'name': encode(video.title),
-              'description': encode(video.description),
-              'message': 'likes \'%s\'' % encode(video.title)}
+    params = { 'access_token': user.facebook_access_token(),
+               'link': '%s/%s' % (server_name, video.get_absolute_url()),
+               'caption': server_name,
+               'name': encode(video.title),
+               'description': encode(video.description),
+               'message': 'likes \'%s\'' % encode(video.title) }
 
     try:
         params['picture'] = video.get_thumbnail().url
@@ -1332,7 +1338,7 @@ def fetch_facebook_friends(user):
 
     if user.social_auth.get().extra_data is None:
         logger.info('Facebook credentials unavailable...sleeping')
-        fetch_facebook_friends.retry()
+        return fetch_facebook_friends.retry()
 
     url = 'https://%s/me/friends?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
     try:
@@ -1386,7 +1392,7 @@ def fetch_facebook_friends(user):
 
     except urllib2.URLError, exc:
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
-            logger.info('User:%s revoked access from facebook... disabling' % user.username)
+            logger.info('User:%s revoked access from facebook...disabling' % user.username)
             user.is_registered = False
             user.save()
         else:

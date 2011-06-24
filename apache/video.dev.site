@@ -1,5 +1,5 @@
 <VirtualHost *:80>
-    ServerName dev-video.kikin.com
+    ServerName dev.watchlr.com
 
     Alias /static/ /opt/video_env/kikinvideo/static/
 
