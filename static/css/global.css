@@ -1087,9 +1087,9 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .shadow-5l{
-    -moz-box-shadow: -5x 5px 5px #888;
-    -webkit-box-shadow: -5px 5px 5px #888;
-    box-shadow: -5px 5px 5px #888;
+    -moz-box-shadow: -3x 3px 3px #ccc;
+    -webkit-box-shadow: -3px 3px 3px #ccc;
+    box-shadow: -3px 3px 3px #ccc;
 }
 
 .video-player-bg{
