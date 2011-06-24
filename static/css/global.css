@@ -1107,6 +1107,7 @@ box-shadow: 10px 10px 5px #888;
     background-color: #000000;
     opacity: 0.2;
     display:none;
+    filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=20);
 }
 
 .close-button-fancy{
