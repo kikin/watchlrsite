@@ -538,7 +538,7 @@ class EmbedlyFetcher(object):
             if meta['html5']:
                 try:
                     video_tag = etree.fromstring(meta['html5'])
-                    poster = video_tag['poster']
+                    poster = video_tag.get('poster', '')
 
                     poster_match = re.match(r'(.+?\.cnn.)(\d{2,4})x(\d{2,4})\.jpg', poster)
                     if poster_match:
@@ -549,7 +549,7 @@ class EmbedlyFetcher(object):
                         meta['mobile_thumbnail_height'] = meta['mobile_thumbnail_width'] = 120, 90
 
                     else:
-                        logger.warning('CNN poster url not of expected format:%s' % poster)
+                        logger.warning('CNN poster url not of expected format:%s' % video_tag)
 
                 except etree.XMLSyntaxError:
                     logger.warning('Error parsing HTML5 video tag', exc_info=True)
