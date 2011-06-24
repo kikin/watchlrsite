@@ -115,8 +115,8 @@ def is_youtube(video):
 def is_vimeo(video):
     try:
         url_root = source_url_root(video)
-        if url_root.startswith('http://www.vimeo.com') or \
-            url_root.startswith('https://www.vimeo.com'):
+        if url_root.startswith('http://vimeo.com') or \
+            url_root.startswith('https://vimeo.com'):
             return True
     except Exception:
         pass

@@ -90,7 +90,7 @@ kikinvideo.UIUniversal =
                     var video_player_target_width = video_player_div.width();
                     var video_player_target_height = video_player_div.height();
 
-                    video_player_div.css({top:'50%', 'margin-top':
+                    video_player_div.css({top:'42%', 'margin-top':
                             (video_player_div.height()*-.5)-30});
 
 
@@ -118,7 +118,8 @@ kikinvideo.UIUniversal =
 
                     //finally, prepare html5 videos...
                     if($.browser.webkit){
-                        videoController.prepareVidForPlayback(vid);
+                        videoController.setCurVid(vid);
+                        videoController.prepareVidForPlayback();
                     }
                 }
             }
@@ -140,7 +141,7 @@ kikinvideo.UIUniversal =
                 if($.browser.webkit){
                         videoController.setCurVid(vid);
                         videoController.pauseVideo(vid);
-                        videoController.savePosition(vid);
+                        videoController.savePosition();
                     }
             }
 

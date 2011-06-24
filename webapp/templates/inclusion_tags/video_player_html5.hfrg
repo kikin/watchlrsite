@@ -10,7 +10,7 @@
 
         <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}">
         {% autoescape off %}
-            {% if video|is_youtube %}
+            {% if video|is_youtube or video|is_vimeo %}
                 {{ video.html_embed_code }}
             {% else %}
                 {{ video.html5_embed_code }}

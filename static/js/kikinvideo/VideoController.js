@@ -1,5 +1,34 @@
+//youtube player ready callback
 function onYouTubePlayerReady(playerID){
     videoController.prepareCurVidForPlayback();
+    var player = document.getElementById(playerID);
+    try{
+        player.removeEventListener('onStateChange');
+    }catch(exc){}
+    player.addEventListener('onStateChange', 'stateChangeListener');
+}
+
+//vimeo player ready callback
+function vimeo_player_loaded(playerID){
+    videoController.prepareCurVidForPlayback();
+    var player = document.getElementById(playerID);
+    try{
+        player.removeEventListener('pause');
+    }catch(exc){}
+    player.addEventListener('pause', 'vimeo_player_paused');
+}
+
+function vimeo_player_paused(event){
+    videoController.savePosition();
+}
+
+function stateChangeListener(newState){
+    //youtube iframe api provided a STATES var in
+    //YT namespace, but this swf variant of the api doesn't
+    //...state "2" == paused
+    if (newState == 2){
+        videoController.savePosition();
+    }
 }
 
 kikinvideo.VideoController =
@@ -37,6 +66,7 @@ kikinvideo.VideoController =
              }
         }
 
+
         function setCurVid(vid){
             curVID = vid;
         }
@@ -45,10 +75,9 @@ kikinvideo.VideoController =
             prepareVidForPlayback(curVID);
         }
 
-         function prepareVidForPlayback(vid){
+         function prepareVidForPlayback(){
              /*no preparation can occur until the player has loaded,
              * so proper prep logic is in onPlayerReady callback*/
-             curVID = vid;
              if(curVID){
                 $.ajax({
                      url : '/api/seek/'+curVID,
@@ -67,22 +96,27 @@ kikinvideo.VideoController =
                 }
          }
 
-         function savePosition(vid){
+         function savePosition(){
+             vid = curVID;
              if(vid_player_mappings[vid]){
                  if(vid_player_mappings[vid].type == 'YouTube'){
                      var player = vid_player_mappings[vid].player;
                      var curTime = player.getCurrentTime();
                      doSavePosition(vid, vid_player_mappings[vid].player.getCurrentTime());
                  }
+                  if(vid_player_mappings[vid].type == 'Vimeo'){
+                     var player = vid_player_mappings[vid].player;
+                     var curTime = player.api_getCurrentTime();
+                     doSavePosition(vid, vid_player_mappings[vid].player.api_getCurrentTime());
+                 }
              }
          }
 
          function doSavePosition(vid, position){
               if(position && !isNaN(position)){
-                  
                   $.ajax({
                      type : 'POST',
-                     url : '/api/seek/'+vid+'/'+Math.floor(position),
+                     url : '/api/seek/'+vid+'/'+position.toFixed(2),
                      success : function(response){
                          //....
                     },
@@ -91,17 +125,29 @@ kikinvideo.VideoController =
               }
          }
 
-         function pauseVideo(vid){
+         function pauseVideo(){
+             vid = curVID;
              if(vid_player_mappings[vid]){
                  if(vid_player_mappings[vid].type == 'YouTube'){
                      if(vid_player_mappings[vid].player)
                         vid_player_mappings[vid].player.pauseVideo();
                  }
+                  if(vid_player_mappings[vid].type == 'Vimeo'){
+                     if(vid_player_mappings[vid].player)
+                        vid_player_mappings[vid].player.api_pause();
+                 }
              }
          }
 
-         function playVideo(vid){
-
+         function playVideo(){
+             if(vid_player_mappings[curVID]){
+                 if(vid_player_mappings[curVID].type == 'YouTube'){
+                     vid_player_mappings[curVID].player.playVideo();
+                 }
+                 if(vid_player_mappings[curVID].type == 'Vimeo'){
+                     vid_player_mappings[curVID].player.api_play();
+                 }
+             }
          }
 
         function seekTo(vid, pos){
@@ -110,6 +156,11 @@ kikinvideo.VideoController =
                      if(vid_player_mappings[vid].player)
                         var player = vid_player_mappings[vid].player;
                         vid_player_mappings[vid].player.seekTo(pos);
+                 }
+                 if(vid_player_mappings[vid].type == 'Vimeo'){
+                     if(vid_player_mappings[vid].player){
+                        vid_player_mappings[vid].player.api_seek(pos);
+                     }
                  }
             }
         }
@@ -123,7 +174,7 @@ kikinvideo.VideoController =
                     *  all of them client-side and rectify this.
                     * */
 
-                    var embed = $(this).children(0);
+                    var obj = $(this).children(0);
 
                     var container_id = $(this).attr('id');
                     /*<hack>*/
@@ -135,26 +186,29 @@ kikinvideo.VideoController =
                     /*</hack>*/
                     
 
-                    if(embed.is('video')){
+                    if(obj.is('video')){
                         
                     }
 
-                    if(embed.is('object')){
+                    if(obj.is('object')){
                         /*we're likely dealing with either a YouTube or a Vimeo embed...*/
 
-                        embed = embed.children('embed')[0];
+                        
+
+                        var embed = obj.children('embed')[0];
 
                         var source = embed.src;
 
                         if (isYouTube(source)){
-                           /*remove the damn autoplay flag*/
-                           source = source.replace("autoplay=1", "autoplay=0");
-                           source += "&enablejsapi=1";
-                           embed.src = source;
 
                            var ytVID = youtubeVID(source);
 
-                            embed.id = 'youtube-embed-'+ytVID;
+                           embed.id = 'youtube-embed-'+ytVID;
+                           /*remove the damn autoplay flag*/
+                           source = source.replace("autoplay=1", "autoplay=0");
+                           source += "&enablejsapi=1"+"&playerapiid="+embed.id;
+                           embed.src = source;
+
 
                             var player = embed;
                             
@@ -170,16 +224,20 @@ kikinvideo.VideoController =
                             vid_player_mappings[vid] = {player:player, type:'YouTube', isReady:false};
                             player_vid_mappings[player] = vid;
                         }
-                    }
 
-                    else if(embed.is('iframe')){
-                       var source = embed.attr('src');
                         if(isVimeo(source)){
+                           obj.prepend('<param name="flashvars" value="api=1" />');
+                           embed.id = 'vimeo-embed-'+vimeoVID(source);
                            source = source.replace("autoplay=1", "autoplay=0");
                            source += "&api=1";
-                           embed.attr('src', source);
+                           source += "&player_id="+embed.id+"&api_ready=vimeo_player_loaded";
+                           embed.src = source;
+                           var player = embed;
+                           vid_player_mappings[vid] = {player:player, type:'Vimeo', isReady:false};
+                           player_vid_mappings[player] = vid;
                         }
                     }
+
                 }
             );
          }
@@ -209,6 +267,13 @@ kikinvideo.VideoController =
             var start_index = src.search(_EMBED_START_DELIM);
             var truncated = src.substr(start_index+_EMBED_START_DELIM.length);
             return truncated.substr(0, truncated.search('\\?'));
+        }
+
+        function vimeoVID(src){
+            var _EMBED_START_DELIM = 'clip_id=';
+            var start_index = src.search(_EMBED_START_DELIM);
+            var truncated = src.substr(start_index+_EMBED_START_DELIM.length);
+            return truncated.substr(0, truncated.search('\\&'));
         }
         /*</hack>*/
 
