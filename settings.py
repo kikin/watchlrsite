@@ -4,10 +4,10 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local')
+VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local_sqlite')
 
 # Turn DEBUG on only if running locally
-DEBUG = VIDEO_ENV.startswith('local')
+DEBUG = VIDEO_ENV.startswith('local_sqlite')
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -236,6 +236,9 @@ SESSION_COOKIE_DOMAIN = '.watchlr.com' # Cross-domain!
 # Caching
 cache_configurations = {
     'local': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'local_sqlite': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
     'dev': {
