@@ -130,6 +130,10 @@ def web_thumbnail_url(video):
     return ""
 
 @register.filter
+def no_likes(video):
+    return len(video.all_likers()) == 0
+
+@register.filter
 def fb_thumb_small(users, user):
     for user_tuple in users:
         if user_tuple[0] != user:
@@ -241,6 +245,10 @@ def video_queue_item(context):
     queue_ctx = {'user':context['user'], 'video':context['video'], 'display_mode':context['display_mode']}
     if 'profile_owner' in context: queue_ctx['profile_owner'] = context['profile_owner']
     return queue_ctx
+
+@register.inclusion_tag('content/user_dropdown.hfrg')
+def liked_by_panel(video):
+    return {'video':video, 'users':video.all_likers()}
 
 @register.filter
 def user_profile_link(user):
