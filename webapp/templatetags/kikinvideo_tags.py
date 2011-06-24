@@ -209,10 +209,10 @@ def activity_item_heading(activity_item, user):
 def last_element(list):
     return list[-1]
 
-#this is a stopgap, until we Video.status() is actually working...
 @register.filter
 def fetching_data(video):
-    if not video.status() == u'SUCCESS':
+    from celery import states
+    if not video.status() == states.SUCCESS:
         return True
     return False
     #Alt implementation (uncomment and use if critical issue arises with
@@ -223,6 +223,13 @@ def fetching_data(video):
     #    video.get_thumbnail().url:
     #    return True
     #return False
+
+@register.filter
+def error_fetching_data(video):
+    from celery import states
+    if video.status() in states.PROPAGATE_STATES:
+        return True
+    return False
 
 @register.filter
 def full_name(user):
@@ -239,6 +246,11 @@ def video_player(video):
 @register.inclusion_tag('inclusion_tags/fetching_data.hfrg')
 def fetching_data_message(video):
     return {'video':video}
+
+@register.inclusion_tag('inclusion_tags/error_fetching_data.hfrg')
+def error_fetching_data_message(user, video):
+    user_video = UserVideo.objects.get(user=user, video=video)
+    return {'video':video, 'user_video': user_video}
 
 @register.inclusion_tag('inclusion_tags/video_queue_item.hfrg', takes_context=True)
 def video_queue_item(context):

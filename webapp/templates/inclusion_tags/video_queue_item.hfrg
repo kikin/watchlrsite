@@ -1,13 +1,21 @@
 {% load kikinvideo_tags %}
 
+{% if video|error_fetching_data %}
+<div id="video-{{video.id}}" class="video-wrapper">
+    <div class="video-container">
+         {% error_fetching_data_message user video %}
+    </div>
+</div>
+
+{% else %}
 {% if video|fetching_data %}
 <div id="video-{{video.id}}" class="video-wrapper">
     <div class="video-container">
          {% fetching_data_message video %}
     </div>
 </div>
-{% else %}
 
+{% else %}
 <div id="video-{{video.id}}" class="video-wrapper">
 <div class="video-container">
     <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:50 }}</a></h3>
@@ -131,4 +139,5 @@
 
 </div>
         <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
+{% endif %}
 {% endif %}
