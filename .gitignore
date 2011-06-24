@@ -8,3 +8,7 @@ build/
 kikinvideo
 .DS_Store
 kikin_video_env
+celerybeat-schedule.db
+plugin/Chrome/manifest.json
+Thumbs.db
+plugin/Builds/

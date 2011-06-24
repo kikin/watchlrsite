@@ -6,8 +6,8 @@ sys.path.append(os.getcwd())
 
 VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local')
 
-# Turn DEBUG off if VIDEO_ENV is defined ('dev', 'prod', etc)
-DEBUG = VIDEO_ENV == 'local'
+# Turn DEBUG on only if running locally
+DEBUG = VIDEO_ENV.startswith('local')
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -38,7 +38,7 @@ database_configurations = {
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
+        'HOST': '',
         'PORT': '',
         },
     'local_sqlite':{
@@ -125,8 +125,9 @@ TEMPLATE_LOADERS = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
-    'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.auth',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -192,10 +193,17 @@ LOGGING = {
 AUTH_PROFILE_MODULE = 'api.User'
 SOCIAL_AUTH_USER_MODEL = 'api.User'
 
-FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
-FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
+FACEBOOK_APP_ID = '220283271338035'
+FACEBOOK_API_SECRET = '0cac4be4d10a908b2b961f6ea6108b0f'
 
 LOGIN_REDIRECT_URL = '/login_complete'
+
+
+# the django-social-auth module uses the @login_required
+# decorator, which directs browsers to settings.LOGIN_URL
+# after either a successful OR failed login
+LOGIN_URL = '/'
+
 LOGOUT_URL = '/'
 
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
@@ -207,6 +215,15 @@ djcelery.setup_loader()
 # broker transport
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
+# Periodic task definitions go here
+from datetime import timedelta
+CELERYBEAT_SCHEDULE = {
+    "refresh-friend-list-every-15-mins": {
+        "task": "api.tasks.refresh_friends_list",
+        "schedule": timedelta(minutes=15)
+    },
+}
+
 # Set up logging
 import logconfig
 logconfig.init()
@@ -214,4 +231,22 @@ logconfig.init()
 # Session cookies
 SESSION_COOKIE_AGE = 2592000 # 30 days in seconds
 SESSION_COOKIE_NAME = '_KVS' # Plugin converts this into a kikin cookie
-SESSION_COOKIE_DOMAIN = '.kikin.com' # Cross-domain!
+SESSION_COOKIE_DOMAIN = '.watchlr.com' # Cross-domain!
+
+# Caching
+cache_configurations = {
+    'local': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'local_sqlite': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'dev': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'prod': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+CACHES = { 'default': cache_configurations[VIDEO_ENV] }

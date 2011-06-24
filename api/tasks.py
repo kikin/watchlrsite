@@ -3,8 +3,10 @@ import urllib
 import urllib2
 import json
 
+from re import sub
+from unicodedata import normalize
 from time import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from traceback import format_exc
 from lxml import etree
 from urllib import urlencode
@@ -13,13 +15,15 @@ import gdata.youtube
 import gdata.youtube.service
 from gdata.service import RequestError
 
+from celery import states
 from celery.task import task
 from celery.task.sets import subtask
+
 from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
-from social_auth.backends.facebook import FACEBOOK_SERVER
+from django.template.defaultfilters import stringfilter
 
-from api.models import Video, User, Source as VideoSource, Thumbnail
+from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -529,6 +533,29 @@ class EmbedlyFetcher(object):
             except ValueError:
                 pass
             meta['title'] = meta['title'].title()
+
+            # Issue #63
+            if meta['html5']:
+                try:
+                    video_tag = etree.fromstring(meta['html5'])
+                    poster = video_tag.get('poster', '')
+
+                    poster_match = re.match(r'(.+\.)(\d+)x(\d+)\.jpg$', poster)
+                    if poster_match:
+                        meta['thumbnail_url'] = '%s%dx%d.jpg' % (poster_match.group(1), 320, 240)
+                        meta['thumbnail_width'], meta['thumbnail_height'] = 320, 240
+
+                        meta['mobile_thumbnail_url'] = '%s%dx%d.jpg' % (poster_match.group(1), 120, 90)
+                        meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 120, 90
+
+                    else:
+                        logger.warning('CNN poster url not of expected format:%s' % video_tag)
+
+                except etree.XMLSyntaxError:
+                    logger.warning('Error parsing HTML5 video tag', exc_info=True)
+
+                except KeyError:
+                    logger.debug('No poster found for CNN HTML5 video:%s' % url)
 
         return meta
 
@@ -1191,12 +1218,12 @@ _facebook_fetcher = FacebookFetcher(_fetchers)
 
 _fetcher = OEmbed([_facebook_fetcher] + _fetchers)
 
-@task(max_retries=5, default_retry_delay=300)
+@task(max_retries=5, default_retry_delay=120)
 def fetch(user_id, url, host, callback=None):
     try:
         video = _fetcher.fetch(user_id, url, host, fetch.get_logger())
         if callback is not None:
-            subtask(callback).delay(video)
+            subtask(callback).delay(video.id)
 
     except UrlNotSupported:
         pass
@@ -1204,8 +1231,66 @@ def fetch(user_id, url, host, callback=None):
     except Exception, exc:
         fetch.retry(exc=exc)
 
-@task
-def push_like_to_fb(video, user):
+
+# Read username blacklist file on module load
+read_user_blacklist = False
+if not read_user_blacklist:
+    import os.path
+    user_blacklist_file = os.path.join(os.path.dirname(__file__), 'data', 'blacklisted_usernames')
+    with open(user_blacklist_file, 'r') as f:
+        user_blacklist = frozenset([line.strip() for line in f.readlines()])
+    read_user_blacklist = True
+
+
+def slugify(username, id):
+    '''
+    Normalizes string, converts to lowercase, removes non-alphanumeric characters (including spaces).
+    Also, checks and appends offset integer to ensure that username is unique.
+
+    >>> slugify('whatsherface', 123)
+    u'whatsherface'
+    >>> User.objects.create(username='whatsherface')
+    <User: whatsherface>
+    >>> slugify('whatsherface', 123)
+    u'whatsherface1'
+    >>> slugify('whats_her_face', 123)
+    u'whatsherface1'
+    >>> slugify('whatsherface2', 123)
+    u'whatsherface2'
+    >>> slugify('admin', 123)
+    u'user0'
+    >>> User.objects.create(username='user0')
+    <User: user0>
+    >>> slugify('about', 123)
+    u'user01'
+    '''
+    username = normalize('NFKD', username).encode('ascii', 'ignore')
+    username = basename = unicode(sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
+
+    if username.lower() in user_blacklist:
+        logger.info('User:%s tried to use a blocked username:%s' % (id, username))
+        username = basename = u'user0'
+
+    counter = 1
+    while True:
+        try:
+            found = User.objects.get(username=username)
+            if found.id == id:
+                return username
+        except User.DoesNotExist:
+            break
+        username = '%s%d' % (basename, counter)
+        counter += 1
+
+    return username
+
+slugify.is_safe = True
+slugify = stringfilter(slugify)
+
+
+@task(max_retries=3, default_retry_delay=60)
+def push_like_to_fb(video_id, user):
+    from social_auth.backends.facebook import FACEBOOK_SERVER
     def encode(text):
         if isinstance(text, unicode):
             return text.encode('utf-8')
@@ -1213,23 +1298,29 @@ def push_like_to_fb(video, user):
 
     logger = push_like_to_fb.get_logger()
 
+    video = Video.objects.get(pk=video_id)
+
+    if not video.status() == states.SUCCESS:
+        logger.info('Video metadata unavailable...sleeping')
+        return push_like_to_fb.retry()
+
     if not user.preferences()['syndicate'] == 1:
         logger.debug('Not pushing to FB for user:%s' % user.username)
         return
 
     server_name = Site.objects.get_current().domain
 
-    params = {'access_token': user.facebook_access_token(),
-              'link': '%s/%s' % (server_name, video.get_absolute_url()),
-              'caption': server_name,
-              'name': encode(video.title),
-              'description': encode(video.description),
-              'message': 'likes \'%s\'' % encode(video.title)}
+    params = { 'access_token': user.facebook_access_token(),
+               'link': '%s/%s' % (server_name, video.get_absolute_url()),
+               'caption': server_name,
+               'name': encode(video.title),
+               'description': encode(video.description),
+               'message': 'likes \'%s\'' % encode(video.title) }
 
     try:
         params['picture'] = video.get_thumbnail().url
     except Thumbnail.DoesNotExist:
-        pass
+        params['picture'] = '%s%s' % (server_name, '/static/images/default_video_icon.png')
 
     url = 'https://%s/me/feed' % FACEBOOK_SERVER
     try:
@@ -1237,3 +1328,93 @@ def push_like_to_fb(video, user):
         logger.debug('Facebook post id: %s' % response['id'])
     except:
         logger.exception('Could not post to Facebook')
+
+
+@task(max_retries=3)
+def fetch_facebook_friends(user):
+    from social_auth.backends.facebook import FACEBOOK_SERVER
+    from social_auth.models import UserSocialAuth
+
+    logger = fetch_facebook_friends.get_logger()
+    logger.info('Fetching facebook friends for user:%s' % user.username)
+
+    if user.social_auth.get().extra_data is None:
+        logger.info('Facebook credentials unavailable...sleeping')
+        return fetch_facebook_friends.retry()
+
+    url = 'https://%s/me/friends?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
+    try:
+        response = urllib2.urlopen(url)
+
+        code = response.getcode()
+        if not code == 200:
+            logger.error('Facebook server responded with code=%s when fetching friends' % code)
+            return fetch_facebook_friends.retry()
+
+        content = response.read()
+        try:
+            friends = json.loads(content)['data']
+        except (TypeError, ValueError, KeyError):
+            raise Exception('Facebook friends response not valid JSON:\n%s' % content)
+
+        for friend in friends:
+            try:
+                fb_identity = UserSocialAuth.objects.get(uid=friend['id'])
+            except UserSocialAuth.DoesNotExist:
+                fb_identity = UserSocialAuth(uid=friend['id'], provider='facebook')
+
+            try:
+                fb_friend = fb_identity.user
+            except User.DoesNotExist:
+                parts = friend['name'].split(None, 2)
+                if len(parts) == 2:
+                    first, last = parts
+                    username = slugify('.'.join([first, last]), -1)
+                else:
+                    first, last = parts[0], ''
+                    username = slugify(first, -1)
+
+                fb_friend = User.objects.create(first_name=first,
+                                                last_name=last,
+                                                username=username,
+                                                is_registered=False)
+
+                fb_identity.user = fb_friend
+                fb_identity.save()
+
+            try:
+                FacebookFriend.objects.get(user=user, fb_friend=fb_friend)
+            except FacebookFriend.DoesNotExist:
+                FacebookFriend.objects.create(user=user, fb_friend=fb_friend)
+
+        user.fb_friends_fetched = datetime.utcnow()
+        user.save()
+
+        logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
+
+    except urllib2.URLError, exc:
+        if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
+            logger.info('User:%s revoked access from facebook...disabling' % user.username)
+            user.is_registered = False
+            user.save()
+        else:
+            logger.error('Error opening facebook friends resource: %s' % url, exc_info=True)
+            return fetch_facebook_friends.retry(exc=exc)
+
+
+@task
+def refresh_friends_list():
+    logger = refresh_friends_list.get_logger()
+
+    queued = 0
+    for user in User.objects.filter(is_registered=True):
+
+        # Skip over users who have been refreshed in the last hour
+        if user.fb_friends_fetched and datetime.utcnow() - user.fb_friends_fetched < timedelta(hours=1):
+            logger.debug('Skipping over user:%s, last refresh:%s' % (user.username, user.fb_friends_fetched))
+            continue
+
+        fetch_facebook_friends.delay(user)
+        queued += 1
+
+    logger.info('Refreshing %d user friend lists' % queued)

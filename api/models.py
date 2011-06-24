@@ -1,21 +1,19 @@
-from re import sub
-from unicodedata import normalize
 from datetime import datetime
 from operator import itemgetter
 from itertools import chain
+from decimal import Decimal
 
 from django.db import models
-from django.contrib.auth import models as auth_models
-
-from django.template.defaultfilters import stringfilter
 from django.db.models.signals import post_save
+from django.contrib.auth import models as auth_models
 from django.dispatch import receiver
-
-import logging
-logger = logging.getLogger(__name__)
+from django.core.urlresolvers import reverse
 
 from celery.app import default_app
 from celery import states
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 # Value indicates if the notification message has been displayed and archived by user
@@ -27,7 +25,8 @@ DEFAULT_NOTIFICATIONS = {
 
 
 DEFAULT_PREFERENCES = {
-    'syndicate': 2,      # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not yet set
+    'syndicate': 2,     # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not yet set
+    'follow_email': 1,  # Send email to user when someone follows them
 }
 
 
@@ -49,6 +48,9 @@ class Source(models.Model):
     name = models.CharField(max_length=100, unique=True)
     url = models.URLField(max_length=750, verify_exists=False)
     favicon = models.URLField(max_length=750, verify_exists=False, null=True)
+
+    def json(self):
+        return { 'name': self.name, 'url': self.url, 'favicon': self.favicon }
 
 
 class Video(models.Model):
@@ -99,26 +101,49 @@ class Video(models.Model):
     def total_likes(self):
         return UserVideo.objects.filter(video=self, liked=True).count()
 
-    #date when user saved video....
+    # Date when user saved video
     def date_saved(self, user):
         return UserVideo.objects.get(video=self, user=user).saved_timestamp
 
-    #date when user liked video....
+    # Date when user liked video
     def date_liked(self, user):
         return UserVideo.objects.get(video=self, user=user).liked_timestamp
 
-    #list of all users who have liked video...
+    # List of all users who have liked this video
     def all_likers(self):
-        return UserVideo.objects.filter(video=self, liked=True).values_list('user', flat=True)
+        return [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
 
     @models.permalink
     def get_absolute_url(self):
-        return ('video_detail', [str(self.id)])
+        return 'video_detail', [str(self.id)]
 
     def status(self):
         if self.fetched is not None:
             return states.SUCCESS
         return default_app.backend.get_status(self.task_id)
+    
+    def json(self):
+        try:
+            thumbnail = self.get_thumbnail().json()
+        except Thumbnail.DoesNotExist:
+            thumbnail = None
+
+        try:
+            source = self.source
+            if source is not None:
+                source = source.json()
+        except Source.DoesNotExist:
+            source = None
+
+        return { 'id': self.id,
+                 'url': self.url,
+                 'title': self.title,
+                 'description': self.description,
+                 'thumbnail': thumbnail,
+                 'source': source,
+                 'saves': UserVideo.save_count(self),
+                 'likes': UserVideo.like_count(self),
+                 'state': self.status() }
 
 
 class Thumbnail(models.Model):
@@ -150,6 +175,9 @@ class Thumbnail(models.Model):
     def __repr__(self):
         return self.url
 
+    def json(self):
+        return { 'url': self.url, 'width': self.width, 'height': self.height }
+
 
 class ActivityItem(object):
     def __init__(self, video, users, timestamp=None):
@@ -177,7 +205,12 @@ class User(auth_models.User):
     IntegrityError: duplicate key value violates unique constraint "auth_user_username_key"
     '''
     videos = models.ManyToManyField(Video, through='UserVideo')
-    follows = models.ManyToManyField('self', through='UserFollowsUser', symmetrical=False)
+    follows = models.ManyToManyField('self', through='UserFollowsUser', related_name='r_follows', symmetrical=False)
+    is_registered = models.BooleanField(default=True)
+    fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_fb_friends', symmetrical=False)
+    fb_friends_fetched = models.DateTimeField(null=True)
+    dismissed_user_suggestions = models.ManyToManyField('self', through='DismissedUserSuggestions',
+                                                        related_name='r_dismissed_user_suggestions', symmetrical=False)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
@@ -218,8 +251,14 @@ class User(auth_models.User):
     def followers(self):
         return [u.follower for u in UserFollowsUser.objects.filter(followee=self).all()]
 
+    def follower_count(self):
+        return UserFollowsUser.objects.filter(followee=self).count()
+
     def following(self):
         return list(self.follows.all())
+
+    def following_count(self):
+        return self.follows.count()
 
     def follow(self, other):
         if self == other:
@@ -399,14 +438,82 @@ class User(auth_models.User):
 
         return items
 
+    def get_absolute_url(self):
+        if self.is_registered:
+            return reverse('user_profile', args=[str(self.username)])
+        return 'http://www.facebook.com/profile.php?id=%s' % self.facebook_uid()
+
+    def follow_suggestions(self, num=10):
+        suggestions = list()
+
+        following = self.following()
+        dismissed = list(self.dismissed_user_suggestions.all())
+
+        for user in self.fb_friends.filter(is_registered=True):
+            if num <= 0:
+                break
+            if user not in following and user not in dismissed:
+                suggestions.append(user)
+                num -= 1
+
+        return suggestions
+
+    def invite_friends_list(self, num=10):
+
+        # Return empty list if we have not fetched friend list yet
+        if not self.fb_friends_fetched:
+            return []
+
+        invite_list = list()
+
+        # List of dismissed suggestions for user
+        dismissed = list(self.dismissed_user_suggestions.all())
+
+        # TODO: Need some way of ordering the invite list
+        for friend in FacebookFriend.objects.filter(user=self, invited_on__isnull=True):
+            if num <= 0:
+                break
+            fb_user = friend.fb_friend
+            if not fb_user.is_registered and fb_user not in dismissed:
+                invite_list.append(fb_user)
+                num -= 1
+
+        return invite_list
+    
+    def json(self):
+        return { 'name': ' '.join([self.first_name, self.last_name]),
+                 'username': self.username,
+                 'picture': self.picture(),
+                 'email': self.email,
+                 'notifications': self.notifications(),
+                 'preferences': self.preferences(),
+                 'queued': self.saved_videos().count(),
+                 'saved': self.videos.count(),
+                 'watched': self.watched_videos().count(),
+                 'liked': self.liked_videos().count(),
+                 'following': self.following_count(),
+                 'followers': self.follower_count() }
+
 
 class UserFollowsUser(models.Model):
-    follower = models.ForeignKey(User, related_name='follower_set', db_index=True)
-    followee = models.ForeignKey(User, related_name='followeee_set', db_index=True)
+    follower = models.ForeignKey(User, related_name='+', db_index=True)
+    followee = models.ForeignKey(User, related_name='+', db_index=True)
     since = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
         ordering = ['-since']
+
+
+class FacebookFriend(models.Model):
+    user = models.ForeignKey(User, related_name='+', db_index=True)
+    fb_friend = models.ForeignKey(User, related_name='+', db_index=True)
+    invited_on = models.DateTimeField(null=True)
+
+
+class DismissedUserSuggestions(models.Model):
+    user = models.ForeignKey(User, related_name='+', db_index=True)
+    suggested_user = models.ForeignKey(User, related_name='+', db_index=True)
+    dismissed_on = models.DateTimeField(auto_now=True)
 
 
 class UserVideo(models.Model):
@@ -419,7 +526,19 @@ class UserVideo(models.Model):
     liked_timestamp = models.DateTimeField(null=True, db_index=True)
     watched = models.BooleanField(default=False, db_index=True)
     watched_timestamp = models.DateTimeField(null=True, db_index=True)
-    position = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    _position = models.DecimalField(max_digits=7, decimal_places=2, null=True)
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        if isinstance(value, float):
+            value = str(value)
+
+        twoplaces = Decimal(10) ** -2  # == 0.01
+        self._position = Decimal(value).quantize(twoplaces)
 
     @classmethod
     def save_count(cls, video):
@@ -432,6 +551,15 @@ class UserVideo(models.Model):
     @classmethod
     def watch_count(cls, video):
         return cls.objects.filter(video=video, watched=True).count()
+
+    def json(self):
+        return { 'url': self.video.url,
+                 'id': self.video.id,
+                 'liked': self.liked,
+                 'likes': self.like_count(self.video),
+                 'saved': self.saved,
+                 'saves': self.save_count(self.video),
+                 'position': self.position and str(self.position) }
 
 
 class Notification(models.Model):
@@ -448,81 +576,58 @@ class Preference(models.Model):
     changed = models.DateTimeField(auto_now=True)
 
 
+# Note that since we are defining a custom User model, import and handler
+# registration MUST be done after model definition to avoid circular import issues.
+from social_auth.signals import pre_update
+
+def social_auth_pre_update(sender, user, response, details, **kwargs):
+    saved = user.username
+
+    # New user?
+    is_new = getattr(user, 'is_new', False)
+
+    if is_new:
+        from api.tasks import slugify
+        fullname = '.'.join([user.first_name, user.last_name])
+        user.username = response.get('username', slugify(fullname, user.id))
+
+    # Ensure that status flag is set
+    # This flag promotes, possibly a facebook friend to a regular user
+    registered = user.is_registered
+    user.is_registered = True
+
+    # Upgrade?
+    if not registered or is_new:
+
+        # Fetch new user's facebook friends
+        if not getattr(user, 'is_friend_fetch_scheduled', False):
+            from api.tasks import fetch_facebook_friends
+            fetch_facebook_friends.delay(user)
+            setattr(user, 'is_friend_fetch_scheduled', True)
+
+        # Override `is_new` property
+        # This will ensure that the welcome experience gets triggered for this user
+        setattr(user, 'is_new', True)
+
+    # Handlers must return True if any value was updated/changed
+    return not saved == user.username or not registered == user.is_registered
+
+
+# We need to register for the `pre_update` signal as opposed to `socialauth_registered`
+# signal because we need to handle facebook friend user upgrades (for such users,
+# the `is_new` attribute is not set and hence, `socialauth_registered` signal does
+# not get fired).
+pre_update.connect(social_auth_pre_update, sender=None)
+
+
 @receiver(post_save, sender=User)
 def user_post_save(sender, instance, signal, *args, **kwargs):
     # Called at the end of `save()` method
 
-    # Set up default notifications and preferences for new user
+    # Set up default notifications and preferences for  user
     if not instance.notification_set.count():
         for msg, archived in DEFAULT_NOTIFICATIONS.items():
             Notification.objects.create(user=instance, message=msg, archived=archived)
-
+    if not instance.preference_set.count():
         for name, value in DEFAULT_PREFERENCES.items():
             Preference.objects.create(user=instance, name=name, value=value)
-
-# Read username blacklist file on module load
-read_user_blacklist = False
-if not read_user_blacklist:
-    import os.path
-    user_blacklist_file = os.path.join(os.path.dirname(__file__), 'data', 'blacklisted_usernames')
-    with open(user_blacklist_file, 'r') as f:
-        user_blacklist = frozenset([line.strip() for line in f.readlines()])
-    read_user_blacklist = True
-
-def slugify(username, id):
-    '''
-    Normalizes string, converts to lowercase, removes non-alphanumeric characters (including spaces).
-    Also, checks and appends offset integer to ensure that username is unique.
-
-    >>> slugify('whatsherface', 123)
-    u'whatsherface'
-    >>> User.objects.create(username='whatsherface')
-    <User: whatsherface>
-    >>> slugify('whatsherface', 123)
-    u'whatsherface1'
-    >>> slugify('whats_her_face', 123)
-    u'whatsherface1'
-    >>> slugify('whatsherface2', 123)
-    u'whatsherface2'
-    >>> slugify('admin', 123)
-    u'user0'
-    >>> User.objects.create(username='user0')
-    <User: user0>
-    >>> slugify('about', 123)
-    u'user01'
-    '''
-    username = normalize('NFKD', username).encode('ascii', 'ignore')
-    username = basename = unicode(sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
-
-    if username.lower() in user_blacklist:
-        logger.info('User:%s tried to use a blocked username:%s' % (id, username))
-        username = basename = u'user0'
-
-    counter = 1
-    while True:
-        try:
-            found = User.objects.get(username=username)
-            if found.id == id:
-                return username
-        except User.DoesNotExist:
-            break
-        username = '%s%d' % (basename, counter)
-        counter += 1
-
-    return username
-
-slugify.is_safe = True
-slugify = stringfilter(slugify)
-
-# Note that since we are defining a custom User model, import and handler
-# registration MUST be done after model definition to avoid circular import issues.
-
-from social_auth.signals import pre_update
-
-def compose_username(sender, user, response, details, **kwargs):
-    saved = user.username
-    fullname = ''.join([user.first_name, user.last_name])
-    user.username = response.get('username', slugify(fullname, user.id))
-    return saved == user.username
-
-pre_update.connect(compose_username, sender=None)

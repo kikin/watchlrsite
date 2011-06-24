@@ -3,137 +3,30 @@
 <meta name="queue_item_count" content="{{ videos|length }}"/>
 
 {% if videos|length_is:"0"%}
-        <div class="video-container">
             {% if display_mode == "liked" %}
-                <div class="featureTxt" style="width: 600px;">
-                <h4>
-                    You have no liked videos at the moment.
-                </h4>
-                <p>Click <img src="{{ settings.STATIC_URL }}images/heart_grey.png" style="height:15px; padding-right:2px;"/> to like a video.  Your liked videos appear on your public profile so your friends and others can enjoy them too.
-                <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_likes2.png" style="width: 600px; padding-left: 0px;"/>
+                <div class="video-container" style="height:270px;border-bottom: none;">
+                    <div class="featureTxt" style="width: 600px;">
+                    <h4>
+                        You have no liked videos at the moment.
+                    </h4>
+                    <p>Click <img src="{{ STATIC_URL }}images/heart_grey.png" style="height:15px; padding-right:2px;"/> to like a video.  Your liked videos appear on your public profile so your friends and others can enjoy them too.
+                    <img class="featureImage" alt="Learn how to use Watchlr" src="{{ STATIC_URL }}images/education/empty_likes2.png" style="width: 600px; padding-left: 0px;"/>
+                    </div>
                 </div>
             {% endif %}
             {% if display_mode ==  "saved"%}
-                <div class="featureTxt" style="width: 600px;">
-                    <h4>
-                        You have no saved videos at the moment.
-                    </h4>
-                    <p>Click <img src="{{ settings.STATIC_URL }}images/save_video.png" style="height:15px; padding-right:1px;"/> to add a video to your Saved Queue.
-                    <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="width: 600px; padding-left: 0px;"/>
+                <div class="video-container" style="height:450px;border-bottom: none;">
+                    <div class="featureTxt" style="width: 600px;">
+                        <h4>
+                            You have no saved videos at the moment.
+                        </h4>
+                        <p>Click <img src="{{ STATIC_URL }}images/save_video.png" style="height:15px; padding-right:1px;"/> to add a video to your Saved Queue.
+                        <img class="featureImage" alt="Learn how to use Watchlr" src="{{ STATIC_URL }}images/education/empty_save_queue.png" style="width: 600px; padding-left: 0px;"/>
+                    </div>
                 </div>
-        </div>
         {% endif %}
 {% endif %}
 
 {% for video in videos %}
-
-        {% if video|fetching_data %}
-        <div id="video-{{video.id}}" class="video-wrapper">
-            <div class="video-container">
-                 {% fetching_data_message video %}
-            </div>
-        </div>
-        {% else %}
-
-        <div id="video-{{video.id}}" class="video-wrapper">
-        <div class="video-container">
-            <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
-
-            <div class="video-buttons">
-
-                {% if display_mode == 'saved' %}
-                <a href="javascript:home.removeVideo({{ video.id }})" title="remove from queue">
-                    <div class="video-delete-button no-hover"></div>
-                </a>
-                {% endif %}
-
-
-                {% if display_mode == 'profile' %}
-
-                    <a>
-                    {% if video in user.liked_videos %}
-                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                    {% else %}
-                        <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-                    {% endif %}
-                    </a>
-
-               {% else %}
-
-                    <a href="javascript:home.handleLike({{ video.id }})">
-                    {% if video in user.liked_videos %}
-                        <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                    {% else %}
-                        <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-                    {% endif %}
-                    </a>
-                {% endif %}
-
-            {% if video.total_likes != 0 %}
-                    {% if video in user.liked_videos %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
-                        {{ video.total_likes }}
-                    </div>
-                    {% else %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
-                        {{ video.total_likes }}
-                    </div>
-                    {%  endif %}
-                {% else %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#d0d0d0;">
-                    </div>
-                {% endif %}
-
-                {% if display_mode == 'profile' %}
-                <a>
-                    <div class="save-video-button no-hover"></div>
-                </a>
-                {% endif %}
-
-
-            </div>
-            <a href="javascript:UI.loadPlayer({{ video.id }})">
-                <div class="video-image" id="video-{{ video.id }}">
-                    <div class="video-thumb-wrapper">
-                        <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"
-                             onerror="this.style.visibility='hidden'"
-                             onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
-
-                        <div class="abs-position">
-                            <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-
-            <div class="video-info">
-                <div class="video-description">{{ video.description|truncatewords:50|urlize }}</div>
-                <div class="video-saved">
-                    <a href="{{ video|source_url_root }}" target="_blank">
-                        <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
-                    </a>
-                    &bull;
-                    {% if video.source %}
-                        <a href="{{video.url}}" target="_blank">source</a>
-                    {% endif %}
-                    {% if display_mode != 'public_profile' %}
-                    &bull;
-                    {% endif %}
-                    {% if display_mode == 'saved' %}
-                        <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
-                    {% endif %}
-                    {% if display_mode == 'liked' %}
-                        <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <br style="clear:both;"/>
-
-            <div id="video-player-container" style="margin-top:40px;">
-                {% video_player video %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
+    {% video_queue_item %}
 {% endfor %}

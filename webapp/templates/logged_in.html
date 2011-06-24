@@ -1,24 +1,33 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
 {% block style_refs %}
-    <link rel="stylesheet" href="{{ settings.STATIC_URL }}video_player/video-js.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
-    <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/activity_queue.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
-    <link rel="stylesheet" href="{{ settings.STATIC_URL }}css/logged_in.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+    <link rel="stylesheet" href="{{ STATIC_URL }}video_player/video-js.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
 {% endblock style_refs %}
 
 {% block script_refs %}
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}video_player/video.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/util/String.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/util/plugindetect.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/userprofile.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}video_player/video.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/plugindetect.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
 
     <script type="text/javascript">
     $(document).ready(function(){
         if(!window.location.hash)
             window.location = "/#!/saved_queue";
+
+        {% if suggested_followees|length_is:0 and invite_list|length_is:0 %}
+
+        $('#video-section').css({width:'700px', marginLeft:'auto', marginRight:'auto'});
+        $('#lnk-page-next').css({marginLeft:'auto', marginRight:'auto'});
+
+        {% endif %}
+
     });
     </script>
 
@@ -28,35 +37,57 @@
     <div class="right-panel">
     
     {% if not suggested_followees|length_is:0 %}
-    <div class="suggested-followees">
+    <div class="suggested-followees container">
         <div class="suggested-followees title">
             People You May Know
         </div>
             {% for kv_user in suggested_followees %}
                 <div class="suggested-followee-item">
-                    <a href="/{{ kv_user.username }}">
+                    <a {{ kv_user|user_profile_link }}>
                         <div class="fb-thumb-wrapper">
                             <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
                         </div>
                     </a>
                     <div class="suggested-followees profile-link-container">
-                        <a href="{{ kv_user.username }}" title={{ kv_user|full_name }}>
+                        <a {{ kv_user|user_profile_link }}>
                             {{ kv_user|full_name|truncate_text:13 }}
                         </a>
                     </div>
-                    <a href="javascript:profileViewController.handleFollow({{ kv_user.id }})" id="follow-link-user-{{ kv_user.id }}" class="follow-button-link">
-                        <div id="follow-button-user-{{ kv_user.id }}" class="follow-button" class='shadow-5l'>Follow</div>
+                    <a href="javascript:profileViewController.handleFollow({{ kv_user.id }})" id="follow-button-user-{{ kv_user.id }}" class="follow-button shadow-5l">
+                        Follow
                     </a>
                 </div>
             {% endfor %}
         </div>
-        {% else %}
-        <script type="text/javascript">
-            $(document).ready(function(){
-                $('#video-section').css({width:'700px', marginLeft:'auto', marginRight:'auto'});
-                $('#lnk-page-next').css({marginLeft:'auto', marginRight:'auto'});
-            })
-        </script>
     {% endif %}
+
+    {%  comment %}
+    punted to release-1.7
+    {% if not invite_list|length_is:0 %}
+    <div class="suggested-followees container">
+        <div class="suggested-followees title">
+            Spread the Love
+        </div>
+            {% for kv_user in invite_list %}
+                <div class="suggested-followee-item">
+                    <a {{ kv_user|user_profile_link }}>
+                        <div class="fb-thumb-wrapper">
+                            <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
+                        </div>
+                    </a>
+                    <div class="suggested-followees profile-link-container">
+                        <a {{ kv_user|user_profile_link }}>
+                            {{ kv_user|full_name|truncate_text:13 }}
+                        </a>
+                    </div>
+                    <a href="#" id="invite-button-user-{{ kv_user.id }}" class="follow-button shadow-5l">
+                        Invite
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {%  endcomment %}
+
     </div>
 {% endblock right_panel %}

@@ -40,12 +40,18 @@ kikinvideo.HomeViewController = function() {
 
     var activityItemsPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
 
+    var VID_LIKED_BY_CONTAINER_ID_PREFIX = "#video-liked-by-wrapper-vid-";
+
     //set to whatever num of these you want to initially load...
     var savedVideosToLoad = 10;
 
     var likedVideosToLoad = 10;
 
     var activityItemsToLoad = 10;
+
+    var active_vid_liked_by_dropdown;
+
+    var active_vid_liked_by_liker_count;
 
     /*content that is displayed on tab switch...*/
     var LOADING_DIV_HTML = '<div class="loading-container">' +
@@ -188,21 +194,29 @@ kikinvideo.HomeViewController = function() {
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
+                $('.video-container:last').css('border-bottom', 'none');
             }else if(activeView == VIEWS.savedQueue){
                 if(queueItemCount >= saveVideosPaginationThreshold){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
+                $('.video-container:last').css('border-bottom', 'none');
             }else if(activeView == VIEWS.activity){
                 if(queueItemCount >= activityItemsToLoad){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
+                $('.activity-queue-item:last').css('border-bottom', 'none');
             }
 
+            //because HTML5 videos don't respect display:'none'
+            //like swf object embeds do...
+           // videoController.prepareEmbeds();
+
         });
+
     }
 
     function removeVideo(vid){
@@ -287,6 +301,7 @@ kikinvideo.HomeViewController = function() {
                                                     like_details = like_details.replace('You and ', '');
                                                 }else{
                                                     like_details = like_details.replace('You and ', '');
+                                                    like_details = like_details.replace('You, ', '');
                                                 }
                                                 activity_item_header.fadeOut(500, function(){
                                                     activity_item_header.html(like_details);
@@ -337,6 +352,62 @@ kikinvideo.HomeViewController = function() {
         });
     }
 
+    function showVidLikedBy(vid, start, count){
+        if(!start)
+            var start=0;
+        if(!count)
+            var count=20;
+
+        $.ajax({
+            url:'/video_liked_by/'+vid,
+            data : {'start':start, 'count':count},
+            success : function(response){
+
+                if(active_vid_liked_by_dropdown &&
+                        active_vid_liked_by_dropdown.selector == "#liked-by-wrapper-vid-"+vid
+                        && !active_vid_liked_by_dropdown.is(":hidden")){
+                    hideVidLikedBy();
+                }
+                else{
+                    $("#liked-by-wrapper-vid-"+vid).html(response);
+
+                    $("#liked-by-wrapper-vid-"+vid).css({height:0, display:'block'});
+
+                    /*this is a pretty motley hack -- determine container height
+                    * by counting num of list items, multiplying by their height and adding
+                    * a constant....*/
+                    var target_height =
+                            Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/7) *
+                            $("#liked-by-wrapper-vid-"+vid + ' .item').height()
+                            + 40 + (Math.ceil($("#liked-by-wrapper-vid-"+vid + ' .item').length/7)-1) * 14;
+
+                    $("#liked-by-wrapper-vid-"+vid).animate({
+                        height:target_height
+                    }, 600);
+
+                    active_vid_liked_by_dropdown = $("#liked-by-wrapper-vid-"+vid);
+                }
+            },
+            failure : function(msg){
+                showErrorDialog(msg);
+            }
+        });
+    }
+
+
+    function hideVidLikedBy(){
+        if(active_vid_liked_by_dropdown){
+
+            var active_vid_liked_by_dropdown_orig_height = active_vid_liked_by_dropdown.height();
+
+            active_vid_liked_by_dropdown.animate({
+                    height:0
+                }, 600, function(){
+                    active_vid_liked_by_dropdown.hide();
+                    active_vid_liked_by_dropdown.height(active_vid_liked_by_dropdown_orig_height);
+            });
+        }
+    }
 
     /*expose public functions...*/
     return {
@@ -353,7 +424,11 @@ kikinvideo.HomeViewController = function() {
 
         removeVideo : removeVideo,
 
-        handleSave : handleSave
+        handleSave : handleSave,
+
+        showVidLikedBy : showVidLikedBy,
+
+        hideVidLikedBy : hideVidLikedBy
     };
 
 };

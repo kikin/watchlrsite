@@ -10,6 +10,11 @@ html {
     background: #FFF;
 }
 
+
+body{
+    /*background: #EEE url(/static/images/bg/bg_soft.png) repeat;*/
+}
+
 body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td {
     margin: 0;
     padding: 0;
@@ -121,14 +126,14 @@ a:hover {
     -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.4);
 }
 
 #header-logo {
     position: absolute;
     width: 224px;
     height: 42px;
-    background: url(/static/images/kikin_logo.png) no-repeat;
+    background: url(/static/images/watchlr_logo.png) no-repeat;
     margin-top:10px;
     margin-left:8px;
 }
@@ -266,6 +271,7 @@ a:hover {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     width:680px;
+    min-height:200px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;
@@ -353,6 +359,10 @@ ul.navigation li.selected, ul.navigation li.selected a {
 #myConnections {
 }
 
+#myOptions:hover{
+    color:#ffffff;
+}
+
 .profilePic {
     width: 25px;
     height: 25px;
@@ -412,8 +422,7 @@ ol li {
     -moz-transition: height 0.4s ease-in-out;
     -o-transition: height 0.4s ease-in-out;
     transition: height 0.4s ease-in-out;
-    padding-top:25px;
-    border-bottom: 1px solid #cccccc;
+    padding-top:20px;
 }
 
 .video-saved {
@@ -607,7 +616,7 @@ ul>span.cufon-canvas {
     float: left;
 }
 
-.video-thumb-wrapper {
+/*.video-thumb-wrapper {
     cursor: pointer;
     background: #000;
     min-height: 140px;
@@ -615,9 +624,8 @@ ul>span.cufon-canvas {
 
 .video-thumbnail,
 .video-thumbnail-btn {
-    width: 200px;
-    max-height: 147px;
-    min-height: 120px;
+    width: 125px;
+    height:92px;
 }
 
 .video-thumbnail-btn {
@@ -625,7 +633,7 @@ ul>span.cufon-canvas {
     background: url(/static/images/kkn-video-sprites.png) no-repeat -275px 40px;
     position: relative;
     top: -143px;
-}
+}*/
 
 .video-description {
     max-height: 98px;
@@ -740,6 +748,7 @@ ul>span.cufon-canvas {
 
 .video-info.detail-view{
     width: 480px;
+    padding-left:0px;
 }
 
 a#lnk-page-next {
@@ -952,8 +961,16 @@ a#lnk-page-next:hover {
 	margin-top:-1px;
 }
 
+.video-buttons a:hover{
+    color:#cccccc;
+}
+
+.video-buttons-container a:hover{
+    color:#cccccc;
+}
+
 .mozilla .video-liked-info{
-    margin-top:3px;
+    margin-top:1px;
 }
 .win.mozilla .video-liked-info{
     margin-top:-1px;
@@ -966,7 +983,7 @@ a#lnk-page-next:hover {
 
 .video-buttons {
     position:absolute;
-    margin-left:565px;
+    margin-left:545px;
     min-width: 90px;
     height: 34px;
 }
@@ -1043,10 +1060,12 @@ a#lnk-page-next:hover {
 }
 
 .video-container{
-    padding-left:14px;
-    padding-right:14px;
+    width:640px;
     margin-top:0px;
     z-index:11000;
+    margin-left:auto;
+    margin-right:auto;
+    border-bottom: 1px solid #cccccc;
 }
 
 video{
@@ -1068,9 +1087,9 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .shadow-5l{
-    -moz-box-shadow: -5x 5px 5px #888;
-    -webkit-box-shadow: -5px 5px 5px #888;
-    box-shadow: -5px 5px 5px #888;
+    -moz-box-shadow: -3x 3px 3px #ccc;
+    -webkit-box-shadow: -3px 3px 3px #ccc;
+    box-shadow: -3px 3px 3px #ccc;
 }
 
 .video-player-bg{
@@ -1108,4 +1127,56 @@ box-shadow: 10px 10px 5px #888;
     border-radius: 8px;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
+}
+
+.user-dropdown{
+    width:640px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    display:block;
+}
+
+
+.user-dropdown ul{
+    list-style-type: none;
+    width: 640px;
+}
+
+.user-dropdown li{
+    display:inline-block;
+    margin-right: 35px;
+    margin-top:10px;
+    height:70px;
+    font-family: Helvetica;
+    font-size:16px;
+    overflow: hidden;
+}
+
+.user-dropdown .fb-thumb{
+    float:left;
+    margin-left: 10px;
+    margin-top:10px;
+}
+
+.user-dropdown .username{
+    float:left;
+    margin-top:25px;
+    margin-left: 15px;
+}
+
+.liked-by-wrapper{
+    width:100%;
+    border-bottom: 1px solid #cccccc;
+    display:none;
+    text-align: center;
+}
+
+.user-dropdown .close-button{
+    width:15px;
+    height:15px;
+    float:right;
+    margin-top: -10px;
+    margin-right: -15px;
+    background-image:url(/static/images/close_button_fancy.png);
 }

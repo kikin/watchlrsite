@@ -2,9 +2,9 @@
 {% load kikinvideo_tags %}
 
 {% block script_refs %}
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikinvideo/userprofile.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
     <script type="text/javascript">
     activeView = VIEWS.profile;
     $(document).ready(function(){
@@ -23,20 +23,50 @@
                 $('#facebook-img').css({marginLeft:8});
 
             }
+            //if image is "portrait"...
+            else if($('#facebook-img').width() < $('#facebook-img').height()){
+                $('#facebook-img-container').css({height:108});
+                $('#facebook-img').css({height:100});
+                $('#facebook-img').addClass('shadow-5l');
+            }
             else{
                 $('#facebook-img-container').addClass('shadow-5l');
             }
         });
+
+        //fade in signup pitch...
+        if($('#signup-pitch').length != 0){
+            $('#signup-pitch').css('visibility','visible').hide().fadeIn(1200);
+        }
+
+        $('.video-container:last').css('border-bottom', 'none');
+
         stylizeVideoTitles();
     });
     </script>
+    {% block script_ext %}{% endblock script_ext %}
 {% endblock script_refs %}
 
 {% block style_refs %}
-    <link rel='stylesheet' type='text/css' href='{{ settings.STATIC_URL }}css/profile.css'/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}css/profile.css'/>
 {% endblock style_refs %}
 
 {% block content %}
+
+    {% if not user.is_authenticated %}
+        <div id="signup-pitch">
+            <div class="inner">
+                {{ profile_owner|full_name }} is on Watchlr<br>
+                Discover, save and share video online. Sign up with Facebook to get started now!
+                <a class="fb-signup" href="/login/facebook"></a>
+            </div>
+        </div>
+    {% endif %}
+
+
     <meta name="profile_subject" content="{{ profile_owner.id }}"/>
     <div id="user-info-container">
     <div class="user-info gradient"></div>
@@ -53,12 +83,14 @@
                     <div class="sub">
                         ({{ profile_owner.first_name }} {{ profile_owner.last_name }})
                     </div>
+                <a href="/{{ profile_owner.username }}">
                     <div class="profile-basic-statistics" style="left:160px;">
                         {{ profile_owner|total_liked_videos }}
                         <div class="profile-basic-statistics-sub">
                             Liked<br>videos
                         </div>
                     </div>
+                </a>
                 <a href="/followers/{{ profile_owner.id }}">
                     <div class="profile-basic-statistics with-breakers" style="left:250px;">
                         <div id="follower-count-user-{{ profile_owner.id }}">
@@ -87,17 +119,20 @@
                 </a>
                 {% if not is_own_profile %}
                     {% if profile_owner in user.following %}
-                        <a href="javascript:profileViewController.handleUnfollow({{ profile_owner.id }})" id="follow-link-user-{{ profile_owner.id }}">
-                            <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Unfollow</div>
+                        <a href="javascript:profileViewController.handleUnfollow({{ profile_owner.id }})" id="follow-button-user-{{ profile_owner.id }}"
+                                class="follow-button shadow-5l">
+                            Unfollow
                         </a>
                     {% else %}
                         {% if not user.is_authenticated %}
-                        <a href="javascript:alert('you must register an account with Kikin Video before you can follow users');">
-                            <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
+                        <a href="javascript:alert('you must register an account with Watchlr before you can follow users');"
+                           id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">
+                            Follow
                         </a>
                         {% else %}
-                        <a href="javascript:profileViewController.handleFollow({{ profile_owner.id }})" id="follow-link-user-{{ profile_owner.id }}">
-                            <div id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">Follow</div>
+                        <a href="javascript:profileViewController.handleFollow({{ profile_owner.id }})" id="follow-button-user-{{ profile_owner.id }}"
+                                class="follow-button shadow-5l">
+                            Follow
                         </a>
                         {% endif %}
                     {% endif %}
@@ -121,82 +156,9 @@
         </div>
     {% else %}
     {% for video in videos %}
+        
+        {% video_queue_item %}
 
-       {% if not video|fetching_data %}
-        <div id="video-{{video.id}}" class="video-wrapper">
-            <div class="video-container">
-                <h3 class="video-title"><a href="/video/{{video.id}}">{{ video.title }}</a></h3>
-                <div class="video-buttons">
-
-                {% if video not in user.saved_videos and user.is_authenticated %}
-                <a href="javascript:home.handleSave({{ video.id }})" title="save">
-                    <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
-                </a>
-                {% else %}
-                    {% if user.is_authenticated %}
-                    <a href="javascript:home.handleSave({{ video.id }})" title="save">
-                        <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
-                    </a>
-                     {% endif %}
-                {% endif %}
-
-
-                <a href="javascript:home.handleLike({{ video.id }})">
-                {% if video in user.liked_videos or not user.is_authenticated %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                {% else %}
-                    <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-                {% endif %}
-                </a>
-                   
-                {% if video.total_likes != 0 and video not in user.liked_videos %}
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}" style="color:#cccccc;">
-                    {{ video.total_likes }}
-                </div>
-                {% else %}
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
-                    {{ video.total_likes }}
-                </div>
-                {% endif %}
-
-
-                </div>
-                <a href="javascript:UI.loadPlayer({{ video.id }})">
-                    <div class="video-image" id="video-{{ video.id }}">
-                        <div class="video-thumb-wrapper">
-                            <img class="video-thumbnail" src="{{video|web_thumbnail_url}}"
-                                 onerror="this.style.visibility='hidden'"
-                                 onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
-
-                            <div class="abs-position">
-                                <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-
-            <div class="video-info">
-                <div class="video-description">{{ video.description|truncatewords:50|urlize }}</div>
-                <div class="video-saved">
-                    <a href="{{ video|source_url_root }}" target="_blank">
-                        <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
-                    </a>
-                    &bull;
-                    {% if video.source %}
-                        <a href="{{video.url}}" target="_blank">source</a>
-                    {% endif %}
-                    &bull;
-                    <span class="video-timeago">{{ video|pretty_date_liked:profile_owner }}</span>
-                </div>
-            </div>
-
-                <br style="clear:both;"/>
-
-            {% video_player video %}
-
-            </div>
-        </div>
-      {% endif %}
     {% endfor %}
     {% endif %}
     </div>

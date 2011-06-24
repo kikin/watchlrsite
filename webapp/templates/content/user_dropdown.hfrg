@@ -1,0 +1,23 @@
+{% load kikinvideo_tags %}
+<div class="user-dropdown" id="user-dropdown-vid-{{ video.id }}">
+    <div class="heading" style="font-family: Helvetica;font-size:15px;font-weight:700;margin-top: 14px;color:#575757;">
+    Liked By...
+    </div>
+    <ul>
+    {% for u in users %}
+        <li class="item">
+                <a href="/{{ u.username }}" title="{{ u|full_name }}" target="_blank">
+                    <img class="fb-thumb" src="https://graph.facebook.com/{{ u.facebook_uid }}/picture?type=square"/>
+                </a>
+        </li>
+    {% endfor %}
+    </ul>
+    {% if has_more %}
+    <div class="pagination-buttons" style="width:100%;height:30px;">
+        {% if has_prev %}
+        <a href=""><button>previous</button></a>
+        {% endif %}
+        <a href=""><button>next</button></a>
+    </div>
+    {% endif %}
+</div>

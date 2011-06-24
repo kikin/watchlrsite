@@ -2,14 +2,15 @@
 
 <meta name="queue_item_count" content="{{ activity_items|length }}">
 {% if activity_items|length_is:0 %}
-    <div class="activity-queue-item" style="  min-height: 20px;">
-        <div class="activity-queue inner" style="min-height:50px;font-family: Helvetica;font-size: 20px;text-align: center;color:#4c4c4c;">
+    <div class="activity-queue-item" style="height:85px;border-bottom: none;">
+        <div class="activity-queue inner" style="min-height:30px;font-family: Helvetica;font-size: 18px;text-align: center;color:#4c4c4c;">
         Nothing to see here!<br>
         (You are not presently following any users and have yet to like a video)
         </div>
     </div>
 {% else %}
     {% for activity_item in activity_items %}
+    {% if not activity_item.video|fetching_data %}
     <div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
         <div class="activity-queue inner">
               <a href="{{  activity_item.users|fb_thumb_href:user }}">
@@ -40,19 +41,12 @@
 
 
              <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
-              <a href="javascript:UI.loadPlayer({{ activity_item.video.id }})">
-              <div class="video-image" id="video-{{ activity_item.video.id }}">
+              <a class="video-image" href="javascript:UI.loadPlayer({{ activity_item.video.id }})" id="video-{{ activity_item.video.id }}">
                     <div class="video-thumb-wrapper">
-                        <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"
-                             onerror="this.style.visibility='hidden'"
-                             onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
-
-                        <div class="abs-position">
-                            <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ activity_item.video.id }}"></div>
-                        </div>
+                        <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"/>
+                        <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ activity_item.video.id }}"></div>
                     </div>
-                </div>
-              </a>
+                </a>
 
             <div class="video-buttons" style="margin-top: 10px;">
 
@@ -77,20 +71,24 @@
                     {% endif %}
                     </a>
 
+                    <a href="javascript:home.showVidLikedBy({{ activity_item.video.id }})">
                     {% if activity_item.video in user.liked_videos %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
+                    <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
                         {{ activity_item.video.total_likes }}
-                    </div>
+                    </span>
                     {% else %}
-                    <div class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}" style="color:#d0d0d0;">
+                    <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}" style="color:#d0d0d0;">
                         {{ activity_item.video.total_likes }}
-                    </div>
+                    </span>
                     {%  endif %}
+                    </a>
             </div>
         </div>
         <div id="video-player-container" style="margin-top:40px;margin-left: 15px;">
                 {% video_player activity_item.video %}
         </div>
     </div>
+    <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
+    {% endif %}
     {% endfor %}
 {% endif %}

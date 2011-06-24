@@ -3,6 +3,8 @@ from datetime import datetime
 from urlparse import urlparse
 from kikinvideo.api.models import UserVideo
 
+from celery import states
+
 register = template.Library()
 
 @register.filter
@@ -130,6 +132,10 @@ def web_thumbnail_url(video):
     return ""
 
 @register.filter
+def no_likes(video):
+    return len(video.all_likers()) == 0
+
+@register.filter
 def fb_thumb_small(users, user):
     for user_tuple in users:
         if user_tuple[0] != user:
@@ -185,7 +191,11 @@ def activity_item_heading(activity_item, user):
         elif len(activity_item.users) == 2 and len(all_likers) == 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
             content += ' and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> liked...'
-        elif len(activity_item.users) == 2 and len(all_likers) > 2:
+        elif len(activity_item.users) == 2 and len(all_likers) == 3:
+            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>, '
+            content += '<a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a>'
+            content += ' and 1 other liked...'
+        elif len(activity_item.users) == 2 and len(all_likers) > 3:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>, '
             content += '<a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a>'
             content += ' and '+ str(len(all_likers)-2) + ' others liked...'
@@ -197,10 +207,13 @@ def activity_item_heading(activity_item, user):
                 content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
     return content
 
-#this is a stopgap, until we Video.status() is actually working...
+@register.filter
+def last_element(list):
+    return list[-1]
+
 @register.filter
 def fetching_data(video):
-    if not video.status() == u'SUCCESS':
+    if not video.status() == states.SUCCESS:
         return True
     return False
     #Alt implementation (uncomment and use if critical issue arises with
@@ -213,13 +226,46 @@ def fetching_data(video):
     #return False
 
 @register.filter
+def error_fetching_data(video):
+    if video.status() in states.PROPAGATE_STATES:
+        return True
+    return False
+
+@register.filter
 def full_name(user):
+    if not user.last_name:
+        return user.first_name
+    if not user.first_name:
+        return user.last_name
     return user.first_name + ' ' + user.last_name
 
-@register.inclusion_tag('content/video_player.hfrg')
+@register.inclusion_tag('inclusion_tags/video_player.hfrg')
 def video_player(video):
     return { 'video' : video }
 
-@register.inclusion_tag('content/fetching_data.hfrg')
+@register.inclusion_tag('inclusion_tags/fetching_data.hfrg')
 def fetching_data_message(video):
     return {'video':video}
+
+@register.inclusion_tag('inclusion_tags/error_fetching_data.hfrg')
+def error_fetching_data_message(user, video):
+    user_video = UserVideo.objects.get(user=user, video=video)
+    return {'video':video, 'user_video': user_video}
+
+@register.inclusion_tag('inclusion_tags/video_queue_item.hfrg', takes_context=True)
+def video_queue_item(context):
+    queue_ctx = {'user':context['user'], 'video':context['video'], 'display_mode':context['display_mode']}
+    if 'profile_owner' in context: queue_ctx['profile_owner'] = context['profile_owner']
+    return queue_ctx
+
+@register.inclusion_tag('content/user_dropdown.hfrg')
+def liked_by_panel(video):
+    return {'video':video, 'users':video.all_likers()}
+
+@register.filter
+def user_profile_link(user):
+    target = 'href=%s' % user.get_absolute_url()
+    if not user.is_registered:
+        target += ' target=_blank'
+    return target
+

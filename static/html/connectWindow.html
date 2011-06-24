@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml"> 
+	<head>
+		<title>watchlr Facebook Connect</title>
+		<style type="text/css">
+			html,body{height:100%;overflow:hidden;}
+			body{
+				font-family:Arial, Helvetica, sans-serif;
+				background:#fff;
+				text-align:center;
+				margin:0;
+			}
+			#wrapper{text-align:center;margin:auto;width:460px;left:0;overflow:hidden;}
+			#confTxt,#loader span{font-size:18px;color:#434746;font-weight:bold;}
+			#closeLnk{font-size:small;}
+			#confirmation em{font-style:normal;color:#111;}
+			#loader{display:block;}
+			#loader img{vertical-align:middle; margin-right:5px;}
+			#confirmation{display:none;}
+			#ldngGraphic{background:url(/static/images/connect_window/fbConnectStates.png) no-repeat -287px 0px;width:227px;height:123px;margin:0 auto 20px auto;}
+			#connGraphic{background:url(/static/images/connect_window/fbConnectStates.png) no-repeat 0 -101px;width:279px;height:101px;margin:0 auto 20px auto;}
+			#disconnGraphic{background:url(/static/images/connect_window/fbConnectStates.png) no-repeat 0 0;width:279px;height:101px;margin:0 auto 20px auto;}
+			#connGraphic,#disconnGraphic{display:none;}
+		</style>
+		
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.3/mootools-yui-compressed.js"></script>
+		
+		<script type="text/javascript">
+			window.onload=function(){
+				displayMessage();
+				setTimeout(function(){
+					try{
+						window.close();
+					}catch(e){}
+				},2500);
+			};
+			function displayMessage() {
+				var t1, t2;				
+				try {
+					var s,//display message 
+						l,//assigned locale
+						d = {
+								lang:window.navigator.userLanguage?window.navigator.userLanguage:window.navigator.language
+							}, 
+						p = unescape(window.location.search).substring(1).split('&');
+					
+					for (var i = 0; i < p.length; ++i) {
+						var k = p[i].split('=');
+						d[k[0]] = k[1];
+					}
+					
+					if (d.code == '200') {
+						s = 'success';
+						$('connGraphic').style.display = 'block';
+						bSuccessful = true;
+					} else{
+						s = 'cancelled';
+						$('disconnGraphic').style.display = 'block';
+					}
+					
+					t1 = Locale[(l = (d.lang.indexOf('de') > -1 ? 'de' : 'en'))][s];
+					t2 = Locale[l].closeWindow;					
+				} catch(e) {
+					t1 = Locale.en.preferencesSaved;
+					t2 = Locale.en.closeWindow; 
+				} finally {
+					$('confTxt').innerHTML = t1;
+					$('closeLnk').addEvent('click', function(e){e.stop();window.close();}).innerHTML = t2;		
+					$('loader').style.display = 'none';
+					$('confirmation').style.display = 'block';			
+				}
+			}
+			
+			Locale = {
+				'en': {
+					'preferencesSaved': 'Your Facebook preferences have been saved.',
+					'success': 'You\'ve successfully connected to Facebook!',
+					'cancelled': 'You are <em>not connected</em> to Facebook.',
+					'closeWindow': 'Close window'
+				},
+				'de': {
+					'success': 'Sie haben Facebook erfolgreich verbunden!',
+					'cancelled': 'Sie sind nicht mit Facebook verbunden.',
+					'closeWindow': 'Fenster schlie&szlig;en'					
+				}
+			};
+		</script>
+	</head>
+	<body>
+		<div id="wrapper">
+			<div id="confirmation">
+				<div id="connGraphic"></div>
+				<div id="disconnGraphic"></div>
+				<span id="confTxt"></span>		
+				<br />
+				<br />
+				<a href="#" id="closeLnk"></a>
+			</div>
+			<div id="loader" class="kkn-loading-cont">
+				<div id="ldngGraphic"></div>
+				<img id="loaderImg" src="/static/images/ajax-loader_2.gif" alt="" />
+				<span id="loaderTxt">Loading...</span>
+			</div>
+		</div>
+	</body>
+</html>

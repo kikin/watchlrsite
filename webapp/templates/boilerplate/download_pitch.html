@@ -1,6 +1,6 @@
 {% extends "user_home.html" %}
 {% block style_refs %}
-    <link rel="stylesheet" type="text/css" href="{{ settings.STATIC_URL }}css/download.css?v=1" media="all"/>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/download.css?v=1" media="all"/>
 {% endblock style_refs %}
 
 {% block script_refs %}
@@ -20,22 +20,23 @@
     <div style="padding-left:115px; padding-top:20px; padding-bottom:20px; width:842px;">
         <h3 class="video-title" style="font-size: 36px; color: #0c536f;">Save Videos to Watch Later from Any Page</h3>
     </div>
-    <img title="Save videos for later" src="{{ settings.STATIC_URL }}images/download/main.png" />
+    <img title="Save videos for later" src="{{ STATIC_URL }}images/download/main.png" />
     <div style="color:white; font-size: 24px; font-weight: bold; padding-top: 55px; padding-left: 40px; padding-bottom: 15px;">
-        Download the kikin Video Browser App Today!
+        Download the Watchlr Browser App Today!
     </div>
     <script type="text/javascript">
+        var v = new Date().getTime();
         if ((navigator.userAgent.indexOf("Firefox")) > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
         {
-            document.write('<a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi"><div title="kikin for Firefox Windows" class="firefox_win" style="position: relative; left:346px;" /></div></a>');
+            document.write('<a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi?v=' + v + '"><div title="Watchlr for Firefox Windows" class="firefox_win" style="position: relative; left:346px;" /></div></a>');
         }
         else if (navigator.userAgent.indexOf("Firefox") > 0 && (navigator.appVersion.indexOf("Mac") > 0 ))
         {
-            document.write('<a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerMacFirefox.xpi"><div title="kikin for Firefox Mac" class="firefox_mac" style="position: relative; left:346px;" /></div></a>');
+            document.write('<a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerMacFirefox.xpi?v=' + v + '"><div title="Watchlr for Firefox Mac" class="firefox_mac" style="position: relative; left:346px;" /></div></a>');
         }
         else if (navigator.userAgent.indexOf("Chrome") > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
         {
-            document.write('<a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWinChrome.crx" ><div title="kikin for Chrome Windows" class="chrome_win" style="position: relative; left:346px;" /></div></a>');
+            document.write('<a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWinChrome.crx?v=' + v + '" ><div title="Watchlr for Chrome Windows" class="chrome_win" style="position: relative; left:346px;" /></div></a>');
         }
         else
         {
@@ -47,8 +48,8 @@
             <h4>
                 Save Any Video For Later
             </h4>
-            <p>Place your mouse on any video, on any webpage and kikin will add a "Watch Later" button.</p>
-            <img class="featureImage" alt="Learn how to use kikin Video" src="{{ settings.STATIC_URL }}images/education/empty_save_queue.png" style="padding-top:5px; padding-left: 0px;"/>
+            <p>Place your mouse on any video, on any webpage and Watchlr will add a "Watch Later" button.</p>
+            <img class="featureImage" alt="Learn how to use kikin Video" src="{{ STATIC_URL }}images/education/empty_save_queue.png" style="padding-top:5px; padding-left: 0px;"/>
         </div>
     </div>
 {% endblock content %}

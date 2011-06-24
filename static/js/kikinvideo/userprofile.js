@@ -10,8 +10,6 @@ kikinvideo.ProfileViewController = function(){
 
     var FOLLOW_BUTTON_ID_PREFIX = "#follow-button-user-";
 
-    var FOLLOW_LINK_ID_PREFIX = "#follow-link-user-";
-
     var FOLLOW_COUNT_CONTAINER_ID_PREFIX = "#follower-count-user-";
 
     function _loadContent(){
@@ -29,13 +27,13 @@ kikinvideo.ProfileViewController = function(){
                 success: function(response){
                     if (response.success){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
-                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "javascript:profileViewController.handleUnfollow("+user_id+");");
+                        $(FOLLOW_BUTTON_ID_PREFIX+user_id).attr("href", "javascript:profileViewController.handleUnfollow("+user_id+");");
                         var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
-                        numFollowers++;
-                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
                         if(activeView == VIEWS.activity){
                             home.populatePanel();
                         }
+                        numFollowers++;
+                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
                     }
                 },
                 failure : function(err_msg){
@@ -50,10 +48,13 @@ kikinvideo.ProfileViewController = function(){
                 success: function(response){
                     if (response.success){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
-                        $(FOLLOW_LINK_ID_PREFIX+user_id).attr("href", "javascript:profileViewController.handleFollow("+user_id+")");
+                        $(FOLLOW_BUTTON_ID_PREFIX+user_id).attr("href", "javascript:profileViewController.handleFollow("+user_id+")");
                         var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
                         numFollowers--;
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                        if(activeView == VIEWS.activity ){
+                            home.populatePanel();
+                        }
                     }
                 },
                 failure : function(err_msg){

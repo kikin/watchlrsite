@@ -84,7 +84,8 @@ To install all required dependencies, run the following command
 Note that this requires additional operating system level packages to be present. If you are
 running ubuntu you can install these by running the following command
 
-    $ apt-get install mysql-server libmysqlclient16-dev python-dev libxslt1-dev apache2 libapache2-mod-wsgi git-core pip
+    $ apt-get install mysql-server libmysqlclient16-dev python-dev libxslt1-dev apache2 libapache2-mod-wsgi \
+      git-core python-pip cronolog
 
 Working on this app
 -------------------
@@ -195,7 +196,7 @@ Fetching Video Metadata
 Fetching video metadata is done in the background using a Celery task queue. You need to spawn the Celery worker
 server as follows:
 
-    $ python manage.py celeryd -l info
+    $ python manage.py celeryd -B -l info
 
 Note that this runs the server in the foreground. More information about Celery can be found at
 http://django-celery.readthedocs.org/en/latest/index.html

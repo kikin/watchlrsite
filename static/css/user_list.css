@@ -9,7 +9,7 @@
 }*/
 
 #user-list .user-info.wrapper{
-    border-bottom: 1px solid #b4b4b4;
+    border-top: 1px solid #b4b4b4;
     height:70px;
 }
 
@@ -25,6 +25,24 @@
     margin-top: 25px;
     font-family: Helvetica;
     font-size: 18px;
+}
+
+.user-list-follow-button{
+    float:right;
+    margin-top: 20px;
+    width: 90px;
+    margin-right: 20px;
+    height:22px;
+    border-radius: 6px;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    color:#ffffff;
+    background-color:#0c536f;
+    font-family: Arial;
+    font-size:13px;
+    font-weight: 800;
+    text-align:center;
+    padding-top:7px;
 }
 
 /*
