@@ -97,7 +97,8 @@ kikinvideo.UIUniversal =
 
                     $('body').prepend(VIDEO_PLAYER_BG_HTML);
                     $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none', 'z-index':1000});
-                    $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
+                    //because i.e. doesn't support the opacity property...
+                        $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
                     video_player_div.fadeIn(100);
 
                     video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
