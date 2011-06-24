@@ -1223,7 +1223,7 @@ def fetch(user_id, url, host, callback=None):
     try:
         video = _fetcher.fetch(user_id, url, host, fetch.get_logger())
         if callback is not None:
-            subtask(callback).delay(video)
+            subtask(callback).delay(video.id)
 
     except UrlNotSupported:
         pass
@@ -1289,7 +1289,7 @@ slugify = stringfilter(slugify)
 
 
 @task(max_retries=3, default_retry_delay=60)
-def push_like_to_fb(video, user):
+def push_like_to_fb(video_id, user):
     from social_auth.backends.facebook import FACEBOOK_SERVER
     def encode(text):
         if isinstance(text, unicode):
@@ -1297,6 +1297,8 @@ def push_like_to_fb(video, user):
         return text
 
     logger = push_like_to_fb.get_logger()
+
+    video = Video.objects.get(pk=video_id)
 
     if not video.status() == states.SUCCESS:
         logger.info('Video metadata unavailable...sleeping')
