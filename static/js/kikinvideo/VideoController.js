@@ -1,5 +1,5 @@
-function onYouTubePlayerAPIReady(){
-
+function onYouTubePlayerReady(playerID){
+    videoController.prepareCurVidForPlayback();
 }
 
 kikinvideo.VideoController =
@@ -18,7 +18,7 @@ kikinvideo.VideoController =
         //youtube api requires that this be in the global namespace...unfortunate, yes...
         function onPlayerReady(event){
             var player = vid_player_mappings[player_vid_mappings[event.target]];
-            vid_player_mappings[player_vid_mappings[event.target]].ready = true;
+            vid_player_mappings[player_vid_mappings[event.target]].isReady = true;
         }
 
 
@@ -26,6 +26,23 @@ kikinvideo.VideoController =
             //if(newstate.data == YT.PlayerState.PAUSED){
                 //savePosition(curVID);
             //}
+        }
+
+        function playVideo(){
+            if(vid_player_mappings[curVID]){
+                 if(vid_player_mappings[vid].type == 'YouTube'){
+                     if(vid_player_mappings[vid].player)
+                        vid_player_mappings[vid].player.playVideo();
+                 }
+             }
+        }
+
+        function setCurVid(vid){
+            curVID = vid;
+        }
+
+        function prepareCurVidForPlayback(){
+            prepareVidForPlayback(curVID);
         }
 
          function prepareVidForPlayback(vid){
@@ -40,7 +57,7 @@ kikinvideo.VideoController =
                              var video = response.result;
                              if(video.position){
                                  seekTo(curVID, parseFloat(video.position));
-                                 pauseVideo(curVID);
+                                 playVideo();
                              }
                          }else
                              showErrorDialog();
@@ -53,6 +70,8 @@ kikinvideo.VideoController =
          function savePosition(vid){
              if(vid_player_mappings[vid]){
                  if(vid_player_mappings[vid].type == 'YouTube'){
+                     var player = vid_player_mappings[vid].player;
+                     var curTime = player.getCurrentTime();
                      doSavePosition(vid, vid_player_mappings[vid].player.getCurrentTime());
                  }
              }
@@ -73,7 +92,7 @@ kikinvideo.VideoController =
          }
 
          function pauseVideo(vid){
-             if(vid_player_mappings[vid] && vid_player_mappings[vid].ready){
+             if(vid_player_mappings[vid]){
                  if(vid_player_mappings[vid].type == 'YouTube'){
                      if(vid_player_mappings[vid].player)
                         vid_player_mappings[vid].player.pauseVideo();
@@ -86,9 +105,10 @@ kikinvideo.VideoController =
          }
 
         function seekTo(vid, pos){
-            if(vid_player_mappings[vid] && vid_player_mappings[vid].ready){
+            if(vid_player_mappings[vid]){
                  if(vid_player_mappings[vid].type == 'YouTube'){
                      if(vid_player_mappings[vid].player)
+                        var player = vid_player_mappings[vid].player;
                         vid_player_mappings[vid].player.seekTo(pos);
                  }
             }
@@ -119,33 +139,41 @@ kikinvideo.VideoController =
                         
                     }
 
-                    if(embed.is('iframe')){
+                    if(embed.is('object')){
                         /*we're likely dealing with either a YouTube or a Vimeo embed...*/
 
-                        var source = embed.attr('src');
+                        embed = embed.children('embed')[0];
+
+                        var source = embed.src;
 
                         if (isYouTube(source)){
                            /*remove the damn autoplay flag*/
                            source = source.replace("autoplay=1", "autoplay=0");
                            source += "&enablejsapi=1";
-                           embed.attr('src', source);
+                           embed.src = source;
 
                            var ytVID = youtubeVID(source);
 
-                            embed.attr('id', 'youtube-iframe-'+ytVID);
+                            embed.id = 'youtube-embed-'+ytVID;
+
+                            var player = embed;
                             
-                            var player = new YT.Player(embed.attr('id'), {
+                          /*  var player = new YT.Player(embed.id, {
                               videoId: ytVID,
                               events : {
                                   'onReady':onPlayerReady,
                                   'onStateChange': handleStateChange
                               }
 
-                            });
+                            });*/
 
-                            vid_player_mappings[vid] = {player:player, type:'YouTube', ready:false};
+                            vid_player_mappings[vid] = {player:player, type:'YouTube', isReady:false};
                             player_vid_mappings[player] = vid;
                         }
+                    }
+
+                    else if(embed.is('iframe')){
+                       var source = embed.attr('src');
                         if(isVimeo(source)){
                            source = source.replace("autoplay=1", "autoplay=0");
                            source += "&api=1";
@@ -158,7 +186,7 @@ kikinvideo.VideoController =
 
         /*<hack>*/
         function isVimeo(src){
-            if (src.indexOf("vimeo.com") >= 0){
+            if (src && src.indexOf("vimeo.com") >= 0){
                 return true;
             }else{
                 return false;
@@ -166,7 +194,7 @@ kikinvideo.VideoController =
         }
 
         function isYouTube(src){
-            if (src.indexOf("youtube.com") >= 0){
+            if (src && src.indexOf("youtube.com") >= 0){
                 return true;
             }else{
                 return false;
@@ -177,7 +205,7 @@ kikinvideo.VideoController =
         /*<hack>*/
         function youtubeVID(src){
             /*parse embed code out of source url*/
-            var _EMBED_START_DELIM = '/embed/';
+            var _EMBED_START_DELIM = '/v/';
             var start_index = src.search(_EMBED_START_DELIM);
             var truncated = src.substr(start_index+_EMBED_START_DELIM.length);
             return truncated.substr(0, truncated.search('\\?'));
@@ -188,7 +216,10 @@ kikinvideo.VideoController =
             prepareVidForPlayback : prepareVidForPlayback,
             prepareEmbeds : prepareEmbeds,
             pauseVideo : pauseVideo,
-            savePosition : savePosition
+            savePosition : savePosition,
+            setCurVid : setCurVid,
+            playVideo : playVideo,
+            prepareCurVidForPlayback: prepareCurVidForPlayback
         }
     }
 

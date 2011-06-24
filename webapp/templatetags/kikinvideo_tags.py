@@ -99,6 +99,29 @@ def source_url_root(video):
     #going to swallow this...
     except Exception:
         return ""
+    
+@register.filter
+def is_youtube(video):
+    try:
+        url_root = source_url_root(video)
+        if url_root.startswith('http://www.youtube.com') or \
+            url_root.startswith('https://www.youtube.com'):
+            return True
+    except Exception:
+        pass
+    return False
+
+@register.filter
+def is_vimeo(video):
+    try:
+        url_root = source_url_root(video)
+        if url_root.startswith('http://www.vimeo.com') or \
+            url_root.startswith('https://www.vimeo.com'):
+            return True
+    except Exception:
+        pass
+    return False
+
 
 @register.filter
 def truncate_text(text, letter_count):

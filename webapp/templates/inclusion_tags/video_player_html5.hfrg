@@ -8,9 +8,13 @@
         </a>
         <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
 
-        <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}" style="width:640;height:385;">
+        <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}">
         {% autoescape off %}
-            {{ video.html5_embed_code }}
+            {% if video|is_youtube %}
+                {{ video.html_embed_code }}
+            {% else %}
+                {{ video.html5_embed_code }}
+            {% endif %}
         {% endautoescape %}
         </div>
         </div>

@@ -87,11 +87,6 @@ kikinvideo.UIUniversal =
                     var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
 
 
-                    //for html5 videos, fix dimensions of player container, because
-                    // our embed c  odes always specify 100% x 100% as sz...
-                    if($.browser.webkit)
-                        video_embed_div.css({width:640, height:385});
-
                     var video_player_target_width = video_player_div.width();
                     var video_player_target_height = video_player_div.height();
 
@@ -100,7 +95,6 @@ kikinvideo.UIUniversal =
 
 
                     video_embed_div.hide();
-
                     $('body').prepend(VIDEO_PLAYER_BG_HTML);
                     $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none', 'z-index':1000});
                     $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
@@ -144,6 +138,7 @@ kikinvideo.UIUniversal =
 
                 //pause video if it is html5
                 if($.browser.webkit){
+                        videoController.setCurVid(vid);
                         videoController.pauseVideo(vid);
                         videoController.savePosition(vid);
                     }
