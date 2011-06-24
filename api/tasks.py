@@ -540,7 +540,7 @@ class EmbedlyFetcher(object):
                     video_tag = etree.fromstring(meta['html5'])
                     poster = video_tag.get('poster', '')
 
-                    poster_match = re.match(r'(.+?\.cnn\.)(\d+)x(\d+)\.jpg', poster)
+                    poster_match = re.match(r'(.+\.)(\d+)x(\d+)\.jpg$', poster)
                     if poster_match:
                         meta['thumbnail'] = '%s%dx%d.jpg' % (poster_match.group(1), 320, 240)
                         meta['thumbnail_width'], meta['thumbnail_height'] = 320, 240
