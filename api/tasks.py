@@ -542,7 +542,7 @@ class EmbedlyFetcher(object):
 
                     poster_match = re.match(r'(.+\.)(\d+)x(\d+)\.jpg$', poster)
                     if poster_match:
-                        meta['thumbnail'] = '%s%dx%d.jpg' % (poster_match.group(1), 320, 240)
+                        meta['thumbnail_url'] = '%s%dx%d.jpg' % (poster_match.group(1), 320, 240)
                         meta['thumbnail_width'], meta['thumbnail_height'] = 320, 240
 
                         meta['mobile_thumbnail_url'] = '%s%dx%d.jpg' % (poster_match.group(1), 120, 90)
@@ -1218,12 +1218,12 @@ _facebook_fetcher = FacebookFetcher(_fetchers)
 
 _fetcher = OEmbed([_facebook_fetcher] + _fetchers)
 
-@task(max_retries=5, default_retry_delay=300)
+@task(max_retries=5, default_retry_delay=120)
 def fetch(user_id, url, host, callback=None):
     try:
         video = _fetcher.fetch(user_id, url, host, fetch.get_logger())
         if callback is not None:
-            subtask(callback).delay(video)
+            subtask(callback).delay(video.id)
 
     except UrlNotSupported:
         pass
@@ -1288,8 +1288,8 @@ slugify.is_safe = True
 slugify = stringfilter(slugify)
 
 
-@task(max_retries=3, default_retry_delay=30)
-def push_like_to_fb(video, user):
+@task(max_retries=3, default_retry_delay=60)
+def push_like_to_fb(video_id, user):
     from social_auth.backends.facebook import FACEBOOK_SERVER
     def encode(text):
         if isinstance(text, unicode):
@@ -1297,6 +1297,8 @@ def push_like_to_fb(video, user):
         return text
 
     logger = push_like_to_fb.get_logger()
+
+    video = Video.objects.get(pk=video_id)
 
     if not video.status() == states.SUCCESS:
         logger.info('Video metadata unavailable...sleeping')

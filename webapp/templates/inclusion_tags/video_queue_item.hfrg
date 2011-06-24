@@ -41,7 +41,7 @@
         {% if video in user.liked_videos %}
             <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
         {% else %}
-            <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+            <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
         {% endif %}
         </a>
 
