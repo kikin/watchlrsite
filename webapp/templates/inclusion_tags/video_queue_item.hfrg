@@ -16,16 +16,18 @@
 
 
         {% if display_mode == 'profile' or display_mode == 'liked' %}
-            {% if video not in user.saved_videos and user.is_authenticated %}
+            {% if user.is_authenticated and video not in user.saved_videos%}
                 <a href="javascript:home.handleSave({{ video.id }})" title="save">
                     <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
                 </a>
+             {% comment %}
                 {% else %}
-                    {% if user.is_authenticated and display_mode != 'liked' %}
+                    {% if user.is_authenticated and display_mode != 'liked'%}
                     <a href="javascript:home.handleSave({{ video.id }})" title="save">
                         <div id="save-video-button-vid-{{ video.id }}" class="save-video-button saved no-hover"></div>
                     </a>
                  {% endif %}
+             {% endcomment %}
             {% endif %}
         {% endif %}
 
