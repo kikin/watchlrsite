@@ -110,10 +110,6 @@ kikinvideo.UIUniversal =
                             closePlayer(vid);
                         });
                     });
-                    //scroll to the video...
-                    $('html, body').animate({
-                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-250
-                    }, 1000);
 
                     current_vid = vid;
                 }

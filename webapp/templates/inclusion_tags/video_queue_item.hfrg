@@ -22,7 +22,7 @@
                 </a>
              {% comment %}
              ...because Greg is going to change his mind about this...(only showing check marks immediately
-             after video save...
+             after video save)...
                 {% else %}
                     {% if user.is_authenticated and display_mode != 'liked'%}
                     <a href="javascript:home.handleSave({{ video.id }})" title="save">
