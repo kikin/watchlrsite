@@ -48,7 +48,7 @@ database_configurations = {
 }
 
 # Picks up database configuration from environment variable
-DATABASES = { 'default': database_configurations['local_sqlite'] }
+DATABASES = { 'default': database_configurations[VIDEO_ENV] }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
