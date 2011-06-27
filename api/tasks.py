@@ -66,7 +66,7 @@ class OEmbed(object):
             video.description = strip_tags(meta['description'])
         except KeyError:
             pass
-        except:
+        except Exception:
             logger.warning('Error cleaning HTML markup from description:%s\n%s' %\
                         (meta['description'], format_exc()))
 
@@ -95,7 +95,7 @@ class OEmbed(object):
                                                 favicon=meta['source'].favicon)
 
         video.source = source
-        video.state = 'fetched'
+        video.result = states.SUCCESS
 
         video.save()
         return video
@@ -103,17 +103,13 @@ class OEmbed(object):
     def fetch(self, user_id, url, host, logger):
         logger.info('Fetching metadata for url:%s' % url)
 
-        try:
-            meta = Video.objects.get(url__exact=url)
-            fetched = meta.fetched
+        video = Video.objects.get(url__exact=url)
+        fetched = video.fetched
 
-            # Refresh metadata if cache older than a day
-            if fetched and (datetime.utcnow() - fetched).days < 1:
-                logger.debug('Url cache hit:%s, fetched:%s' % (url, fetched))
-                return
-
-        except Video.DoesNotExist:
-            pass
+        # Refresh metadata if cache older than a day
+        if fetched and (datetime.utcnow() - fetched).days < 1:
+            logger.debug('Url cache hit:%s, fetched:%s' % (url, fetched))
+            return
 
         for fetcher in self.fetchers:
             try:
@@ -123,23 +119,20 @@ class OEmbed(object):
                              (url, str(fetcher), str(meta)))
 
                 # First matched fetcher wins!
-                break
+                return self.update(url, meta, logger)
 
             except UrlNotSupported:
                 logger.debug('Url:%s not supported by fetcher:%s' % (url, str(fetcher)))
                 continue
 
-            except:
-                logger.error('Error fetching metadata for url:%s through %s\n%s' %\
-                             (url, str(fetcher), format_exc()))
+            except Exception:
+                logger.error('Error fetching metadata for url:%s through %s\n%s' % (url, str(fetcher), format_exc()))
 
                 # Re-raise exception
                 raise
-
         else:
+            logger.warning('Url:%s not supported! Configured fetchers:%s' % (url, str(self.fetchers)))
             raise UrlNotSupported(url)
-
-        return self.update(url, meta, logger)
 
 
 class EmbedlyFetcher(object):
@@ -523,7 +516,7 @@ class EmbedlyFetcher(object):
 
         try:
             meta['html5'] = self.fetch_html5(url)
-        except:
+        except Exception:
             logger.error('Error fetching HTML5 embed code for: %s' % url)
 
         # See issue #45
@@ -1220,16 +1213,28 @@ _fetcher = OEmbed([_facebook_fetcher] + _fetchers)
 
 @task(max_retries=5, default_retry_delay=120)
 def fetch(user_id, url, host, callback=None):
+    def failed():
+        try:
+            video = Video.objects.get(url=url)
+            video.fetched = datetime.utcnow()
+            video.result = states.FAILURE
+            video.save()
+        except Video.DoesNotExist:
+            pass
+
     try:
         video = _fetcher.fetch(user_id, url, host, fetch.get_logger())
         if callback is not None:
             subtask(callback).delay(video.id)
 
     except UrlNotSupported:
-        pass
+        failed()
 
     except Exception, exc:
-        fetch.retry(exc=exc)
+        try:
+            fetch.retry(exc=exc)
+        except Exception:
+            failed()
 
 
 # Read username blacklist file on module load
@@ -1326,7 +1331,7 @@ def push_like_to_fb(video_id, user):
     try:
         response = json.loads(urllib2.urlopen(url, urlencode(params)).read())
         logger.debug('Facebook post id: %s' % response['id'])
-    except:
+    except Exception:
         logger.exception('Could not post to Facebook')
 
 
