@@ -10,6 +10,7 @@
     </div>
 {% else %}
     {% for activity_item in activity_items %}
+    {% if not activity_item.video|fetching_data %}
     <div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
         <div class="activity-queue inner">
               <a href="{{  activity_item.users|fb_thumb_href:user }}">
@@ -88,5 +89,6 @@
         </div>
     </div>
     <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
+    {% endif %}
     {% endfor %}
 {% endif %}

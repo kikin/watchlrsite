@@ -97,7 +97,8 @@ kikinvideo.UIUniversal =
                     video_embed_div.hide();
                     $('body').prepend(VIDEO_PLAYER_BG_HTML);
                     $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none', 'z-index':1000});
-                    $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
+                    //because i.e. doesn't support the opacity property...
+                        $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
                     video_player_div.fadeIn(100);
 
                     video_player_div.css({display:'none'})
@@ -109,10 +110,6 @@ kikinvideo.UIUniversal =
                             closePlayer(vid);
                         });
                     });
-                    //scroll to the video...
-                    $('html, body').animate({
-                        scrollTop: $(VIDEO_CONTAINER_ID_PREFIX+vid).offset().top-250
-                    }, 1000);
 
                     current_vid = vid;
 

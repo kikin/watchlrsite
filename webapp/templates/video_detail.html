@@ -56,7 +56,6 @@
     .video-thumbnail-btn{
         display:none;
     }
->>>>>>> Stashed changes
     </style>
 {% endblock style_refs%}
 
@@ -65,19 +64,6 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
     
-    <script type="text/javascript">
-        activeView = VIEWS.detail;
-        stylizeVideoTitles();
-        $(document).ready(function(){
-            home.bindVideoPanelEvents();
-            $(".liked-info-link").click(function(){
-                $('html, body').animate({
-                    scrollTop: 600
-                });
-            });
-        });
-    </script>
-
 {% endblock script_refs %}
 
 {% block content %}
@@ -85,8 +71,8 @@
     <div id="user-info-container">
         <div class="user-info gradient"></div>
         <div class="inner">
-            Kikin Video helps you <span class="blue">discover</span>, <span class="blue">share</span> and
-            <span class="blue">save</span> videos to watch later.<br>
+            Watchlr helps you <span class="blue">discover</span>, <span class="blue">save</span> and
+            <span class="blue">share</span> video online.<br>
             Sign up using your existing Facebook account!<br>
             <a class="fb-signup" href="/login/facebook"></a>
         </div>

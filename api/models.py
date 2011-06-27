@@ -1,6 +1,7 @@
 from datetime import datetime
 from operator import itemgetter
 from itertools import chain
+from decimal import Decimal
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -525,7 +526,19 @@ class UserVideo(models.Model):
     liked_timestamp = models.DateTimeField(null=True, db_index=True)
     watched = models.BooleanField(default=False, db_index=True)
     watched_timestamp = models.DateTimeField(null=True, db_index=True)
-    position = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    _position = models.DecimalField(max_digits=7, decimal_places=2, null=True)
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        if isinstance(value, float):
+            value = str(value)
+
+        twoplaces = Decimal(10) ** -2  # == 0.01
+        self._position = Decimal(value).quantize(twoplaces)
 
     @classmethod
     def save_count(cls, video):

@@ -9,9 +9,6 @@
                 <a href="/{{ u.username }}" title="{{ u|full_name }}" target="_blank">
                     <img class="fb-thumb" src="https://graph.facebook.com/{{ u.facebook_uid }}/picture?type=square"/>
                 </a>
-                <div class="username">
-                    <a href="/{{ u.username }}" target="_blank" title="{{ u|full_name }}">{{ u.username|truncate_text:10}}</a>
-                </div>
         </li>
     {% endfor %}
     </ul>

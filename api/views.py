@@ -12,8 +12,8 @@ from api.tasks import fetch, push_like_to_fb, slugify
 
 from re import split
 from json import loads, dumps
-from decimal import Decimal
 from datetime import datetime
+from decimal import InvalidOperation
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -75,7 +75,7 @@ def jsonp_view(f):
         if not callback:
             jsonp, mimetype = json, "application/json"
         else:
-            jsonp, mimetype = '%s(%s);' % (json, callback), "text/javascript"
+            jsonp, mimetype = '%s(%s);' % (callback, json), "text/javascript"
 
         return HttpResponse(jsonp, mimetype=mimetype)
 
@@ -102,7 +102,7 @@ def like(request, video_id):
     try:
         UserVideo.objects.get(user=user, video=video, liked_timestamp__isnull=False)
     except UserVideo.DoesNotExist:
-        push_like_to_fb.delay(video, user)
+        push_like_to_fb.delay(video_id, user)
 
     user_video = do_request(request, video_id, 'like_video')
     return user_video
@@ -131,7 +131,7 @@ def like_by_url(request):
         try:
             UserVideo.objects.get(user=request.user, video=video, liked_timestamp__isnull=False)
         except UserVideo.DoesNotExist:
-            push_like_to_fb.delay(video, request.user)
+            push_like_to_fb.delay(video.id, request.user)
 
         user_video = request.user.like_video(video)
 
@@ -497,8 +497,11 @@ def seek(request, video_id, position=None):
         raise BadRequest('Video:%s invalid for user:%s' % (request.user.id, video_id))
 
     if position:
-        user_video.position = Decimal(position)
-        user_video.save()
+        try:
+            user_video.position = position
+            user_video.save()
+        except InvalidOperation:
+            raise BadRequest("Parameter:'position' malformed")
 
     return user_video.json()
 

@@ -38,7 +38,7 @@ database_configurations = {
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
+        'HOST': '',
         'PORT': '',
         },
     'local_sqlite':{
@@ -193,8 +193,8 @@ LOGGING = {
 AUTH_PROFILE_MODULE = 'api.User'
 SOCIAL_AUTH_USER_MODEL = 'api.User'
 
-FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
-FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
+FACEBOOK_APP_ID = '220283271338035'
+FACEBOOK_API_SECRET = '0cac4be4d10a908b2b961f6ea6108b0f'
 
 LOGIN_REDIRECT_URL = '/login_complete'
 
@@ -230,12 +230,15 @@ logconfig.init()
 
 # Session cookies
 SESSION_COOKIE_AGE = 2592000 # 30 days in seconds
-SESSION_COOKIE_NAME = '_KVS_' # Plugin converts this into a kikin cookie
-SESSION_COOKIE_DOMAIN = '.kikin.com' # Cross-domain!
+SESSION_COOKIE_NAME = '_KVS' # Plugin converts this into a kikin cookie
+SESSION_COOKIE_DOMAIN = '.watchlr.com' # Cross-domain!
 
 # Caching
 cache_configurations = {
     'local': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'local_sqlite': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
     'dev': {

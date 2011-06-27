@@ -133,7 +133,7 @@ a:hover {
     position: absolute;
     width: 224px;
     height: 42px;
-    background: url(/static/images/kikin_logo.png) no-repeat;
+    background: url(/static/images/watchlr_logo.png) no-repeat;
     margin-top:10px;
     margin-left:8px;
 }
@@ -970,7 +970,7 @@ a#lnk-page-next:hover {
 }
 
 .mozilla .video-liked-info{
-    margin-top:3px;
+    margin-top:1px;
 }
 .win.mozilla .video-liked-info{
     margin-top:-1px;
@@ -1087,9 +1087,9 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .shadow-5l{
-    -moz-box-shadow: -5x 5px 5px #888;
-    -webkit-box-shadow: -5px 5px 5px #888;
-    box-shadow: -5px 5px 5px #888;
+    -moz-box-shadow: -3x 3px 3px #ccc;
+    -webkit-box-shadow: -3px 3px 3px #ccc;
+    box-shadow: -3px 3px 3px #ccc;
 }
 
 .video-player-bg{
@@ -1107,6 +1107,7 @@ box-shadow: 10px 10px 5px #888;
     background-color: #000000;
     opacity: 0.2;
     display:none;
+    filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=20);
 }
 
 .close-button-fancy{
@@ -1147,8 +1148,6 @@ box-shadow: 10px 10px 5px #888;
     display:inline-block;
     margin-right: 35px;
     margin-top:10px;
-    margin-bottom: 10px;
-    width:170px;
     height:70px;
     font-family: Helvetica;
     font-size:16px;
