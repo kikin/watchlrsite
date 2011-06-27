@@ -82,6 +82,7 @@ class Video(models.Model):
     source = models.ForeignKey(Source, related_name='videos', null=True)
     fetched = models.DateTimeField(null=True, db_index=True)
     task_id = models.CharField(max_length=255, null=True, db_index=True)
+    result = models.CharField(max_length=10, null=True)
 
     def set_thumbnail(self, url, width, height, type='web'):
         try:
@@ -118,9 +119,32 @@ class Video(models.Model):
         return 'video_detail', [str(self.id)]
 
     def status(self):
-        if self.fetched is not None:
-            return states.SUCCESS
-        return default_app.backend.get_status(self.task_id)
+        if self.result is not None:
+            state = self.result
+
+        elif self.fetched is not None:
+            state = states.SUCCESS
+
+        else:
+            try:
+                # If added > 15 mins ago and essential fields are not yet populated, assume task failed.
+
+                user_video = UserVideo.objects\
+                                      .filter(video=self)\
+                                      .values('saved_timestamp', 'liked_timestamp')\
+                                      .order_by('-saved_timestamp', '-liked_timestamp')[0:1].get()
+
+                added = user_video.get('saved_timestamp') or user_video.get('liked_timestamp')
+
+                if (datetime.utcnow() - added).seconds > 900 and (not self.title or not self.html_embed_code):
+                    state = states.FAILURE
+                else:
+                    state = default_app.backend.get_status(self.task_id)
+
+            except UserVideo.DoesNotExist:
+                state = default_app.backend.get_status(self.task_id)
+
+        return state
     
     def json(self):
         try:
