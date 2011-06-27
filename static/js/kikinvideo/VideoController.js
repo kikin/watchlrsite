@@ -6,16 +6,12 @@ function onYouTubePlayerReady(playerID){
         player.removeEventListener('onStateChange');
     }catch(exc){}
     player.addEventListener('onStateChange', 'stateChangeListener');
+    videoController.prepareVidForPlayback();
 }
 
 //vimeo player ready callback
 function vimeo_player_loaded(playerID){
-    videoController.prepareCurVidForPlayback();
-    var player = document.getElementById(playerID);
-    try{
-        player.removeEventListener('pause');
-    }catch(exc){}
-    player.addEventListener('pause', 'vimeo_player_paused');
+ 
 }
 
 function vimeo_player_paused(event){
@@ -43,11 +39,20 @@ kikinvideo.VideoController =
 
         //this is unfortunately also necessary for fast vid lookup...
         var player_vid_mappings = {};
-
+        
         //youtube api requires that this be in the global namespace...unfortunate, yes...
         function onPlayerReady(event){
             var player = vid_player_mappings[player_vid_mappings[event.target]];
             vid_player_mappings[player_vid_mappings[event.target]].isReady = true;
+        }
+
+        function addEvent(element, eventName, callback) {
+            if (element.addEventListener) {
+                element.addEventListener(eventName, callback, false);
+            }
+            else {
+                element.attachEvent('on' + eventName, callback);
+            }
         }
 
 
@@ -106,8 +111,8 @@ kikinvideo.VideoController =
                  }
                   if(vid_player_mappings[vid].type == 'Vimeo'){
                      var player = vid_player_mappings[vid].player;
-                     var curTime = player.api_getCurrentTime();
-                     doSavePosition(vid, vid_player_mappings[vid].player.api_getCurrentTime());
+              //       var curTime = player.api_getCurrentTime();
+                //     doSavePosition(vid, vid_player_mappings[vid].player.api_getCurrentTime());
                  }
              }
          }
@@ -133,8 +138,8 @@ kikinvideo.VideoController =
                         vid_player_mappings[vid].player.pauseVideo();
                  }
                   if(vid_player_mappings[vid].type == 'Vimeo'){
-                     if(vid_player_mappings[vid].player)
-                        vid_player_mappings[vid].player.api_pause();
+                     //if(vid_player_mappings[vid].player)
+                  //      vid_player_mappings[vid].player.api_pause();
                  }
              }
          }
@@ -145,7 +150,7 @@ kikinvideo.VideoController =
                      vid_player_mappings[curVID].player.playVideo();
                  }
                  if(vid_player_mappings[curVID].type == 'Vimeo'){
-                     vid_player_mappings[curVID].player.api_play();
+     //                vid_player_mappings[curVID].player.api_play();
                  }
              }
          }
@@ -159,7 +164,7 @@ kikinvideo.VideoController =
                  }
                  if(vid_player_mappings[vid].type == 'Vimeo'){
                      if(vid_player_mappings[vid].player){
-                        vid_player_mappings[vid].player.api_seek(pos);
+          //              vid_player_mappings[vid].player.api_seek(pos);
                      }
                  }
             }
@@ -211,30 +216,25 @@ kikinvideo.VideoController =
 
 
                             var player = embed;
-                            
-                          /*  var player = new YT.Player(embed.id, {
-                              videoId: ytVID,
-                              events : {
-                                  'onReady':onPlayerReady,
-                                  'onStateChange': handleStateChange
-                              }
-
-                            });*/
 
                             vid_player_mappings[vid] = {player:player, type:'YouTube', isReady:false};
                             player_vid_mappings[player] = vid;
                         }
 
-                        if(isVimeo(source)){
-                           obj.prepend('<param name="flashvars" value="api=1" />');
-                           embed.id = 'vimeo-embed-'+vimeoVID(source);
+                    }
+                    
+                    if(obj.is('iframe')){
+                      var source = obj.attr('src');
+                      if(isVimeo(source)){
                            source = source.replace("autoplay=1", "autoplay=0");
                            source += "&api=1";
-                           source += "&player_id="+embed.id+"&api_ready=vimeo_player_loaded";
-                           embed.src = source;
-                           var player = embed;
-                           vid_player_mappings[vid] = {player:player, type:'Vimeo', isReady:false};
-                           player_vid_mappings[player] = vid;
+                           source += "&api_ready=vimeo_player_loaded&player_id=vimeo-player-"+vimeoVID(source);
+                           obj.attr('src', source);
+                           obj.attr('data-vid', vimeoVID(source));
+                           obj.attr('id', 'vimeo-player-'+vimeoVID(source));
+                           $f(obj.attr('id')).addEvent('ready', vimeo_player_loaded);
+                          // vid_player_mappings[vid] = {player:player, type:'Vimeo', isReady:false};
+                           //player_vid_mappings[player] = vid;
                         }
                     }
 
@@ -270,10 +270,10 @@ kikinvideo.VideoController =
         }
 
         function vimeoVID(src){
-            var _EMBED_START_DELIM = 'clip_id=';
+            var _EMBED_START_DELIM = '/video/';
             var start_index = src.search(_EMBED_START_DELIM);
             var truncated = src.substr(start_index+_EMBED_START_DELIM.length);
-            return truncated.substr(0, truncated.search('\\&'));
+            return truncated.substr(0, truncated.search('\\?'));
         }
         /*</hack>*/
 

@@ -116,7 +116,6 @@ kikinvideo.UIUniversal =
                     //finally, prepare html5 videos...
                     if($.browser.webkit){
                         videoController.setCurVid(vid);
-                        videoController.prepareVidForPlayback();
                     }
                 }
             }

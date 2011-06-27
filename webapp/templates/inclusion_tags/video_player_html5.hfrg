@@ -8,15 +8,18 @@
         </a>
         <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
 
-        <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}">
         {% autoescape off %}
-            {% if video|is_youtube or video|is_vimeo %}
+            {% if video|is_youtube %}
+                <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}">
                 {{ video.html_embed_code }}
+                </div>
             {% else %}
+                <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}"
+                        style="width:640px;height:360px;">
                 {{ video.html5_embed_code }}
+                </div>
             {% endif %}
         {% endautoescape %}
-        </div>
         </div>
     </div>
 
