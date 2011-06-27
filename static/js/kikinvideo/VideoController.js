@@ -9,11 +9,6 @@ function onYouTubePlayerReady(playerID){
     videoController.prepareVidForPlayback();
 }
 
-//vimeo player ready callback
-function vimeo_player_loaded(playerID){
-    videoController.pauseVideo();
-}
-
 function vimeo_player_paused(event){
     videoController.savePosition();
 }
@@ -42,8 +37,17 @@ kikinvideo.VideoController =
 
         //because the damn vimeo player can't seek beyond
         //the portion of video currently buffered,
-        //this kluge is necessary...
+        //these kluges are necessary...
         var vimeoSeekTarget;
+        var vimeoPlayerReadyTimers = [];
+
+        //vimeo player ready callback
+        function vimeo_player_loaded(playerID){
+            var vid = $('#'+playerID).data('vid');
+            if(vid_player_mappings[vid])
+                vid_player_mappings[vid].isReady = true;
+            videoController.pauseVideo();
+        }
 
         //youtube api requires that this be in the global namespace...unfortunate, yes...
         function onPlayerReady(event){
@@ -116,11 +120,6 @@ kikinvideo.VideoController =
                                  seekTo(parseFloat(video.position));
                                  if(vid_player_mappings[curVID].type != 'Vimeo')
                                     playVideo();
-                                 else{
-                                     $('#video-buffering-vid-'+curVID).fadeIn(200);
-                                    playVideo();
-                                    pauseVideo();
-                                 }
                              }
                          }else
                              showErrorDialog();
@@ -198,7 +197,24 @@ kikinvideo.VideoController =
                  if(vid_player_mappings[vid].type == 'Vimeo'){
                      if(vid_player_mappings[vid].player){
                          vimeoSeekTarget = pos;
-                         vid_player_mappings[vid].player.addEvent('loadProgress', vimeoPlayerProgressHandler);
+                        if(!vid_player_mappings[vid].isReady){
+                            vimeoPlayerReadyTimers.push(setInterval(function(){
+                                if(vid_player_mappings[vid].isReady){
+                                    playVideo();
+                                    pauseVideo();
+                                    vid_player_mappings[vid].player.addEvent('loadProgress', vimeoPlayerProgressHandler);
+                                    //clear all wait timers....
+                                    for(var i=0;i<vimeoPlayerReadyTimers.length;i++){
+                                        clearInterval(vimeoPlayerReadyTimers[i]);
+                                    }
+                                }
+                            }, 1000));
+                        }
+                        else{
+                             playVideo();
+                             pauseVideo();
+                             vid_player_mappings[vid].player.addEvent('loadProgress', vimeoPlayerProgressHandler);
+                         }
                      }
                  }
             }
@@ -207,12 +223,21 @@ kikinvideo.VideoController =
         function vimeoPlayerProgressHandler(loadInfo){
             console.log(loadInfo.percent*loadInfo.duration);
             var secondsLoaded = loadInfo.percent*loadInfo.duration;
-            if(vimeoSeekTarget && secondsLoaded > vimeoSeekTarget && curVID){
-                vid_player_mappings[curVID].player.api('seekTo', vimeoSeekTarget);
-                vid_player_mappings[vid].player.removeEvent('loadProgress', vimeoPlayerProgressHandler);
-                $('#video-buffering-vid-'+curVID).fadeOut(500);
-                playVideo();
-                vimeoSeekTarget = null;
+            if(vimeoSeekTarget){
+                var progress = Math.ceil((loadInfo.percent*loadInfo.duration/vimeoSeekTarget)*100);
+                if(progress <= 100){
+                    if($('#video-buffering-vid-'+curVID).css('display') == 'none'){
+                        $('#video-buffering-vid-'+curVID).fadeIn(200);
+                    }
+                    $('#video-buffering-vid-'+curVID+' .buffering-progress').html(progress+'%');
+                }
+                if(secondsLoaded > vimeoSeekTarget && curVID){
+                    vid_player_mappings[curVID].player.api('seekTo', vimeoSeekTarget);
+                    vid_player_mappings[vid].player.removeEvent('loadProgress', vimeoPlayerProgressHandler);
+                    $('#video-buffering-vid-'+curVID).fadeOut(500);
+                    playVideo();
+                    vimeoSeekTarget = null;
+                }
             }
         }
 
@@ -276,7 +301,7 @@ kikinvideo.VideoController =
                            source += "&api=1";
                            source += "&api_ready=vimeo_player_loaded&player_id=vimeo-player-"+vimeoVID(source);
                            obj.attr('src', source);
-                           obj.attr('data-vid', vimeoVID(source));
+                           obj.attr('data-vid', vid);
                            obj.attr('id', 'vimeo-player-'+vimeoVID(source));
                            var player = $f(obj.attr('id'));
                            player.addEvent('ready', vimeo_player_loaded);
@@ -325,6 +350,8 @@ kikinvideo.VideoController =
         /*</hack>*/
 
         return {
+            _vid_player_mappings : vid_player_mappings,
+            _player_vid_mappings : player_vid_mappings,
             prepareVidForPlayback : prepareVidForPlayback,
             prepareEmbeds : prepareEmbeds,
             pauseVideo : pauseVideo,
