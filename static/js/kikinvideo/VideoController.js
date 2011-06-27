@@ -11,7 +11,7 @@ function onYouTubePlayerReady(playerID){
 
 //vimeo player ready callback
 function vimeo_player_loaded(playerID){
- 
+    videoController.pauseVideo();
 }
 
 function vimeo_player_paused(event){
@@ -39,7 +39,12 @@ kikinvideo.VideoController =
 
         //this is unfortunately also necessary for fast vid lookup...
         var player_vid_mappings = {};
-        
+
+        //because the damn vimeo player can't seek beyond
+        //the portion of video currently buffered,
+        //this kluge is necessary...
+        var vimeoSeekTarget;
+
         //youtube api requires that this be in the global namespace...unfortunate, yes...
         function onPlayerReady(event){
             var player = vid_player_mappings[player_vid_mappings[event.target]];
@@ -52,6 +57,15 @@ kikinvideo.VideoController =
             }
             else {
                 element.attachEvent('on' + eventName, callback);
+            }
+        }
+
+        function removeEvent(element, eventName, callback) {
+            if (element.removeEventListener()) {
+                element.removeEventListener(eventName, callback, false);
+            }
+            else {
+                element.removeEvent('on' + eventName, callback);
             }
         }
 
@@ -81,6 +95,8 @@ kikinvideo.VideoController =
 
         function setCurVid(vid){
             curVID = vid;
+            if (vid_player_mappings[vid].type == 'Vimeo')
+                prepareVidForPlayback();
         }
 
         function prepareCurVidForPlayback(){
@@ -98,7 +114,12 @@ kikinvideo.VideoController =
                              var video = response.result;
                              if(video.position){
                                  seekTo(parseFloat(video.position));
-                                 playVideo();
+                                 if(vid_player_mappings[curVID].type != 'Vimeo')
+                                    playVideo();
+                                 else{
+                                    playVideo();
+                                    pauseVideo();
+                                 }
                              }
                          }else
                              showErrorDialog();
@@ -175,9 +196,21 @@ kikinvideo.VideoController =
                  }
                  if(vid_player_mappings[vid].type == 'Vimeo'){
                      if(vid_player_mappings[vid].player){
-                        vid_player_mappings[vid].player.api('seekTo', pos);
+                         vimeoSeekTarget = pos;
+                         vid_player_mappings[vid].player.addEvent('loadProgress', vimeoPlayerProgressHandler);
                      }
                  }
+            }
+        }
+
+        function vimeoPlayerProgressHandler(loadInfo){
+            console.log(loadInfo.percent*loadInfo.duration);
+            var secondsLoaded = loadInfo.percent*loadInfo.duration;
+            if(vimeoSeekTarget && secondsLoaded > vimeoSeekTarget && curVID){
+                vid_player_mappings[curVID].player.api('seekTo', vimeoSeekTarget);
+                vid_player_mappings[vid].player.removeEvent('loadProgress', vimeoPlayerProgressHandler);
+                playVideo();
+                vimeoSeekTarget = null;
             }
         }
 
