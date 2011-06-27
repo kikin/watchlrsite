@@ -117,6 +117,7 @@ kikinvideo.VideoController =
                                  if(vid_player_mappings[curVID].type != 'Vimeo')
                                     playVideo();
                                  else{
+                                     $('#video-buffering-vid-'+curVID).fadeIn(200);
                                     playVideo();
                                     pauseVideo();
                                  }
@@ -209,6 +210,7 @@ kikinvideo.VideoController =
             if(vimeoSeekTarget && secondsLoaded > vimeoSeekTarget && curVID){
                 vid_player_mappings[curVID].player.api('seekTo', vimeoSeekTarget);
                 vid_player_mappings[vid].player.removeEvent('loadProgress', vimeoPlayerProgressHandler);
+                $('#video-buffering-vid-'+curVID).fadeOut(500);
                 playVideo();
                 vimeoSeekTarget = null;
             }

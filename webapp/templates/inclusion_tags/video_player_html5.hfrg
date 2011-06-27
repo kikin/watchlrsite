@@ -14,6 +14,12 @@
                 {{ video.html_embed_code }}
                 </div>
             {% else %}
+                <div id='video-buffering-vid-{{ video.id }}' style="position:absolute;width:640px;
+                height:360px;font-size:22px;color:#ffffff;
+                padding-top:110px;text-align: center;display: none;">
+                    Restoring your previous playback position.<br>Please be patient.<br>
+                    <img src="/static/images/loaders/linear_loader_2.gif" style="margin-top:60px;"/>
+                </div>
                 <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}"
                         style="width:640px;height:360px;">
                 {{ video.html5_embed_code }}
