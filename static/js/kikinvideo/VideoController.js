@@ -82,7 +82,8 @@ kikinvideo.VideoController =
 
         function setCurVid(vid){
             curVID = vid;
-            if (vid_player_mappings[vid].type == 'Vimeo')
+            if (vid_player_mappings[vid].type == 'Vimeo' ||
+                    vid_player_mappings[vid].type == 'html5')
                 prepareVidForPlayback();
         }
 
@@ -128,6 +129,9 @@ kikinvideo.VideoController =
                         doSavePosition(vid, parseFloat(value));
                      });
                  }
+                 if(vid_player_mappings[vid].type == 'html5'){
+                     doSavePosition(vid, vid_player_mappings[vid].player.currentTime);
+                 }
              }
          }
 
@@ -155,7 +159,7 @@ kikinvideo.VideoController =
                      if(vid_player_mappings[vid].player)
                         vid_player_mappings[vid].player.api('pause');
                  }
-                if(vid_player_mappings[vid].type == 'hmtl5'){
+                if(vid_player_mappings[vid].type == 'html5'){
                      if(vid_player_mappings[vid].player)
                         vid_player_mappings[vid].player.pause();
                  }
@@ -172,7 +176,7 @@ kikinvideo.VideoController =
                  }
                  if(vid_player_mappings[curVID].type == 'html5'){
                      if(vid_player_mappings[curVID].player)
-                        vid_player_mappings[curVID].player.attr('paused', 'false');
+                        vid_player_mappings[curVID].player.play();
                  }
              }
          }
@@ -208,6 +212,9 @@ kikinvideo.VideoController =
                          }
                      }
                  }
+                if(vid_player_mappings[vid].type == 'html5'){
+                    vid_player_mappings[vid].player.currentTime = pos;
+                }
             }
         }
 
@@ -258,7 +265,8 @@ kikinvideo.VideoController =
                         //because we're dealing with video element,
                         //the element itself IS the player (we control
                         // playback by editing attrs)
-                        var player = obj;
+                        obj.attr('id', 'html5-player-'+vid);
+                        var player = obj.get(0);
                         vid_player_mappings[vid] = {player:player, type:'html5', isReady:true};
                         player_vid_mappings[player] = vid;
                     }
