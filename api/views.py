@@ -155,8 +155,8 @@ def like_by_url(request):
         user_video.save()
 
     info = user_video.json()
-    info['task_id'] = user_video.video.task_id
-    info['first'] = request.user.notifications()['firstlike']
+    info.update({ 'firstlike': request.user.notifications()['firstlike'],
+                  'task_id': user_video.video.task_id })
     return info
 
 
@@ -239,7 +239,7 @@ def add(request):
     user_video.save()
 
     info = user_video.json()
-    info.update({ 'first': request.user.saved_videos().count() == 1,
+    info.update({ 'emptyq': request.user.notifications()['emptyq'],
                   'unwatched': request.user.unwatched_videos().count(),
                   'task_id': user_video.video.task_id })
     return info
@@ -377,7 +377,7 @@ class InvalidUsername(ApiError):
 @require_authentication
 @require_http_methods(['GET', 'POST'])
 def profile(request):
-    '''
+    """
     Fetch and/or update user profile.
 
     To update profile, make a GET/POST request with one or more of the following parameters:
@@ -390,7 +390,7 @@ def profile(request):
     Example:
     > curl -b 'sessionid={sessionid}' -d 'username=foo bar' 'http://{hostname}/api/auth/profile'
     < {"code": 406, "success": false, "error": "foobar"}
-    '''
+    """
 
     user = request.user
 
