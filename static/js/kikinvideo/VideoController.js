@@ -1,26 +1,3 @@
-//youtube player ready callback
-function onYouTubePlayerReady(playerID){
-    var player = document.getElementById(playerID);
-    try{
-        player.removeEventListener('onStateChange');
-    }catch(exc){}
-    player.addEventListener('onStateChange', 'stateChangeListener');
-    videoController.prepareVidForPlayback();
-}
-
-function vimeo_player_paused(event){
-    videoController.savePosition();
-}
-
-function stateChangeListener(newState){
-    //youtube iframe api provided a STATES var in
-    //YT namespace, but this swf variant of the api doesn't
-    //...state "2" == paused
-    if (newState == 2){
-        videoController.savePosition();
-    }
-}
-
 kikinvideo.VideoController =
     function(){
 
@@ -51,12 +28,12 @@ kikinvideo.VideoController =
         //vimeo player ready callback
         function vimeo_player_loaded(playerID){
             var vid = $('#'+playerID).data('vid');
-            if(vid_player_mappings[vid])
+            if(vid_player_mappings[vid]){
                 vid_player_mappings[vid].isReady = true;
+                vid_player_mappings[vid].player.addEvent('finish', _onVideoEnded);
+            }
             videoController.pauseVideo();
         }
-
-        //youtube api requires that this be in the global namespace...unfortunate, yes...
         function onPlayerReady(event){
             var player = vid_player_mappings[player_vid_mappings[event.target]];
             vid_player_mappings[player_vid_mappings[event.target]].isReady = true;
@@ -174,6 +151,7 @@ kikinvideo.VideoController =
                      if(vid_player_mappings[vid].player)
                         vid_player_mappings[vid].player.pause();
                  }
+                 showThumbPlayButton(vid);
              }
          }
 
@@ -189,6 +167,7 @@ kikinvideo.VideoController =
                      if(vid_player_mappings[curVID].player)
                         vid_player_mappings[curVID].player.play();
                  }
+                 hideThumbPlayButton(curVID);
              }
          }
 
@@ -208,7 +187,8 @@ kikinvideo.VideoController =
                                 if(vid_player_mappings[vid].isReady){
                                     playVideo();
                                     pauseVideo();
-                                    vid_player_mappings[vid].player.addEvent('loadProgress', vimeoPlayerProgressHandler);
+                                    if(mode != modes.LEANBACK)
+                                        vid_player_mappings[vid].player.addEvent('loadProgress', vimeoPlayerProgressHandler);
                                     //clear all wait timers....
                                     for(var i=0;i<vimeoPlayerReadyTimers.length;i++){
                                         clearInterval(vimeoPlayerReadyTimers[i]);
@@ -219,7 +199,8 @@ kikinvideo.VideoController =
                         else{
                              playVideo();
                              pauseVideo();
-                             vid_player_mappings[vid].player.addEvent('loadProgress', vimeoPlayerProgressHandler);
+                             if(mode != modes.LEANBACK)
+                                 vid_player_mappings[vid].player.addEvent('loadProgress', vimeoPlayerProgressHandler);
                          }
                      }
                  }
@@ -240,7 +221,7 @@ kikinvideo.VideoController =
                     }
                     $('#video-buffering-vid-'+curVID+' .buffering-progress').html(progress+'%');
                 }
-                if(secondsLoaded > vimeoSeekTarget && curVID){
+                if(secondsLoaded >= vimeoSeekTarget && curVID){
                     vid_player_mappings[curVID].player.api('seekTo', vimeoSeekTarget);
                     vid_player_mappings[curVID].player.removeEvent('loadProgress', vimeoPlayerProgressHandler);
                     $('#video-buffering-vid-'+curVID).fadeOut(500);
@@ -279,6 +260,10 @@ kikinvideo.VideoController =
                         // playback by editing attrs)
                         obj.attr('id', 'html5-player-'+vid);
                         var player = obj.get(0);
+                        addEvent(player, 'ended', function(){
+                            _onVideoEnded();
+                        });
+                        addEvent(player, 'paused', savePosition);
                         vid_player_mappings[vid] = {player:player, type:'html5', isReady:true};
                         player_vid_mappings[player] = vid;
                     }
@@ -323,7 +308,6 @@ kikinvideo.VideoController =
                            //init the froogaloop object...
                            var player = $f(obj.attr('id'));
                            player.addEvent('ready', vimeo_player_loaded);
-                           //obj.attr("ended", onVideoEnded);
                            vid_player_mappings[vid] = {player:player, type:'Vimeo', isReady:false};
                            player_vid_mappings[player] = vid;
                         }
@@ -333,20 +317,27 @@ kikinvideo.VideoController =
             );
          }
 
-
-        function onVideoEnded(){
-           // alert('video ended!');
+        //will give this the '_' prefix because, while I'd like to make it
+        //truly private, it needs to be invoked by the
+        //youtube embed's onStateChange listener which must
+        //reside in the global namespace
+        function _onVideoEnded(){
+            //we want to toggle on leanback mode whenever we get to the end
+            //of a video...
+            mode = modes.LEANBACK;
+            playNext();
         }
 
         function queueNext(onComplete){
             var curVideoPlayer = $('#video-player-'+ curVID);
-            var idx = vid_list.indexOf(curVID);
             if(vid_list.indexOf(curVID) < vid_list.length-1){
                 var nextVideoPlayer = $('#video-player-'+vid_list[vid_list.indexOf(curVID)+1]);
-                pauseVideo();
+               swapPlayButtons(curVID, vid_list[vid_list.indexOf(curVID)+1]);
                setCurVid(vid_list[vid_list.indexOf(curVID)+1]);
-                curVideoPlayer.fadeOut(400, function(){
+                curVideoPlayer.fadeOut(2000, function(){
                 });
+                nextVideoPlayer.css({top:'42%', 'margin-top':
+                            (nextVideoPlayer.height()*-.5)-30});
                 nextVideoPlayer.fadeIn(700, function(){
                        if(vid_player_mappings[curVID].type != 'YouTube')
                             seekTo(0);
@@ -359,14 +350,67 @@ kikinvideo.VideoController =
             }
         }
 
+        function showThumbPlayButton(vid){
+            if(!$('#video-thumbnail-btn-vid-' + vid).hasClass('video-thumbnail-btn')){
+                $('#video-thumbnail-btn-vid-' + vid).addClass('video-thumbnail-btn')
+            }
+        }
+
+        function hideThumbPlayButton(vid){
+            if($('#video-thumbnail-btn-vid-' + vid).hasClass('video-thumbnail-btn')){
+                $('#video-thumbnail-btn-vid-' + vid).removeClass('video-thumbnail-btn')
+            }
+        }
+
+        function swapPlayButtons(vidOld, vidNew){
+
+            if(!$('#video-thumbnail-btn-vid-' + vidOld).hasClass('video-thumbnail-btn')){
+                $('#video-thumbnail-btn-vid-' + vidOld).addClass('video-thumbnail-btn')
+            }
+            if($('#video-thumbnail-btn-vid-' + vidNew).hasClass('video-thumbnail-btn')){
+                $('#video-thumbnail-btn-vid-' + vidNew).removeClass('video-thumbnail-btn')
+            }
+        }
+
         function playNext(){
             queueNext(function(){
-                playVideo();
+                //We're presently playing the YouTube
+                //embeds by default on load, and firing
+                //a "playVideo" prior to load will result
+                //in an exception...
+                if(vid_player_mappings[curVID].type!='YouTube')
+                    playVideo();
             });
         }
 
-        function queuePrevious(){
-            
+        function playPrevious(){
+            queuePrevious(function(){
+                //see above...
+               if(vid_player_mappings[curVID].type!='YouTube')
+                    playVideo();
+            });
+        }
+
+        function queuePrevious(onComplete){
+            var curVideoPlayer = $('#video-player-'+ curVID);
+            if(vid_list.indexOf(curVID) > 0){
+                var prevVideoPlayer = $('#video-player-'+vid_list[vid_list.indexOf(curVID)-1]);
+               swapPlayButtons(curVID, vid_list[vid_list.indexOf(curVID)-1]);
+               setCurVid(vid_list[vid_list.indexOf(curVID)-1]);
+                curVideoPlayer.fadeOut(2000, function(){
+                });
+                prevVideoPlayer.css({top:'42%', 'margin-top':
+                            (nextVideoPlayer.height()*-.5)-30});
+                prevVideoPlayer.fadeIn(700, function(){
+                       if(vid_player_mappings[curVID].type != 'YouTube')
+                            seekTo(0);
+                       if(onComplete)
+                            onComplete();
+                    });
+            }else{
+                 //todo: code for handling case where
+                 //cur vid is last on page
+            }
         }
 
         /*<hack>*/
@@ -402,9 +446,14 @@ kikinvideo.VideoController =
         }
         /*</hack>*/
 
+        function setMode(nextMode){
+            mode = nextMode;
+        }
+
         return {
             _vid_player_mappings : vid_player_mappings,
             _player_vid_mappings : player_vid_mappings,
+            _onVideoEnded : _onVideoEnded,
             prepareVidForPlayback : prepareVidForPlayback,
             prepareEmbeds : prepareEmbeds,
             pauseVideo : pauseVideo,
@@ -414,13 +463,44 @@ kikinvideo.VideoController =
             seekTo : seekTo,
             prepareCurVidForPlayback: prepareCurVidForPlayback,
             queueNext : queueNext,
+            queuePrevious : queuePrevious,
             playNext : playNext,
+            playPrevious : playPrevious,
             modes : modes,
-            mode : mode
+            setMode : setMode
         }
     }
+
+
+//youtube player ready callback
+function onYouTubePlayerReady(playerID){
+    var player = document.getElementById(playerID);
+    try{
+        player.removeEventListener('onStateChange');
+    }catch(exc){}
+    player.addEventListener('onStateChange', 'stateChangeListener');
+    videoController.prepareVidForPlayback();
+}
+
+function vimeo_player_paused(event){
+    videoController.savePosition();
+}
+
+function stateChangeListener(newState){
+    //youtube iframe api provided a STATES var in
+    //YT namespace, but this swf variant of the api doesn't
+    //...state "2" == paused
+    if (newState == 2 && videoController.mode != videoController.modes.LEANBACK){
+        videoController.savePosition();
+    }
+    //if video ended...
+    if(newState == 0){
+        videoController._onVideoEnded();
+    }
+}
 
 var videoController;
 $(document).ready(function(){
     videoController = new kikinvideo.VideoController();
 });
+

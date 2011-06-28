@@ -115,6 +115,7 @@ kikinvideo.UIUniversal =
 
                     //finally, prepare html5 videos...
                     if($.browser.webkit){
+                        videoController.setMode(videoController.modes.NORMAL);
                         videoController.setCurVid(vid);
                     }
                 }
@@ -126,7 +127,7 @@ kikinvideo.UIUniversal =
                 $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
                     $(VIDEO_PLAYER_BG_SELECTOR).remove();
                 });
-                video_player_div.fadeOut();
+                $('.video-player').fadeOut();
 
                 /*restore the "play" button to the video thumb...*/
                 if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
@@ -135,6 +136,7 @@ kikinvideo.UIUniversal =
 
                 //pause video if it is html5
                 if($.browser.webkit){
+                        videoController.setMode(videoController.modes.NORMAL);
                         videoController.pauseVideo();
                         videoController.savePosition();
                     }
