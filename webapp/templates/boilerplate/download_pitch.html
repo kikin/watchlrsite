@@ -18,7 +18,7 @@
 
 {% block content %}
     <div style="padding-left:115px; padding-top:20px; padding-bottom:20px; width:842px;">
-        <h3 class="video-title" style="font-size: 36px; color: #0c536f;">Save Videos to Watch Later from Any Page</h3>
+        <h3 class="video-title" style="font-size: 34px; color: #0c536f;">Save Videos to Watch Later from Any Page</h3>
     </div>
     <img title="Save videos for later" src="{{ STATIC_URL }}images/download/main.png" />
     <div style="color:white; font-size: 24px; font-weight: bold; padding-top: 55px; padding-left: 40px; padding-bottom: 15px;">
@@ -34,15 +34,12 @@
         {
             document.write('<a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerMacFirefox.xpi?v=' + v + '"><div title="Watchlr for Firefox Mac" class="firefox_mac" style="position: relative; left:346px;" /></div></a>');
         }
-        else if (navigator.userAgent.indexOf("Chrome") > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
-        {
-            document.write('<a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWinChrome.crx?v=' + v + '" ><div title="Watchlr for Chrome Windows" class="chrome_win" style="position: relative; left:346px;" /></div></a>');
-        }
         else
         {
-            document.write('<div style="color:white; font-size:18px; padding-left:30px;">Your browser is not supported.  Please try Firefox (Mac & PC) or Chrome (PC).</div>');
+            document.write('<div style="color:white; font-size:18px; padding-left:30px;">Your browser is not supported.  Please try Firefox (Mac & PC).</div>');
         }
     </script>
+
     <div style="margin-top:30px; padding-left:14px;">
         <div class="featureTxt">
             <h4>

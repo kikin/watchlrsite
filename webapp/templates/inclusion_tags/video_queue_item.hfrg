@@ -109,10 +109,10 @@
                 <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
             {% endif %}
             {% if display_mode == 'liked' %}
-                <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
+                <span class="video-timeago">{{ video|pretty_date_liked:user }}</span>
             {% endif %}
             {% if display_mode == 'profile' %}
-                <span class="video-timeago">{{ video|pretty_date_saved:profile_owner }}</span>
+                <span class="video-timeago">{{ video|pretty_date_liked:profile_owner }}</span>
             {% endif %}
         </div>
     </div>
@@ -122,13 +122,13 @@
 
     {% if display_mode != 'detail' %}
     <div id="video-player-container" style="margin-top:40px;">
-        {% video_player video %}
+        {% video_player video request %}
     </div>
     {% endif %}
 </div>
 {% if display_mode == 'detail' %}
     <div id="video-player-container">
-        {% video_player video %}
+        {% video_player video request %}
     </div>
     {% if not video|no_likes %}
     <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" style="display:block;border-bottom:1px solid #cccccc;margin-left:20px;border-bottom:none;margin-top:20px;">
