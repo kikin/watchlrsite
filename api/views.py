@@ -62,7 +62,7 @@ def jsonp_view(f):
                          'error': exc.reason }
 
         except Exception:
-            logger.exception('Error processing request: %s' % request.get_full_path(), exc_info=True)
+            logger.exception('Error processing request: %s' % request.get_full_path())
 
             # Come what may, we're returning JSON.
             response = { 'success': False,
