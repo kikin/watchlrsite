@@ -80,23 +80,6 @@ kikinvideo.VideoController =
             //}
         }
 
-        function playVideo(){
-            var vid=curVID;
-            if(vid_player_mappings[vid]){
-                 if(vid_player_mappings[vid].type == 'YouTube'){
-                     if(vid_player_mappings[vid].player)
-                        vid_player_mappings[vid].player.playVideo();
-                 }
-             }
-            if(vid_player_mappings[vid]){
-                 if(vid_player_mappings[vid].type == 'Vimeo'){
-                     if(vid_player_mappings[vid].player)
-                        vid_player_mappings[vid].player.api('play');
-                 }
-             }
-        }
-
-
         function setCurVid(vid){
             curVID = vid;
             if (vid_player_mappings[vid].type == 'Vimeo')
@@ -162,7 +145,7 @@ kikinvideo.VideoController =
          }
 
          function pauseVideo(){
-             vid = curVID;
+             var vid = curVID;
              if(vid_player_mappings[vid]){
                  if(vid_player_mappings[vid].type == 'YouTube'){
                      if(vid_player_mappings[vid].player)
@@ -171,6 +154,10 @@ kikinvideo.VideoController =
                   if(vid_player_mappings[vid].type == 'Vimeo'){
                      if(vid_player_mappings[vid].player)
                         vid_player_mappings[vid].player.api('pause');
+                 }
+                if(vid_player_mappings[vid].type == 'hmtl5'){
+                     if(vid_player_mappings[vid].player)
+                        vid_player_mappings[vid].player.pause();
                  }
              }
          }
@@ -182,6 +169,10 @@ kikinvideo.VideoController =
                  }
                  if(vid_player_mappings[curVID].type == 'Vimeo'){
                      vid_player_mappings[curVID].player.api('play');
+                 }
+                 if(vid_player_mappings[curVID].type == 'html5'){
+                     if(vid_player_mappings[curVID].player)
+                        vid_player_mappings[curVID].player.attr('paused', 'false');
                  }
              }
          }
@@ -233,7 +224,7 @@ kikinvideo.VideoController =
                 }
                 if(secondsLoaded > vimeoSeekTarget && curVID){
                     vid_player_mappings[curVID].player.api('seekTo', vimeoSeekTarget);
-                    vid_player_mappings[vid].player.removeEvent('loadProgress', vimeoPlayerProgressHandler);
+                    vid_player_mappings[curVID].player.removeEvent('loadProgress', vimeoPlayerProgressHandler);
                     $('#video-buffering-vid-'+curVID).fadeOut(500);
                     playVideo();
                     vimeoSeekTarget = null;
@@ -263,7 +254,13 @@ kikinvideo.VideoController =
                     
 
                     if(obj.is('video')){
-                        
+                        obj.autoplay = false;
+                        //because we're dealing with video element,
+                        //the element itself IS the player (we control
+                        // playback by editing attrs)
+                        var player = obj;
+                        vid_player_mappings[vid] = {player:player, type:'html5', isReady:true};
+                        player_vid_mappings[player] = vid;
                     }
 
                     if(obj.is('object')){
