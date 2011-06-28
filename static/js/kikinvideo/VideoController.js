@@ -1,6 +1,5 @@
 //youtube player ready callback
 function onYouTubePlayerReady(playerID){
-    videoController.prepareCurVidForPlayback();
     var player = document.getElementById(playerID);
     try{
         player.removeEventListener('onStateChange');
@@ -25,6 +24,10 @@ function stateChangeListener(newState){
 kikinvideo.VideoController =
     function(){
 
+        var modes = {NORMAL:0, LEANBACK:1};
+
+        var mode = modes.LEANBACK;
+
         var curVID;
 
         //because we must control YouTube and Vimeo vids through
@@ -34,6 +37,10 @@ kikinvideo.VideoController =
 
         //this is unfortunately also necessary for fast vid lookup...
         var player_vid_mappings = {};
+
+        //a sequential list of vids for the videos on the
+        //current page...
+        var vid_list = [];
 
         //because the damn vimeo player can't seek beyond
         //the portion of video currently buffered,
@@ -101,9 +108,13 @@ kikinvideo.VideoController =
                          if(response.success){
                              var video = response.result;
                              if(video.position){
-                                 seekTo(parseFloat(video.position));
-                                 if(vid_player_mappings[curVID].type != 'Vimeo')
-                                    playVideo();
+                                 if(mode != modes.LEANBACK)
+                                    seekTo(parseFloat(video.position));
+                                 else{
+                                     playVideo();
+                                 }
+                                 //if(vid_player_mappings[curVID].type != 'Vimeo')
+                                    //playVideo();
                              }
                          }else
                              showErrorDialog();
@@ -256,6 +267,7 @@ kikinvideo.VideoController =
                     var vid;
                     try{
                         vid = parseInt(container_id.substr('video-embed-wrapper-'.length));
+                        vid_list.push(vid);
                     }catch(exception){}
                     /*</hack>*/
                     
@@ -323,7 +335,38 @@ kikinvideo.VideoController =
 
 
         function onVideoEnded(){
-            alert('video ended!');
+           // alert('video ended!');
+        }
+
+        function queueNext(onComplete){
+            var curVideoPlayer = $('#video-player-'+ curVID);
+            var idx = vid_list.indexOf(curVID);
+            if(vid_list.indexOf(curVID) < vid_list.length-1){
+                var nextVideoPlayer = $('#video-player-'+vid_list[vid_list.indexOf(curVID)+1]);
+                pauseVideo();
+               setCurVid(vid_list[vid_list.indexOf(curVID)+1]);
+                curVideoPlayer.fadeOut(400, function(){
+                });
+                nextVideoPlayer.fadeIn(700, function(){
+                       if(vid_player_mappings[curVID].type != 'YouTube')
+                            seekTo(0);
+                       if(onComplete)
+                            onComplete();
+                    });
+            }else{
+                 //todo: code for handling case where
+                 //cur vid is last on page
+            }
+        }
+
+        function playNext(){
+            queueNext(function(){
+                playVideo();
+            });
+        }
+
+        function queuePrevious(){
+            
         }
 
         /*<hack>*/
@@ -369,7 +412,11 @@ kikinvideo.VideoController =
             setCurVid : setCurVid,
             playVideo : playVideo,
             seekTo : seekTo,
-            prepareCurVidForPlayback: prepareCurVidForPlayback
+            prepareCurVidForPlayback: prepareCurVidForPlayback,
+            queueNext : queueNext,
+            playNext : playNext,
+            modes : modes,
+            mode : mode
         }
     }
 
