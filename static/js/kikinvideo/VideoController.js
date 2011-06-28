@@ -308,8 +308,10 @@ kikinvideo.VideoController =
                            obj.attr('src', source);
                            obj.attr('data-vid', vid);
                            obj.attr('id', 'vimeo-player-'+vimeoVID(source));
+                           //init the froogaloop object...
                            var player = $f(obj.attr('id'));
                            player.addEvent('ready', vimeo_player_loaded);
+                           //obj.attr("ended", onVideoEnded);
                            vid_player_mappings[vid] = {player:player, type:'Vimeo', isReady:false};
                            player_vid_mappings[player] = vid;
                         }
@@ -318,6 +320,11 @@ kikinvideo.VideoController =
                 }
             );
          }
+
+
+        function onVideoEnded(){
+            alert('video ended!');
+        }
 
         /*<hack>*/
         function isVimeo(src){
@@ -335,9 +342,7 @@ kikinvideo.VideoController =
                 return false;
             }
         }
-        /*</hack>*/
 
-        /*<hack>*/
         function youtubeVID(src){
             /*parse embed code out of source url*/
             var _EMBED_START_DELIM = '/v/';
