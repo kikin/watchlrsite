@@ -1,5 +1,12 @@
 kikinvideo.VideoController =
     function(){
+        /*
+        *This class is a highly experimental unifying
+        * wrapper for the YouTube and Vimeo javascript control APIs,
+        * as well as the javascript API for the html5 video
+        * element.  The interface is synchronous, though the wrapped
+        * methods are variously synchronous and asynchronous.
+        * */
 
         var modes = {NORMAL:0, LEANBACK:1};
 
