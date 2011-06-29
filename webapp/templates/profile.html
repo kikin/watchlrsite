@@ -9,9 +9,10 @@
     activeView = VIEWS.profile;
     $(document).ready(function(){
         /*because we must use absolute...*/
-        $('#content').css({height:$('#videoListWrapper').height()+$('#user-info-container').height()+100});
+       // $('#content').css({height:$('#videoListWrapper').height()+$('#user-info-container').height()+100});
 
         $('#facebook-img').load(function(){
+        /*
             //fb graph images are of fixed width and variable height...we must accommodate this...
             if($('#facebook-img').width() > $('#facebook-img').height()){
                 $('#facebook-img').css({
@@ -31,7 +32,7 @@
             }
             else{
                 $('#facebook-img-container').addClass('shadow-5l');
-            }
+            }*/
         });
 
         //fade in signup pitch...
@@ -68,54 +69,41 @@
 
     <meta name="profile_subject" content="{{ profile_owner.id }}"/>
     <div id="user-info-container">
-    <div class="user-info gradient"></div>
         <div class="inner">
         <div id="facebook-img-container">
            <a href="/{{ profile_owner.username }}">
-           <img id='facebook-img'src="https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=normal"/>
+           <img class="rounded-corners-8" id='facebook-img'src="https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=large"/>
            </a>
-           <br><span class="karma" title="karma">{{ profile_owner.karma }}</span>
         </div>
             <div id="username-display">
-                    <div class="primary">
-                        {{ profile_owner.username }}
-                    </div>
-                    <div class="sub">
-                        ({{ profile_owner.first_name }} {{ profile_owner.last_name }})
-                    </div>
-                <a href="/{{ profile_owner.username }}">
-                    <div class="profile-basic-statistics" style="left:160px;">
+                <a href="/{{ profile_owner.username }}" class='user-info-button rounded-corners-8'>
+                    <span class="profile-basic-statistics">
                         {{ profile_owner|total_liked_videos }}
-                        <div class="profile-basic-statistics-sub">
-                            Liked<br>videos
-                        </div>
-                    </div>
+                            Liked videos
+                    </span>
                 </a>
-                <a href="/followers/{{ profile_owner.id }}">
-                    <div class="profile-basic-statistics with-breakers" style="left:250px;">
-                        <div id="follower-count-user-{{ profile_owner.id }}">
+                <br>
+                <a href="/followers/{{ profile_owner.id }}" class='user-info-button rounded-corners-8'>
+                    <span class="profile-basic-statistics">
+                        <span id="follower-count-user-{{ profile_owner.id }}">
                         {{ profile_owner.followers|length }}
-                        </div>
-                        <div class="profile-basic-statistics-sub" style="margin-top:10px;">
                             {% if profile_owner.followers|length_is:1 %}
                             Follower
                             {% else %}
                             Followers
                             {% endif %}
-                        </div>
-                    </div>
+                    </span>
                 </a>
-                <a href="/following/{{ profile_owner.id }}">
-                    <div class="profile-basic-statistics" style="left:365px;">
+                <br>
+                <a href="/following/{{ profile_owner.id }}" class='user-info-button rounded-corners-8'>
+                    <span class="profile-basic-statistics">
                         {{ profile_owner.following|length }}
-                        <div class="profile-basic-statistics-sub">
                             {% if profile_owner.following|length_is:1 %}
-                            Followed<br>user
+                            Followed user
                             {% else %}
-                            Followed<br>users
+                            Followed users
                             {% endif %}
-                        </div>
-                    </div>
+                    </span>
                 </a>
                 {% if not is_own_profile %}
                     {% if profile_owner in user.following %}
