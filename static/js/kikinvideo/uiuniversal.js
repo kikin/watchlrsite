@@ -115,8 +115,8 @@ kikinvideo.UIUniversal =
 
                     //finally, prepare html5 videos...
                     if($.browser.webkit){
-                        videoController.setMode(videoController.modes.NORMAL);
-                        videoController.setCurVid(vid);
+                        //videoController.setMode(videoController.modes.NORMAL);
+                        //videoController.setCurVid(vid);
                     }
                 }
             }
@@ -136,9 +136,9 @@ kikinvideo.UIUniversal =
 
                 //pause video if it is html5
                 if($.browser.webkit){
-                        videoController.setMode(videoController.modes.NORMAL);
+                        /*videoController.setMode(videoController.modes.NORMAL);
                         videoController.pauseVideo();
-                        videoController.savePosition();
+                        videoController.savePosition();*/
                     }
             }
 
