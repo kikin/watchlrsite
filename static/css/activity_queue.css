@@ -28,11 +28,10 @@
     font-size:16px;
 }
 
-.activity-item-video-title{
+.activity-queue-item .video-title{
     position:absolute;
     color: #43B6E6;
     font-size: 20px;
-    font-family: Helvetica, sans-serif;
     padding-bottom: 5px;
     width: 450px;
     margin-left: 80px;

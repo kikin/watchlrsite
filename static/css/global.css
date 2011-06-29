@@ -429,6 +429,9 @@ ol li {
     transition: height 0.4s ease-in-out;
     padding-top:20px;
 }
+.video-wrapper:last-of-type{
+
+}
 
 .video-saved {
     margin-top: 7px;
@@ -762,20 +765,16 @@ a#lnk-page-next {
     font-weight: bold;
     display: block;
     font-size: 18px;
-    border: 1px solid #eee;
-    padding: 10px 0;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
     height:19px;
-    width:700px;
-    margin-left:0px;
-    background-color:#e5eff3;
+    width:400px;
+    margin-top:10px;
+    margin-bottom:10px;
+    margin-left:auto;
+    margin-right: auto;
 }
 
 a#lnk-page-next:hover {
     text-decoration: none;
-    background: #efefef;
 }
 
 /** uninstalled **/

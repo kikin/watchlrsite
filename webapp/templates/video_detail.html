@@ -83,7 +83,12 @@
     <script src="{{ STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    
+    <script type="text/javascript">
+    activeView = VIEWS.detail;
+    $(document).ready(function(){
+        home.bindVideoPanelEvents();
+    });
+    </script>
 {% endblock script_refs %}
 
 {% block content %}

@@ -40,7 +40,7 @@
              </div>
 
 
-             <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
+             <div class="video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|truncate_text:35 }}</a></div>
               <a class="video-image" href="javascript:UI.loadPlayer({{ activity_item.video.id }})" id="video-{{ activity_item.video.id }}">
                     <div class="video-thumb-wrapper">
                         <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"/>

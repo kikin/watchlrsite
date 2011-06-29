@@ -17,7 +17,7 @@
 
 {% else %}
 <div id="video-{{video.id}}" class="video-wrapper">
-<div class="video-container">
+<div class="video-container activity-item">
     <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:45 }}</a></h3>
 
     <div class="video-buttons">
