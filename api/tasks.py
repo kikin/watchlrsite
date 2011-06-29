@@ -1371,7 +1371,7 @@ def fetch_facebook_friends(user):
             try:
                 fb_friend = fb_identity.user
             except User.DoesNotExist:
-                parts = friend['name'].split(None, 2)
+                parts = friend['name'].split(None, 1)
                 if len(parts) == 2:
                     first, last = parts
                     username = slugify('.'.join([first, last]), -1)

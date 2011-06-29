@@ -196,15 +196,14 @@ SOCIAL_AUTH_USER_MODEL = 'api.User'
 FACEBOOK_APP_ID = '220283271338035'
 FACEBOOK_API_SECRET = '0cac4be4d10a908b2b961f6ea6108b0f'
 
-LOGIN_REDIRECT_URL = '/login_complete'
-
-
 # the django-social-auth module uses the @login_required
 # decorator, which directs browsers to settings.LOGIN_URL
 # after either a successful OR failed login
 LOGIN_URL = '/'
-
 LOGOUT_URL = '/'
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = LOGIN_REDIRECT_URL = LOGIN_URL
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/login_complete'
 
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
 FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']

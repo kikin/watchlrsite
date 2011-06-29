@@ -27,7 +27,7 @@ DEFAULT_NOTIFICATIONS = {
 
 
 DEFAULT_PREFERENCES = {
-    'syndicate': 2,     # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not yet set
+    'syndicate': 2,     # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not set
     'follow_email': 1,  # Send email to user when someone follows them
 }
 
@@ -257,6 +257,7 @@ class User(auth_models.User):
     dismissed_user_suggestions = models.ManyToManyField('self', through='DismissedUserSuggestions',
                                                         related_name='r_dismissed_user_suggestions', symmetrical=False)
     karma = models.PositiveIntegerField(default=0, db_index=True)
+    campaign = models.CharField(max_length=50, null=True, db_index=True)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
@@ -647,13 +648,11 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
 
     # New user?
     is_new = getattr(user, 'is_new', False)
-
     if is_new:
         from api.tasks import slugify
-        fullname = '.'.join([user.first_name, user.last_name])
-        user.username = response.get('username', slugify(fullname, user.id))
+        user.username = response.get('username', slugify(details['fullname'], user.id))
 
-    # Ensure that status flag is set
+    # Ensure that the status flag is set
     # This flag promotes, possibly a facebook friend to a regular user
     registered = user.is_registered
     user.is_registered = True
@@ -675,10 +674,9 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
     return not saved == user.username or not registered == user.is_registered
 
 
-# We need to register for the `pre_update` signal as opposed to `socialauth_registered`
-# signal because we need to handle facebook friend user upgrades (for such users,
-# the `is_new` attribute is not set and hence, `socialauth_registered` signal does
-# not get fired).
+# Register for the `pre_update` signal (as opposed to `socialauth_registered` signal)
+# since we need to handle facebook friend user upgrades (for such users, the `is_new`
+# attribute is not set and hence, `socialauth_registered` signal does not get fired).
 pre_update.connect(social_auth_pre_update, sender=None)
 
 
@@ -687,9 +685,13 @@ def user_post_save(sender, instance, signal, *args, **kwargs):
     # Called at the end of `save()` method
 
     # Set up default notifications and preferences for  user
-    if not instance.notification_set.count():
-        for msg, archived in DEFAULT_NOTIFICATIONS.items():
+    for msg, archived in DEFAULT_NOTIFICATIONS.items():
+        try:
+            Notification.objects.get(user=instance, message=msg)
+        except Notification.DoesNotExist:
             Notification.objects.create(user=instance, message=msg, archived=archived)
-    if not instance.preference_set.count():
-        for name, value in DEFAULT_PREFERENCES.items():
+    for name, value in DEFAULT_PREFERENCES.items():
+        try:
+            Preference.objects.get(user=instance, name=name)
+        except Preference.DoesNotExist:
             Preference.objects.create(user=instance, name=name, value=value)
