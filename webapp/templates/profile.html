@@ -6,43 +6,63 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
     <script type="text/javascript">
-    activeView = VIEWS.profile;
-    $(document).ready(function(){
-        /*because we must use absolute...*/
-       // $('#content').css({height:$('#videoListWrapper').height()+$('#user-info-container').height()+100});
+        activeView = VIEWS.profile;
+        $(document).ready(function(){
+            /*because we must use absolute...*/
+            // $('#content').css({height:$('#videoListWrapper').height()+$('#user-info-container').height()+100});
 
-        $('#facebook-img').load(function(){
-        /*
-            //fb graph images are of fixed width and variable height...we must accommodate this...
-            if($('#facebook-img').width() > $('#facebook-img').height()){
-                $('#facebook-img').css({
-                    marginTop:(100-$('#facebook-img').height())/2
-                });
+            $('#facebook-img').load(function(){
+                /*
+                 //fb graph images are of fixed width and variable height...we must accommodate this...
+                 if($('#facebook-img').width() > $('#facebook-img').height()){
+                 $('#facebook-img').css({
+                 marginTop:(100-$('#facebook-img').height())/2
+                 });
 
-                $('#facebook-img-container').css({width:108});
-                $('#facebook-img').addClass('shadow-5l');
-                $('#facebook-img').css({marginLeft:8});
+                 $('#facebook-img-container').css({width:108});
+                 $('#facebook-img').addClass('shadow-5l');
+                 $('#facebook-img').css({marginLeft:8});
 
+                 }
+                 //if image is "portrait"...
+                 else if($('#facebook-img').width() < $('#facebook-img').height()){
+                 $('#facebook-img-container').css({height:108});
+                 $('#facebook-img').css({height:100});
+                 $('#facebook-img').addClass('shadow-5l');
+                 }
+                 else{
+                 $('#facebook-img-container').addClass('shadow-5l');
+                 }*/
+            });
+
+            $('.user-info-button').each(function(){
+                var origColor = $(this).css('color');
+                var origBGColor = $(this).css('background-color');
+                $(this).hover(function(){
+                            $(this).css({border:'1px solid #296881'});
+                            $(this).animate({color:'#296881', backgroundColor:'#e5eff3'}, 400);
+                        }, function(){
+                            $(this).css({border:'none'});
+                            $(this).animate({color:origColor, border:'1px solid #296881', backgroundColor:origBGColor}, 400);
+                        });
+            });
+
+            $('#facebook-img-container').hover(
+                    function(){
+                        $(this).animate({opacity:.8}, 500);
+                    }, function(){
+                        $(this).animate({opacity:1}, 500);
+                    }
+            );
+
+            //fade in signup pitch...
+            if($('#signup-pitch').length != 0){
+                $('#signup-pitch').css('visibility','visible').hide().fadeIn(1200);
             }
-            //if image is "portrait"...
-            else if($('#facebook-img').width() < $('#facebook-img').height()){
-                $('#facebook-img-container').css({height:108});
-                $('#facebook-img').css({height:100});
-                $('#facebook-img').addClass('shadow-5l');
-            }
-            else{
-                $('#facebook-img-container').addClass('shadow-5l');
-            }*/
+
+            $('.video-container:last').css('border-bottom', 'none');
+
         });
-
-        //fade in signup pitch...
-        if($('#signup-pitch').length != 0){
-            $('#signup-pitch').css('visibility','visible').hide().fadeIn(1200);
-        }
-
-        $('.video-container:last').css('border-bottom', 'none');
-
-    });
     </script>
     {% block script_ext %}{% endblock script_ext %}
 {% endblock script_refs %}
@@ -68,88 +88,100 @@
 
 
     <meta name="profile_subject" content="{{ profile_owner.id }}"/>
-    <div id="user-info-container">
+    <div id="user-info-container" class="profile">
         <div class="inner">
-        <div id="facebook-img-container">
-           <a href="/{{ profile_owner.username }}">
-           <img class="rounded-corners-8" id='facebook-img'src="https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=large"/>
-           </a>
-        </div>
-            <div id="username-display">
-                <a href="/{{ profile_owner.username }}" class='user-info-button rounded-corners-8'>
+            <div id="facebook-img-container" class="rounded-corners-8">
+                <a href="/{{ profile_owner.username }}" title="go to user's facebook profile">
+                    <img class="rounded-corners-8" id='facebook-img'src="https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=large"/>
+                </a>
+            </div>
+            <div id="user-info">
+                <div class="link-wrapper">
+                    <a href="/{{ profile_owner.username }}" class='user-info-button rounded-corners-8'>
                     <span class="profile-basic-statistics">
                         {{ profile_owner|total_liked_videos }}
                             Liked videos
                     </span>
-                </a>
-                <br>
-                <a href="/followers/{{ profile_owner.id }}" class='user-info-button rounded-corners-8'>
-                    <span class="profile-basic-statistics">
-                        <span id="follower-count-user-{{ profile_owner.id }}">
-                        {{ profile_owner.followers|length }}
-                            {% if profile_owner.followers|length_is:1 %}
-                            Follower
-                            {% else %}
-                            Followers
-                            {% endif %}
-                    </span>
-                </a>
-                <br>
-                <a href="/following/{{ profile_owner.id }}" class='user-info-button rounded-corners-8'>
-                    <span class="profile-basic-statistics">
-                        {{ profile_owner.following|length }}
+                    </a>
+                </div>
+                <div class='link-wrapper'>
+                    <a href="/followers/{{ profile_owner.id }}" class='user-info-button rounded-corners-8'>
+                        <span class="profile-basic-statistics">
+                            <span id="follower-count-user-{{ profile_owner.id }}">
+                                {{ profile_owner.followers|length }}
+                                {% if profile_owner.followers|length_is:1 %}
+                                    Follower
+                                {% else %}
+                                    Followers
+                                {% endif %}
+                            </span>
+                    </a>
+                </div>
+                <div class='link-wrapper'>
+                    <a href="/following/{{ profile_owner.id }}" class='user-info-button rounded-corners-8'>
+                        <span class="profile-basic-statistics">
+                            {{ profile_owner.following|length }}
                             {% if profile_owner.following|length_is:1 %}
-                            Followed user
+                                Followed user
                             {% else %}
-                            Followed users
+                                Followed users
                             {% endif %}
-                    </span>
-                </a>
-                {% if not is_own_profile %}
-                    {% if profile_owner in user.following %}
-                        <a href="javascript:profileViewController.handleUnfollow({{ profile_owner.id }})" id="follow-button-user-{{ profile_owner.id }}"
-                                class="follow-button shadow-5l">
-                            Unfollow
-                        </a>
-                    {% else %}
-                        {% if not user.is_authenticated %}
-                        <a href="javascript:alert('you must register an account with Watchlr before you can follow users');"
-                           id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">
-                            Follow
-                        </a>
-                        {% else %}
-                        <a href="javascript:profileViewController.handleFollow({{ profile_owner.id }})" id="follow-button-user-{{ profile_owner.id }}"
-                                class="follow-button shadow-5l">
-                            Follow
-                        </a>
-                        {% endif %}
-                    {% endif %}
-            {% endif %}
+                        </span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
     {% block video_section %}
-    <div id="videoListWrapper">
-    <div id="videoList">
-    {% if videos|length_is:0 %}
+        <div id='username-display'>
+            <div id='username-wrapper'>
+                <span id='username'>
+                    {{ profile_owner.username }}
+                </span>
+                <span id='real-name'>
+                    &nbsp;({{ profile_owner|full_name }})
+                </span>
+            </div>
+                {% if not is_own_profile %}
+                    {% if profile_owner in user.following %}
+                        <a href="javascript:profileViewController.handleUnfollow({{ profile_owner.id }})" id="follow-button-user-{{ profile_owner.id }}"
+                           class="follow-button shadow-5l">
+                            Unfollow
+                        </a>
+                        {% else %}
+                        {% if not user.is_authenticated %}
+                            <a href="javascript:alert('you must register an account with Watchlr before you can follow users');"
+                               id="follow-button-user-{{ profile_owner.id }}" class="follow-button shadow-5l">
+                                Follow
+                            </a>
+                        {% else %}
+                            <a href="javascript:profileViewController.handleFollow({{ profile_owner.id }})" id="follow-button-user-{{ profile_owner.id }}"
+                               class="follow-button shadow-5l">
+                                Follow
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+        </div>
+        <div id="videoListWrapper">
+            <div id="videoList">
+                {% if videos|length_is:0 %}
 
-        <div id="video-{{video.id}}" class="video-wrapper">
-            <div class="video-container">
-                <div class="no-liked-videos">
-                    <div class="no-liked-videos inner">
-                        {{ profile_owner.first_name }} hasn't liked any videos yet
+                    <div id="video-{{video.id}}">
+                        <div class="no-liked-videos-wrapper">
+                            <div class="no-liked-videos">
+                                    {{ profile_owner.first_name }} hasn't liked any videos yet
+                            </div>
+                        </div>
                     </div>
-                </div>
+                {% else %}
+                    {% for video in videos %}
+
+                        {% video_queue_item %}
+
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
-    {% else %}
-    {% for video in videos %}
-        
-        {% video_queue_item %}
-
-    {% endfor %}
-    {% endif %}
-    </div>
-    </div>
     {% endblock video_section %}
 {% endblock content%}

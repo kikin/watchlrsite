@@ -84,7 +84,8 @@ body {
     font-size: 13px;
     margin: 0;
     text-align: center;
-    background-color: #fbfbfb;
+    background-color: #fafcfc;
+ /*   background-color: #fbfbfb;*/
 }
 
 a {
@@ -990,8 +991,7 @@ a#lnk-page-next:hover {
 
 .save-video-button{
     float: right;
-   /* margin-left:54px;*/
-    margin-top:0px;
+    margin-top:-6px;
 }
 .save-video-button.not-saved.no-hover{
     background-image:url(/static/images/save_video.png);

@@ -3,7 +3,6 @@
 }
 
 #videoListWrapper{
-    padding-top:20px;
     border-radius: 8px;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;;
@@ -14,10 +13,12 @@
     text-align: center;
 }
 
+#videoList{
+    min-height: 50px;
+}
+
 #user-info-container{
 	width:250px;
-    margin-top: 20px;
-    background-image: url(/static/images/profile/profile_banner_background.png);
     color:#0c536f;
     float:left;
 }
@@ -41,9 +42,9 @@
 
 #facebook-img-container
 {
-	width:200px;
-    margin-left:auto;
-    margin-right: auto;
+    background-color: #ffffff;
+    padding-bottom:16px;
+    padding-top:16px;
 }
 
 #facebook-img{
@@ -51,7 +52,7 @@
 }
 
 
-#username-display
+#user-info
 {
     margin-top:20px;
     font-size:18px;
@@ -59,36 +60,23 @@
     width:100%;
 }
 
-#username-display .primary
-{
-
-}
-
-#username-display .sub
-{
-	margin-top:5px;
-	font-family:Georgia, serif;
-	font-style:italic;
-    font-size:14px;
-}
-
 .follow-button
 {
-	position:absolute;
+    display:block;
+    float:left;
 	text-align:center;
-	padding-top:7px;
-    padding-bottom: 5px;
-	width:100px;
-	font-family:Helvetica;
-	font-size:14px;
-	font-weight:900;
+	padding-top:3px;
+    padding-bottom: 3px;
+	width:110px;
+	font-size:15px;
+	font-weight:500;
 	color:#FFFFFF;
 	-moz-border-radius:8px;
 	-webkit-border-radius:8px;
     border-radius: 8px;
-	top:60px;
-	left:0px;
     background-color: #0c536f;
+    margin-left:20px;
+    margin-top:3px;
 }
 
 .follow-button:hover{
@@ -133,24 +121,20 @@
     z-index:1;
 }
 
+.no-liked-videos-wrapper{
+    width:100%;
+}
 
 .no-liked-videos{
     width:100%;
-    background-color:#ffffff;
     text-align: center;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     border-radius: 8px;
+    font-size:20px;
+    padding-top:22px;
+    padding-bottom:22px;
 }
-
-.no-liked-videos.inner{
-    color:#4c4c4c;
-    font-family: Helvetica;
-    font-size: 20px;
-    padding-top: 30px;
-    min-height: 50px;
-}
-
 #user-info-container a{
     text-decoration: none;
 }
@@ -165,7 +149,7 @@
 
 .mozilla .fb-signup{
     margin-top:40px;
-    left:15px;
+    left:50px;
 }
 
 .fb-signup:hover{
@@ -173,7 +157,7 @@
 }
 
 #signup-pitch{
-    width:760px;
+    width:1050px;
     height:140px;
     margin-left: auto;
     margin-right: auto;
@@ -190,20 +174,50 @@
 
 #signup-pitch .inner{
     position:absolute;
-    padding: 15px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 50px;
+    padding-right: 50px;
     text-align: left;
     font-family: "Helvetica Neue";
     font-size: 16px;
 }
 
 .user-info-button{
-    width:200px;
-    font-size:18px;
+    width:225px;
+    font-size:15px;
+    font-weight: 500;
     text-align: center;
     padding-top: 10px;
     padding-bottom:10px;
-    background-color: #e5eff3;
+    background-color: #ffffff;
     margin-left: auto;
     margin-right: auto;
     display:block;
+    color:#44b6e6;
+}
+
+.profile .link-wrapper{
+    margin-top: 10px;
+    height:40px;
+}
+
+#username-display{
+    margin-top:20px;
+    margin-left:10px;
+    width:780px;
+    color:#75c7e9;
+    float:right;
+    font-size: 22px;
+    font-weight:900;
+    text-align: left;
+}
+#username-wrapper{
+    float:left;
+}
+
+#username-display #real-name{
+    font-size:20px;
+    font-weight: 500;
+    font-style:italic;
 }
