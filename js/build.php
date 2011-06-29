@@ -178,7 +178,7 @@ if (!isset($_GET['rebuild']) || $_GET['rebuild'] == 'true') {
   $static_path = $server . "static/img/";
   $result1 = str_replace("http://local.watchlr.com/watchlr/img/", $static_path, $result1);
 
-	file_put_contents('watchlr.min.js', $result1);
+	file_put_contents('../static/js/watchlr-0.1.min.js', $result1);
 
 	//header("Access-Control-Allow-Origin: *");
 	// die($result);

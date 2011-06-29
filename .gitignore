@@ -14,4 +14,3 @@ Thumbs.db
 plugin/Builds/
 celerybeat-schedule
 *.iml
-watchlr.min.js
