@@ -17,7 +17,7 @@
 
 {% else %}
 <div id="video-{{video.id}}" class="video-wrapper">
-<div class="video-container activity-item">
+<div class="video-container video-queue-item">
     <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:45 }}</a></h3>
 
     <div class="video-buttons">
@@ -93,15 +93,11 @@
     </a>
 
     <div class="video-info">
-        <div class="video-description">{{ video.description|truncatewords:50|urlize }}</div>
+        <div class="video-description">{{ video.description|truncate_text:260|urlize }}</div>
         <div class="video-saved">
             <a href="{{ video|source_url_root }}" target="_blank">
                 <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
             </a>
-            &bull;
-            {% if video.source %}
-                <a href="{{video.url}}" target="_blank">source</a>
-            {% endif %}
             {% if display_mode != 'detail' %}
             &bull;
             {% endif %}
@@ -113,6 +109,11 @@
             {% endif %}
             {% if display_mode == 'profile' %}
                 <span class="video-timeago">{{ video|pretty_date_liked:profile_owner }}</span>
+            {% endif %}
+
+            &bull;
+            {% if video.source %}
+                <a href="{{video.url}}" target="_blank">source</a>
             {% endif %}
         </div>
     </div>

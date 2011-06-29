@@ -166,7 +166,7 @@ kikinvideo.HomeViewController = function() {
                }
          });
 
-        $(VIDEO_CONTAINER_CLASS+' a').each(function(){
+        $(VIDEO_CONTAINER_CLASS+' a, '+'#lnk-page-next').each(function(){
                 var origColor = $(this).css('color');
                 $(this).hover(
                     function(){

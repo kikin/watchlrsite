@@ -279,6 +279,7 @@ a:hover {
     margin-left: auto;
     margin-right: auto;
     text-align: left;
+    overflow: hidden;
 }
 
 #videoListWrapper{
@@ -430,12 +431,19 @@ ol li {
     padding-top:20px;
 }
 .video-wrapper:last-of-type{
-
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
 }
 
 .video-saved {
-    margin-top: 7px;
+    margin-top: 40px;
+    margin-left: 0px;
     font-size: 13px;
+}
+
+.video-queue-item .video-saved{
+    position:absolute;
+    margin-top:90px;
 }
 
 .no-results {
@@ -648,6 +656,11 @@ ul>span.cufon-canvas {
     max-height: 98px;
     overflow: hidden;
     line-height: 17px;
+}
+
+.video-queue-item .video-description{
+    position:absolute;
+    margin-top:0px;
 }
 
 .win .video-description {
