@@ -4,13 +4,14 @@ from django.template import RequestContext
 from django.contrib.auth.views import login, logout
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 
 from kikinvideo.api.models import Video, User, Preference
 
 ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you have requested"
 MALFORMED_URL_MESSAGE = 'Error: malformed URL supplied to host'
-NUM_SUGGESTED_FOLLOWEES = 8
+PEOPLE_YOU_MAY_KNOW_SIZE = 3
+POPULAR_USERS_SIZE = 2
 INVITE_LIST_SIZE = 5
 
 # num of users to display in each
@@ -30,7 +31,11 @@ def login_complete(request):
 
 def home(request):
     if request.user.is_authenticated():
-        suggested_followees = request.user.follow_suggestions(NUM_SUGGESTED_FOLLOWEES)
+        suggested_followees = request.user.follow_suggestions(PEOPLE_YOU_MAY_KNOW_SIZE)
+        for user in request.user.popular_users(POPULAR_USERS_SIZE):
+            if user not in suggested_followees:
+                suggested_followees.append(user)
+
         invite_list = request.user.invite_friends_list(INVITE_LIST_SIZE)
         return render_to_response('logged_in.html',
                                   {'suggested_followees': suggested_followees, 'invite_list': invite_list},
@@ -218,7 +223,7 @@ def user_page(request, user_id, relation):
         try:
             related_users_subset = paginator.page(page)
         except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
+            # If page is not an integer, deliver first page.
             related_users_subset = paginator.page(1)
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
@@ -258,3 +263,21 @@ def video_liked_by(request, video_id):
         return HttpResponseNotFound()
     return render_to_response('content/user_dropdown.hfrg', {'video':video, 'users':likers, 'has_next':has_next, 'has_prev':has_prev,\
                                                              'next_start_index': next_start_index, 'next_count':next_count})
+
+def leaderboard(request):
+    user_list = User.objects.filter(is_registered=True).order_by('-karma', 'id')
+    paginator = Paginator(user_list, 25) # Show 25 users per page
+
+    # Make sure page request is an int. If not, deliver first page.
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+
+    try:
+        users = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        users = paginator.page(paginator.num_pages)
+
+    return render_to_response('leaderboard.html', {'users': users}, context_instance=RequestContext(request))
