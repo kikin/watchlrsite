@@ -1,11 +1,12 @@
 <style>
     /* Download App Ad */
     .browser_app {
-        width:283px;
+        width:200px;
         height:282px;
         background:url('/static/images/download/app_ad.png') no-repeat;
         cursor:pointer;
         margin-bottom:30px;
+        overflow: hidden;
     }
     .browser_app:hover{
        
@@ -13,9 +14,10 @@
 
     #plugin-pitch{
         display:none;
+        float: right;
     }
 </style>
 <a id="plugin-pitch" href="/download" >
 <div title="Download the Watchlr Browser App" class="browser_app"  />
-</div>
+</div>-
 </a>
