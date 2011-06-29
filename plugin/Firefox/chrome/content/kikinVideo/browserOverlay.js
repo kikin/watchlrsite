@@ -544,7 +544,7 @@ com.kikinVideo.plugin = function() {
     priv.getKikinVideoJsUrl = function() {
         priv.xhr = new XMLHttpRequest();
         priv.xhr.onreadystatechange = priv.onRequestReadyStateChage;
-        priv.xhr.open('GET', 'http://test.kikin.com/client/test1.html');
+        priv.xhr.open('GET', 'http://dev.watchlr.com/static/html/jsloc.json');
         priv.xhr.send();
 
         // Retry after a day if user has not closed the browser.
