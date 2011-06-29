@@ -26,7 +26,7 @@ echo Using version string $kikin_plugin_version
 
 output_dir=$3
 echo Output will be located at $output_dir
-output_file=$output_dir/kikin_installer_${kikin_plugin_version}.crx
+output_file=$output_dir/watchlr_installer_${kikin_plugin_version}.crx
 
 chrome_files_dir=$4
 echo Using background.html, content_script.js, and images from $chrome_files_dir

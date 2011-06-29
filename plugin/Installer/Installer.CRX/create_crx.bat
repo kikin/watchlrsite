@@ -37,7 +37,7 @@ set OUTPUT_DIR="%~3"
 echo Generating CRX structure at %OUTPUT_DIR%
 
 echo Output will be located at %~3%
-set OUTPUT_FILE="%~3kikin_installer_%KIKIN_VERSION%.crx"
+set OUTPUT_FILE="%~3watchlr_installer_%KIKIN_VERSION%.crx"
 echo Final CRX installer file: %OUTPUT_FILE%
 
 set CHROME_FILES_DIR="%~4"
