@@ -17,14 +17,15 @@ INVITE_LIST_SIZE = 5
 #"this video liked by..." dropdown
 _VID_LIKED_BY_PAGINATION_THRESHOLD = 1
 
+# For new users, grab campaign parameter and store in database
 def login_complete(request):
-    # Client requires that we pass in a Set-Kke header with session key so as to persist it
-    # in its cookie jar. This is just an intermediary view which does exactly that and
-    # redirects user to `home` view.
     if request.user.is_authenticated():
-        response = HttpResponseRedirect('/')
-        response['Set-Kke'] = '_KVS=%s' % request.session.session_key
-        return response
+        try:
+            request.user.campaign = request.GET['campaign']
+            request.user.save()
+        except KeyError:
+            pass
+        return home(request)
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
 

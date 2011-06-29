@@ -235,6 +235,8 @@ class User(auth_models.User):
     fb_friends_fetched = models.DateTimeField(null=True)
     dismissed_user_suggestions = models.ManyToManyField('self', through='DismissedUserSuggestions',
                                                         related_name='r_dismissed_user_suggestions', symmetrical=False)
+    karma = models.PositiveIntegerField(default=0, db_index=True)
+    campaign = models.CharField(max_length=50, null=True, db_index=True)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
