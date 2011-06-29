@@ -299,66 +299,70 @@ def info(request):
     # Either as GET/POST parameter or REST-style url component
     urls = querydict.get('urls')
     if urls is not None:
-      urls = [{ 'url': url } for url in split(r',\s*', urls)]
+        urls = [{ 'url': url } for url in split(r',\s*', urls)]
 
     # JSON payload in request body
     elif 'videos' in querydict:
-      try:
-        urls = loads(querydict['videos'])
-      except:
-        raise BadRequest('No JSON object could be decoded')
+        try:
+            urls = loads(querydict['videos'])
+        except:
+            raise BadRequest('No JSON object could be decoded')
 
     else:
-      raise BadRequest('Must supply url list or video array')
+        raise BadRequest('Must supply url list or video array')
 
     requested, response = dict(), dict()
 
     try:
-      for item in urls:
-        try:
-          normalized_url = url_fix(item['url'])
-          requested[normalized_url] = item
+        for item in urls:
+            try:
+                normalized_url = url_fix(item['url'])
+                requested[normalized_url] = item
 
-        except MalformedURLException:
-          item['success'] = False
-          item['error'] = 'Malformed URL'
-          response[item['url']] = item
+            except MalformedURLException:
+                item['success'] = False
+                item['error'] = 'Malformed URL'
+                response[item['url']] = item
 
     except (TypeError, KeyError):
-      raise BadRequest('Input incorrectly formatted')
+        raise BadRequest('Input incorrectly formatted')
 
     authenticated = request.user.is_authenticated()
 
     if authenticated:
-      for user_video in UserVideo.objects.filter(user=request.user):
-        url = user_video.video.url
+        for user_video in UserVideo.objects.filter(user=request.user):
+            url = user_video.video.url
 
-        try:
-          response[url] = requested[url]
-        except KeyError:
-          continue
+            try:
+              response[url] = requested[url]
+            except KeyError:
+              continue
 
-        response[url]['normalized'] = url
-        response[url]['success'] = True
-        response[url]['saved'] = user_video.saved
-        response[url]['saves'] = UserVideo.save_count(user_video.video)
-        response[url]['liked'] = user_video.liked
-        response[url]['likes'] = UserVideo.like_count(user_video.video)
+            response[url]['normalized'] = url
+            response[url]['success'] = True
+            response[url]['saved'] = user_video.saved
+            response[url]['saves'] = UserVideo.save_count(user_video.video)
+            response[url]['liked'] = user_video.liked
+            response[url]['likes'] = UserVideo.like_count(user_video.video)
 
     for url in set(requested.keys()) - set(response.keys()):
-      response[url] = requested[url]
-      response[url]['normalized'] = url
-      response[url]['success'] = True
-      response[url]['saved'] = response[url]['liked'] = False
+        response[url] = requested[url]
+        response[url]['normalized'] = url
+        response[url]['success'] = True
+        response[url]['saved'] = response[url]['liked'] = False
 
-      try:
-        video = Video.objects.get(url=url)
-        response[url]['saves'] = UserVideo.save_count(video)
-        response[url]['likes'] = UserVideo.like_count(video)
-      except Video.DoesNotExist:
-        response[url]['saves'] = response[url]['likes'] = 0
+        try:
+            video = Video.objects.get(url=url)
+            response[url]['saves'] = UserVideo.save_count(video)
+            response[url]['likes'] = UserVideo.like_count(video)
+        except Video.DoesNotExist:
+            response[url]['saves'] = response[url]['likes'] = 0
 
-    return { 'authenticated': authenticated, 'videos': response.values() }
+    info_response = { 'videos': response.values() }
+    if authenticated:
+        info_response['user'] = request.user.json()
+
+    return info_response
 
 
 class InvalidUsername(ApiError):
