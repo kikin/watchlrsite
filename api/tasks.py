@@ -1423,3 +1423,8 @@ def refresh_friends_list():
         queued += 1
 
     logger.info('Refreshing %d user friend lists' % queued)
+
+
+@task()
+def fetch_news_feed():
+    pass

@@ -1186,3 +1186,8 @@ box-shadow: 10px 10px 5px #888;
     margin-right: -15px;
     background-image:url(/static/images/close_button_fancy.png);
 }
+
+.karma {
+    color: gray;
+    font-size: 120%;
+}

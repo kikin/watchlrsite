@@ -17,7 +17,7 @@
         </div>-->
         <div class="user-list-wrapper">
             <div id="videoListWrapper">
-                <div id="videoList">
+                <div id="videoList" style="min-height: 0px;">
                     {% for related_user in related_users %}
                         <div class="user-info wrapper">
                                 <a href="/{{ related_user.username }}">
@@ -25,11 +25,17 @@
                                 </a>
                                 {% if related_user != user %}
                                 <div class="username">
-                                    <a href="/{{ related_user.username }}">{{ related_user|full_name|truncate_text:25 }}</a>
+                                    <a href="/{{ related_user.username }}">{{ related_user.username|truncate_text:25 }}</a><br>
+                                    <span class="karma" title="karma">
+                                        {{ related_user.karma }}
+                                    </span>
                                 </div>
                                 {% else %}
                                 <div class="username">
-                                    <a href="/{{ related_user.username }}">You</a>
+                                    <a href="/{{ related_user.username }}">You</a><br>
+                                    <span class="karma" title="karma">
+                                        {{ related_user.karma }}
+                                    </span>
                                 </div>
                                 {% endif %}
 
