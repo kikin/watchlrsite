@@ -313,7 +313,8 @@ def info(request):
 
     requested, response = dict(), dict()
 
-    if not isinstance(urls, list):
+    # `list()` gets resolved over list type!
+    if not isinstance(urls, type([])):
         urls = [urls,]
     
     try:
