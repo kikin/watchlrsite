@@ -15,7 +15,8 @@ $(window).load(function() {
                 $('.right-panel').prepend(content);
                 $('#plugin-pitch').fadeIn(1000);
                 $('#content').css({'min-height':1100});
-                $('#video-section').css({marginLeft:'0px'});
         });
+    }else{
+         $('#video-section').css({width:'780px'});
     }
 });

@@ -89,7 +89,7 @@
                 {% video_player activity_item.video request %}
         </div>
     </div>
-    <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
+        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
     </div>
     {% endif %}
     {% endfor %}

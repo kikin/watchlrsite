@@ -39,13 +39,15 @@
 .activity-queue-video-description{
     position:absolute;
     width:360px;
-    height:120px;
+    height:110px;
     margin-left: 264px;
     margin-top:70px;
 }
 
 .video-source-info{
-    padding-top:10px;
+    position:absolute;
+    margin-top:0px;
+    margin-left: 0px;
     bottom:0px;
 }
 

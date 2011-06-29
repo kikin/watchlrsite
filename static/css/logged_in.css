@@ -1,7 +1,6 @@
 .right-panel{
-    position:absolute;
-    width:280px;
-    margin-left:720px;
+    float:right;
+    width:230px;
 }
 
 .suggested-followees{
