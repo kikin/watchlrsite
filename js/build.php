@@ -175,7 +175,7 @@ if (!isset($_GET['rebuild']) || $_GET['rebuild'] == 'true') {
 	//$template = file_get_contents('src/main/javascript/template.js');
 	//$result = str_replace('{javascript}', $result, $template);
 
-  $static_path = $server . "static/img/";
+  $static_path = $server . "static/images/";
   $result1 = str_replace("http://local.watchlr.com/watchlr/img/", $static_path, $result1);
 
 	file_put_contents('../static/js/watchlr-0.1.min.js', $result1);
