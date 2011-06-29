@@ -1427,3 +1427,4 @@ def refresh_friends_list():
 
 @task()
 def fetch_news_feed():
+    pass
