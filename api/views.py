@@ -313,10 +313,10 @@ def info(request):
 
     requested, response = dict(), dict()
 
+    if not isinstance(urls, list):
+        urls = [urls,]
+    
     try:
-        if not isinstance(urls, list):
-            urls = [urls,]
-
         for item in urls:
             try:
                 normalized_url = url_fix(item['url'])
