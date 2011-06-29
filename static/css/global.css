@@ -652,6 +652,7 @@ ul>span.cufon-canvas {
     overflow: hidden;
     line-height: 17px;
     color:#424647;
+    font-size:13px;
 }
 
 .win .video-description {
@@ -946,9 +947,9 @@ a#lnk-page-next:hover {
 .heart-container.liked.hovered {
     float:right;
     margin-right:4px;
-    background-image: url(/static/images/heart_broken.png);
-    width: 34px;
-    height: 26px;
+    background: url(/static/images/heart_broken.png) no-repeat;
+    width: 26px;
+    height: 22px;
 }
 
 .video-liked-info{
@@ -1166,7 +1167,9 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .liked-by-wrapper{
-    width:100%;
+    width:720px;
+    margin-left: auto;
+    margin-right: auto;
     border-bottom: 1px solid #cccccc;
     display:none;
     text-align: center;

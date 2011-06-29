@@ -137,8 +137,7 @@
     </div>
     {% endif %}
 {% endif %}
-
-</div>
         <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
+</div>
 {% endif %}
 {% endif %}
