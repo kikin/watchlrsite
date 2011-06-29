@@ -305,6 +305,8 @@ def info(request):
     elif 'videos' in querydict:
         try:
             urls = loads(querydict['videos'])
+            if not isinstance(urls, list):
+                urls = [urls,]
         except:
             raise BadRequest('No JSON object could be decoded')
 
