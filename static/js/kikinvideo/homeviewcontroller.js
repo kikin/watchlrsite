@@ -182,8 +182,6 @@ kikinvideo.HomeViewController = function() {
         $.get(contentSource, requestParams, function(data) {
             $(VIDEO_PANEL_SELECTOR).html(data);
 
-            stylizeVideoTitles();
-
             _bindVideoPanelEvents();
 
             var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));

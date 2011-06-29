@@ -30,8 +30,10 @@
 		margin-bottom:20px;
 	}
     .video-player{
-        position:relative;
+        position:static;
         margin-top:20px;
+        margin-left: auto;
+        margin-right: auto;
         display:block;
     }
 
@@ -55,6 +57,18 @@
 
     .video-thumbnail-btn{
         display:none;
+    }
+
+    .video-description{
+        position: absolute;
+        margin-left:140px;
+    }
+
+    #videoListWrapper{
+        width: 720px;
+    }
+    #videoList{
+        width: 700px;
     }
     </style>
 {% endblock style_refs%}

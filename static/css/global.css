@@ -81,7 +81,7 @@ legend {
 /* General */
 body {
     color: #424242;
-    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-family: 'PT Sans','Helvetica', 'Arial', sans-serif;
     font-size: 13px;
     margin: 0;
     text-align: center;
@@ -390,7 +390,8 @@ ul.navigation li.selected, ul.navigation li.selected a {
 .video-title {
     color: #43B6E6;
     font-size: 20px;
-    font-family: Helvetica, sans-serif;
+    font-family: 'PT Sans', Helvetica, sans-serif;
+    font-weight: 900;
     padding-bottom: 5px;
     width: 640px;
     float: left;
