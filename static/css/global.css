@@ -328,7 +328,8 @@ ul.navigation li a:link, ul.navigation li a:visited {
     display: block;
     text-align: center;
     width: 144px;
-    height: 35px;
+    height: 32px;
+    padding-bottom:3px;
     line-height: 35px;
     text-decoration: none;
     font-size: 18px;
