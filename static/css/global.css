@@ -327,11 +327,11 @@ ul.navigation li a:link, ul.navigation li a:visited {
     border-radius: 10px 10px 0px 0px;
     display: block;
     text-align: center;
-    width: 168px;
-    height: 38px;
-    line-height: 40px;
+    width: 144px;
+    height: 35px;
+    line-height: 35px;
     text-decoration: none;
-    font-size: 20px;
+    font-size: 18px;
     color: #FFFFFF;
     outline: none;
     float: left;
@@ -657,7 +657,7 @@ ul>span.cufon-canvas {
 }
 
 .video-timeago {
-    color: #777777;
+    color: #b5b5b5;
 }
 
 .video-player {
@@ -979,7 +979,8 @@ a#lnk-page-next:hover {
 }
 
 .video-buttons {
-    float:right;
+    position:absolute;
+    margin-left:640px;
     margin-top:5px;
     min-width: 90px;
     height: 34px;
