@@ -42,6 +42,9 @@ $.Class.extend("com.watchlr.util.Styles", {
 
 		// get the head tag
 		var head = $(doc).find('head').get(0);
+        if (!head) {
+            head = doc.body;
+        }
 
 		// make sure we don't add twice the same stylesheet
 		if (styleName) {
@@ -71,10 +74,10 @@ $.Class.extend("com.watchlr.util.Styles", {
 			}
 		} else {
 			// for Firefox/Safari user the normal method
-			var style = doc.createElement('style');
-			style.type = 'text/css';
-			style.appendChild(doc.createTextNode(css));
-			head.appendChild(style);
+            var style = doc.createElement('style');
+            style.type = 'text/css';
+            style.appendChild(doc.createTextNode(css));
+            head.appendChild(style);
 		}		
 		
 		// save this stylename to the list

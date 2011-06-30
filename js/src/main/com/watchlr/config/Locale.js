@@ -20,6 +20,7 @@ $.Class.extend("com.watchlr.config.Locale", {
 			'btnSaved': 'Watch here!',
             'btnSaving': 'Saving...',
             'like': 'Like',
+            'liked': 'Liked!',
 			'errorDlgTitle': 'We were unable to save your video :-(',
 			'errorDlgMsg': 'To save videos on kikin Video you need to login with Facebook.',
             'errorDlgLikeTitle': 'We were unable to like your video :-(',

@@ -12,10 +12,9 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.vimeo.adapters.KikinVi
         try {
             this._super(embeds);
             if (this.videos && (this.videos.length == 0)) {
-                var div = $('.a');
+                var div = $('.a').get(0);
                 // this.debug('Found div for video:' + div);
                 if (div) {
-                    div = div[0];
                     var divParent = $(div.parentNode);
                     // this.debug('Found video div parent:' + divParent + " with id:" + divParent.id)
                     if (divParent && divParent.id) {

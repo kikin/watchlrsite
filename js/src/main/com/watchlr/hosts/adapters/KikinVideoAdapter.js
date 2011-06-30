@@ -578,6 +578,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }
 
                 var videoUrl = this._findVideoUrl(embeds[i]);
+                this.debug("Adding video for embed:" + embeds[i] + " and url: " + videoUrl);
                 if (videoUrl) {
                     this._addVideo(embeds[i], videoUrl);
                 }
@@ -591,14 +592,10 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
                 //TODO: Enable this part for getting info
 
-                /*var session = $ks.KikinPlugin.getKke("_KVS");
-                // this.debug("Kikin video session cookie value:" + session);
-                if (session) { */
-                    $cws.WatchlrRequests.sendVideosInfoRequest($.proxy(this._onVideosInfoReceived, this), this.videos);
-                /*} */
+                $cws.WatchlrRequests.sendVideosInfoRequest($.proxy(this._onVideosInfoReceived, this), this.videos);
             }
 
-            // this.debug("Number of videos found:" + this.videos.length);
+            this.debug("Number of videos found:" + this.videos.length);
         } catch (err) {
             alert("from: _findFlashVideos of base KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError({from: "_findFlashVideos of base KikinVideoAdapter.", exception:err});
@@ -615,6 +612,9 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             src = this._qualifyURL('/' + src);
         }
 
+        this.debug('Flashvars:' + flashvars);
+        this.debug('src:' + src);
+
         for (var j = 0; j < this.services.length; j++) {
             if (src && this._isSupportedDomain(src, this.services[j].domains)) {
                 var match = { passed: false },
@@ -624,27 +624,26 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     this._extractId(flashvars, oService.flash_regex, match);
                 }
 
-                // this.debug("Using source regex:" + (!match.passed && !match.video_id));
                 if (!match.passed && !match.video_id) {
-                	//this.debug('oService.source_regex ', oService.source_regex)
+                    this.debug('oService.source_regex: ' + oService.source_regex);
                     this._extractId(src, oService.source_regex, match);
                 }
 
                 if (match.passed) {
                     if (oService.use_location != undefined) {
                         if (oService.use_location && oService.location_regex.test(window.location.href)) {
-                            // this.debug('Using location: ' + window.location.href);
+                            this.debug('Using location: ' + window.location.href);
                             return window.location.href;
                         }
                     } else if (match.video_id) {
-                        // this.debug('Found video with id: ' + match.video_id);
+                        this.debug('Found video with id: ' + match.video_id);
                         if (typeof(oService.url) == 'function') {
-                            // this.debug('Using URL:' + oService.url(match.video_id));
+                            this.debug('Using URL:' + oService.url(match.video_id));
                             return oService.url(match.video_id);
                         } else {
-                            // this.debug("Video ids:" + match.video_id);
-                            // this.debug("Video id:" + match.video_id[1]);
-                            // this.debug('Using URL:' + (oService.url + match.video_id[1]));
+                            this.debug("Video ids:" + match.video_id);
+                            this.debug("Video id:" + match.video_id[1]);
+                            this.debug('Using URL:' + (oService.url + match.video_id[1]));
                             return oService.url + match.video_id[1];
                         }
                     }
@@ -742,14 +741,14 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
     },
 
     _getNodeValue: function (obj, id) {
-        var value = $(obj).attr(id);
-
-        /*for (var i = 0; i < $(obj).attributes.length; i++) {
+        //var value = $(obj).attr(id);
+        var value = "";
+        for (var i = 0; i < obj.attributes.length; i++) {
             if (obj.attributes[i].nodeName.toLowerCase() == id) {
                 value += obj.attributes[i].nodeValue;
                 break;
             }
-        } */
+        }
 
         var params = $(obj).find('param');
         if (params) {
@@ -768,7 +767,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         for (var i = 0; i < domains.length; i++) {
             // this.debug('Testing against domain: ' + domains[i] + ' with src: ' + src);
             if (src.indexOf(domains[i]) != -1) {
-                // this.debug('Matched domain ' + domains[i]);
+                this.debug('Matched domain ' + domains[i]);
                 return true;
             }
         }
@@ -777,7 +776,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
     _extractId: function(str, patterns, match) {
         for (var i = 0; i < patterns.length; i++) {
-            // this.debug('Matching: ' + patterns[i] + ' against ' + str);
+            this.debug('Matching: ' + patterns[i] + ' against ' + str);
             var videoId = patterns[i].exec(str);
             if (videoId) {
                 // this.debug('Matched: ' + str + " \tfor pattern:" + patterns[i]);
@@ -902,13 +901,16 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
 
                 var kikinLikeBtn = $(this.kikinVideoBorder).find('#like-btn-img');
+                var likeBtnText = $(this.kikinVideoBorder).find('#like-btn-text');
                 // var kikinLikeBtnText = $(this.kikinVideoBorder).find('#kikinLikeBtnText');
                 if (liked) {
                     $(kikinLikeBtn).removeClass();
                     $(kikinLikeBtn).addClass('watchlr-image like-button-image');
+                    $(likeBtnText).html(this._localize('liked'));
                 } else {
                     $(kikinLikeBtn).removeClass();
                     $(kikinLikeBtn).addClass('watchlr-image unlike-button-image');
+                    $(likeBtnText).html(this._localize('like'));
                 }
 
                 var saveButton =  $(this.kikinVideoBorder).find('#options-button');
@@ -1259,6 +1261,12 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 $(watchLaterButtonImg).addClass('watchlr-image watch-later-button-hover-image');
             }
 
+            var watchLaterButtonText = $(this.kikinVideoBorder).find('#watch-later-btn-text');
+            $(watchLaterButtonText).css({
+                'text-decoration': 'underline',
+                'color': '#000000'
+            });
+
         } catch (err) {
             alert('from: _onSaveButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
@@ -1270,12 +1278,20 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             if (e) e.stopPropagation();
 
             var likeButtonImg = $(this.kikinVideoBorder).find('#like-btn-img');
-            $(likeButtonImg).removeClass();
+
             if (this.selectedVideo.liked) {
-                $(likeButtonImg).addClass('watchlr-image like-button-hover-image');
+                // $(likeButtonImg).removeClass();
+                // $(likeButtonImg).addClass('watchlr-image like-button-hover-image');
             } else {
+                $(likeButtonImg).removeClass();
                 $(likeButtonImg).addClass('watchlr-image unlike-button-hover-image');
             }
+
+            var likeButtonText = $(this.kikinVideoBorder).find('#like-btn-text');
+            $(likeButtonText).css({
+                'text-decoration': 'underline',
+                'color': '#000000'
+            });
 
         } catch (err) {
             alert('from: _onLikeButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
@@ -1308,6 +1324,12 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 $(watchLaterButtonImg).addClass('watchlr-image watch-later-button-image');
             }
 
+            var watchLaterButtonText = $(this.kikinVideoBorder).find('#watch-later-btn-text');
+            $(watchLaterButtonText).css({
+                'text-decoration': 'none',
+                'color': '#ffffff'
+            });
+
         } catch (err) {
             alert('from: _onSaveButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
@@ -1325,6 +1347,12 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             } else {
                 $(likeButtonImg).addClass('watchlr-image unlike-button-image');
             }
+
+            var likeButtonText = $(this.kikinVideoBorder).find('#like-btn-text');
+            $(likeButtonText).css({
+                'text-decoration': 'none',
+                'color': '#ffffff'
+            });
 
         } catch (err) {
             alert('from: _onLikeButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
@@ -1393,9 +1421,9 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             try {
                 // change the like button to saving spinner
-                var saveButton = $(this.kikinVideoBorder).find('#like-btn-img');
-                $(saveButton).removeClass();
-                $(saveButton).addClass("watchlr-image spinner-image");
+                var likeButton = $(this.kikinVideoBorder).find('#like-btn-img');
+                $(likeButton).removeClass();
+                $(likeButton).addClass("watchlr-image spinner-image");
 
                 // change the save button text to liking...
                 // $($(this.kikinVideoBorder).find('#watch-later-btn-text')).html(this._localize('btnSaving'));
@@ -1404,7 +1432,24 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
                 // If we don't have to show the push to facebook dialog, then make the request to server
                 // else we are going to make the call when user closes the push to facebook dialog.
-                if (this._showFbPushDialog) {
+
+                if (!this.selectedVideo.liked) {
+                    if (this._showFbPushDialog) {
+                        var oAlert = new $cwui.modalwin.FirstVideoLikedWindow();
+                        oAlert.bind('close', $.proxy(this._onPushToFacebookWindowClosed, this));
+                        oAlert.bind('visituserprofilepage', $.proxy(this._handleVisitingVideoPageRequested, this));
+                        oAlert.show();
+                    } else {
+                        $cws.WatchlrRequests.sendVideoLikedRequest($.proxy(this._onVideoLiked, this), this.selectedVideo.url);
+                        //$kat.track('Video', 'LikeVideoClk', {
+                        //    campaign: window.location.host
+                        //});
+                    }
+                } else {
+                    window.open(this.WATCHLR_COM + '#!/liked_queue');
+                }
+
+                /*if (this._showFbPushDialog) {
                     var oAlert = new $cwui.modalwin.FirstVideoLikedWindow();
                     oAlert.bind('close', $.proxy(this._onPushToFacebookWindowClosed, this));
                     oAlert.bind('visituserprofilepage', $.proxy(this._handleVisitingVideoPageRequested, this));
@@ -1412,16 +1457,16 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 } else {
                     if (!this.selectedVideo.liked) {
                         $cws.WatchlrRequests.sendVideoLikedRequest($.proxy(this._onVideoLiked, this), this.selectedVideo.url);
-                        /*$kat.track('Video', 'LikeVideoClk', {
-                            campaign: window.location.host
-                        });*/
+                        //$kat.track('Video', 'LikeVideoClk', {
+                        //    campaign: window.location.host
+                        //});
                     } else {
-                        $cws.WatchlrRequests.sendVideoUnlikedRequest($.proxy(this._onVideoLiked, this), this.selectedVideo.url);
-                        /*$kat.track('Video', 'UnlikeVideoClk', {
-                            campaign: window.location.host
-                        });*/
+                        // $cws.WatchlrRequests.sendVideoUnlikedRequest($.proxy(this._onVideoLiked, this), this.selectedVideo.url);
+                        //$kat.track('Video', 'UnlikeVideoClk', {
+                        //    campaign: window.location.host
+                        //});
                     }
-                }
+                } */
             } catch (e) {
                 alert('from: onLikeButtonClicked of base KikinVideoAdapter. \nReason:' + e);
                 // $kat.trackError({ from: 'onLikeButtonClicked of base KikinVideoAdapter', msg: 'error while liking video', exception: e });
@@ -1664,13 +1709,13 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                                         this._localize('errorDlgLikeMsg')
                                     );
                                     oAlert.show();
-                                } else {
+                                } /*else {
                                     var oAlert = new $cwui.modalwin.AlertWindow(
                                         this._localize('errorDlgUnlikeTitle'),
                                         this._localize('errorDlgUnlikeMsg')
                                     );
                                     oAlert.show();
-                                }
+                                }  */
                                 alert("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
 
                                 // $kat.trackError({from: "_onVideoLiked of base KikinVideoAdapter", msg:"Unable to like video. Error code:" + res.code + ", Error:" + res.error});
@@ -1683,19 +1728,20 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                                 this._localize('errorDlgLikeMsg')
                             );
                             oAlert.show();
-                        } else {
+                        } /*else {
                             var oAlert = new $cwui.modalwin.AlertWindow(
                                 this._localize('errorDlgUnlikeTitle'),
                                 this._localize('errorDlgUnlikeMsg')
                             );
                             oAlert.show();
-                        }
+                        }   */
                         alert("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
                         // $kat.trackError({from: "_onVideoLiked of base KikinVideoAdapter", msg:"Unable to like video. Reason:" + (res ? res.error : "Result is null")});
                     }
                 }
 
                 var likeBtnImage = $(this.kikinVideoBorder).find('#like-btn-img');
+                var likeBtnText = $(this.kikinVideoBorder).find('#like-btn-text');
                 if (videoLikedSuccessfully) {
                     this.selectedVideo.likingVideo = false;
                     if (res.result) {
@@ -1712,6 +1758,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     if (this.selectedVideo.liked) {
                         $(likeBtnImage).removeClass();
                         $(likeBtnImage).addClass('watchlr-image like-button-image');
+                        $(likeBtnText).html(this._localize('liked'));
                         // $(kikinLikeBtnText).css('color', '#FF0000');
                     } else {
                         $(likeBtnImage).removeClass();
@@ -1722,6 +1769,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     if (!this.selectedVideo.liked) {
                         $(likeBtnImage).removeClass();
                         $(likeBtnImage).addClass('watchlr-image like-button-image');
+                        $(likeBtnText).html(this._localize('like'));
                         // $(kikinLikeBtnText).css('color', '#FF0000');
                     } else {
                         $(likeBtnImage).removeClass();
@@ -1763,7 +1811,10 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
     _onPushToFacebookWindowClosed: function(evt, pushToFcaebook) {
         try {
-            $cws.WatchlrRequests.sendUpdateUserPreferenceRequest($.proxy(this._onUserProfileUpdated, this), pushToFcaebook);
+            if (pushToFcaebook == '0' || pushToFcaebook == '1') {
+                $cws.WatchlrRequests.sendUpdateUserPreferenceRequest($.proxy(this._onUserProfileUpdated, this), pushToFcaebook);
+            }
+
             if (!this.selectedVideo.liked) {
                 $cws.WatchlrRequests.sendVideoLikedRequest($.proxy(this._onVideoLiked, this), this.selectedVideo.url);
                 /*$kat.track('Video', 'LikeVideoClk', {

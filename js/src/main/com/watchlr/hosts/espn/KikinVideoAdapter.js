@@ -2,7 +2,7 @@
  * @package com.kikin.hosts.espn.adapters
  */
 
-$cwh.adapters.KikinVideoAdapter.extend("com.kikin.hosts.espn.adapters.KikinVideoAdapter", {}, {
+$cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.espn.adapters.KikinVideoAdapter", {}, {
 
 	/* @override */
 	attach: function() {
@@ -25,7 +25,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.kikin.hosts.espn.adapters.KikinVideo
             // $kat.trackError({from:"attach of espn's KikinVideoAdapter", msg: "Unable to wrap espn.video.play function", exception:err});
         }
 
-        this.parent();
+        this._super();
 	},
 
     _onVideoUrlChange : function(videoId) {
