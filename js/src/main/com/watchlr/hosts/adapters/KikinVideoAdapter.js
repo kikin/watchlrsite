@@ -699,6 +699,12 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         var _onVideoMouseOver = $.proxy(this._onVideoMouseOver, this);
         var _onVideoMouseOut = $.proxy(this._onVideoMouseOut, this);
 
+        /*if (embed.nodeName.toLowerCase() == 'iframe') {
+            $(embed).mouseenter(_onVideoMouseOver);
+            $(embed).mouseleave(_onVideoMouseOut);
+            return;
+        } */
+
         // We try to listen mouse events for video in all the possible ways.
         // Different players fire events in different way. For eg.
         // 1. Youtube will fire the event on 'onmouseover'
@@ -707,7 +713,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         try {
             embed.onmouseover = _onVideoMouseOver;
             embed.onmouseout = _onVideoMouseOut;
-            // this.debug('Added mouse events successfully for embed:' + embed);
+            this.debug('Added mouse events successfully for embed:' + embed);
         } catch (e) {
             alert("From: _addMouse events. \n Reason:" + e);
         }
@@ -717,7 +723,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             try {
                 embed.attachEvent('onmouseover', _onVideoMouseOver);
                 embed.attachEvent('onmouseout', _onVideoMouseOut);
-                // this.debug('Attached mouse events successfully for embed:' + embed);
+                this.debug('Attached mouse events successfully for embed:' + embed);
             } catch (e) {
                 alert("From: _addMouse events. \n Reason:" + e);
             }
@@ -728,7 +734,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             try {
                 embed.addEventListener('mouseover', _onVideoMouseOver, false);
                 embed.addEventListener('mouseoout', _onVideoMouseOut, false);
-                // this.debug('Added events listeners for mouse events successfully for embed:' + embed);
+                this.debug('Added events listeners for mouse events successfully for embed:' + embed);
             } catch (e) {
                 alert("From: _addMouse events. \n Reason:" + e);
             }
@@ -1027,7 +1033,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             if (!target)
                 target = evt.srcElement;
 
-            // this.debug("Video mouse over for target:" + (target ? target.nodeName : "not found"));
+            this.debug("Video mouse over for target:" + (target ? target.nodeName : "not found"));
 
             if (target) {
                 if (target.nodeType == 3) {
@@ -1043,7 +1049,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     }
                 }
 
-                // this.debug("Video id associated with target:" + kikinVideoId);
+                this.debug("Video id associated with target:" + kikinVideoId);
 
                 // if kikin video is is valid
                 // draw the border around video
@@ -1062,7 +1068,8 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     // if selected video is different than the video saved in the object
                     // hide the saved object video if it is visible
                     if (this.selectedVideo && (this.selectedVideo != selectedVideo)) {
-                        this.kikinVideoBorder.style.visibility = "hidden";
+                        $(this.kikinVideoBorder).fadeOut();
+                        // this.kikinVideoBorder.style.visibility = "hidden";
                         this.selectedVideo.videoSelected = false;
                         this.selectedVideo.shareButtonSelected = false;
                     }
@@ -1076,7 +1083,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     selectedVideo.coordinates = this._getVideoCoordinates(target);
 
                     if (selectedVideo.coordinates) {
-                        // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
+                        this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
 
                         // draw the border around video
                         this._drawKikinBorder(selectedVideo.coordinates.left,

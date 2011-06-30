@@ -18,15 +18,15 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
 
             this._super();
         } catch (err) {
-            this.debug("Error attaching to scroll events on facebook page. \nReason: " + err);
+            // this.debug("Error attaching to scroll events on facebook page. \nReason: " + err);
         }
 	},
 
     _firePageModifiedEvent: function() {
-        this.debug("Page modified event fired.");
+        // this.debug("Page modified event fired.");
         var anchor_tags = $("a.uiVideoThumb");
-        this.debug("Number of video elements found:" + anchor_tags.length);
-        this.debug("Number of video elements already found:" + this.videoAnchorTagsLength);
+        // this.debug("Number of video elements found:" + anchor_tags.length);
+        // this.debug("Number of video elements already found:" + this.videoAnchorTagsLength);
         if (anchor_tags.length > this.videoAnchorTagsLength) {
             var embeds = this._findFlashVideoCandidates();
             if (embeds) {
@@ -42,7 +42,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
         try {
             var videoAnchors = [];
             var anchor_tags = $("a.uiVideoThumb");
-            this.debug('Found ' + anchor_tags.length + ' anchors');
+            // this.debug('Found ' + anchor_tags.length + ' anchors');
             this.videoAnchorTagsLength = anchor_tags.length;
 
             $(anchor_tags).each($.proxy(function(index, elem) {
@@ -52,23 +52,23 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
 
                 var videoUrl = "";
                 var anchorAjaxify = this._getNodeValue(elem, "ajaxify");
-                this.debug("Matching against: " + anchorAjaxify);
+                // this.debug("Matching against: " + anchorAjaxify);
 
                 var re = /ajax\/flash\/expand_inline\.php\?target_div=u[0-9]+_[0-9]+&share_id=([0-9]+)/;
                 var result = re.exec(anchorAjaxify);
                 if (result) {
-                    this.debug("Found with video id:" + result[1]);
+                    // this.debug("Found with video id:" + result[1]);
                     videoUrl = "http://www.facebook.com/?video_id=" + result[1];
                 } else {
                     re = /ajax\/flash\/expand_inline\.php\?target_div=u[0-9]+_[0-9]+&v=([0-9]+)/;
                     result = re.exec(anchorAjaxify);
                     if (result) {
-                        this.debug("Found with video id:" + result[1]);
+                        // this.debug("Found with video id:" + result[1]);
                         videoUrl = "http://www.facebook.com/?video_id=" + result[1];
                     }
                 }
 
-                this.debug("Videos object:" + this.videos.length);
+                // this.debug("Videos object:" + this.videos.length);
                 if (videoUrl) {
                     var video = {
                         url                 : videoUrl,
@@ -93,7 +93,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                     anchorTagParent.kikinVideoId = videoId;
                     elem.kikinVideoId = videoId;
 
-                    console.log('AnchorTagParent kikinVideoId:' + anchorTagParent.kikinVideoId);
+                    console.log('AnchorTag kikinVideoId:' + elem.kikinVideoId);
 
                     var anchorTagChildNodes = $(elem).children() ;
                     if (anchorTagChildNodes && anchorTagChildNodes.length > 0) {
@@ -119,7 +119,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                     new $cws.WatchlrRequests.sendVideosInfoRequest($.proxy(this._onVideosInfoReceived, this), this.videos);
                 }
 
-                this.debug("Number of videos found:" + this.videos.length);
+                // this.debug("Number of videos found:" + this.videos.length);
 
         } catch (err) {
             alert("From: findFlashVideoCandidates of facebook's KikinVideoAdapater. \nReason:" + err);
@@ -129,20 +129,18 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
 
     _onVideoImageClicked: function(e) {
         try {
-            if (e.target) {
-                this.debug("Clicked target is:" + e.target);
-                try {
-                    this.debug("Associated kikin video id: " + $(e.target).kikinVideoId);
-                    this.selectedVideo = this.videos[$(e.target).kikinVideoId - 1];
-                    var parentNode = $(this.selectedVideo.parentNode);
-                    if (parentNode.addEventListener) {
-                        parentNode.addEventListener('DOMNodeInserted', $(this._onEmbedTagCreated, this), false);
-                    } else {
-                        setTimeout($(this._fireOnVideoElementInserted, this), 500);
-                    }
-                } catch (er) {
-                    this.debug("OnImageClicked error: " + er);
+            // hide the existing border, as image is going to be converted into
+            // video element.
+            $(this.kikinVideoBorder).fadeOut();
+            try {
+                var parentNode = this.selectedVideo.parentNode;
+                if (parentNode.addEventListener) {
+                    parentNode.addEventListener('DOMNodeInserted', $.proxy(this._onEmbedTagCreated, this), false);
+                } else {
+                    setTimeout($.proxy(this._fireOnVideoElementInserted, this), 500);
                 }
+            } catch (er) {
+                alert("OnImageClicked error: " + er);
             }
         } catch (err) {
             alert("From: onVideoImageClicked of facebook's KikinVideoAdapater. \nReason:" + err);
@@ -152,7 +150,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
 
     _fireOnVideoElementInserted: function() {
         try{
-            var parentNode = $(this.selectedVideo.parentNode);
+            var parentNode = this.selectedVideo.parentNode;
             if ($(parentNode).find('iframe') || $(parentNode).find('object')) {
                 this._onEmbedTagCreated();
             } else {
@@ -168,12 +166,13 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
         try {
             this.debug("In onEmbedTagCreated.");
             if (this.selectedVideo) {
-                var parentNode = $(this.selectedVideo.parentNode);
+                var parentNode = this.selectedVideo.parentNode;
                 this.debug("Selected video id is:" + parentNode.kikinVideoId);
 
                 var iframe = $(parentNode).find('iframe');
-                if (iframe) {
+                if (iframe && iframe.length > 0) {
                     this.debug('Iframe found');
+                    iframe = iframe.get(0);
                     this._addMouseEvents(iframe);
                     iframe.kikinVideoId = parentNode.kikinVideoId;
                     this.selectedVideo.mouseover = iframe.onmouseover;
@@ -182,8 +181,9 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                 }
 
                 var object = $(parentNode).find('object');
-                if (object) {
+                if (object && object.length > 0) {
                     this.debug('Object found');
+                    object = object.get(0);
                     this._addMouseEvents(object);
                     object.kikinVideoId = parentNode.kikinVideoId;
                     this.selectedVideo.mouseover = object.onmouseover;
@@ -192,8 +192,9 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                 }
 
                 var embed = $(parentNode).find('embed');
-                if (embed) {
+                if (embed && embed.length > 0) {
                     this.debug('Embed found');
+                    embed = embed.get(0);
                     this._addMouseEvents(embed);
                     embed.kikinVideoId = parentNode.kikinVideoId;
                     this.selectedVideo.mouseover = embed.onmouseover;
@@ -236,10 +237,10 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                         if (profileImage && profileImage.length == 1) {
                             offsetLeft += $($(profileImage).get(0)).clientWidth + parseInt($(profileImage).get(0)).css('margin-right');
                         } else {
-                            this.debug("Cannot find the profile picture");
+                            // this.debug("Cannot find the profile picture");
                         }
                     } catch (e) {
-                        this.debug(e);
+                        // this.debug(e);
                     }
                 }
                 parent = parent.offsetParent;
@@ -262,18 +263,18 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
     },
 
     _onVideoThumbnailMouseOver : function(e) {
-        this.debug('Anchor tag parent mouse over');
+        // this.debug('Anchor tag parent mouse over');
         try {
             var target = e.target;
             if (target) {
-                this.debug('Target node type:' + e.target.nodeName.toLowerCase());
+                // this.debug('Target node type:' + e.target.nodeName.toLowerCase());
 
                 while (target && target.nodeName.toLowerCase() != 'div') {
                     target = target.parentNode;
-                    this.debug('Target node type:' + target.nodeName.toLowerCase());
+                    //this.debug('Target node type:' + target.nodeName.toLowerCase());
                 }
 
-                this.debug("Target's kikin video id:" + target.kikinVideoId);
+                // this.debug("Target's kikin video id:" + target.kikinVideoId);
                 if (target && target.kikinVideoId) {
                     var selectedVideo = this.videos[target.kikinVideoId - 1];
 
@@ -292,7 +293,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                     selectedVideo.coordinates = this._getVideoCoordinates(target);
 
                     if (selectedVideo.coordinates) {
-                        this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
+                        // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
 
                         // draw the border around video
                         this._drawKikinBorder(selectedVideo.coordinates.left,
@@ -302,7 +303,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                                               selectedVideo.saved);
                     }
 
-                    this.debug("Border around selected video is visible: " + $(this.kikinVideoBorder).css('visibility'));
+                    // this.debug("Border around selected video is visible: " + $(this.kikinVideoBorder).css('visibility'));
                     selectedVideo.videoSelected = true;
                 }
             }
@@ -317,10 +318,10 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
         try {
             var target = e.target;
             if (target) {
-                this.debug('Target node type:' + target.nodeName.toLowerCase());
+                // this.debug('Target node type:' + target.nodeName.toLowerCase());
                 while (target && target.nodeName.toLowerCase() != 'div') {
                     target = target.parentNode;
-                    this.debug('Target node type:' + target.nodeName.toLowerCase());
+                    // this.debug('Target node type:' + target.nodeName.toLowerCase());
                 }
 
                 if (target && target.kikinVideoId) {
