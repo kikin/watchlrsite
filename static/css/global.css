@@ -84,8 +84,9 @@ body {
     font-size: 13px;
     margin: 0;
     text-align: center;
-    background-color: #fafcfc;
- /*   background-color: #fbfbfb;*/
+    background:  url(/static/images/bg/noise.png) repeat;
+ /*   background-color: #fafcfc;
+    background-color: #fbfbfb;*/
 }
 
 a {
@@ -246,6 +247,7 @@ a:hover {
     z-index:9999;
     background-color: #FFFFFF;
     opacity: 0.2;
+    padding-bottom:40px;
 }
 
 .loading {
@@ -272,7 +274,7 @@ a:hover {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     width:760px;
-    min-height:200px;
+    min-height:120px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;
@@ -288,6 +290,9 @@ a:hover {
     border-radius: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    border-top-left-radius: 0px;
+    -moz-border-radius-topleft: 0px;
+    -webkit-border-top-left-radius: 0px;
     text-align:center;
     float:left;
 }
@@ -296,8 +301,7 @@ ul.navigation {
     width:700px; 
     margin-left:0px;
     padding-left:5px;
-   /* margin: 0px auto 0px auto;
-    padding-left: 5px;*/
+    font-weight: 900;
 }
 
 ul.navigation li {
@@ -311,30 +315,26 @@ ul.navigation li {
     float: left;
     margin: 0 10px 0 0;
     position: relative;
-    top: 2px;
     background: #eee;
     margin-left: -5px;
     z-index:0;
+    font-weight: bold;
 }
 
 ul.navigation li a:link, ul.navigation li a:visited {
-    -webkit-border-radius: 10px 10px 2px 2px;
-    -moz-border-radius: 10px 10px 2px 2px;
-    border-radius: 10px 10px 2px 2px;
+    -webkit-border-radius: 10px 10px 0px 0px;
+    -moz-border-radius: 10px 10px 0px 0px;
+    border-radius: 10px 10px 0px 0px;
     display: block;
     text-align: center;
     width: 168px;
-    height: 40px;
+    height: 38px;
     line-height: 40px;
-    text-transform: uppercase;
     text-decoration: none;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 20px;
     color: #FFFFFF;
-    letter-spacing: 1px;
     outline: none;
     float: left;
-    top: 1px;
     background-color: #0c536f;
     -webkit-transition: background-color 0.3s linear;
     -moz-transition: background-color 0.3s linear;
@@ -425,7 +425,7 @@ ol li {
     -moz-transition: height 0.4s ease-in-out;
     -o-transition: height 0.4s ease-in-out;
     transition: height 0.4s ease-in-out;
-    padding-top:16px;
+    padding-top:20px;
 }
 .video-wrapper:last-of-type{
     -webkit-border-radius: 8px;
@@ -979,8 +979,8 @@ a#lnk-page-next:hover {
 }
 
 .video-buttons {
-    position:absolute;
-    margin-left:625px;
+    float:right;
+    margin-top:5px;
     min-width: 90px;
     height: 34px;
 }

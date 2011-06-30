@@ -26,6 +26,7 @@
     margin-top: 0px;
     margin-left:170px;
     padding-top: 0px;
+    font-size:17px;
 }
 
 .video-description{
@@ -33,10 +34,10 @@
 }
 
 .video-thumbnail-btn {
-    height: 110px;
+    height: 103px;
     background: url(/static/images/kkn-video-sprites.png) no-repeat -300px 38px;
     position: relative;
-    top: -120px;
+    top: -114px;
 }
 
 .video-queue-item .video-saved{
@@ -51,5 +52,7 @@
 }
 
 .video-container{
-    width:720px;
+    width:730px;
+    padding-right:5px;
+    padding-left:8px;
 }

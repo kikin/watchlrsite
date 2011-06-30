@@ -157,10 +157,10 @@ kikinvideo.HomeViewController = function() {
                if(activeView != VIEWS.detail){
                     $(this).hover(
                         function(){
-                            $(this).animate({backgroundColor:'#f3f6f8'}, 500);
+                            $(this).animate({backgroundColor:'#f3f6f8'}, 400);
                         },
                         function(){
-                            $(this).animate({backgroundColor:'#ffffff'}, 500);
+                            $(this).animate({backgroundColor:'#ffffff'}, 200);
                         }
                     );
                }
