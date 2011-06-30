@@ -3,7 +3,7 @@
  */
 
 $cwui.modalwin.WatchlrIframeWindow.extend("com.watchlr.ui.modalwin.FirstVideoLikedWindow", {}, {
-    _checked: false,
+    _checked: 0,
 
     create: function() {
         this._super({
@@ -22,22 +22,22 @@ $cwui.modalwin.WatchlrIframeWindow.extend("com.watchlr.ui.modalwin.FirstVideoLik
     
     show: function() {
     	this._super();
-        this.setSize(420, 222);
+        this.setSize(385, 222);
         this.trigger('show');
     },
 
     _onCloseCallback: function () {
         this.hide();
-        this.trigger('close', [false]);
+        this.trigger('close', ['2']);
     },
 
     _onOkCallback: function () {
         this.hide();
-        this.trigger('close', [this._checked]);
+        this.trigger('close', ['' + this._checked]);
     },
 
     _onFacebookPushMessageClicked: function(e) {
-        this._checked = e.target.checked;
+        this._checked = (e.target.checked ? 1 : 0);
     },
 
     _onVisitUserProfilePageCallback: function() {

@@ -42,7 +42,7 @@ $.Class.extend("com.watchlr.system.WatchlrRequests", {
         $.ajax({
           url: reqUrl,
           dataType: 'json',
-          data: {'preferences': '{"syndicate" : ' + (pushToFacebook ? 1 : 0) + '}'},
+          data: {'preferences': '{"syndicate" : ' + pushToFacebook + '}'},
           success: _callback
         });
     },

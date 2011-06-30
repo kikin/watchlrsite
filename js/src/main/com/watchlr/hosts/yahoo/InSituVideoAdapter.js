@@ -1,7 +1,7 @@
 /**
  * @package com.watchlr.hosts.yahoo.adapters
  */
-$cwh.adapters.InSituVideoAdapter.extend("com.kikin.hosts.yahoo.adapters.InSituVideoAdapter", {}, {
+$cwh.adapters.InSituVideoAdapter.extend("com.watchlr.hosts.yahoo.adapters.InSituVideoAdapter", {}, {
 	
 	/*attach: function() {
 		var stats = $kh.adapters.InSituVideoAdapter.stats.reset();

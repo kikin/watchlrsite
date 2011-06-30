@@ -36,8 +36,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cnn.adapters.KikinVide
     * find all the videos on the page
     */
     _findFlashVideoCandidates: function() {
-        // this.parent();
-        var embeds = this.parent();
+        var embeds = this._super();
 
         var images = $('img');
         // this.debug('Found ' + images.length + ' images');
