@@ -297,3 +297,6 @@ def leaderboard(request):
         users = paginator.page(paginator.num_pages)
 
     return render_to_response('leaderboard.html', {'users': users}, context_instance=RequestContext(request))
+
+def email_preferences(request):
+    pass
