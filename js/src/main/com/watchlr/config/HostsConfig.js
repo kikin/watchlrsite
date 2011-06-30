@@ -11,9 +11,8 @@ $.Class.extend("com.watchlr.config.HostsConfig", {
 	    'com.cnn': {
 		    'package': $cwh.cnn
 		},
-		'com.kikin': {
-			'package': $cwh.kikin,
-			bindings: []
+		'com.watchlr': {
+			'package': $cwh.watchlr
 		},
 		/*'com.bing': {
 			'package': $kh.bing,

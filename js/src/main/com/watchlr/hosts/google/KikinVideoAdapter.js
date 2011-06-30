@@ -108,7 +108,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
             // look the page for video images
             $('#res li.videobox a img[id*=vidthumb]').each($.proxy(this._addKikinVideoBorder, this));
             //single video result - http://www.google.com/search?hl=en&q=ducati+696
-            $$('#res table a img[id*=vidthumb]').each($.proxy(this._addKikinVideoBorder, this));
+            $('#res table a img[id*=vidthumb]').each($.proxy(this._addKikinVideoBorder, this));
 
             embeds = this._super();
         }
@@ -116,51 +116,57 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
         return embeds;
     },
 
-    _addKikinVideoBorder: function(img) {
-        var videoUrl = this.getVideoUrl(img);
-        if (videoUrl) {
-            for (var i = 0; i < this.services.length; i++) {
-                if (!this.services[i].url_regex)
-                    continue;
-                var match = {passed: false};
-                this._extractId(videoUrl, this.services[i].url_regex, match);
-                if (match.passed && match.video_id && match.video_id.length > 1) {
-                    if (typeof(this.services[i].url) == 'function') {
-                        videoUrl = this.services[i].url(match.video_id);
-                    } else {
-                        videoUrl = this.services[i].url + match.video_id[1];
-                    }
+    _addKikinVideoBorder: function(pos, img) {
+        try {
+            this.debug("Creating kikin border for img:" + img);
+            var videoUrl = this.getVideoUrl(img);
+            this.debug("URL for image element:" + videoUrl);
+            if (videoUrl) {
+                for (var i = 0; i < this.services.length; i++) {
+                    if (!this.services[i].url_regex)
+                        continue;
+                    var match = {passed: false};
+                    this._extractId(videoUrl, this.services[i].url_regex, match);
+                    if (match.passed && match.video_id && match.video_id.length > 1) {
+                        if (typeof(this.services[i].url) == 'function') {
+                            videoUrl = this.services[i].url(match.video_id);
+                        } else {
+                            videoUrl = this.services[i].url + match.video_id[1];
+                        }
 
-                    if (videoUrl) {
-                        var imgParent = $(img).parent('td').get(0);
-                        $(imgParent).mouseover($.proxy(this._onVideoThumbnailMouseOver, this));
-                        $(imgParent).mouseleave($.proxy(this._onVideoThumbnailMouseOut, this));
+                        if (videoUrl) {
+                            var imgParent = $(img).parents('td').get(0);
+                            $(imgParent).mouseover($.proxy(this._onVideoThumbnailMouseOver, this));
+                            $(imgParent).mouseleave($.proxy(this._onVideoThumbnailMouseOut, this));
 
 
-                        var video = {
-                            url                 : videoUrl,
-                            mouseover           : null,
-                            mouseout            : null,
-                            saved               : false,
-                            videoSelected       : false,
-                            saveButtonSelected  : false,
-                            coordinates         : null
-                        };
+                            var video = {
+                                url                 : videoUrl,
+                                mouseover           : null,
+                                mouseout            : null,
+                                saved               : false,
+                                videoSelected       : false,
+                                saveButtonSelected  : false,
+                                coordinates         : null
+                            };
 
-                        // calculate the videoId
-                        img.kikinVideoId = (this.videos.length + 1);
-                        this.videos.push(video);
-                        break;
+                            // calculate the videoId
+                            img.kikinVideoId = (this.videos.length + 1);
+                            this.videos.push(video);
+                            break;
+                        }
                     }
                 }
             }
+        } catch (err) {
+            alert("From: addKikinVideoBorder of Google Video adapter. \nReason: " + err);
         }
     },
 
     getVideoUrl: function(img) {
         var imgParentTable = null;
 
-		if(imgParentTable = $(img).parent('a')) {
+		if(imgParentTable = $(img).parent('a').get(0)) {
             var url = imgParentTable.href,
                 videoUrl = /url\?url=(.*)&rct=/i.exec(url);
             if (videoUrl && videoUrl.length > 1) {
@@ -173,8 +179,11 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
 
     _onVideoThumbnailMouseOver : function(e) {
         try {
-            var target = $($(e.target).parent('table')).find('td a img');
+            var target = $($(e.target).parents('table').get(0)).find('td a img');
+            target = target.get(0);
+            this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
             if (target && target.kikinVideoId) {
+
                 var selectedVideo = this.videos[target.kikinVideoId - 1];
 
                 // if selected video is different than the video saved in the object
@@ -190,10 +199,10 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
                 this.selectedVideo = selectedVideo;
 
                 // calculate the coordinates for video
-                selectedVideo.coordinates = this._getVideoCoordinates($(target).parent('table').get(0));
+                selectedVideo.coordinates = this._getVideoCoordinates($(target).parents('table').get(0));
 
                 if (selectedVideo.coordinates) {
-
+                    this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
                     // draw the border around video
                     this._drawKikinBorder(selectedVideo.coordinates.left,
                                           selectedVideo.coordinates.top,
@@ -214,7 +223,9 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
 
     _onVideoThumbnailMouseOut : function(e) {
         try {
-            var target = $($(e.target).parent('table')).find('td a img');
+            var target = $($(e.target).parents('table').get(0)).find('td a img');
+            target = target.get(0);
+            this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
             if (target && target.kikinVideoId) {
                 // set the selected video property to false
                 var selectedVideo = this.videos[target.kikinVideoId - 1];
