@@ -273,7 +273,7 @@ a:hover {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     width:760px;
-    min-height:200px;
+    min-height:120px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;
@@ -424,7 +424,7 @@ ol li {
     -moz-transition: height 0.4s ease-in-out;
     -o-transition: height 0.4s ease-in-out;
     transition: height 0.4s ease-in-out;
-    padding-top:16px;
+    padding-top:20px;
 }
 .video-wrapper:last-of-type{
     -webkit-border-radius: 8px;
@@ -978,8 +978,8 @@ a#lnk-page-next:hover {
 }
 
 .video-buttons {
-    position:absolute;
-    margin-left:625px;
+    float:right;
+    margin-top:5px;
     min-width: 90px;
     height: 34px;
 }
