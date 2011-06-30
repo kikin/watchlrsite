@@ -26,14 +26,6 @@
                         });
             });
 
-            $('#facebook-img-container').hover(
-                    function(){
-                        $(this).animate({opacity:.8}, 500);
-                    }, function(){
-                        $(this).animate({opacity:1}, 500);
-                    }
-            );
-
             //fade in signup pitch...
             if($('#signup-pitch').length != 0){
                 $('#signup-pitch').css('visibility','visible').hide().fadeIn(1200);
@@ -83,9 +75,9 @@
     <div id="user-info-container" class="profile">
         <div class="inner">
             <div id="facebook-img-container" class="rounded-corners-8">
-                <a href="/{{ profile_owner.username }}" title="go to user's facebook profile">
+
                     <img class="rounded-corners-8" id='facebook-img'src="https://graph.facebook.com/{{ profile_owner.facebook_uid }}/picture?type=large"/>
-                </a>
+
             </div>
             <div id="user-info">
                 <div class="link-wrapper">

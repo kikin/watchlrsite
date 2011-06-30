@@ -81,7 +81,7 @@
 
 {% block content %}
     {% if not user.is_authenticated %}
-    <div id="user-info-container">
+    <div id="user-info-container" class="rounded-corners-8">
         <div class="user-info gradient"></div>
         <div class="inner">
             Watchlr helps you <span class="blue">discover</span>, <span class="blue">save</span> and
@@ -91,7 +91,7 @@
         </div>
     </div>
     {% endif %}
-    <div id="video-section" style="width: 680px;">
+    <div id="video-section">
         <div id="videoListWrapper">
             <div id="videoList">
                 {% video_queue_item %}
