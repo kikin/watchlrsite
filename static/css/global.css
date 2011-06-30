@@ -1127,7 +1127,7 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .user-dropdown{
-    width:640px;
+    width:720px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;
@@ -1137,7 +1137,7 @@ box-shadow: 10px 10px 5px #888;
 
 .user-dropdown ul{
     list-style-type: none;
-    width: 640px;
+    width: 720px;
 }
 
 .user-dropdown li{
