@@ -4,7 +4,6 @@
 }
 
 .suggested-followees{
-    font-family: Arial;
     background-color: #ffffff;
     text-align: left;
     padding-left: 6px;
@@ -13,33 +12,50 @@
     padding-bottom:10px;
 }
 
-.suggested-followees.container{
-    border-radius: 8px;
+.suggested-followees .fb-thumb-wrapper{
+    float:left;
 }
 
-.suggested-followees.title
+.suggested-followees .inner{
+    width:200px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.suggested-followees.container{
+    width:230px;
+}
+
+.suggested-followees .title
 {
-    font-size: 18px;
+    font-size: 16px;
+    font-weight:700;
+    margin-bottom:6px;
+    color:#888888;
 }
 
 .suggested-followee-item{
-    width:260px;
-    border-top: 1px solid #144D63;
+    width:200px;
+    border-top: 1px solid #cdcdcd;
     height:50px;
     padding-top: 10px;
     padding-bottom: 10px;
 }
 
-.suggested-followees.profile-link-container{
-    font-family: Helvetica;
-    position:absolute;
-    width:160px;
+.suggested-followees .profile-link-container{
+    float:left;
+    width:130px;
     font-size: 14px;
-    margin-left: 54px;
-    margin-top:8px;
-    font-weight: 500;
+    margin-left: 6px;
+    font-weight: 900;
 }
 
+
+.suggested-followees .follow-link{
+    float:left;
+    margin-left:6px;
+    font-size:11px;
+}
 
 .suggested-followee-item .follow-button{
     position:absolute;
