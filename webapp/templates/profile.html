@@ -13,41 +13,15 @@
     <script type="text/javascript">
         activeView = VIEWS.profile;
         $(document).ready(function(){
-            /*because we must use absolute...*/
-            // $('#content').css({height:$('#videoListWrapper').height()+$('#user-info-container').height()+100});
-
-            $('#facebook-img').load(function(){
-                /*
-                 //fb graph images are of fixed width and variable height...we must accommodate this...
-                 if($('#facebook-img').width() > $('#facebook-img').height()){
-                 $('#facebook-img').css({
-                 marginTop:(100-$('#facebook-img').height())/2
-                 });
-
-                 $('#facebook-img-container').css({width:108});
-                 $('#facebook-img').addClass('shadow-5l');
-                 $('#facebook-img').css({marginLeft:8});
-
-                 }
-                 //if image is "portrait"...
-                 else if($('#facebook-img').width() < $('#facebook-img').height()){
-                 $('#facebook-img-container').css({height:108});
-                 $('#facebook-img').css({height:100});
-                 $('#facebook-img').addClass('shadow-5l');
-                 }
-                 else{
-                 $('#facebook-img-container').addClass('shadow-5l');
-                 }*/
-            });
 
             $('.user-info-button').each(function(){
                 var origColor = $(this).css('color');
                 var origBGColor = $(this).css('background-color');
                 $(this).hover(function(){
                             $(this).css({border:'1px solid #296881'});
-                            $(this).animate({color:'#296881', backgroundColor:'#e5eff3'}, 400);
+                            $(this).animate({color:'#296881', backgroundColor:'#93c7df'}, 400);
                         }, function(){
-                            $(this).css({border:'none'});
+                            $(this).css({border:'1px solid #cccccc'})
                             $(this).animate({color:origColor, border:'1px solid #296881', backgroundColor:origBGColor}, 400);
                         });
             });
@@ -66,8 +40,23 @@
             }
 
             $('.video-container:last').css('border-bottom', 'none');
+
             videoController.prepareEmbeds();
 
+        });
+
+        $(window).load(function(){
+            $('#arrow').css({
+                top:$('.user-info-button.selected').offset().top+3,
+                marginLeft:$('.user-info-button.selected').width() + 20
+            });
+
+            var x = $('#videoListWrapper').offset().top + $('#videoListWrapper').height();
+            var y = $('#arrow').offset()
+
+            if($('.user-info-button.selected').offset().top < $('#videoListWrapper').offset().top + $('#videoListWrapper').height())
+                $('#arrow').fadeIn(200);
+                        
         });
     </script>
     {% block script_ext %}{% endblock script_ext %}
@@ -103,18 +92,22 @@
             </div>
             <div id="user-info">
                 <div class="link-wrapper">
-                    <a href="/{{ profile_owner.username }}" class='user-info-button rounded-corners-8'>
+                    <a href="/{{ profile_owner.username }}" class='user-info-button liked-videos rounded-corners-8 selected'>
                     <span class="profile-basic-statistics">
+                        <span class='bold'>
                         {{ profile_owner|total_liked_videos }}
+                        </span>
                             Liked videos
                     </span>
                     </a>
                 </div>
                 <div class='link-wrapper'>
-                    <a href="/followers/{{ profile_owner.id }}" class='user-info-button rounded-corners-8'>
+                    <a href="/followers/{{ profile_owner.id }}" class='user-info-button followers rounded-corners-8'>
                         <span class="profile-basic-statistics">
                             <span id="follower-count-user-{{ profile_owner.id }}">
+                                <span class='bold'>
                                 {{ profile_owner.followers|length }}
+                                </span>
                                 {% if profile_owner.followers|length_is:1 %}
                                     Follower
                                 {% else %}
@@ -124,9 +117,11 @@
                     </a>
                 </div>
                 <div class='link-wrapper'>
-                    <a href="/following/{{ profile_owner.id }}" class='user-info-button rounded-corners-8'>
+                    <a href="/following/{{ profile_owner.id }}" class='user-info-button following rounded-corners-8'>
                         <span class="profile-basic-statistics">
+                            <span class='bold'>
                             {{ profile_owner.following|length }}
+                            </span>
                             {% if profile_owner.following|length_is:1 %}
                                 Followed user
                             {% else %}
@@ -137,6 +132,7 @@
                 </div>
             </div>
         </div>
+        <img id='arrow' src='{{ STATIC_URL }}images/profile/arrow.png'/>
     </div>
     {% block video_section %}
         <div id='username-display'>

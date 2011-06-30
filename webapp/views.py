@@ -229,7 +229,7 @@ def user_page(request, user_id, relation):
             # If page is out of range (e.g. 9999), deliver last page of results.
             related_users_subset = paginator.page(paginator.num_pages)
         return render_to_response('user_list.html', {'related_users':related_users_subset.object_list,\
-                        'heading': heading, 'profile_owner':target_user, \
+                        'heading': heading, 'profile_owner':target_user, 'display_mode':relation,\
                         'is_own_profile':is_own_profile}, context_instance=RequestContext(request))
     except (ObjectDoesNotExist, ValueError), e:
         return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)

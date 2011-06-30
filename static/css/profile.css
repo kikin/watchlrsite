@@ -21,6 +21,8 @@
 	width:250px;
     color:#0c536f;
     float:left;
+    margin-top: 15px;
+    margin-left:10px;
 }
 /*
 .user-info.gradient{
@@ -45,6 +47,7 @@
     background-color: #ffffff;
     padding-bottom:16px;
     padding-top:16px;
+    border: 1px solid #cccccc;
 }
 
 #facebook-img{
@@ -190,11 +193,23 @@
     text-align: center;
     padding-top: 10px;
     padding-bottom:10px;
-    background-color: #ffffff;
+    background-color: #e5eff3;
     margin-left: auto;
     margin-right: auto;
     display:block;
     color:#44b6e6;
+    border: 1px solid #cccccc;
+}
+
+.user-info-button.selected{
+    background-color:#93c7df;
+    border: 1px solid #296881;
+    color: #296881;
+}
+
+#arrow{
+    position:absolute;
+    display:none;
 }
 
 .profile .link-wrapper{
@@ -220,4 +235,8 @@
     font-size:20px;
     font-weight: 500;
     font-style:italic;
+}
+
+.bold{
+    font-weight: 700;
 }
