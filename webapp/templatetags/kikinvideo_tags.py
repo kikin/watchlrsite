@@ -183,7 +183,6 @@ def fb_thumb_href(users, user):
 @register.filter
 def activity_item_heading(activity_item, user):
     video = activity_item.video
-    dropdown_link_target ='javascript:home.showVidLikedBy(%s)' % activity_item.video.id
     all_likers = activity_item.video.all_likers()
     content = ''
     if activity_item.video in user.liked_videos():
@@ -192,13 +191,13 @@ def activity_item_heading(activity_item, user):
             content += " liked..."
 
         elif len(activity_item.users) == 1 and len(all_likers) == 2:
-            content += ' and <a href="%s">1 other</a> liked...' % dropdown_link_target
+            content += ' and 1 other liked...'
 
         elif len(activity_item.users) == 1 and len(all_likers) > 2:
-            content += ' and <a href="%s">%s others</a> liked...' % (dropdown_link_target, str(len(all_likers) - 1))
+            content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
         elif len(activity_item.users) == 2 and len(all_likers) == 2:
             if activity_item.users[0][0] != user:
-                content += ' and <a href="/%s">%s</a> liked...'%(activity_item.users[0][0].username, activity_item.users[0][0].first_name)
+                content += ' and <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'
             else:
                 content += ' and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> liked...'
         elif len(activity_item.users) >= 2:
@@ -207,16 +206,16 @@ def activity_item_heading(activity_item, user):
             else:
                 content += ', <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> '
             if len(all_likers) - 2 == 1:
-                content += ' and <a href="%s">1 other</a> liked...' % dropdown_link_target
+                content += ' and 1 other liked...'
             else:
-                content += ' and <a href="%s">%s others</a> liked...' % (dropdown_link_target, str(len(all_likers) - 2))
-    
+                content += ' and ' + str(len(all_likers) - 2) + ' others liked...'
+
     else:
         if len(activity_item.users) == 1 and len(all_likers) == 1:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'
         elif len(activity_item.users) == 1 and len(all_likers) == 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>'
-            content += ' and <a href="%s">1 other</a> liked...' % dropdown_link_target
+            content += ' and 1 other liked...'
         elif len(activity_item.users) == 1 and len(all_likers) > 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>'
             content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
@@ -226,17 +225,17 @@ def activity_item_heading(activity_item, user):
         elif len(activity_item.users) == 2 and len(all_likers) == 3:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>, '
             content += '<a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a>'
-            content += ' and <a href="%s">1 other</a> liked...'%dropdown_link_target
+            content += ' and 1 other liked...'
         elif len(activity_item.users) == 2 and len(all_likers) > 3:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>, '
             content += '<a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a>'
-            content += ' and <a href="%s">%s</a> others liked...' % (dropdown_link_target, str(len(all_likers)-2))
+            content += ' and '+ str(len(all_likers)-2) + ' others liked...'
         elif len(activity_item.users) > 2:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>'
             if len(all_likers) - 2 == 1:
-                content += ' and <a href="%s">1 other</a> liked...'%dropdown_link_target
+                content += ' and 1 other liked...'
             else:
-                content += ' and <a href="%s">%s</a> others liked...' % (dropdown_link_target, str(len(all_likers) - 1))
+                content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
     return content
 
 @register.filter
