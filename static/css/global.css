@@ -247,6 +247,7 @@ a:hover {
     z-index:9999;
     background-color: #FFFFFF;
     opacity: 0.2;
+    padding-bottom:40px;
 }
 
 .loading {
