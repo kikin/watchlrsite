@@ -510,7 +510,7 @@ class User(auth_models.User):
         dismissed = list(self.dismissed_user_suggestions.all())
 
         for user in users:
-            if user not in following and user not in dismissed:
+            if not user == self and user not in following and user not in dismissed:
                 suggestions.append(user)
 
         return suggestions
