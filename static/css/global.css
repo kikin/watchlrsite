@@ -84,8 +84,9 @@ body {
     font-size: 13px;
     margin: 0;
     text-align: center;
-    background-color: #fafcfc;
- /*   background-color: #fbfbfb;*/
+    background:  url(/static/images/bg/noise.png) repeat;
+ /*   background-color: #fafcfc;
+    background-color: #fbfbfb;*/
 }
 
 a {
@@ -296,8 +297,7 @@ ul.navigation {
     width:700px; 
     margin-left:0px;
     padding-left:5px;
-   /* margin: 0px auto 0px auto;
-    padding-left: 5px;*/
+    font-weight: 900;
 }
 
 ul.navigation li {
@@ -311,30 +311,26 @@ ul.navigation li {
     float: left;
     margin: 0 10px 0 0;
     position: relative;
-    top: 2px;
     background: #eee;
     margin-left: -5px;
     z-index:0;
+    font-weight: bold;
 }
 
 ul.navigation li a:link, ul.navigation li a:visited {
-    -webkit-border-radius: 10px 10px 2px 2px;
-    -moz-border-radius: 10px 10px 2px 2px;
-    border-radius: 10px 10px 2px 2px;
+    -webkit-border-radius: 10px 10px 0px 0px;
+    -moz-border-radius: 10px 10px 0px 0px;
+    border-radius: 10px 10px 0px 0px;
     display: block;
     text-align: center;
     width: 168px;
-    height: 40px;
+    height: 38px;
     line-height: 40px;
-    text-transform: uppercase;
     text-decoration: none;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 20px;
     color: #FFFFFF;
-    letter-spacing: 1px;
     outline: none;
     float: left;
-    top: 1px;
     background-color: #0c536f;
     -webkit-transition: background-color 0.3s linear;
     -moz-transition: background-color 0.3s linear;
