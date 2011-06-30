@@ -14,3 +14,4 @@ Thumbs.db
 plugin/Builds/
 celerybeat-schedule
 *.iml
+src
