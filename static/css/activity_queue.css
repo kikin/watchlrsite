@@ -1,5 +1,5 @@
 .activity-queue-item {
-    width:720px;
+    width:730px;
     height:210px;
     border-bottom: 1px solid #cccccc;
     margin-left:auto;
@@ -61,5 +61,5 @@
 }
 
 .activity-queue-item .video-buttons{
-    
+    margin-left:638px;
 }
