@@ -176,6 +176,8 @@ def fb_thumb_href(users, user):
     for user_tuple in users:
         if user_tuple[0] != user:
            return  "/"+user_tuple[0].username
+    if len(users) == 1:
+        return  "/"+users[0][0].username
     return ""
 
 @register.filter
@@ -207,7 +209,7 @@ def activity_item_heading(activity_item, user):
                 content += ' and 1 other liked...'
             else:
                 content += ' and ' + str(len(all_likers) - 2) + ' others liked...'
-    
+
     else:
         if len(activity_item.users) == 1 and len(all_likers) == 1:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'

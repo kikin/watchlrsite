@@ -12,7 +12,7 @@ kikinvideo.HomeViewController = function() {
 
     var LIKED_INFO_CONTAINER_ID_PREFIX = "#video-liked-info-vid-";
 
-    var VIDEO_CONTAINER_CLASS = "video-wrapper";
+    var VIDEO_CONTAINER_CLASS = ".video-wrapper";
 
     var VIDEO_CONTAINER_ID_PREFIX = "#video-";
 
@@ -151,6 +151,33 @@ kikinvideo.HomeViewController = function() {
             });
 
         });
+
+         $(VIDEO_CONTAINER_CLASS).each(function(){
+             //don't bind this hover actions for detail view!
+               if(activeView != VIEWS.detail){
+                    $(this).hover(
+                        function(){
+                            $(this).animate({backgroundColor:'#f3f6f8'}, 500);
+                        },
+                        function(){
+                            $(this).animate({backgroundColor:'#ffffff'}, 500);
+                        }
+                    );
+               }
+         });
+
+        $(VIDEO_CONTAINER_CLASS+' a, '+'#lnk-page-next').each(function(){
+                var origColor = $(this).css('color');
+                $(this).hover(
+                    function(){
+                        $(this).animate({color:'#144D63'}, 500);
+                    },
+                    function(){
+                        $(this).animate({color:origColor}, 500);
+                    }
+                );
+         });
+        
     }
 
     function populatePanel() {
@@ -182,8 +209,6 @@ kikinvideo.HomeViewController = function() {
         $.get(contentSource, requestParams, function(data) {
             $(VIDEO_PANEL_SELECTOR).html(data);
 
-            stylizeVideoTitles();
-
             _bindVideoPanelEvents();
 
             var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
@@ -194,21 +219,21 @@ kikinvideo.HomeViewController = function() {
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
-                $('.video-container:last').css('border-bottom', 'none');
+                $('.video-container:last').css({'border-bottom': 'none'});
             }else if(activeView == VIEWS.savedQueue){
                 if(queueItemCount >= saveVideosPaginationThreshold){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
-                $('.video-container:last').css('border-bottom', 'none');
+                $('.video-container:last').css({'border-bottom': 'none'});
             }else if(activeView == VIEWS.activity){
                 if(queueItemCount >= activityItemsToLoad){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
-                $('.activity-queue-item:last').css('border-bottom', 'none');
+                $('.activity-queue-item:last').css({'border-bottom': 'none'});
             }
 
             //because HTML5 videos don't respect display:'none'
@@ -224,7 +249,7 @@ kikinvideo.HomeViewController = function() {
             $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(800, function(){
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
                 if(activeView == VIEWS.savedQueue){
-                    if($("."+VIDEO_CONTAINER_CLASS).length == 0){
+                    if($(VIDEO_CONTAINER_CLASS).length == 0){
                         populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                     }
                 }

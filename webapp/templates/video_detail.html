@@ -20,18 +20,14 @@
         }
     {% endif %}
 
-	.video-wrapper{
-		text-align:left;
-        width:700px;
-        margin-left: auto;
-        margin-right: auto;
-	}
 	h3.video-title{
 		margin-bottom:20px;
 	}
     .video-player{
-        position:relative;
+        position:static;
         margin-top:20px;
+        margin-left: auto;
+        margin-right: auto;
         display:block;
     }
 
@@ -56,6 +52,18 @@
     .video-thumbnail-btn{
         display:none;
     }
+
+    .video-description{
+        position: absolute;
+        margin-left:140px;
+    }
+
+
+    .video-saved{
+        position: absolute;
+        margin-left: 140px;
+        margin-top:90px;
+    }
     </style>
 {% endblock style_refs%}
 
@@ -63,12 +71,17 @@
     <script src="{{ STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    
+    <script type="text/javascript">
+    activeView = VIEWS.detail;
+    $(document).ready(function(){
+        home.bindVideoPanelEvents();
+    });
+    </script>
 {% endblock script_refs %}
 
 {% block content %}
     {% if not user.is_authenticated %}
-    <div id="user-info-container">
+    <div id="user-info-container" class="rounded-corners-8">
         <div class="user-info gradient"></div>
         <div class="inner">
             Watchlr helps you <span class="blue">discover</span>, <span class="blue">save</span> and
@@ -78,7 +91,7 @@
         </div>
     </div>
     {% endif %}
-    <div id="video-section" style="width: 680px;">
+    <div id="video-section">
         <div id="videoListWrapper">
             <div id="videoList">
                 {% video_queue_item %}

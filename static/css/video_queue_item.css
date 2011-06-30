@@ -8,33 +8,48 @@
     width:150px;
     height:110px;
     margin-left:0px;
-    margin-top:35px;
+    margin-top:5px;
 }
 
 .video-info{
     position:absolute;
     margin-left:170px;
-    margin-top:35px;
+    margin-top:30px;
 }
 
 .video-container{
-    height:170px;
+    height:140px;
 }
 
 .video-title{
     position:absolute;
     margin-top: 0px;
-    margin-left:0px;
+    margin-left:170px;
+    padding-top: 0px;
 }
 
 .video-description{
-    width:400px;
+    width:450px;
 }
 
 .video-thumbnail-btn {
-    position:absolute;
     height: 110px;
     background: url(/static/images/kkn-video-sprites.png) no-repeat -300px 38px;
     position: relative;
     top: -120px;
+}
+
+.video-queue-item .video-saved{
+    position:absolute;
+    margin-top:67px;
+}
+
+.video-queue-item .video-description{
+    position:absolute;
+    width:480px;
+    margin-top:0px;
+}
+
+.video-container{
+    width:720px;
 }
