@@ -1,7 +1,7 @@
 /**
  * @package com.watchlr.hosts.youtube.adapters
  */
-$cwh.adapters.KikinSiteAdapter.extend("com.kikin.hosts.youtube.adapters.KikinSiteAdapter", {}, {
+$cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.youtube.adapters.KikinSiteAdapter", {}, {
 	
 	run: function() {
 

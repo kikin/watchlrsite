@@ -1,7 +1,7 @@
 /**
  * @package com.watchlr.hosts.youtube.adapters
  */
-$cwh.adapters.KikinVideoAdapter.extend("com.kikin.hosts.youtube.adapters.KikinVideoAdapter", {}, {
+$cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.youtube.adapters.KikinVideoAdapter", {}, {
 
 	/* @override */
 	attach: function() {
@@ -10,7 +10,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.kikin.hosts.youtube.adapters.KikinVi
 
     _findVideoUrl: function(embed) {
         try {
-            var videoUrl = this.parent(embed);
+            var videoUrl = this._super(embed);
             if (!videoUrl) {
                 var videoId = this._getNodeValue(embed, 'data-youtube-id');
                 if (videoId) {

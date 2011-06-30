@@ -1,7 +1,7 @@
 /**
  * @package com.watchlr.hosts.youtube.adapters
  */
-$cwh.adapters.InSituVideoAdapter.extend("com.kikin.hosts.youtube.adapters.InSituVideoAdapter", {}, {
+$cwh.adapters.InSituVideoAdapter.extend("com.watchlr.hosts.youtube.adapters.InSituVideoAdapter", {}, {
 	 
 	/*attach: function() {
     	// add needed styles
