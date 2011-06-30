@@ -15,10 +15,10 @@
    ],
    "description": "Watch, share, and play any video anywhere",
    "icons": {
-      "24": "icon_24.png",
+      "24": "icon_24.PNG",
       "48": "icon.png"
    },
-   "name": "kikin Video",
+   "name": "Watchlr",
    "permissions": [ "tabs",  "http://*/*" , "https://*/*" ],
    "version": "1.0.0",
    "update_url": "https://kbp.de.kikin.com/wbp-data/updates/update.xml"

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<overlay id="kikin-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/x-javascript" src="chrome://kikin/content/browserOverlay.js" />
+  <!--<menupopup id="menu_ToolsPopup">
+    <menuitem insertafter="devToolsSeparator" label="My kikin" accesskey="k" oncommand="com.kikin.plugin.showOptions();" />
+  </menupopup> -->
+  <!--<statusbar id="status-bar">
+    <statusbarpanel class="statusbarpanel-iconic"
+                    id="kikinStatusBar"
+                    tooltiptext="kikin"
+                    image="chrome://kikin/content/icon_16.png"
+                    onclick="com.kikin.plugin.onStatusBarButtonClick()" />
+  </statusbar>-->
+</overlay>

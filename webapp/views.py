@@ -18,16 +18,19 @@ INVITE_LIST_SIZE = 5
 #"this video liked by..." dropdown
 _VID_LIKED_BY_PAGINATION_THRESHOLD = 1
 
+
+# For new users, grab campaign parameter and store in database
 def login_complete(request):
-    # Client requires that we pass in a Set-Kke header with session key so as to persist it
-    # in its cookie jar. This is just an intermediary view which does exactly that and
-    # redirects user to `home` view.
     if request.user.is_authenticated():
-        response = HttpResponseRedirect('/')
-        response['Set-Kke'] = '_KVS=%s' % request.session.session_key
-        return response
+        try:
+            request.user.campaign = request.GET['campaign']
+            request.user.save()
+        except KeyError:
+            pass
+        return home(request)
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
+
 
 def home(request):
     if request.user.is_authenticated():
@@ -43,6 +46,7 @@ def home(request):
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
 
+
 #hard coding tag bindings so you can see how this will work...
 def profile(request):
     return render_to_response('profile.html', context_instance=RequestContext(request))
@@ -57,6 +61,7 @@ def profile_edit(request):
 def logout_view(request):
     logout(request, next_page='')
     return HttpResponseRedirect('/')
+
 
 def liked_video_queue(request):
     if request.method == 'GET' and 'user_id' in request.GET:
@@ -102,8 +107,6 @@ def liked_video_queue(request):
     return HttpResponseForbidden('you are not authorized to view this content, please log in')
 
 
-
-
 def saved_video_queue(request):
     if request.method == 'GET' and request.user.is_authenticated():
         all_saved_vids = request.user.saved_videos()
@@ -135,7 +138,8 @@ def video_player(request, video_id):
             return HttpResponseNotFound()
         else:               
             return render_to_response('inclusion_tags/video_player.hfrg', {'video': video_query_set[0]})
-        
+
+
 def video_detail(request, video_id):
         try:
             video = Video.objects.get(pk=int(video_id))
@@ -160,23 +164,30 @@ def public_profile(request, username):
     except Exception, e:
         raise Http404
 
+
 def download_pitch(request):
     return render_to_response('boilerplate/download_pitch.html', context_instance=RequestContext(request))
+
 
 def contact(request):
     return render_to_response('boilerplate/contact.html', context_instance=RequestContext(request))
 
+
 def about(request):
     return render_to_response('boilerplate/about.html', context_instance=RequestContext(request))
+
 
 def tos(request):
     return render_to_response('boilerplate/tos.html', context_instance=RequestContext(request))
 
+
 def plugin_pitch(request):
     return render_to_response('content/plugin_pitch.hfrg')
 
+
 def privacy(request):
     return render_to_response('boilerplate/privacy.html', context_instance=RequestContext(request))
+
 
 def activity(request):
     if request.user.is_authenticated():
@@ -200,6 +211,7 @@ def activity(request):
         return render_to_response('content/activity_queue.hfrg', \
                 {'activity_items':vid_subset},context_instance=RequestContext(request))
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+
 
 #view renders (paginated) user list (using templ. user_list.html)
 def user_page(request, user_id, relation):
@@ -234,11 +246,14 @@ def user_page(request, user_id, relation):
     except (ObjectDoesNotExist, ValueError), e:
         return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
 
+
 def followers(request, user_id):
     return user_page(request, user_id, relation='followers')
 
+
 def following(request, user_id):
     return user_page(request, user_id, relation='following')
+
 
 def video_liked_by(request, video_id):
     try:
@@ -263,6 +278,7 @@ def video_liked_by(request, video_id):
         return HttpResponseNotFound()
     return render_to_response('content/user_dropdown.hfrg', {'video':video, 'users':likers, 'has_next':has_next, 'has_prev':has_prev,\
                                                              'next_start_index': next_start_index, 'next_count':next_count})
+
 
 def leaderboard(request):
     user_list = User.objects.filter(is_registered=True).order_by('-karma', 'id')
