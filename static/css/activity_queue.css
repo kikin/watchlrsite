@@ -6,9 +6,12 @@
     margin-right: auto;
 }
 
+
+
 .activity-queue.inner{
-    margin:10px;
-    min-height:200px;
+    margin-left:10px;
+    margin-right:10px;
+    min-height:190px;
 }
 
 .activity-queue-item .video-image{
@@ -61,5 +64,5 @@
 }
 
 .activity-queue-item .video-buttons{
-    margin-left:638px;
+    margin-left:633px;
 }
