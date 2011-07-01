@@ -51,9 +51,9 @@
 
         <a href="javascript:home.handleLike({{ video.id }})">
         {% if video in user.liked_videos %}
-            <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
+            <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}" title="unlike"></div>
         {% else %}
-            <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}"></div>
+            <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}" title="like"></div>
         {% endif %}
         </a>
 
