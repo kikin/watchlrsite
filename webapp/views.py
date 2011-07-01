@@ -305,4 +305,18 @@ def leaderboard(request):
     return render_to_response('leaderboard.html', {'users': users}, context_instance=RequestContext(request))
 
 def email_preferences(request):
-    pass
+    if request.user.is_authenticated():
+        if request.method == 'GET':
+            return render_to_response('email_preferences.html',
+                                      {'saved': False, 'follow_email': request.user.preferences().get('follow_email', 1)},
+                                      context_instance=RequestContext(request))
+        else:
+            if request.POST.get('follow-email-checkbox', '').lower() == 'on':
+                request.user.set_preferences({'follow_email': 1})
+            else:
+                request.user.set_preferences({'follow_email': 0})
+            return render_to_response('email_preferences.html',
+                                      {'saved': True},
+                                      context_instance=RequestContext(request))
+    else:
+        return render_to_response('logged_out.html', context_instance=RequestContext(request))

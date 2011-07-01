@@ -1434,12 +1434,12 @@ def send_follow_email_notification(followee, follower):
     message_template = '''Hey there {0},
 
 {1} {2} is now following your liked videos on Watchlr.
-You {3} follow {1}. You chan check out their profile at {4}.
+You {3} follow {1}. You chan check out their profile{4} at {5}.
 
 Best,
 Team Watchlr
 
-If you'd rather not receive follow notification emails, you can manage your settings here - {5}.'''
+If you'd rather not receive follow notification emails, you can manage your settings here - {6}.'''
 
     logger = send_follow_email_notification.get_logger()
     logger.info('Sending follow notification to %s for %s' % (followee.username, follower.username))
@@ -1447,9 +1447,12 @@ If you'd rather not receive follow notification emails, you can manage your sett
     try:
         subject = '{0} {1} is now following you on Watchlr'.format(follower.first_name, follower.last_name)
 
+        following = follower in followee.following()
         server_name = 'http://%s' % Site.objects.get_current().domain
+
         message = message_template.format(followee.first_name, follower.first_name, follower.last_name,
-                                          'already' if follower in followee.following() else 'don\'t',
+                                          'already' if following else 'don\'t',
+                                          ' and follow them' if not following else '',
                                           '%s%s' % (server_name, follower.get_absolute_url()),
                                           '%s%s' % (server_name, reverse('email_preferences')))
 
