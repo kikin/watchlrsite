@@ -364,6 +364,8 @@ kikinvideo.HomeViewController = function() {
                             if(!$(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).hasClass('saved')){
                                 $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).addClass('saved');
                             }
+
+                            $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).attr('title', 'saved');
                         }else if(!response.result.saved){
                             if($(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).hasClass('saved')){
                                 $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).removeClass('saved');
