@@ -81,6 +81,16 @@
                     {% endfor %}
                     {% endif %}
                 </div>
+                {% if page.has_next or page.has_previous %}
+                <div class='page-button-container'>
+                    {% if page.has_previous %}
+                        <a href="?page={{ page.previous_page_number }}" class='page-button previous rounded-corners-8'>Previous</a>
+                    {% endif %}
+                    {% if page.has_next %}
+                        <a href="?page={{ page.next_page_number }}" class='page-button next rounded-corners-8'>Next</a>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -203,6 +203,8 @@ kikinvideo.UIUniversal =
                         $(PROFILE_OPTIONS_PANEL_SELECTOR).width($(PROFILE_OPTIONS_BUTTON_SELECTOR).width());
                         $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
                         profile_options_panel_visible = true;
+                        if(!$('#header-right').hasClass('selected'))
+                            $('#header-right').addClass('selected')
                     }
                 });
 
@@ -212,6 +214,8 @@ kikinvideo.UIUniversal =
                     if (profile_options_panel_visible) {
                         $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         profile_options_panel_visible = false;
+                        if($('#header-right').hasClass('selected'))
+                            $('#header-right').removeClass('selected');
                     }
                 });
             }

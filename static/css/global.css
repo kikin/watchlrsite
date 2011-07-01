@@ -149,7 +149,14 @@ a:hover {
 
 #header-right {
     float: right;
-    margin: 10px 10px 0 0;
+    height:40px;
+    padding-top: 10px;
+    margin-right:5px;
+}
+
+#header-right.selected{
+    background: -webkit-gradient(linear, left top, left bottom, from(#032e40), to(#0C536F));
+    background: -moz-linear-gradient(top,  #032e40,  #0C536F);
 }
 
 #header-right .gbma {
@@ -175,26 +182,32 @@ a:hover {
 /** Options **/
 #options {
     display: none;
-    background: transparent;
     position: absolute;
+    top:10px;
     right: 5px;
     padding-top: 3px;
     width: 120px;
-
-    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
-
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     z-index: 10000;
 }
 
 #options ul {
-    padding: 10px;
+    padding-left: 14px;
+    padding-right:6px;
+    padding-top:7px;
+    padding-bottom:6px;
     text-align: left;
     position: relative;
     top: -2px;
-    background: #fff;
+    background: #0c536f;
+    color:#ffffff;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    -moz-border-radius-bottomright: 10px;
 }
 
 #options li {
@@ -202,11 +215,10 @@ a:hover {
 }
 
 #options a{
-   color: #0c536f;
+    color:#ffffff;
 }
 
 .options-breaker {
-    border-bottom: 0px solid #DDDDDD;
     margin: 38px 0 0 0;
 }
 
@@ -844,7 +856,6 @@ a#lnk-page-next:hover {
 
 #header-right .kkn-fb-connect {
     width: 150px;
-    height: 24px;
     background: url(/static/images/facebook_signin.png) no-repeat;
     cursor: pointer;
     display: block;
