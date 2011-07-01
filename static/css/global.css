@@ -84,9 +84,7 @@ body {
     font-size: 13px;
     margin: 0;
     text-align: center;
-    background:  url(/static/images/bg/noise.png) repeat;
- /*   background-color: #fafcfc;
-    background-color: #fbfbfb;*/
+    background-color: #fafcfc;
 }
 
 a {
