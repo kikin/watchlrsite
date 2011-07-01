@@ -8,8 +8,9 @@
     -webkit-border-radius: 8px;;
     z-index:0;
     margin-top:20px;
-    float:right;
+    float:left;
     text-align: center;
+    margin-left:15px;
 }
 
 #videoList{
@@ -17,10 +18,8 @@
 }
 
 #user-info-container{
-	width:250px;
     color:#0c536f;
     float:left;
-    margin-left:10px;
 }
 /*
 .user-info.gradient{
@@ -36,15 +35,12 @@
 {
 	padding-top:15px;
     padding-bottom: 15px;
-    padding-left: 10px;
-    padding-right: 10px;
 }
 
 #facebook-img-container
 {
     background-color: #ffffff;
-    padding-bottom:16px;
-    padding-top:16px;
+    padding: 10px;
     border: 1px solid #cccccc;
 }
 
@@ -185,7 +181,7 @@
 }
 
 .user-info-button{
-    width:225px;
+    width:220px;
     font-size:15px;
     font-weight: 500;
     text-align: center;
@@ -217,10 +213,10 @@
 
 #username-display{
     margin-top:10px;
-    margin-left:10px;
+    margin-left:15px;
     width:780px;
     color:#75c7e9;
-    float:right;
+    float:left;
     font-size: 22px;
     font-weight:900;
     text-align: left;
