@@ -658,7 +658,8 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
     is_new = getattr(user, 'is_new', False)
     if is_new:
         from api.tasks import slugify
-        user.username = response.get('username', slugify(details['fullname'], user.id))
+        fullname = '.'.join([user.first_name, user.last_name])
+        user.username = response.get('username', slugify(fullname, user.id))
 
     # Ensure that the status flag is set
     # This flag promotes, possibly a facebook friend to a regular user
