@@ -22,7 +22,6 @@
 
 #user-list .username{
     float: left;
-    font-family: Helvetica;
     font-size: 18px;
     margin-left: 15px;
     margin-top: 25px;
@@ -39,7 +38,6 @@
     -webkit-border-radius:6px;
     color:#ffffff;
     background-color:#0c536f;
-    font-family: Arial;
     font-size:13px;
     font-weight: 800;
     text-align:center;
