@@ -134,7 +134,7 @@ def is_vimeo(video):
 
 @register.filter
 def truncate_text(text, letter_count):
-    if len(text) > letter_count:
+    if text and len(text) > letter_count:
         return text[0:letter_count] + '...'
     else:
         return text

@@ -2,11 +2,13 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import login, logout
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 
-from kikinvideo.api.models import Video, User, Preference
+from kikinvideo.api.models import Video, User
+
+import logging
+logger = logging.getLogger('kikinvideo')
 
 ACCESS_FORBIDDEN_MESSAGE = "you are not authorized to access the content you have requested"
 MALFORMED_URL_MESSAGE = 'Error: malformed URL supplied to host'
@@ -22,6 +24,7 @@ _VID_LIKED_BY_PAGINATION_THRESHOLD = 1
 # For new users, grab campaign parameter and store in database
 def login_complete(request):
     if request.user.is_authenticated():
+        logger.info('Wohoo! New user registered:%s (campaign=%s)' % (request.user.username, request.GET.get('campaign')))
         try:
             request.user.campaign = request.GET['campaign']
             request.user.save()
@@ -162,7 +165,8 @@ def public_profile(request, username):
             return render_to_response('profile.html', {'user':request.user, 'profile_owner':user, 'display_mode':'profile',\
                                                        'is_own_profile':False, 'videos':user.liked_videos()},\
                                                         context_instance=RequestContext(request))
-    except Exception, e:
+    except Exception:
+        logger.exception('User:%s not found' % username)
         raise Http404
 
 
