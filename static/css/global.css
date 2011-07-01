@@ -10,6 +10,11 @@ html {
     background: #FFF;
 }
 
+html, body{
+    height:100%;
+    background-color: #fafcfc;
+}
+
 body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td {
     margin: 0;
     padding: 0;
@@ -84,7 +89,6 @@ body {
     font-size: 13px;
     margin: 0;
     text-align: center;
-    background-color: #fafcfc;
 }
 
 a {
@@ -225,6 +229,8 @@ a:hover {
 #wrapper {
     width:100%;
     text-align: center;
+    min-height:100%;
+    padding-bottom:150px;
 }
 
 .section-title {
@@ -465,6 +471,7 @@ ol li {
     padding: 15px 20px 10px 20px;
     color: #999;
     padding-top:80px;
+    margin-top:-150px;
 }
 
 #footer-copyright {
