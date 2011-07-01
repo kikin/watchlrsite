@@ -242,7 +242,6 @@ a:hover {
     width: 1050px;
     margin-left: auto;
     margin-right: auto;
-    min-height: 720px;
 }
 
 .loading-container{
@@ -465,7 +464,7 @@ ol li {
     clear: both;
     padding: 15px 20px 10px 20px;
     color: #999;
-    padding-top:200px;
+    padding-top:80px;
 }
 
 #footer-copyright {
