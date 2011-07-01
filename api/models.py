@@ -317,9 +317,10 @@ class User(auth_models.User):
             result.is_active=True
             result.save()
 
-        if created and other.preferences().get('follow_email', True):
-            from api.tasks import send_follow_email_notification
-            send_follow_email_notification.delay(other, self)
+        # TODO: Uncomment after Amazon grants us production access to SES.
+#        if created and other.preferences().get('follow_email', True):
+#            from api.tasks import send_follow_email_notification
+#            send_follow_email_notification.delay(other, self)
 
         return result
 
