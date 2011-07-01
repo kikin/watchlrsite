@@ -25,7 +25,7 @@
                 </div>
                 <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}"
                         style="width:640px;height:360px;">
-                {{ video.html_embed_code }}
+                {{ video.html5_embed_code }}
                 </div>
             {% endif %}
         {% endautoescape %}
