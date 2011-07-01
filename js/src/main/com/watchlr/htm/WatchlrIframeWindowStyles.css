@@ -1,0 +1,17 @@
+
+html { padding: 0px; margin: 0px; border:none; outline:none; height: 100%; background: transparent; }
+body { padding: 0px; margin: 0px; border:none; outline:none; height: 100%; background: transparent; font-style: normal; font-family:'PT Sans'; font-size:12px;}
+body * { padding: 0px; margin: 0px; outline:none; }
+
+.popup-flash-alert { position:relative; width:100%; height: 100%; background: transparent; }
+.popup-flash-alert > .background { position: absolute; top: 20px; left: 27px; right: 27px; bottom: 30px; background:#FFF;}
+.popup-flash-alert > .top-left { background:#FFF; width:27px; height:20px; position:absolute; top:0; left:0; font-size:0; border-top-left-radius:7px; border-color:#0C536F; border-width:2px 0 0 2px; border-style:solid; }
+.popup-flash-alert > .top-right { background:#FFF; width:27px; height:20px; position:absolute; top:0; right:0; font-size:0; border-top-right-radius:7px; border-color:#0C536F; border-width:2px 2px 0 0; border-style:solid; }
+.popup-flash-alert > .top { background:#FFF; height:20px; position:absolute; left:27px; right:27px; top:0; font-size:0; border-color:#0C536F; border-width:2px 0 0 0; border-style:solid; }
+.popup-flash-alert > .left {  background:#FFF; width:27px; position:absolute; left:0; top:20px; bottom:30px; font-size:0; border-color:#0C536F; border-width:0 0 0 2px; border-style:solid; }
+.popup-flash-alert > .right { background:#FFF; width:27px; position:absolute; right:0; top:20px; bottom:30px; font-size:0; border-color:#0C536F; border-width:0 2px 0 0; border-style:solid; }
+.popup-flash-alert > .bottom-left { background:#FFF; width:27px; height:30px; position:absolute; bottom:0; left:0; font-size:0; border-bottom-left-radius:7px; border-color:#0C536F; border-width:0 0 2px 2px; border-style:solid; }
+.popup-flash-alert > .bottom-right { background:#FFF; width:27px; height:30px; position:absolute; bottom:0; right:0; font-size:0; border-bottom-right-radius:7px; border-color:#0C536F; border-width:0 2px 2px 0; border-style:solid; }
+.popup-flash-alert > .bottom { background:#FFF; height:30px; position:absolute; left:27px; right:27px; bottom:0; font-size:0; border-color:#0C536F; border-width:0 0 2px 0; border-style:solid; }
+.popup-flash-alert > .middle { position: absolute; left:10px; top: 5px; bottom: 15px; right: 10px; overflow: hidden; }
+.popup-flash-alert > .middle > .inner { height: 100%; width: 100%; position: relative; }

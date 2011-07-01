@@ -1,0 +1,42 @@
+{% extends "user_home.html" %}
+{% load kikinvideo_tags %}
+
+{% block style_refs %}
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}css/profile.css'/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/user_list.css"/>
+    <style>
+    .settings{
+        width:300px;
+        text-align: center;
+        margin-left:auto;
+        margin-right: auto;
+    }
+
+    input{
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+
+
+    </style>
+{% endblock style_refs %}
+
+{% block content %}
+    <div class='settings'>
+    <h3>Email notifications</h3>
+    {% if saved %}
+        <b>Saved!</b>
+    {% else %}
+        <form action="/settings/email_preferences" method="POST">{% csrf_token %}
+        <label for="follow-email-checkbox">Email me whenever someone follows me</label>
+            {% if follow_email == 1 %}
+            <input type='checkbox' id="follow-email-checkbox" name="follow-email-checkbox" checked/>
+            {% else %}
+            <input type='checkbox' id="follow-email-checkbox" name="follow-email-checkbox"/>
+            {% endif %}
+        <br>
+        <input id='submit-btn' type="submit" value="Submit" />
+        </form>
+    {% endif %}
+    </div>
+{% endblock content %}

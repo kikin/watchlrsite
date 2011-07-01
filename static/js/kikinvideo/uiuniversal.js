@@ -86,25 +86,24 @@ kikinvideo.UIUniversal =
                     var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
                     var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
 
+
                     var video_player_target_width = video_player_div.width();
                     var video_player_target_height = video_player_div.height();
 
-                    video_player_div.css({top:'50%', 'margin-top':
+                    video_player_div.css({top:'42%', 'margin-top':
                             (video_player_div.height()*-.5)-30});
 
+
                     video_embed_div.hide();
-
-
                     $('body').prepend(VIDEO_PLAYER_BG_HTML);
                     $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none', 'z-index':1000});
                     //because i.e. doesn't support the opacity property...
                         $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
                     video_player_div.fadeIn(100);
 
-                    video_player_div.css({width:video_player_target_width, height:video_player_target_height, display:'none'})
+                    video_player_div.css({display:'none'})
 
                     video_player_div.fadeIn(500, function(){
-                        var html5_video_embed_obj = $(VIDEO_EMBED_WRAPPER_PREFIX+vid).children()[0];
                         video_embed_div.show();
                         /*close video player on click outside its container....*/
                         $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
@@ -113,6 +112,12 @@ kikinvideo.UIUniversal =
                     });
 
                     current_vid = vid;
+
+                    //finally, prepare html5 videos...
+                    if($.browser.webkit){
+          /*              videoController.setMode(videoController.modes.NORMAL);
+                        videoController.setCurVid(vid);*/
+                    }
                 }
             }
 
@@ -122,12 +127,19 @@ kikinvideo.UIUniversal =
                 $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
                     $(VIDEO_PLAYER_BG_SELECTOR).remove();
                 });
-                video_player_div.fadeOut();
+                $('.video-player').fadeOut();
 
                 /*restore the "play" button to the video thumb...*/
                 if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
                     $(VIDEO_BUTTON_ID_PREFIX + vid).addClass(VIDEO_BUTTON_CLASS)
                 }
+
+                //pause video if it is html5
+                if($.browser.webkit){
+           /*             videoController.setMode(videoController.modes.NORMAL);
+                        videoController.pauseVideo();
+                        videoController.savePosition();*/
+                    }
             }
 
             function handleProfileEditPanelOpen(){
@@ -157,7 +169,8 @@ kikinvideo.UIUniversal =
             function handleProfileSave(){
                 if(currentUser){
 
-                    var preferences = '{"syndicate" :'+checkboxValueInt($(SYNDICATE_LIKES_CHECKBOX_ID))+'}';
+                    var preferences = '{ "syndicate":' + checkboxValueInt($(SYNDICATE_LIKES_CHECKBOX_ID)) +
+                                         ',"follow_email":' + checkboxValueInt($(FOLLOW_EMAIL_CHECKBOX_ID)) + '}';
                     var username = $(PROFILE_EDIT_USERNAME_INPUT).val();
                     var email = $(PROFILE_EDIT_EMAIL_INPUT).val();
 
@@ -199,6 +212,8 @@ kikinvideo.UIUniversal =
                     if (profile_options_panel_visible) {
                         $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         profile_options_panel_visible = false;
+                        if($('#header-right'))
+                            $('#header-right').removeClass('selected');
                     }
                 });
             }

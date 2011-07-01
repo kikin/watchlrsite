@@ -1,32 +1,11 @@
-{% if video.html_embed_code %}
-    <div class="video-player" id="video-player-{{ video.id }}">
-        <a href="javascript: UI.closePlayer({{ video.id }})">
-            <div class="close-button-fancy"></div>
-        </a>
-        <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-
-        <div  class="video-embed-wrapper" id="video-embed-wrapper-{{ video.id }}">
-        {% autoescape off %}
-            {{ video.html_embed_code }}
-        {% endautoescape %}
-        </div>
-        </div>
-    </div>
-
+{% load kikinvideo_tags %}
+{% if not settings.ENABLE_HTML5_VIDEO %}
+    {% video_player_flash video %}
 {% else %}
-    <div class="videoplayerContainer">
-        <div class="video-player" id="video-player-{{ video.id }}"
-                style="background-color:#DEDEDE;font-size:16px;">
-            <a href="javascript: UI.closePlayer({{ video.id }})" >
-                <div class="close-button-fancy"></div>
-            </a>
-            <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                <div class="video-no-embed-link">
-                    The host of the video you have selected requests that
-                    you access it at<br>
-                    <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% if request|user_agent_class == 'safari' or request|user_agent_class == 'chrome' %}
+        {% video_player_html5 video %}
+    {% else %}
+        {% video_player_flash video %}
+    {% endif %}
 {% endif %}
+

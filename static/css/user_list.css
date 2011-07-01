@@ -1,30 +1,30 @@
-/*#videoListWrapper{
-    width:400px;
-    margin-left: auto;
-    margin-right: auto;
+#user-list .user-info.wrapper{
+    height:70px;
+    border-bottom: 1px solid #cccccc;
 }
 
-#videoList{
-    width: 380px;
-}*/
 
-#user-list .user-info.wrapper{
-    border-top: 1px solid #b4b4b4;
-    height:70px;
+.user-info.no-users{
+    height:40px;
+}
+
+#user-list .inner{
+    font-size: 18px;
+    text-align: center;
+    margin-top:15px;
 }
 
 #user-list .fb-thumb-square{
-    position:absolute;
-    margin-top:10px;
-    margin-left: 14px;
+    float: left;
+    margin-top: 10px;
+    margin-left: 10px;
 }
 
 #user-list .username{
-    position: absolute;
-    margin-left: 100px;
-    margin-top: 25px;
-    font-family: Helvetica;
+    float: left;
     font-size: 18px;
+    margin-left: 15px;
+    margin-top: 25px;
 }
 
 .user-list-follow-button{
@@ -38,11 +38,46 @@
     -webkit-border-radius:6px;
     color:#ffffff;
     background-color:#0c536f;
-    font-family: Arial;
     font-size:13px;
     font-weight: 800;
     text-align:center;
     padding-top:7px;
+    text-decoration: none;
+}
+
+.user-list-follow-button:hover{
+    text-decoration: none;
+    background-color: #4AB7E3;
+}
+
+.page-button-container{
+    width:100%;
+    padding-top:5px;
+}
+
+.page-button{
+    padding-top:4px;
+    padding-bottom:4px;
+    width:70px;
+    color:#ffffff;
+    background: #0c536f;
+    margin-top: 5px;
+    margin-right:15px;
+    margin-left:15px;
+    opacity:.7;
+}
+
+.page-button:hover{
+    text-decoration: none;
+    background-color: #4AB7E3;
+}
+
+.page-button.previous{
+    float:left;
+}
+
+.page-button.next{
+    float:right;
 }
 
 /*

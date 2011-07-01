@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from traceback import format_exc
 from lxml import etree
 from urllib import urlencode
+from smtplib import SMTPException
 
 import gdata.youtube
 import gdata.youtube.service
@@ -22,8 +23,11 @@ from celery.task.sets import subtask
 from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
 from django.template.defaultfilters import stringfilter
+from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 
 from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend
+from kikinvideo.settings import SENDER_EMAIL_ADDRESS
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -34,6 +38,7 @@ class Source(dict):
     FAVICON_FETCHER = 'http://fav.us.kikin.com/favicon/s?%s'
 
     def __init__(self, name, url, favicon=None):
+        super(Source, self).__init__()
         self['name'] = name
         self['url'] = url
         if favicon is None:
@@ -47,6 +52,7 @@ class Source(dict):
 
 class UrlNotSupported(Exception):
     def __init__(self, url):
+        super(UrlNotSupported, self).__init__()
         self.url = url
 
     def __str__(self):
@@ -78,8 +84,7 @@ class OEmbed(object):
         if meta.get('thumbnail_url'):
             video.set_thumbnail(meta['thumbnail_url'],
                                 meta['thumbnail_width'],
-                                meta['thumbnail_height'],
-                                type='web')
+                                meta['thumbnail_height'])
 
         if meta.get('mobile_thumbnail_url'):
             video.set_thumbnail(meta['mobile_thumbnail_url'],
@@ -608,7 +613,6 @@ class YoutubeFetcher(object):
         return (self.SOURCE,)
 
     def fetch(self, url, logger, **kwargs):
-        match = None
         for pattern in self.YOUTUBE_URL_PATTERNS:
             match = pattern.match(url)
             if match:
@@ -765,7 +769,7 @@ class MockHuluFetcher(object):
 
         logger.debug('Mock Hulu fetcher formulating embed code for url:%s' % url)
 
-        meta = {'html': HuluFetcher.HULU_EMBED_TAG % {'eid': eid}}
+        meta = dict(html=HuluFetcher.HULU_EMBED_TAG % {'eid': eid})
 
         meta['source'] = HuluFetcher.SOURCE
 
@@ -803,7 +807,7 @@ class MockLiveLeakFetcher(object):
 
         logger.debug('Mock LiveLeak fetcher formulating embed code for url:%s' % url)
 
-        meta = {'html': self.LIVELEAK_EMBED_TAG % {'id': id}}
+        meta = dict(html=self.LIVELEAK_EMBED_TAG % {'id': id})
 
         meta['source'] = self.SOURCE
 
@@ -1163,6 +1167,7 @@ class ESPNFetcher(object):
             try:
                 if tag.attrib['name'] == 'description':
                     meta['description'] = tag.attrib['content']
+                    continue
             except KeyError:
                 pass
 
@@ -1184,13 +1189,12 @@ class ESPNFetcher(object):
             meta['thumbnail_url'] = ''.join(image_match.groups())
             meta['thumbnail_width'], meta['thumbnail_height'] = 576, 324
 
+            meta['html5'] = self.ESPN_HTML5_EMBED_TEMPLATE % {'id': image_match.group(2)}
 
         if 'thumbnail_url' not in meta:
             raise Exception('Meta tag "og:image" missing')
 
         meta['html'] = self.ESPN_EMBED_TEMPLATE % id
-        meta['html5'] = self.ESPN_HTML5_EMBED_TEMPLATE % {'id': image_match.group(2)}
-
         meta['source'] = self.SOURCE
 
         return meta
@@ -1248,7 +1252,7 @@ if not read_user_blacklist:
 
 
 def slugify(username, id):
-    '''
+    """
     Normalizes string, converts to lowercase, removes non-alphanumeric characters (including spaces).
     Also, checks and appends offset integer to ensure that username is unique.
 
@@ -1268,7 +1272,7 @@ def slugify(username, id):
     <User: user0>
     >>> slugify('about', 123)
     u'user01'
-    '''
+    """
     username = normalize('NFKD', username).encode('ascii', 'ignore')
     username = basename = unicode(sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
 
@@ -1371,7 +1375,7 @@ def fetch_facebook_friends(user):
             try:
                 fb_friend = fb_identity.user
             except User.DoesNotExist:
-                parts = friend['name'].split(None, 2)
+                parts = friend['name'].split(None, 1)
                 if len(parts) == 2:
                     first, last = parts
                     username = slugify('.'.join([first, last]), -1)
@@ -1423,3 +1427,42 @@ def refresh_friends_list():
         queued += 1
 
     logger.info('Refreshing %d user friend lists' % queued)
+
+
+@task
+def send_follow_email_notification(followee, follower):
+    message_template = '''Hey there {0},
+
+{1} {2} is now following your liked videos on Watchlr.
+You {3} follow {1}. You chan check out their profile{4} at {5}.
+
+Best,
+Team Watchlr
+
+If you'd rather not receive follow notification emails, you can manage your settings here - {6}.'''
+
+    logger = send_follow_email_notification.get_logger()
+    logger.info('Sending follow notification to %s for %s' % (followee.username, follower.username))
+
+    try:
+        subject = '{0} {1} is now following you on Watchlr'.format(follower.first_name, follower.last_name)
+
+        following = follower in followee.following()
+        server_name = 'http://%s' % Site.objects.get_current().domain
+
+        message = message_template.format(followee.first_name, follower.first_name, follower.last_name,
+                                          'already' if following else 'don\'t',
+                                          ' and follow them' if not following else '',
+                                          '%s%s' % (server_name, follower.get_absolute_url()),
+                                          '%s%s' % (server_name, reverse('email_preferences')))
+
+        send_mail(subject, message, SENDER_EMAIL_ADDRESS, [followee.email])
+
+    except SMTPException, exc:
+        logger.exception('Error sending follow notification')
+        send_follow_email_notification.retry(exc=exc)
+
+
+@task
+def fetch_news_feed():
+    pass

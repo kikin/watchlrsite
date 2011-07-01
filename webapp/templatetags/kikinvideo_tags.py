@@ -2,6 +2,7 @@ from django import template
 from datetime import datetime
 from urlparse import urlparse
 from kikinvideo.api.models import UserVideo
+from django.conf import settings as app_settings
 
 from celery import states
 
@@ -107,10 +108,33 @@ def source_url_root(video):
     #going to swallow this...
     except Exception:
         return ""
+    
+@register.filter
+def is_youtube(video):
+    try:
+        url_root = source_url_root(video)
+        if url_root.startswith('http://www.youtube.com') or \
+            url_root.startswith('https://www.youtube.com'):
+            return True
+    except Exception:
+        pass
+    return False
+
+@register.filter
+def is_vimeo(video):
+    try:
+        url_root = source_url_root(video)
+        if url_root.startswith('http://vimeo.com') or \
+            url_root.startswith('https://vimeo.com'):
+            return True
+    except Exception:
+        pass
+    return False
+
 
 @register.filter
 def truncate_text(text, letter_count):
-    if len(text) > letter_count:
+    if text and len(text) > letter_count:
         return text[0:letter_count] + '...'
     else:
         return text
@@ -153,6 +177,8 @@ def fb_thumb_href(users, user):
     for user_tuple in users:
         if user_tuple[0] != user:
            return  "/"+user_tuple[0].username
+    if len(users) == 1:
+        return  "/"+users[0][0].username
     return ""
 
 @register.filter
@@ -184,7 +210,7 @@ def activity_item_heading(activity_item, user):
                 content += ' and 1 other liked...'
             else:
                 content += ' and ' + str(len(all_likers) - 2) + ' others liked...'
-    
+
     else:
         if len(activity_item.users) == 1 and len(all_likers) == 1:
             content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'
@@ -245,9 +271,31 @@ def full_name(user):
         return user.last_name
     return user.first_name + ' ' + user.last_name
 
-@register.inclusion_tag('inclusion_tags/video_player.hfrg')
-def video_player(video):
+#returns either 'mozilla', 'ie', 'safari', 'chrome' or 'other'
+@register.filter
+def user_agent_class(request):
+    u_a = request.META['HTTP_USER_AGENT'].lower()
+    if u_a.find('chrome') != -1:
+        return 'chrome'
+    if u_a.find('safari') != -1:
+        return 'safari'
+    if u_a.find('internet explorer') != -1:
+        return 'ie'
+    if u_a.find('gecko') != -1:
+        return 'firefox'
+    return 'other'
+
+@register.inclusion_tag('inclusion_tags/video_player_flash.hfrg')
+def video_player_flash(video):
     return { 'video' : video }
+
+@register.inclusion_tag('inclusion_tags/video_player_html5.hfrg')
+def video_player_html5(video):
+    return { 'video' : video }
+
+@register.inclusion_tag('inclusion_tags/video_player.hfrg')
+def video_player(video, request):
+    return { 'video' : video, 'request':request, 'settings':app_settings }
 
 @register.inclusion_tag('inclusion_tags/fetching_data.hfrg')
 def fetching_data_message(video):
@@ -260,7 +308,8 @@ def error_fetching_data_message(user, video):
 
 @register.inclusion_tag('inclusion_tags/video_queue_item.hfrg', takes_context=True)
 def video_queue_item(context):
-    queue_ctx = {'user':context['user'], 'video':context['video'], 'display_mode':context['display_mode']}
+    queue_ctx = {'user':context['user'], 'video':context['video'],\
+                 'display_mode':context['display_mode'], 'request':context['request']}
     if 'profile_owner' in context: queue_ctx['profile_owner'] = context['profile_owner']
     return queue_ctx
 

@@ -11,6 +11,7 @@
 {% else %}
     {% for activity_item in activity_items %}
     {% if not activity_item.video|fetching_data %}
+    <div class='video-wrapper'>
     <div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
         <div class="activity-queue inner">
               <a href="{{  activity_item.users|fb_thumb_href:user }}">
@@ -24,7 +25,7 @@
                   {% endautoescape %}
               </div>
 
-             <div class="activity-queue-video-description">{{ activity_item.video.description|truncatewords:25|urlize }}
+             <div class="activity-queue-video-description">{{ activity_item.video.description|truncate_text:170|urlize }}
              <br>
                 <div class="video-source-info">
                     <div class="video-source-favicon-wrapper">
@@ -32,15 +33,15 @@
                         <img src="{{ activity_item.video|source_icon }}" style="width:16px;height:16px;"/>
                         </a>
                         &bull;
-                        <a href="{{ activity_item.video.url }}" target="_blank">source</a>
-                        &bull;
                         <span class="video-timeago">{{ activity_item.timestamp|pretty_date }}</span>
+                        &bull;
+                        <a href="{{ activity_item.video.url }}" target="_blank">source</a>
                     </div>
                 </div>
              </div>
 
 
-             <div class="activity-item-video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|smart_truncate:30 }}</a></div>
+             <div class="video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|truncate_text:35 }}</a></div>
               <a class="video-image" href="javascript:UI.loadPlayer({{ activity_item.video.id }})" id="video-{{ activity_item.video.id }}">
                     <div class="video-thumb-wrapper">
                         <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"/>
@@ -65,9 +66,9 @@
 
                     <a href="javascript:home.handleLike({{ activity_item.video.id }})">
                     {% if activity_item.video in user.liked_videos %}
-                        <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
+                        <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}" title='unlike'></div>
                     {% else %}
-                        <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ activity_item.video.id }}"></div>
+                        <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ activity_item.video.id }}" title='like'></div>
                     {% endif %}
                     </a>
 
@@ -85,10 +86,11 @@
             </div>
         </div>
         <div id="video-player-container" style="margin-top:40px;margin-left: 15px;">
-                {% video_player activity_item.video %}
+                {% video_player activity_item.video request %}
         </div>
     </div>
-    <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
+        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
+    </div>
     {% endif %}
     {% endfor %}
 {% endif %}

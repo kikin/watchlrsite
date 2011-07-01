@@ -11,7 +11,6 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/plugindetect.js"></script>
 {% endblock script_refs %}
 
 {% block header_right %}
@@ -85,9 +84,9 @@
                 {% block videolist %}
                 {% endblock videolist %}
             </div>
+            <a id="lnk-page-next" href="javascript:home.loadMoreVideos()" style="display: none;">load more</a>
         </div>
     </div>
-    <a id="lnk-page-next" href="javascript:home.loadMoreVideos()" style="display: none;">load more</a>
 {% endblock content %}
 <div id="error-msg-dialog" style="display:none;">
     An error occurred processing your request.<br>We apologize for this inconvenience.

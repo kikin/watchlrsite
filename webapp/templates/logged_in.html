@@ -1,33 +1,37 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
 {% block style_refs %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}video_player/video-js.css" type="text/css"/>
     <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
     <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
     <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
+    {% if suggested_followees|length_is:0 %}
+     <style>
+     #content{
+         width:780px;
+     }
+     </style>
+    {% endif %}
+
 {% endblock style_refs %}
 
 {% block script_refs %}
-    <script type="text/javascript" src="{{ STATIC_URL }}video_player/video.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/swfobject.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.swfobject.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/froogaloop.js"></script>
+    <script type="text/javascript" src="http://www.youtube.com/player_api"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/plugindetect.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js"></script>
 
     <script type="text/javascript">
     $(document).ready(function(){
         if(!window.location.hash)
             window.location = "/#!/saved_queue";
-
         {% if suggested_followees|length_is:0 and invite_list|length_is:0 %}
-
-        $('#video-section').css({width:'700px', marginLeft:'auto', marginRight:'auto'});
-        $('#lnk-page-next').css({marginLeft:'auto', marginRight:'auto'});
-
         {% endif %}
-
     });
     </script>
 
@@ -37,9 +41,10 @@
     <div class="right-panel">
     
     {% if not suggested_followees|length_is:0 %}
-    <div class="suggested-followees container">
-        <div class="suggested-followees title">
-            People You May Know
+    <div class="suggested-followees container rounded-corners-8">
+        <div class="inner">
+        <div class="title">
+            People To Follow
         </div>
             {% for kv_user in suggested_followees %}
                 <div class="suggested-followee-item">
@@ -48,16 +53,17 @@
                             <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
                         </div>
                     </a>
-                    <div class="suggested-followees profile-link-container">
+                    <div class="profile-link-container">
                         <a {{ kv_user|user_profile_link }}>
-                            {{ kv_user|full_name|truncate_text:13 }}
+                            {{ kv_user|full_name|truncate_text:16 }}
                         </a>
                     </div>
-                    <a href="javascript:profileViewController.handleFollow({{ kv_user.id }})" id="follow-button-user-{{ kv_user.id }}" class="follow-button shadow-5l">
+                    <a href="javascript:profileViewController.handleFollow({{ kv_user.id }})" id="follow-button-user-{{ kv_user.id }}" class="follow-link">
                         Follow
                     </a>
                 </div>
             {% endfor %}
+            </div>
         </div>
     {% endif %}
 

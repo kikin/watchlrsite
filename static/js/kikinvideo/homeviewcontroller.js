@@ -12,7 +12,7 @@ kikinvideo.HomeViewController = function() {
 
     var LIKED_INFO_CONTAINER_ID_PREFIX = "#video-liked-info-vid-";
 
-    var VIDEO_CONTAINER_CLASS = "video-wrapper";
+    var VIDEO_CONTAINER_CLASS = ".video-wrapper";
 
     var VIDEO_CONTAINER_ID_PREFIX = "#video-";
 
@@ -151,6 +151,33 @@ kikinvideo.HomeViewController = function() {
             });
 
         });
+
+         $(VIDEO_CONTAINER_CLASS).each(function(){
+             //don't bind this hover actions for detail view!
+               if(activeView != VIEWS.detail){
+                    $(this).hover(
+                        function(){
+                            $(this).animate({backgroundColor:'#f3f6f8'}, 400);
+                        },
+                        function(){
+                            $(this).animate({backgroundColor:'#ffffff'}, 200);
+                        }
+                    );
+               }
+         });
+
+        $(VIDEO_CONTAINER_CLASS+' a, '+'#lnk-page-next').each(function(){
+                var origColor = $(this).css('color');
+                $(this).hover(
+                    function(){
+                        $(this).animate({color:'#144D63'}, 500);
+                    },
+                    function(){
+                        $(this).animate({color:origColor}, 500);
+                    }
+                );
+         });
+        
     }
 
     function populatePanel() {
@@ -182,8 +209,6 @@ kikinvideo.HomeViewController = function() {
         $.get(contentSource, requestParams, function(data) {
             $(VIDEO_PANEL_SELECTOR).html(data);
 
-            stylizeVideoTitles();
-
             _bindVideoPanelEvents();
 
             var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
@@ -194,26 +219,26 @@ kikinvideo.HomeViewController = function() {
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
-                $('.video-container:last').css('border-bottom', 'none');
+                $('.video-container:last').css({'border-bottom': 'none'});
             }else if(activeView == VIEWS.savedQueue){
                 if(queueItemCount >= saveVideosPaginationThreshold){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
-                $('.video-container:last').css('border-bottom', 'none');
+                $('.video-container:last').css({'border-bottom': 'none'});
             }else if(activeView == VIEWS.activity){
                 if(queueItemCount >= activityItemsToLoad){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
                 }else{
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
-                $('.activity-queue-item:last').css('border-bottom', 'none');
+                $('.activity-queue-item:last').css({'border-bottom': 'none'});
             }
 
             //because HTML5 videos don't respect display:'none'
             //like swf object embeds do...
-           // videoController.prepareEmbeds();
+            videoController.prepareEmbeds();
 
         });
 
@@ -224,7 +249,7 @@ kikinvideo.HomeViewController = function() {
             $(VIDEO_CONTAINER_ID_PREFIX+vid).fadeOut(800, function(){
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
                 if(activeView == VIEWS.savedQueue){
-                    if($("."+VIDEO_CONTAINER_CLASS).length == 0){
+                    if($(VIDEO_CONTAINER_CLASS).length == 0){
                         populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                     }
                 }
@@ -243,6 +268,7 @@ kikinvideo.HomeViewController = function() {
                         if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
                             if(data.result.liked){
                                 if(data){
+                                    $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'unlike');
                                     $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
                                     if($(LIKED_ICON_ID_PREFIX+vid).hasClass('hovered'))
                                             $(LIKED_ICON_ID_PREFIX+vid).removeClass('hovered');
@@ -286,6 +312,7 @@ kikinvideo.HomeViewController = function() {
                                 }
                                 if(data){
                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                        $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'like');
                                         $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
                                         if(data.result.likes != 0){
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
@@ -337,6 +364,8 @@ kikinvideo.HomeViewController = function() {
                             if(!$(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).hasClass('saved')){
                                 $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).addClass('saved');
                             }
+
+                            $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).attr('title', 'saved');
                         }else if(!response.result.saved){
                             if($(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).hasClass('saved')){
                                 $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).removeClass('saved');

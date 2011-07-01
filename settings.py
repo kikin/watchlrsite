@@ -4,7 +4,7 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local_sqlite')
+VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local')
 
 # Turn DEBUG on only if running locally
 DEBUG = VIDEO_ENV.startswith('local')
@@ -165,6 +165,7 @@ INSTALLED_APPS = (
     'djcelery',
     'djkombu',
     'south',
+    'django_ses',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -196,15 +197,14 @@ SOCIAL_AUTH_USER_MODEL = 'api.User'
 FACEBOOK_APP_ID = '220283271338035'
 FACEBOOK_API_SECRET = '0cac4be4d10a908b2b961f6ea6108b0f'
 
-LOGIN_REDIRECT_URL = '/login_complete'
-
-
 # the django-social-auth module uses the @login_required
 # decorator, which directs browsers to settings.LOGIN_URL
 # after either a successful OR failed login
 LOGIN_URL = '/'
-
 LOGOUT_URL = '/'
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = LOGIN_REDIRECT_URL = LOGIN_URL
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/login_complete'
 
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
 FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']
@@ -232,6 +232,7 @@ logconfig.init()
 SESSION_COOKIE_AGE = 2592000 # 30 days in seconds
 SESSION_COOKIE_NAME = '_KVS' # Plugin converts this into a kikin cookie
 SESSION_COOKIE_DOMAIN = '.watchlr.com' # Cross-domain!
+SESSION_COOKIE_HTTPONLY = True # Prevent script access to cookie
 
 # Caching
 cache_configurations = {
@@ -250,3 +251,14 @@ cache_configurations = {
 }
 
 CACHES = { 'default': cache_configurations[VIDEO_ENV] }
+
+#frontend feature switches
+ENABLE_HTML5_VIDEO = False
+
+# Use SES as email backend.
+EMAIL_BACKEND = 'django_ses.SESBackend'
+
+AWS_ACCESS_KEY_ID = 'AKIAIZDME4VOHZPYNXSQ'
+AWS_SECRET_ACCESS_KEY = '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'
+
+SENDER_EMAIL_ADDRESS = 'Watchlr <noreply@watchlr.com>'

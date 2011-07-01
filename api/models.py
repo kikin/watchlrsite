@@ -4,10 +4,12 @@ from itertools import chain
 from decimal import Decimal
 
 from django.db import models
+from django.db.models import F
 from django.db.models.signals import post_save
 from django.contrib.auth import models as auth_models
 from django.dispatch import receiver
 from django.core.urlresolvers import reverse
+from django.core.paginator import Paginator, EmptyPage
 
 from celery.app import default_app
 from celery import states
@@ -25,13 +27,13 @@ DEFAULT_NOTIFICATIONS = {
 
 
 DEFAULT_PREFERENCES = {
-    'syndicate': 2,     # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not yet set
+    'syndicate': 2,     # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not set
     'follow_email': 1,  # Send email to user when someone follows them
 }
 
 
 class Source(models.Model):
-    '''
+    """
     Video source
 
     YouTube is a an example
@@ -43,7 +45,7 @@ class Source(models.Model):
     Traceback (most recent call last):
       ...
     IntegrityError: duplicate key value violates unique constraint "api_source_name_key"
-    '''
+    """
 
     name = models.CharField(max_length=100, unique=True)
     url = models.URLField(max_length=750, verify_exists=False)
@@ -54,7 +56,7 @@ class Source(models.Model):
 
 
 class Video(models.Model):
-    '''
+    """
     Video object encapsulates metadata
 
     Example YouTube video
@@ -72,7 +74,7 @@ class Video(models.Model):
     >>> video.set_thumbnail('http://i2.ytimg.com/vi/kh29_SERH0Y/0.jpg', 480, 360)
     >>> video.get_thumbnail().url
     u'http://i2.ytimg.com/vi/kh29_SERH0Y/0.jpg'
-    '''
+    """
 
     url = models.URLField(max_length=750, verify_exists=False, db_index=True)
     title = models.CharField(max_length=500, db_index=True, null=True)
@@ -145,7 +147,26 @@ class Video(models.Model):
                 state = default_app.backend.get_status(self.task_id)
 
         return state
-    
+
+    def first_shared_by(self):
+        """ First user who shared this video. """
+        try:
+            user_video = UserVideo.objects.filter(video=self, liked=True).order_by('liked_timestamp')[0:1].get()
+            return user_video.user
+        except UserVideo.DoesNotExist:
+            return None
+        
+    def increment_karma(self, user, value=1):
+        """ 
+        Increment karma points for user who shared this video first. Here, `user` is the user currently liking
+        this video.
+        """
+        shared_by = self.first_shared_by()
+        if shared_by is not None and not shared_by == user:
+            shared_by.karma = F('karma') + value
+            shared_by.save()
+        return shared_by
+
     def json(self):
         try:
             thumbnail = self.get_thumbnail().json()
@@ -171,7 +192,7 @@ class Video(models.Model):
 
 
 class Thumbnail(models.Model):
-    '''
+    """
     Video thumbnails
 
     Thumbnails are just an URL with size info
@@ -188,7 +209,7 @@ class Thumbnail(models.Model):
     ... width=120, height=90, type='mobile')
     >>> Video.objects.get(url=video.url).thumbnails.all()
     [http://i2.ytimg.com/vi/kh29_SERH0Y/2.jpg, http://i2.ytimg.com/vi/kh29_SERH0Y/0.jpg]
-    '''
+    """
 
     video = models.ForeignKey(Video, related_name='thumbnails')
     type = models.CharField(max_length=10, default='web')
@@ -215,7 +236,7 @@ class ActivityItem(object):
 
 
 class User(auth_models.User):
-    '''
+    """
     User object. Extends `django.contrib.auth.User`.
     As a result, we get username, email, id and password (unused) fields.
 
@@ -227,7 +248,7 @@ class User(auth_models.User):
     Traceback (most recent call last):
       ...
     IntegrityError: duplicate key value violates unique constraint "auth_user_username_key"
-    '''
+    """
     videos = models.ManyToManyField(Video, through='UserVideo')
     follows = models.ManyToManyField('self', through='UserFollowsUser', related_name='r_follows', symmetrical=False)
     is_registered = models.BooleanField(default=True)
@@ -235,6 +256,8 @@ class User(auth_models.User):
     fb_friends_fetched = models.DateTimeField(null=True)
     dismissed_user_suggestions = models.ManyToManyField('self', through='DismissedUserSuggestions',
                                                         related_name='r_dismissed_user_suggestions', symmetrical=False)
+    karma = models.PositiveIntegerField(default=0, db_index=True)
+    campaign = models.CharField(max_length=50, null=True, db_index=True)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
@@ -273,36 +296,43 @@ class User(auth_models.User):
         return user_video
 
     def followers(self):
-        return [u.follower for u in UserFollowsUser.objects.filter(followee=self).all()]
+        return [u.follower for u in UserFollowsUser.objects.filter(followee=self, is_active=True).all()]
 
     def follower_count(self):
-        return UserFollowsUser.objects.filter(followee=self).count()
+        return UserFollowsUser.objects.filter(followee=self, is_active=True).count()
 
     def following(self):
-        return list(self.follows.all())
+        return [u.followee for u in UserFollowsUser.objects.filter(follower=self, is_active=True).all()]
 
     def following_count(self):
-        return self.follows.count()
+        return UserFollowsUser.objects.filter(follower=self, is_active=True).count()
 
     def follow(self, other):
         if self == other:
             return
 
-        try:
-            result = UserFollowsUser.objects.get(follower=self, followee=other)
-        except UserFollowsUser.DoesNotExist:
-            result = UserFollowsUser.objects.create(follower=self, followee=other, since=datetime.utcnow())
+        result, created = UserFollowsUser.objects.get_or_create(follower=self, followee=other)
+
+        if not result.is_active:
+            result.is_active=True
+            result.save()
+
+        if created and other.preferences().get('follow_email', True):
+            from api.tasks import send_follow_email_notification
+            send_follow_email_notification.delay(other, self)
 
         return result
 
     def unfollow(self, other):
         try:
-            UserFollowsUser.objects.get(follower=self, followee=other).delete()
+            relation = UserFollowsUser.objects.get(follower=self, followee=other)
+            relation.is_active = False
+            relation.save()
         except UserFollowsUser.DoesNotExist:
             pass
         
     def like_video(self, video, timestamp=None):
-        '''
+        """
         Like a video. Creates an association between `User` and `Video` objects (if one doesn't exist already).
 
         @type video: `Video` instance
@@ -316,21 +346,27 @@ class User(auth_models.User):
         True
         >>> user_video.saved
         False
-        '''
+        """
 
         if timestamp is None:
             timestamp = datetime.utcnow()
 
+        # Give karma points to user who first shared this video
+        video.increment_karma(self)
+
         return self._create_or_update_video(video, **{'liked': True, 'timestamp': timestamp})
 
     def unlike_video(self, video):
+        # Take away karma points from sharing user
+        video.increment_karma(self, -1)
+
         return self._create_or_update_video(video, **{'liked': False})
 
     def liked_videos(self):
         return Video.objects.filter(user__id=self.id, uservideo__liked=True).order_by('-uservideo__liked_timestamp')
 
     def save_video(self, video, timestamp=None):
-        '''
+        """
         Add video to user's saved queue.
 
         @type video: `Video` instance
@@ -347,7 +383,7 @@ class User(auth_models.User):
         datetime.datetime(2011, 6, 8, 15, 12, 1)
         >>> user_video.liked
         False
-        '''
+        """
         if timestamp is None:
             timestamp = datetime.utcnow()
         return self._create_or_update_video(video, **{'saved': True, 'timestamp': timestamp})
@@ -373,7 +409,7 @@ class User(auth_models.User):
         return Video.objects.filter(user__id=self.id, uservideo__watched=False).order_by('-uservideo__saved_timestamp')
 
     def notifications(self):
-        '''
+        """
         Returns a dictionary of all notifications.
         To be backwards compatible with the old API, the values are integers with any non-zero value to be
         interpreted as an indication to display said notification to user.
@@ -381,7 +417,7 @@ class User(auth_models.User):
         >>> user = User.objects.create(username='birdman')
         >>> user.notifications()
         {u'welcome': 1, u'emptyq': 1, u'firstlike': 1}
-        '''
+        """
         archived = dict([(n.message, int(not n.archived)) for n in self.notification_set.all()])
         for notification in DEFAULT_NOTIFICATIONS:
             if notification not in archived:
@@ -404,7 +440,7 @@ class User(auth_models.User):
             p.save()
 
     def activity(self, since=None):
-        '''
+        """
         Activity stream for user.
 
         >>> birdman = User.objects.create(username='birdman')
@@ -433,7 +469,7 @@ class User(auth_models.User):
         >>> items = aquaman.activity()
         >>> len(items), items[0].video.url, map(itemgetter(0), items[0].users)
         (2, u'http://www.youtube.com/watch?v=LOWL0KMAIek', [<User: aquaman>, <User: ghostface>])
-        '''
+        """
 
         if since is None:
             since = datetime(1970, 1, 1)
@@ -467,20 +503,30 @@ class User(auth_models.User):
             return reverse('user_profile', args=[str(self.username)])
         return 'http://www.facebook.com/profile.php?id=%s' % self.facebook_uid()
 
-    def follow_suggestions(self, num=10):
+    def _build_follow_suggestions(self, queryset, page, count):
         suggestions = list()
+
+        paginator = Paginator(queryset, count)
+        try:
+            users = paginator.page(page).object_list
+        except EmptyPage:
+            # If page is out of range, deliver last page of results.
+            users = paginator.page(paginator.num_pages).object_list
 
         following = self.following()
         dismissed = list(self.dismissed_user_suggestions.all())
 
-        for user in self.fb_friends.filter(is_registered=True):
-            if num <= 0:
-                break
-            if user not in following and user not in dismissed:
+        for user in users:
+            if not user == self and user not in following and user not in dismissed:
                 suggestions.append(user)
-                num -= 1
 
         return suggestions
+
+    def popular_users(self, count=10, page=1):
+        return self._build_follow_suggestions(User.objects.filter(karma__gt=0).order_by('-karma'), page, count)
+
+    def follow_suggestions(self, count=10, page=1):
+        return self._build_follow_suggestions(self.fb_friends.filter(is_registered=True), page, count)
 
     def invite_friends_list(self, num=10):
 
@@ -523,6 +569,7 @@ class UserFollowsUser(models.Model):
     follower = models.ForeignKey(User, related_name='+', db_index=True)
     followee = models.ForeignKey(User, related_name='+', db_index=True)
     since = models.DateTimeField(auto_now=True, db_index=True)
+    is_active = models.BooleanField(default=True, db_index=True)
 
     class Meta:
         ordering = ['-since']
@@ -609,13 +656,11 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
 
     # New user?
     is_new = getattr(user, 'is_new', False)
-
     if is_new:
         from api.tasks import slugify
-        fullname = '.'.join([user.first_name, user.last_name])
-        user.username = response.get('username', slugify(fullname, user.id))
+        user.username = response.get('username', slugify(details['fullname'], user.id))
 
-    # Ensure that status flag is set
+    # Ensure that the status flag is set
     # This flag promotes, possibly a facebook friend to a regular user
     registered = user.is_registered
     user.is_registered = True
@@ -637,10 +682,9 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
     return not saved == user.username or not registered == user.is_registered
 
 
-# We need to register for the `pre_update` signal as opposed to `socialauth_registered`
-# signal because we need to handle facebook friend user upgrades (for such users,
-# the `is_new` attribute is not set and hence, `socialauth_registered` signal does
-# not get fired).
+# Register for the `pre_update` signal (as opposed to `socialauth_registered` signal)
+# since we need to handle facebook friend user upgrades (for such users, the `is_new`
+# attribute is not set and hence, `socialauth_registered` signal does not get fired).
 pre_update.connect(social_auth_pre_update, sender=None)
 
 
@@ -649,9 +693,13 @@ def user_post_save(sender, instance, signal, *args, **kwargs):
     # Called at the end of `save()` method
 
     # Set up default notifications and preferences for  user
-    if not instance.notification_set.count():
-        for msg, archived in DEFAULT_NOTIFICATIONS.items():
+    for msg, archived in DEFAULT_NOTIFICATIONS.items():
+        try:
+            Notification.objects.get(user=instance, message=msg)
+        except Notification.DoesNotExist:
             Notification.objects.create(user=instance, message=msg, archived=archived)
-    if not instance.preference_set.count():
-        for name, value in DEFAULT_PREFERENCES.items():
+    for name, value in DEFAULT_PREFERENCES.items():
+        try:
+            Preference.objects.get(user=instance, name=name)
+        except Preference.DoesNotExist:
             Preference.objects.create(user=instance, name=name, value=value)

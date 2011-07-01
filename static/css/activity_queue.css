@@ -1,16 +1,17 @@
 .activity-queue-item {
-    width:640px;
+    width:730px;
     height:210px;
     border-bottom: 1px solid #cccccc;
     margin-left:auto;
     margin-right: auto;
-    padding-top:10px;
-    padding-bottom:10px;
 }
 
+
+
 .activity-queue.inner{
-    margin:10px;
-    min-height:200px;
+    margin-left:10px;
+    margin-right:10px;
+    min-height:190px;
 }
 
 .activity-queue-item .video-image{
@@ -28,11 +29,10 @@
     font-size:16px;
 }
 
-.activity-item-video-title{
+.activity-queue-item .video-title{
     position:absolute;
     color: #43B6E6;
     font-size: 20px;
-    font-family: Helvetica, sans-serif;
     padding-bottom: 5px;
     width: 450px;
     margin-left: 80px;
@@ -41,14 +41,16 @@
 
 .activity-queue-video-description{
     position:absolute;
-    width:280px;
-    height:120px;
+    width:360px;
+    height:110px;
     margin-left: 264px;
     margin-top:70px;
 }
 
 .video-source-info{
-    padding-top:10px;
+    position:absolute;
+    margin-top:0px;
+    margin-left: 0px;
     bottom:0px;
 }
 
@@ -62,5 +64,5 @@
 }
 
 .activity-queue-item .video-buttons{
-    
+    margin-left:633px;
 }
