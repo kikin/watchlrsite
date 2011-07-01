@@ -220,9 +220,13 @@ from datetime import timedelta
 CELERYBEAT_SCHEDULE = {
     "refresh-friend-list-every-15-mins": {
         "task": "api.tasks.refresh_friends_list",
-        "schedule": timedelta(minutes=15)
+        "schedule": timedelta(minutes=10)
     },
 }
+
+# For the facebook friends list fetcher, number of users to schedule every time
+# the task gets fired.
+FACEBOOK_FRIENDS_FETCHER_SCHEDULE = 5
 
 # Set up logging
 import logconfig
