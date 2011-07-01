@@ -165,6 +165,7 @@ INSTALLED_APPS = (
     'djcelery',
     'djkombu',
     'south',
+    'django_ses',
 )
 
 # A sample logging configuration. The only tangible logging
