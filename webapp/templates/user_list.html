@@ -21,17 +21,23 @@
     </script>
 {% endblock script_ext %}
 
-{% block video_section %}
+{% block video_section_ext %}
 
     <div id="user-list">
-<!--        <div class="heading">
-            {% autoescape off %}
-            {{ heading }}
-            {% endautoescape %}
-        </div>-->
         <div class="user-list-wrapper">
             <div id="videoListWrapper">
                 <div id="videoList" style="min-height: 0px;">
+                    {% if related_users|length_is:0 %}
+                    <div class="user-info no-users">
+                        <div class='inner'>
+                            {% if display_mode == 'following' %}
+                            {{ profile_owner.first_name }} isn't following any users yet
+                            {% else %}
+                             {{ profile_owner.first_name }} doesn't have any followers yet
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
                     {% for related_user in related_users %}
                         <div class="user-info wrapper">
                                 <a href="/{{ related_user.username }}">
@@ -73,8 +79,9 @@
 
                         </div>
                     {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-{% endblock video_section %}
+{% endblock video_section_ext %}

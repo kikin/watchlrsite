@@ -154,6 +154,7 @@
                     {% endif %}
                 {% endif %}
         </div>
+        {% block video_section_ext %}
         <div id="videoListWrapper">
             <div id="videoList">
                 {% if videos|length_is:0 %}
@@ -174,5 +175,6 @@
                 {% endif %}
             </div>
         </div>
+        {% endblock video_section_ext %}
     {% endblock video_section %}
 {% endblock content%}

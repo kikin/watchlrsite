@@ -74,10 +74,11 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js"></script>
     <script type="text/javascript">
     activeView = VIEWS.detail;
-    $(document).ready(function(){
+    $(window).load(function(){
         home.bindVideoPanelEvents();
         videoController.prepareEmbeds();
         videoController.setCurVid({{ video.id }});
+        
     });
     </script>
 {% endblock script_refs %}

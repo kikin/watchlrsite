@@ -1,15 +1,17 @@
-/*#videoListWrapper{
-    width:400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-#videoList{
-    width: 380px;
-}*/
-
 #user-list .user-info.wrapper{
     height:70px;
+    border-bottom: 1px solid #cccccc;
+}
+
+
+.user-info.no-users{
+    height:40px;
+}
+
+#user-list .inner{
+    font-size: 18px;
+    text-align: center;
+    margin-top:15px;
 }
 
 #user-list .fb-thumb-square{
