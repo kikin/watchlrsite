@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<overlay id="kikin-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay id="watchlr-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/x-javascript" src="chrome://kikin/content/browserOverlay.js" />
+  <script type="application/x-javascript" src="chrome://watchlr/content/browserOverlay.js" />
   <!--<menupopup id="menu_ToolsPopup">
-    <menuitem insertafter="devToolsSeparator" label="My kikin" accesskey="k" oncommand="com.kikin.plugin.showOptions();" />
+    <menuitem insertafter="devToolsSeparator" label="Watchlr" accesskey="k" oncommand="com.kikin.plugin.showOptions();" />
   </menupopup> -->
   <!--<statusbar id="status-bar">
     <statusbarpanel class="statusbarpanel-iconic"

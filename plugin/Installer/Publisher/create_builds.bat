@@ -18,7 +18,10 @@ rem Do not put quotes around this
 @echo Output dir: %OUTPUT_DIR%
 
 @set CHROME_FILES_DIR="%PLUGIN_BASE_DIR%\Chrome"
-@echo Output dir: %CHROME_FILES_DIR%
+@echo Chrome files dir: %CHROME_FILES_DIR%
+
+@set FIREFOX_FILES_DIR="%PLUGIN_BASE_DIR%\Firefox"
+@echo Firefox files dir: %FIREFOX_FILES_DIR%
 
 @set INSTALLER_FILES_DIR=%plugin_base_dir%\Installer
 @echo Installer files dir: %INSTALLER_FILES_DIR%
@@ -26,13 +29,25 @@ rem Do not put quotes around this
 @set CHROME_INSTALLER_FILES_DIR=%INSTALLER_FILES_DIR%\Installer.CRX\
 @echo Chrome Installer files dir: %CHROME_INSTALLER_FILES_DIR%
 
+@set FIREFOX_INSTALLER_FILES_DIR=%INSTALLER_FILES_DIR%\Installer.XPI\
+@echo Firefox Installer files dir: %FIREFOX_INSTALLER_FILES_DIR%
+
 @set CHROME_INSTALLER_BUILD_TOOL=%CHROME_INSTALLER_FILES_DIR%\create_crx.bat
 @echo Chrome Installer build tool: %CHROME_INSTALLER_BUILD_TOOL%
 
+@set FIREFOX_INSTALLER_BUILD_TOOL=%FIREFOX_INSTALLER_FILES_DIR%\create_xpi.bat
+@echo Firefox Installer build tool: %FIREFOX_INSTALLER_BUILD_TOOL%
+
 :GenerateCrx
 %CHROME_INSTALLER_BUILD_TOOL% %BUILD_TOOLS_DIR% %VERSION_PROPERTIES_FILE% %OUTPUT_DIR% %CHROME_FILES_DIR% %CHROME_INSTALLER_FILES_DIR%
-if %ERRORLEVEL% EQU 0 goto Done
+if %ERRORLEVEL% EQU 0 goto GenerateXpi
 echo Error creating Chrome installer
+goto ErrorAbort
+
+:GenerateXpi
+%FIREFOX_INSTALLER_BUILD_TOOL% %BUILD_TOOLS_DIR% %VERSION_PROPERTIES_FILE% %OUTPUT_DIR% %FIREFOX_FILES_DIR% %FIREFOX_INSTALLER_FILES_DIR%
+if %ERRORLEVEL% EQU 0 goto Done
+echo Error creating Firefox installer
 goto ErrorAbort
 
 :Done

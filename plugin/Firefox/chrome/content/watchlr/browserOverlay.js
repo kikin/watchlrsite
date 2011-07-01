@@ -22,7 +22,7 @@ com.kikinVideo.plugin = function() {
     priv.xhr = null;
     priv.jsUrl = "";
     
-    Not using JS console service right now
+    // Not using JS console service right now
     priv.jsConsoleService = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService);
     
     /** Log messages to firefox command line console if enabled. */
@@ -423,13 +423,14 @@ com.kikinVideo.plugin = function() {
     /** Injects kikin video JS on the page. */
     priv.injectKikinVideoJs = function(pageWindow) {
         try {
+            pub.logInfo('Injecting javascript in window:' + pageWindow + ' from: ' + priv.jsUrl);
             if (pageWindow && priv.jsUrl) {
 
                 // create the script tag on the page 
                 // and load the kikin video JS.
-                var div = document.createElement('script');
+                var script = pageWindow.document.createElement('script');
                 script.src = priv.jsUrl;
-                pageWindow.document.body.appendChild(div);
+                pageWindow.document.body.appendChild(script);
             }
         } catch (err) {
             pub.logError("Error while JS in page. Reason:" + err);
@@ -526,26 +527,30 @@ com.kikinVideo.plugin = function() {
     /* Called when we state changes for the request. */
     priv.onRequestReadyStateChange = function() {
         try {
+            pub.logDebug('Response text:' + priv.xhr.responseText + " and data type of response text: " + (typeof priv.xhr.responseText))
             // parse the response when ready state is 4 and response text is valid
             if (priv.xhr.readyState && priv.xhr.readyState == 4 && priv.xhr.responseText && (typeof priv.xhr.responseText == 'string')) {
                 var jsonObject = JSON.parse(priv.xhr.responseText);
                 
                 // set the kikin video JS URL if response JSO is valid
-                if (jsonObject && jsonObject.js_url &&  && (typeof jsonObject.js_url == 'string')) {
+                if (jsonObject && jsonObject.js_url && (typeof jsonObject.js_url == 'string')) {
                     priv.jsUrl = jsonObject.js_url;
+                    pub.logInfo('js url:' + priv.jsUrl);
                 }
             }
         } catch (err) {
-            priv.logDebug('Error while parsing JSON response. Reason:\n' + err);
+            pub.logDebug('Error while parsing JSON response. Reason:\n' + err);
         }
     }
 
     /** Fetches the kikin video JS URL. */
     priv.getKikinVideoJsUrl = function() {
+        pub.logDebug('Sending request for fetching js url.');
         priv.xhr = new XMLHttpRequest();
-        priv.xhr.onreadystatechange = priv.onRequestReadyStateChage;
+        priv.xhr.onreadystatechange = priv.onRequestReadyStateChange;
         priv.xhr.open('GET', 'http://dev.watchlr.com/static/html/jsloc.json');
         priv.xhr.send();
+        pub.logDebug('Request sent for fetching js url.');
 
         // Retry after a day if user has not closed the browser.
         setTimeout(priv.getKikinVideoJsUrl, 24 * 60 * 60 * 1000);

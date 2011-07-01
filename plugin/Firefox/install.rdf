@@ -4,16 +4,15 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>{3C108598-D93F-4606-A3C3-2873B8017A60}</em:id>
     <em:name>kikin Video</em:name>
-    <em:type>2</em:type>
     <em:version>1.0.0</em:version>
     <em:creator>kikin Inc</em:creator>
     <em:description>Watch, share, and play any video anywhere</em:description>
     <em:homepageURL>http://video.kikin.com</em:homepageURL>
     <em:iconURL>chrome://kikinVideo/content/icon.png</em:iconURL>
-
+    
     <em:file>
       <Description about="urn:mozilla:extension:file:kikinVideo.jar">
-        <em:package>content/kikinVideo/</em:package>
+        <em:package>content/kikin/</em:package>
       </Description>
     </em:file>
 
