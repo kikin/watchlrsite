@@ -27,7 +27,7 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 
 from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend
-from kikinvideo.settings import SENDER_EMAIL_ADDRESS
+from kikinvideo.settings import SENDER_EMAIL_ADDRESS, FACEBOOK_FRIENDS_FETCHER_SCHEDULE
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -1416,10 +1416,13 @@ def refresh_friends_list():
     logger = refresh_friends_list.get_logger()
 
     queued = 0
-    for user in User.objects.filter(is_registered=True):
+    for user in User.objects.filter(is_registered=True).order_by('fb_friends_fetched'):
 
-        # Skip over users who have been refreshed in the last hour
-        if user.fb_friends_fetched and datetime.utcnow() - user.fb_friends_fetched < timedelta(hours=1):
+        if queued >= FACEBOOK_FRIENDS_FETCHER_SCHEDULE:
+            break
+
+        # Skip over users who have been refreshed in the 6 hours
+        if user.fb_friends_fetched and datetime.utcnow() - user.fb_friends_fetched < timedelta(hours=6):
             logger.debug('Skipping over user:%s, last refresh:%s' % (user.username, user.fb_friends_fetched))
             continue
 
