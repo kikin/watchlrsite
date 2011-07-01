@@ -2,6 +2,7 @@ from django import template
 from datetime import datetime
 from urlparse import urlparse
 from kikinvideo.api.models import UserVideo
+from django.conf import settings as app_settings
 
 from celery import states
 
@@ -294,7 +295,7 @@ def video_player_html5(video):
 
 @register.inclusion_tag('inclusion_tags/video_player.hfrg')
 def video_player(video, request):
-    return { 'video' : video, 'request':request }
+    return { 'video' : video, 'request':request, 'settings':app_settings }
 
 @register.inclusion_tag('inclusion_tags/fetching_data.hfrg')
 def fetching_data_message(video):

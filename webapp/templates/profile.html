@@ -95,9 +95,9 @@
                         <span class="profile-basic-statistics">
                             <span id="follower-count-user-{{ profile_owner.id }}">
                                 <span class='bold'>
-                                {{ profile_owner.followers|length }}
+                                {{ profile_owner.follower_count}}
                                 </span>
-                                {% if profile_owner.followers|length_is:1 %}
+                                {% if profile_owner.follower_count == 1 %}
                                     Follower
                                 {% else %}
                                     Followers
@@ -109,9 +109,9 @@
                     <a href="/following/{{ profile_owner.id }}" class='user-info-button following rounded-corners-8'>
                         <span class="profile-basic-statistics">
                             <span class='bold'>
-                            {{ profile_owner.following|length }}
+                            {{ profile_owner.following_count }}
                             </span>
-                            {% if profile_owner.following|length_is:1 %}
+                            {% if profile_owner.following_count == 1 %}
                                 Followed user
                             {% else %}
                                 Followed users
