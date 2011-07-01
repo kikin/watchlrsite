@@ -10,6 +10,10 @@ html {
     background: #FFF;
 }
 
+html, body{
+    height:100%;
+}
+
 body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td {
     margin: 0;
     padding: 0;
@@ -223,8 +227,9 @@ a:hover {
 /* Layout */
 
 #wrapper {
-    width:100%;
+    width:88%;
     text-align: center;
+    min-height:100%;
 }
 
 .section-title {
@@ -242,6 +247,7 @@ a:hover {
     width: 1050px;
     margin-left: auto;
     margin-right: auto;
+    padding-bottom: 150px;
 }
 
 .loading-container{
@@ -461,10 +467,12 @@ ol li {
 }
 
 #footer {
-    clear: both;
-    padding: 15px 20px 10px 20px;
-    color: #999;
-    padding-top:80px;
+    position: relative;
+	margin-top:-70px; /* negative value of footer height */
+	clear:both;
+    padding-bottom:0px;
+    padding-left: 10px;
+    padding-right:10px;
 }
 
 #footer-copyright {
