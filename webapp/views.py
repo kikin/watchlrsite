@@ -24,6 +24,7 @@ _VID_LIKED_BY_PAGINATION_THRESHOLD = 1
 # For new users, grab campaign parameter and store in database
 def login_complete(request):
     if request.user.is_authenticated():
+        logger.info('Wohoo! New user registered:%s (campaign=%s)' % (request.user.username, request.GET.get('campaign')))
         try:
             request.user.campaign = request.GET['campaign']
             request.user.save()
