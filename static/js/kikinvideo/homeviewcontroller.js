@@ -268,6 +268,7 @@ kikinvideo.HomeViewController = function() {
                         if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
                             if(data.result.liked){
                                 if(data){
+                                    $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'unlike');
                                     $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
                                     if($(LIKED_ICON_ID_PREFIX+vid).hasClass('hovered'))
                                             $(LIKED_ICON_ID_PREFIX+vid).removeClass('hovered');
@@ -311,6 +312,7 @@ kikinvideo.HomeViewController = function() {
                                 }
                                 if(data){
                                     $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                        $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'like');
                                         $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
                                         if(data.result.likes != 0){
                                             $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
