@@ -231,6 +231,7 @@ logconfig.init()
 SESSION_COOKIE_AGE = 2592000 # 30 days in seconds
 SESSION_COOKIE_NAME = '_KVS' # Plugin converts this into a kikin cookie
 SESSION_COOKIE_DOMAIN = '.watchlr.com' # Cross-domain!
+SESSION_COOKIE_HTTPONLY = True # Prevent script access to cookie
 
 # Caching
 cache_configurations = {
@@ -249,3 +250,11 @@ cache_configurations = {
 }
 
 CACHES = { 'default': cache_configurations[VIDEO_ENV] }
+
+# Use SES as email backend.
+EMAIL_BACKEND = 'django_ses.SESBackend'
+
+AWS_ACCESS_KEY_ID = 'AKIAIZDME4VOHZPYNXSQ'
+AWS_SECRET_ACCESS_KEY = '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'
+
+SENDER_EMAIL_ADDRESS = 'Watchlr <noreply@watchlr.com>'

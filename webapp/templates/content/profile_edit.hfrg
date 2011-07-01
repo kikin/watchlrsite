@@ -1,6 +1,6 @@
 <style>
     #profile-edit-panel {
-        height: 195px;
+        height: 215px;
         width: 460px;
         border: 2px solid;
         position: fixed;
@@ -26,7 +26,7 @@
     #profile-edit-panel button {
         position: absolute;
         width: 70px;
-        margin-top: 155px;
+        margin-top: 180px;
     }
 
     #profile-edit-panel .cancel-button {
@@ -83,6 +83,17 @@
         margin-left: 10px;
     }
 
+    #follow-email-span {
+        position: absolute;
+        margin-top: 152px;
+        margin-left: 181px;
+        font-size: 12.5px;
+    }
+
+    #follow-email-span input {
+        margin-left: 10px;
+    }
+
     #profile-view-close{
         margin-top:-18px;
         margin-right: -16px;
@@ -92,7 +103,7 @@
 
 <div id="profile-edit-panel">
     <a id="profile-view-close" class="close-button-fancy" title="Close"></a>
-    <span id="fb-username">Edit Profile:</span>
+    <span id="fb-username" style="font-weight: 800">Edit Profile</span>
     <img id="facebook-thumbnail" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=normal"/>
 
     <div id="profile-input-container">
@@ -111,6 +122,14 @@
         <input type='checkbox' id="share-likes-checkbox" checked/>
         {% else %}
          <input type='checkbox' id="share-likes-checkbox"/>
+        {% endif %}
+    </span>
+    <span id="follow-email-span">
+        Email me whenever someone follows me
+        {% if follow_email == 1 %}
+        <input type='checkbox' id="follow-email-checkbox" checked/>
+        {% else %}
+        <input type='checkbox' id="follow-email-checkbox"/>
         {% endif %}
     </span>
     <a><button class="cancel-button">Cancel</button></a>

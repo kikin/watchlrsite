@@ -41,7 +41,7 @@ set OUTPUT_FILE="%~3watchlr_installer_%KIKIN_VERSION%.crx"
 echo Final CRX installer file: %OUTPUT_FILE%
 
 set CHROME_FILES_DIR="%~4"
-echo Using background.html and content_script.js from %OUTPUT_DIR%
+echo Using background.html and content_script.js from %CHROME_FILES_DIR%
 
 echo Using manifest, private key from "%~5"
 set MANIFEST_JSON_M4_FILE="%~5manifest.json.m4"
@@ -61,7 +61,7 @@ goto ErrorAbort
 rem Updating Version number in manifest.json
 %M4_TOOL% %VERSION_PROPERTIES_FILE% %MANIFEST_JSON_M4_FILE% > %CHROME_FILES_DIR%\%MANIFEST_JSON_FILENAME%
 if %ERRORLEVEL% EQU 0 goto MakeOutputDir
-echo Error generating %CRX_DIR%%MANIFEST_JSON_FILENAME%
+echo Error generating %CHROME_FILES_DIR%%MANIFEST_JSON_FILENAME%
 goto ErrorAbort
 
 :MakeOutputDir

@@ -296,31 +296,38 @@ class User(auth_models.User):
         return user_video
 
     def followers(self):
-        return [u.follower for u in UserFollowsUser.objects.filter(followee=self).all()]
+        return [u.follower for u in UserFollowsUser.objects.filter(followee=self, is_active=True).all()]
 
     def follower_count(self):
-        return UserFollowsUser.objects.filter(followee=self).count()
+        return UserFollowsUser.objects.filter(followee=self, is_active=True).count()
 
     def following(self):
-        return list(self.follows.all())
+        return [u.followee for u in UserFollowsUser.objects.filter(follower=self, is_active=True).all()]
 
     def following_count(self):
-        return self.follows.count()
+        return UserFollowsUser.objects.filter(follower=self, is_active=True).count()
 
     def follow(self, other):
         if self == other:
             return
 
-        try:
-            result = UserFollowsUser.objects.get(follower=self, followee=other)
-        except UserFollowsUser.DoesNotExist:
-            result = UserFollowsUser.objects.create(follower=self, followee=other, since=datetime.utcnow())
+        result, created = UserFollowsUser.objects.get_or_create(follower=self, followee=other)
+
+        if not result.is_active:
+            result.is_active=True
+            result.save()
+
+        if created and other.preferences().get('follow_email', True):
+            from api.tasks import send_follow_email_notification
+            send_follow_email_notification.delay(other, self)
 
         return result
 
     def unfollow(self, other):
         try:
-            UserFollowsUser.objects.get(follower=self, followee=other).delete()
+            relation = UserFollowsUser.objects.get(follower=self, followee=other)
+            relation.is_active = False
+            relation.save()
         except UserFollowsUser.DoesNotExist:
             pass
         
@@ -562,6 +569,7 @@ class UserFollowsUser(models.Model):
     follower = models.ForeignKey(User, related_name='+', db_index=True)
     followee = models.ForeignKey(User, related_name='+', db_index=True)
     since = models.DateTimeField(auto_now=True, db_index=True)
+    is_active = models.BooleanField(default=True, db_index=True)
 
     class Meta:
         ordering = ['-since']

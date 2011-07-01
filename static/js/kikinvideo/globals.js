@@ -39,6 +39,8 @@ var PROFILE_EDIT_EMAIL_INPUT = "#email-input";
 
 var SYNDICATE_LIKES_CHECKBOX_ID = "#share-likes-checkbox";
 
+var FOLLOW_EMAIL_CHECKBOX_ID = "#follow-email-checkbox";
+
 var PROFILE_EDIT_CANCEL_BUTTON_SELECTOR = '.cancel-button';
 
 var PROFILE_EDIT_SAVE_BUTTON_SELECTOR = '.save-button';

@@ -7,3 +7,4 @@ lxml==2.3
 gdata==2.0.14
 South==0.7.3
 -e git+http://github.com/mikexstudios/django-auth-longer-email#egg=django-auth-longer-email
+-e git+http://github.com/hmarr/django-ses.git#egg=django-ses
