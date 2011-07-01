@@ -8,3 +8,4 @@
         {% video_player_flash video %}
     {% endif %}
 {% endif %}
+
