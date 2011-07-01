@@ -21,7 +21,6 @@
 	width:250px;
     color:#0c536f;
     float:left;
-    margin-top: 15px;
     margin-left:10px;
 }
 /*
@@ -218,7 +217,7 @@
 }
 
 #username-display{
-    margin-top:20px;
+    margin-top:15px;
     margin-left:10px;
     width:780px;
     color:#75c7e9;
