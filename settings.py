@@ -253,7 +253,7 @@ cache_configurations = {
 CACHES = { 'default': cache_configurations[VIDEO_ENV] }
 
 #frontend feature switches
-ENABLE_HTML5_VIDEO = True
+ENABLE_HTML5_VIDEO = False
 
 # Use SES as email backend.
 EMAIL_BACKEND = 'django_ses.SESBackend'

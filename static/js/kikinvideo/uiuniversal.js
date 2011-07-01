@@ -115,8 +115,8 @@ kikinvideo.UIUniversal =
 
                     //finally, prepare html5 videos...
                     if($.browser.webkit){
-            //            videoController.setMode(videoController.modes.NORMAL);
-              //          videoController.setCurVid(vid);
+                        videoController.setMode(videoController.modes.NORMAL);
+                        videoController.setCurVid(vid);
                     }
                 }
             }
@@ -136,9 +136,9 @@ kikinvideo.UIUniversal =
 
                 //pause video if it is html5
                 if($.browser.webkit){
-         //               videoController.setMode(videoController.modes.NORMAL);
-         //               videoController.pauseVideo();
-         //               videoController.savePosition();
+                        videoController.setMode(videoController.modes.NORMAL);
+                        videoController.pauseVideo();
+                        videoController.savePosition();
                     }
             }
 
@@ -203,8 +203,6 @@ kikinvideo.UIUniversal =
                         $(PROFILE_OPTIONS_PANEL_SELECTOR).width($(PROFILE_OPTIONS_BUTTON_SELECTOR).width());
                         $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
                         profile_options_panel_visible = true;
-                        if(!$('#header-right').hasClass('selected'))
-                            $('#header-right').addClass('selected')
                     }
                 });
 
@@ -214,7 +212,7 @@ kikinvideo.UIUniversal =
                     if (profile_options_panel_visible) {
                         $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         profile_options_panel_visible = false;
-                        if($('#header-right').hasClass('selected'))
+                        if($('#header-right'))
                             $('#header-right').removeClass('selected');
                     }
                 });
