@@ -53,9 +53,10 @@ def profile(request):
 
 
 def profile_edit(request):
-    syndicate = Preference.objects.get(user=request.user, name="syndicate").value
-    return render_to_response('content/profile_edit.hfrg', {'syndicate_likes':syndicate},\
-                            context_instance=RequestContext(request))
+    preferences = request.user.preferences()
+    return render_to_response('content/profile_edit.hfrg',
+                              {'syndicate_likes': preferences['syndicate'], 'follow_email': preferences['follow_email']},
+                              context_instance=RequestContext(request))
 
 
 def logout_view(request):
