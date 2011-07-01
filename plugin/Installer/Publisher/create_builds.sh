@@ -18,7 +18,7 @@ echo Output dir: ${output_dir}
 chrome_files_dir=${plugin_base_dir}/Chrome
 echo Chrome files dir: ${chrome_files_dir}
 
-firefox_files_dir=${plugin_base_dir}/Chrome
+firefox_files_dir=${plugin_base_dir}/Firefox
 echo Firefox files dir: ${firefox_files_dir}
 
 installer_files_dir=${plugin_base_dir}/Installer

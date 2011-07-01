@@ -30,7 +30,7 @@ echo Output will be located at $output_dir
 output_file=$output_dir/watchlr_installer_${kikin_plugin_version}.xpi
 
 firefox_files_dir=$4
-echo Generating XPI structure at $build_dir
+echo Generating XPI structure at $firefox_files_dir
 
 installer_files_dir=$5
 echo Using rdf from $installer_files_dir

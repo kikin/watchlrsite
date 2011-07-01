@@ -3,16 +3,16 @@
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
     <em:id>{3C108598-D93F-4606-A3C3-2873B8017A60}</em:id>
-    <em:name>kikin Video</em:name>
+    <em:name>watchlr</em:name>
     <em:version>1.0.0</em:version>
-    <em:creator>kikin Inc</em:creator>
+    <em:creator>watchlr</em:creator>
     <em:description>Watch, share, and play any video anywhere</em:description>
-    <em:homepageURL>http://video.kikin.com</em:homepageURL>
-    <em:iconURL>chrome://kikinVideo/content/icon.png</em:iconURL>
+    <em:homepageURL>http://www.watchlr.com</em:homepageURL>
+    <em:iconURL>chrome://watchlr/content/icon.png</em:iconURL>
     
     <em:file>
-      <Description about="urn:mozilla:extension:file:kikinVideo.jar">
-        <em:package>content/kikin/</em:package>
+      <Description about="urn:mozilla:extension:file:watchlr.jar">
+        <em:package>content/watchlr/</em:package>
       </Description>
     </em:file>
 
@@ -21,7 +21,7 @@
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <!-- firefox -->
         <em:minVersion>3.5</em:minVersion>
-        <em:maxVersion>5.0.*</em:maxVersion>
+        <em:maxVersion>5.*</em:maxVersion>
       </Description>
     </em:targetApplication>
     <em:targetPlatform>Darwin_x86-gcc3</em:targetPlatform>
