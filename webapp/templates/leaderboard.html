@@ -8,17 +8,7 @@
 {% endblock style_refs %}
 
 {% block content %}
-    {% if not user.is_authenticated %}
-        <div id="signup-pitch">
-            <div class="inner">
-                Discover, save and share video online. Sign up with Facebook to get started now!
-                <a class="fb-signup" href="/login/facebook"></a>
-            </div>
-        </div>
-    {% endif %}
-
     {% block video_section %}
-
     <div id="user-list">
         <div class="user-list-wrapper">
             <div id="videoListWrapper">
@@ -76,7 +66,5 @@
             </span>
         </div>
     </div>
-
     {% endblock video_section %}
-
 {% endblock content%}
