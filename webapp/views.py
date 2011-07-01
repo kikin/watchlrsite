@@ -133,6 +133,7 @@ def saved_video_queue(request):
         return render_to_response('content/video_queue.hfrg',{'user':request.user,
                                   'display_mode':'saved', 'videos': vid_subset},
                                   context_instance=RequestContext(request))
+    return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 
 def video_player(request, video_id):
