@@ -7,6 +7,7 @@ build: 3167
 */
 html {
     color: #000;
+    background: #FFF;
 }
 
 html, body{
@@ -226,7 +227,7 @@ a:hover {
 /* Layout */
 
 #wrapper {
-    width:88%;
+    width:100%;
     text-align: center;
     min-height:100%;
 }
@@ -246,7 +247,6 @@ a:hover {
     width: 1050px;
     margin-left: auto;
     margin-right: auto;
-    padding-bottom: 150px;
 }
 
 .loading-container{
@@ -466,13 +466,10 @@ ol li {
 }
 
 #footer {
-    position: relative;
-	margin-top:-70px; /* negative value of footer height */
-	clear:both;
-    padding-bottom:0px;
-    padding-left: 10px;
-    padding-right:10px;
-    padding-top:25px;
+    clear: both;
+    padding: 15px 20px 10px 20px;
+    color: #999;
+    padding-top:80px;
 }
 
 #footer-copyright {
