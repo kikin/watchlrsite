@@ -1439,7 +1439,7 @@ You {3} follow {1}. You chan check out their profile{4} at {5}.
 Best,
 Team Watchlr
 
-If you'd rather not receive follow notification emails, you can manage your settings here - {5}.'''
+If you'd rather not receive follow notification emails, you can manage your settings here - {6}.'''
 
     logger = send_follow_email_notification.get_logger()
     logger.info('Sending follow notification to %s for %s' % (followee.username, follower.username))
@@ -1452,8 +1452,8 @@ If you'd rather not receive follow notification emails, you can manage your sett
 
         message = message_template.format(followee.first_name, follower.first_name, follower.last_name,
                                           'already' if following else 'don\'t',
-                                          '%s%s' % (server_name, follower.get_absolute_url()),
                                           ' and follow them' if not following else '',
+                                          '%s%s' % (server_name, follower.get_absolute_url()),
                                           '%s%s' % (server_name, reverse('email_preferences')))
 
         send_mail(subject, message, SENDER_EMAIL_ADDRESS, [followee.email])
