@@ -194,30 +194,14 @@ kikinvideo.UIUniversal =
             }
 
             function bindEvents() {
-
-                $(PROFILE_OPTIONS_BUTTON_SELECTOR).click(function(event) {
-                    if (!profile_options_panel_visible) {
-                        //so that body click callback defined further down
-                        //doesn't get fired and immediately hide the panel...
-                        event.stopPropagation();
-                        $(PROFILE_OPTIONS_PANEL_SELECTOR).width($(PROFILE_OPTIONS_BUTTON_SELECTOR).width());
-                        $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
-                        profile_options_panel_visible = true;
-                        if(!$('#header-right').hasClass('selected'))
-                            $('#header-right').addClass('selected');
-                    }
-                });
-
-                //hide the panel on click outside of
-                //profile info button
-                $('body').click(function(event) {
-                    if (profile_options_panel_visible) {
-                        $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
-                        profile_options_panel_visible = false;
-                        if($('#header-right'))
-                            $('#header-right').removeClass('selected');
-                    }
-                });
+                $(PROFILE_OPTIONS_BUTTON_SELECTOR).hover(
+                        function() {
+                            $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
+                        },
+                        function() {
+                            $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
+                        }
+                );
             }
 
 

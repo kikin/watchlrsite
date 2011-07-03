@@ -9,6 +9,7 @@ kikinvideo
 .DS_Store
 kikin_video_env
 celerybeat-schedule.db
+celerybeat-schedule
 plugin/Chrome/manifest.json
 Thumbs.db
 plugin/Builds/
