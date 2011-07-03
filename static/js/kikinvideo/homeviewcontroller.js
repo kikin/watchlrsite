@@ -152,32 +152,6 @@ kikinvideo.HomeViewController = function() {
 
         });
 
-         $(VIDEO_CONTAINER_CLASS).each(function(){
-             //don't bind this hover actions for detail view!
-               if(activeView != VIEWS.detail){
-                    $(this).hover(
-                        function(){
-                            $(this).animate({backgroundColor:'#f3f6f8'}, 400);
-                        },
-                        function(){
-                            $(this).animate({backgroundColor:'#ffffff'}, 200);
-                        }
-                    );
-               }
-         });
-
-        $(VIDEO_CONTAINER_CLASS+' a, '+'#lnk-page-next').each(function(){
-                var origColor = $(this).css('color');
-                $(this).hover(
-                    function(){
-                        $(this).animate({color:'#144D63'}, 500);
-                    },
-                    function(){
-                        $(this).animate({color:origColor}, 500);
-                    }
-                );
-         });
-        
     }
 
     function populatePanel() {

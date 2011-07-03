@@ -344,9 +344,9 @@ ul.navigation li a:link, ul.navigation li a:visited {
     float: left;
     top: 1px;
     background-color: #0c536f;
-    -webkit-transition: background-color 0.3s linear;
-    -moz-transition: background-color 0.3s linear;
-    -o-transition: background-color 0.3s linear;
+    /*-webkit-transition: background-color 0.3s linear;*/
+    /*-moz-transition: background-color 0.3s linear;*/
+    /*-o-transition: background-color 0.3s linear;*/
 }
 
 ul.navigation li a:hover {
@@ -423,12 +423,16 @@ ol li {
     padding-bottom: 5px;
 }
 
-.video-wrapper {
-    -webkit-transition: height 0.4s ease-in-out;
-    -moz-transition: height 0.4s ease-in-out;
-    -o-transition: height 0.4s ease-in-out;
-    transition: height 0.4s ease-in-out;
-    clear: both;
+.video-wrapper{
+    margin: 0;
+    border-top: 1px solid #DDE0E5;
+}
+
+.video-wrapper:hover {
+    background-color: #F1F2F4;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAFCAYAAAB8ZH1oAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAACFJREFUeNpiZGBg4GcgArAA8R+qKmQEYmZiFTISoxAgwAAmGgIXxUDz0gAAAABJRU5ErkJggg==);
+    background-repeat: repeat-x;
+    background-position: top;
 }
 
 .video-saved {

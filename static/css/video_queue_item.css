@@ -52,7 +52,8 @@
 }
 
 .video-container{
-    width:730px;
+    width:100%;
     padding-right:5px;
     padding-left:8px;
+    padding-top:5px;
 }

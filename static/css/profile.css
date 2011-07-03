@@ -195,6 +195,12 @@
     border: 1px solid #cccccc;
 }
 
+.user-info-button:hover{
+    background-color:#93c7df;
+    border: 1px solid #296881;
+    color: #296881;
+}
+
 .user-info-button.selected{
     background-color:#93c7df;
     border: 1px solid #296881;
