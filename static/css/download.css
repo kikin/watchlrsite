@@ -1,7 +1,6 @@
 /* General */
 html {
-    background: url(/static/images/background_download.png);
-    background-repeat:repeat-x;
+
 }
 
 #content {
@@ -45,4 +44,50 @@ html {
 }
 .chrome_win:hover{
 	background:url('/static/images/download/chrome_win.png') no-repeat 0px -70px;
+}
+.block {
+    padding-top:10px;
+    border-top: 2px solid #dedede;
+    width: 740px;
+    margin-left:10px;
+}
+.block img {
+    float:right;
+    padding-right:10px;
+}
+.blockleft {
+    float:left;
+    padding-left:40px;
+    width: 260px;
+}
+.blockblue {
+    color: #44b6e6;
+    font-size:20px;
+    font-weight:bold;
+    
+}
+.blockcopy {
+    color: #454545;
+    font-size: 14px;
+}
+.blockcopylight {
+    color: #b5b5b5;
+}
+.downloadapp {
+    width:260px;
+    height:37px;
+    background:url(/static/images/extras/downloadapp.png) no-repeat;
+	cursor:pointer;
+}
+.downloadapp:hover{
+	background:url(/static/images/extras/downloadapp.png) no-repeat 0px -38px;
+}
+.bookmarklet {
+    width:142px;
+    height:37px;
+    background:url(/static/images/extras/bookmarklet.png) no-repeat;
+	cursor:pointer;
+}
+.bookmarklet:hover{
+	background:url(/static/images/extras/bookmarklet.png) no-repeat 0px -39px;
 }
