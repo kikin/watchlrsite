@@ -32,6 +32,8 @@ from kikinvideo.settings import SENDER_EMAIL_ADDRESS, FACEBOOK_FRIENDS_FETCHER_S
 import logging
 logger = logging.getLogger('kikinvideo')
 
+USERNAME_MAX_LENGTH = 28
+
 IPAD_USER_AGENT = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
 
 class Source(dict):
@@ -1273,7 +1275,7 @@ def slugify(username, id):
     >>> slugify('about', 123)
     u'user01'
     """
-    username = normalize('NFKD', username).encode('ascii', 'ignore')
+    username = normalize('NFKD', username).encode('ascii', 'ignore')[:USERNAME_MAX_LENGTH]
     username = basename = unicode(sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
 
     if username.lower() in user_blacklist:
