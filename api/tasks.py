@@ -1439,7 +1439,7 @@ def send_follow_email_notification(followee, follower):
     message_template = '''Hey there {0},
 
 {1} {2} is now following your liked videos on Watchlr.
-You {3} follow {1}. You chan check out their profile{4} at {5}.
+You {3} follow {1}. You can check out their profile{4} at {5}.
 
 Best,
 Team Watchlr
