@@ -278,6 +278,10 @@ a:hover {
     position:fixed;
 }
 
+.loading-container.initial{
+    padding-top: 35px;
+}
+
 .loading {
     background: url('/static/images/ajax-loader.gif') no-repeat;
     margin-left: auto;
@@ -453,7 +457,7 @@ ol li {
 .video-wrapper{
     margin: 0;
     padding-top:8px;
-
+    border-bottom: 1px solid #ccc;
 }
 
 .video-wrapper:hover {
