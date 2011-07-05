@@ -136,10 +136,12 @@ a:hover {
 
 #like-btn-text {
     width: 100px;
+	cursor: pointer;
 }
 
 #watch-later-btn-text {
     width: 100px;
+	cursor: pointer;
 }
 
 
