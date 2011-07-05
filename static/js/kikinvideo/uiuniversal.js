@@ -196,9 +196,13 @@ kikinvideo.UIUniversal =
             function bindEvents() {
                 $(PROFILE_OPTIONS_BUTTON_SELECTOR).hover(
                         function() {
+                            if(!$('#header-right').hasClass('selected'))
+                                $('#header-right').addClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
                         },
                         function() {
+                            if($('#header-right').hasClass('selected'))
+                                $('#header-right').removeClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         }
                 );

@@ -153,13 +153,6 @@ a:hover {
     min-width: 125px;
 }
 
-#header-right:hover{
-    background: #999;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#CCC', endColorstr='black');
-    background: -webkit-gradient(linear, center top, center bottom, from(#0A1730), to(#0C536F));
-    background: -moz-linear-gradient(top, #CCC, black);
-}
-
 #header-right.selected{
     background: -webkit-gradient(linear, left top, left bottom, from(#032e40), to(#0C536F));
     background: -moz-linear-gradient(top,  #032e40,  #0C536F);
@@ -444,8 +437,8 @@ ol li {
 
 .video-wrapper{
     margin: 0;
-    border-top: 1px solid #DDE0E5;
     padding-top:8px;
+
 }
 
 .video-wrapper:hover {
