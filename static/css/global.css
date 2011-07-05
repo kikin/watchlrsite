@@ -222,6 +222,10 @@ a:hover {
     margin: 38px 0 0 0;
 }
 
+.mozilla .options-breaker{
+    margin: 27px 0 0 0;
+}
+
 /* Layout */
 
 #wrapper {
