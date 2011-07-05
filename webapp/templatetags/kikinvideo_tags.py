@@ -144,25 +144,11 @@ def source_url_root(video):
     
 @register.filter
 def is_youtube(video):
-    try:
-        url_root = source_url_root(video)
-        if url_root.startswith('http://www.youtube.com') or \
-            url_root.startswith('https://www.youtube.com'):
-            return True
-    except Exception:
-        pass
-    return False
+    return video.source.name == 'YouTube'
 
 @register.filter
 def is_vimeo(video):
-    try:
-        url_root = source_url_root(video)
-        if url_root.startswith('http://vimeo.com') or \
-            url_root.startswith('https://vimeo.com'):
-            return True
-    except Exception:
-        pass
-    return False
+    return video.source.name == 'Vimeo'
 
 # NOTE: THIS IS A STOPGAP.
 # KEEP FOR TONIGHT'S DEMO ONLY, THEN
