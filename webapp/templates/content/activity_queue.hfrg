@@ -49,7 +49,7 @@
                     </div>
                 </a>
 
-            <div class="video-buttons" style="margin-top: 10px;">
+            <div class="video-buttons">
 
 
                     {% if activity_item.video not in user.saved_videos %}

@@ -445,6 +445,7 @@ ol li {
 .video-wrapper{
     margin: 0;
     border-top: 1px solid #DDE0E5;
+    padding-top:8px;
 }
 
 .video-wrapper:hover {
