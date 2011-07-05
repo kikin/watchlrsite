@@ -34,14 +34,14 @@
                                 <br />
                                 {% if request|user_agent_class == 'firefox' or request|user_agent_class == 'chrome'%}
                                     {% if request|user_agent_class == 'chrome' %}
-                                        <a href="http://www.watchlr.com/static/downloads/watchlr_installer_1.0.0.crx"><div class="downloadapp">&nbsp;</div></a>
+                                        <a href="http://www.watchlr.com/static/downloads/watchlr_installer_1.0.1.crx"><div class="downloadapp">&nbsp;</div></a>
                                     {%endif%}
                                     {% if request|user_agent_class == 'firefox' %}
                                         {%if request|user_agent_os == 'mac'%}
-                                        <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi"><div class="downloadapp">&nbsp;</div></a>
+                                        <a href="http://www.watchlr.com/static/downloads/watchlr_installer_1.0.1.xpi"><div class="downloadapp">&nbsp;</div></a>
                                         {% else %}
                                             {%if request|user_agent_os == 'windows'%}
-                                                <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi"><div class="downloadapp">&nbsp;</div></a>
+                                                <a href="http://www.watchlr.com/static/downloads/watchlr_installer_1.0.1.xpi"><div class="downloadapp">&nbsp;</div></a>
                                             {%endif%}
                                         {%endif%}
                                     {%endif%}
