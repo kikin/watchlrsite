@@ -152,7 +152,7 @@ kikinvideo.HomeViewController = function() {
 
         });
 
-        $('.video-container a, .suggested-followee-item a, #lnk-page-next').hover(function(){
+        $('.video-wrapper a, .suggested-followee-item a, #lnk-page-next').hover(function(){
                     $(this).animate({color:'#0C536F'}, 350);
                 },function(){
                     $(this).animate({color:'#43B6E6'}, 200);
