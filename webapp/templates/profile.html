@@ -157,9 +157,9 @@
                     </div>
                 {% else %}
                     {% for video in videos %}
-
-                        {% video_queue_item %}
-
+                        {% if not video|fetching_data %}
+                            {% video_queue_item %}
+                        {% endif %}
                     {% endfor %}
                 {% endif %}
             </div>

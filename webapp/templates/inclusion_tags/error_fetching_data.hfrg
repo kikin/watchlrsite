@@ -26,7 +26,7 @@
 
 <div class="fetching-data wrapper">
     <div class="video-buttons">
-        <a href="javascript:home.removeVideo({{ video.id }})" title="remove from queue">
+        <a href="javascript:home.removeVideo({{ video.id }}, true)" title="remove video">
             <div class="video-delete-button no-hover"></div>
         </a>
     </div>

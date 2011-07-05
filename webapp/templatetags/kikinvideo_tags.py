@@ -3,6 +3,7 @@ from datetime import datetime
 from urlparse import urlparse
 from kikinvideo.api.models import UserVideo
 from django.conf import settings as app_settings
+from django.utils.encoding import force_unicode
 
 from celery import states
 
@@ -69,6 +70,36 @@ def pretty_date_saved(video, user):
 @register.filter
 def pretty_date_liked(video, user):
     return pretty_date(video.date_liked(user))
+
+@register.filter
+def pretty_earliest_date(video, user):
+    try:
+        user_video = UserVideo.objects.get(video=video, user=user)
+        if user_video.saved_timestamp and user_video.liked_timestamp:
+            if user_video.saved_timestamp < user_video.liked_timestamp:
+                earliest = user_video.saved_timestamp
+            else:
+                earliest = user_video.liked_timestamp
+        elif user_video.liked_timestamp:
+            earliest = user_video.liked_timestamp
+        else:
+            earliest = user_video.saved_timestamp
+    except UserVideo.DoesNotExist:
+        try:
+            user_video = UserVideo.objects\
+                            .filter(video=video, liked_timestamp__isnull=False)\
+                            .values('liked_timestamp')\
+                            .order_by('liked_timestamp')[0:1]\
+                            .get()
+            earliest = user_video['liked_timestamp']
+        except UserVideo.DoesNotExist:
+            user_video = UserVideo.objects\
+                            .filter(video=video, saved_timestamp__isnull=False)\
+                            .values('saved_timestamp')\
+                            .order_by('saved_timestamp')[0:1]\
+                            .get()
+            earliest = user_video['saved_timestamp']
+    return pretty_date(earliest)
 
 @register.filter
 def total_liked_videos(user):
@@ -324,3 +355,30 @@ def user_profile_link(user):
         target += ' target=_blank'
     return target
 
+@register.filter
+def truncate_chars(s, num):
+    """
+    Template filter to truncate a string to at most num characters respecting word
+    boundaries.
+    """
+    s = force_unicode(s)
+    length = int(num)
+    if len(s) > length:
+        length -= 3
+        if s[length-1] == ' ' or s[length] == ' ':
+            s = s[:length].strip()
+        else:
+            words = s[:length].split()
+            if len(words) > 1:
+                del words[-1]
+            s = u' '.join(words)
+        s += '...'
+    return s
+
+@register.filter
+def saved_from(video, user):
+    try:
+        user_video = UserVideo.objects.get(video=video, user=user)
+        return user_video.host
+    except UserVideo.DoesNotExist:
+        return video.url
