@@ -153,9 +153,16 @@ a:hover {
     min-width: 125px;
 }
 
-#header-right.selected{
-    background: -webkit-gradient(linear, left top, left bottom, from(#032e40), to(#0C536F));
+.mozilla #header-right.selected{
     background: -moz-linear-gradient(top,  #032e40,  #0C536F);
+}
+
+.webkit #header-right.selected{
+    background: -webkit-gradient(linear, left top, left bottom, from(#032e40), to(#0C536F));
+}
+
+.msie #header-right.selected{
+    
 }
 
 #header-right .gbma {
@@ -224,6 +231,10 @@ a:hover {
 
 .mozilla .options-breaker{
     margin: 27px 0 0 0;
+}
+
+.msie .options-breaker{
+    margin-top:18px;
 }
 
 /* Layout */
