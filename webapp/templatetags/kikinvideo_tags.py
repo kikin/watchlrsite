@@ -9,6 +9,8 @@ from celery import states
 
 register = template.Library()
 
+HTML5_SOURCE_WHITELIST = ['espn', 'funnyordie']
+
 @register.filter
 def pretty_date(time=False):
     """
@@ -169,8 +171,7 @@ def is_vimeo(video):
 @register.filter
 def is_html5_capable(video):
     url_root = source_url_root(video)
-    return url_root.find('funnyordie') != -1\
-        or url_root.find('espn') != -1
+    return True in [url_root.find(x) != -1 for x in HTML5_SOURCE_WHITELIST]
 
 @register.filter
 def truncate_text(text, letter_count):
