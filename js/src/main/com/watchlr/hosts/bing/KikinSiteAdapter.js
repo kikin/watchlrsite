@@ -13,7 +13,7 @@ $cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.bing.adapters.KikinSite
             var kva = $cwh.adapters.KikinVideoAdapter.getInstance();
             if (kva) kva.attach();
         } catch(e) {
-            alert("From: bing_site_adapter. \nReason:" + e);
+            // alert("From: bing_site_adapter. \nReason:" + e);
             // $kat.trackError({ from: 'bing_site_adapter', exception: e, msg: 'unable to create video adapter'});
         }
 	},
@@ -25,7 +25,7 @@ $cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.bing.adapters.KikinSite
 	    	if (isva) isva.attach();
 
     	} catch(e) {
-            alert("From: injectIntoSearchPage of bing KikinSiteAdapter. \nReason:" + e);
+            // alert("From: injectIntoSearchPage of bing KikinSiteAdapter. \nReason:" + e);
 			// $kat.trackError({ from: 'site_adapter', exception: e, msg: 'injectiong failed in bing'});
     	}
 	}

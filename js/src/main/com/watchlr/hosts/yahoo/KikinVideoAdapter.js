@@ -15,7 +15,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.yahoo.adapters.KikinVi
     _addKikinVideoBorder: function(pos, img) {
         try {
             var videoUrl = this.getVideoUrl(img);
-            this.debug("URL for image element:" + videoUrl);
+            // this.debug("URL for image element:" + videoUrl);
             if (videoUrl) {
                 for (var i = 0; i < this.services.length; i++) {
                     if (!this.services[i].url_regex)
@@ -53,7 +53,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.yahoo.adapters.KikinVi
                 }
             }
         } catch (err) {
-            alert("From: addKikinVideoBorder of Yahoo Video adapter. \nReason: " + err);
+            // alert("From: addKikinVideoBorder of Yahoo Video adapter. \nReason: " + err);
         }
     },
 
@@ -67,14 +67,14 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.yahoo.adapters.KikinVi
                     url = (params && params.rurl) ? params.rurl.replace(/&amp;/g, '&') : null;
             return url;
         }
-        alert(link);
+        // alert(link);
         return null;
     },
 
     _onVideoThumbnailMouseOver : function(e) {
         try {
             var target = e.target;
-            this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
+            // this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
             if (target && target.kikinVideoId) {
 
                 var selectedVideo = this.videos[target.kikinVideoId - 1];
@@ -95,7 +95,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.yahoo.adapters.KikinVi
                 selectedVideo.coordinates = this._getVideoCoordinates(target);
 
                 if (selectedVideo.coordinates) {
-                    this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
+                    // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
                     // draw the border around video
                     this._drawKikinBorder(selectedVideo.coordinates.left,
                                           selectedVideo.coordinates.top,
@@ -109,7 +109,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.yahoo.adapters.KikinVi
 
             }
         } catch (err) {
-            alert("From: _onVideoThumbnailMouseOver of google's KikinVideoSearchAdapter.\nReason: " + err);
+            // alert("From: _onVideoThumbnailMouseOver of google's KikinVideoSearchAdapter.\nReason: " + err);
             // $kat.trackError({from: "_onVideoThumbnailMouseOver of google's KikinVideoSearchAdapter", exception:err});
         }
     },
@@ -117,7 +117,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.yahoo.adapters.KikinVi
     _onVideoThumbnailMouseOut : function(e) {
         try {
             var target = e.target;
-            this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
+            // this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
             if (target && target.kikinVideoId) {
                 // set the selected video property to false
                 var selectedVideo = this.videos[target.kikinVideoId - 1];
@@ -140,7 +140,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.yahoo.adapters.KikinVi
                 }, this), 1000);
             }
         } catch (err) {
-            alert("From: _onVideoThumbnailMouseOut of google's KikinVideoSearchAdapter.\nReason: " + err);
+            // alert("From: _onVideoThumbnailMouseOut of google's KikinVideoSearchAdapter.\nReason: " + err);
             // $kat.trackError({from: "_onVideoThumbnailMouseOut of google's KikinVideoSearchAdapter", exception:err});
         }
     }

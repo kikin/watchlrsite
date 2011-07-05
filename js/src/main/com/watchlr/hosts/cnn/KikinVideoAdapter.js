@@ -17,7 +17,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cnn.adapters.KikinVide
                                 this._onVideoUrlChange(window.CVP.instances[i], arguments[0]);
                                 return original.apply(this, arguments);
                             } catch (e) {
-                                alert("From: attach of cnn's KikinVideoAdapter.\nReason:" + e);
+                                // alert("From: attach of cnn's KikinVideoAdapter.\nReason:" + e);
                                 // $kat.trackError({from:"attach of cnn's KikinVideoAdapter", msg: "Unable to call cnn's original onContentBegin callback", exception:e});
                             }
                         }, this);
@@ -25,7 +25,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cnn.adapters.KikinVide
                 }
 
             } catch (err) {
-                alert("From: attach of cnn's KikinVideoAdapter. \nReason:" + err);
+                // alert("From: attach of cnn's KikinVideoAdapter. \nReason:" + err);
                 // $kat.trackError({from:"attach of cnn's KikinVideoAdapter", msg: "Unable to wrap onContentBegin callback", exception:err});
             }
         // }
@@ -67,7 +67,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cnn.adapters.KikinVide
                 }
             }
         } catch (err) {
-            alert("From: _onVideoUrlChange of cnn's KikinVideoAdapter. \n Reason:" + err);
+            // alert("From: _onVideoUrlChange of cnn's KikinVideoAdapter. \n Reason:" + err);
             // $kat.trackError({from:"_onVideoUrlChange of cnn's KikinVideoAdapter", msg: "Unable to change video URL on video change", exception:err});
         }
     }

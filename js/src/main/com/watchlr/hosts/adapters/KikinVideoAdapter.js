@@ -520,7 +520,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
     debug : function(str) {
         //if (!$ks.__PRODUCTION__) {
             try {
-                console.log(str);
+                // console.log(str);
                 // alert(str);
             } catch (e) {}
         //}
@@ -561,7 +561,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             return embeds;
         } catch (err) {
-            alert("from: _findFlashVideoCandidates of base KikinVideoAdapter. \n Reason:" + err);
+            // alert("from: _findFlashVideoCandidates of base KikinVideoAdapter. \n Reason:" + err);
             //$kat.trackError({from: "_findFlashVideoCandidates of base KikinVideoAdapter.", exception:err});
         }
 
@@ -578,7 +578,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }
 
                 var videoUrl = this._findVideoUrl(embeds[i]);
-                this.debug("Adding video for embed:" + embeds[i] + " and url: " + videoUrl);
+                // this.debug("Adding video for embed:" + embeds[i] + " and url: " + videoUrl);
                 if (videoUrl) {
                     this._addVideo(embeds[i], videoUrl);
                 }
@@ -595,9 +595,9 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 $cws.WatchlrRequests.sendVideosInfoRequest($.proxy(this._onVideosInfoReceived, this), this.videos);
             }
 
-            this.debug("Number of videos found:" + this.videos.length);
+            // this.debug("Number of videos found:" + this.videos.length);
         } catch (err) {
-            alert("from: _findFlashVideos of base KikinVideoAdapter. \nReason:" + err);
+            // alert("from: _findFlashVideos of base KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError({from: "_findFlashVideos of base KikinVideoAdapter.", exception:err});
         }
     },
@@ -612,8 +612,8 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             src = this._qualifyURL('/' + src);
         }
 
-        this.debug('Flashvars:' + flashvars);
-        this.debug('src:' + src);
+        // this.debug('Flashvars:' + flashvars);
+        // this.debug('src:' + src);
 
         for (var j = 0; j < this.services.length; j++) {
             if (src && this._isSupportedDomain(src, this.services[j].domains)) {
@@ -625,25 +625,25 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }
 
                 if (!match.passed && !match.video_id) {
-                    this.debug('oService.source_regex: ' + oService.source_regex);
+                    // this.debug('oService.source_regex: ' + oService.source_regex);
                     this._extractId(src, oService.source_regex, match);
                 }
 
                 if (match.passed) {
                     if (oService.use_location != undefined) {
                         if (oService.use_location && oService.location_regex.test(window.location.href)) {
-                            this.debug('Using location: ' + window.location.href);
+                            // this.debug('Using location: ' + window.location.href);
                             return window.location.href;
                         }
                     } else if (match.video_id) {
-                        this.debug('Found video with id: ' + match.video_id);
+                        // this.debug('Found video with id: ' + match.video_id);
                         if (typeof(oService.url) == 'function') {
-                            this.debug('Using URL:' + oService.url(match.video_id));
+                            // this.debug('Using URL:' + oService.url(match.video_id));
                             return oService.url(match.video_id);
                         } else {
-                            this.debug("Video ids:" + match.video_id);
-                            this.debug("Video id:" + match.video_id[1]);
-                            this.debug('Using URL:' + (oService.url + match.video_id[1]));
+                            // this.debug("Video ids:" + match.video_id);
+                            // this.debug("Video id:" + match.video_id[1]);
+                            // this.debug('Using URL:' + (oService.url + match.video_id[1]));
                             return oService.url + match.video_id[1];
                         }
                     }
@@ -685,7 +685,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             return video;
         } catch (err) {
-            alert("from: _addVideo of base KikinVideoAdapter. \n Reason:" + err);
+            // alert("from: _addVideo of base KikinVideoAdapter. \n Reason:" + err);
             // $kat.trackError({from: "_addVideo of base KikinVideoAdapter.", msg:"Error while adding kikin video.", exception:err});
         }
     },
@@ -712,9 +712,9 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         try {
             embed.onmouseover = _onVideoMouseOver;
             embed.onmouseout = _onVideoMouseOut;
-            this.debug('Added mouse events successfully for embed:' + embed);
+            // this.debug('Added mouse events successfully for embed:' + embed);
         } catch (e) {
-            alert("From: _addMouse events. \n Reason:" + e);
+            // alert("From: _addMouse events. \n Reason:" + e);
         }
 
         // If attachEvent is supported listen mouse events using attachEvent
@@ -722,9 +722,9 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             try {
                 embed.attachEvent('onmouseover', _onVideoMouseOver);
                 embed.attachEvent('onmouseout', _onVideoMouseOut);
-                this.debug('Attached mouse events successfully for embed:' + embed);
+                // this.debug('Attached mouse events successfully for embed:' + embed);
             } catch (e) {
-                alert("From: _addMouse events. \n Reason:" + e);
+                // alert("From: _addMouse events. \n Reason:" + e);
             }
         }
 
@@ -733,9 +733,9 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             try {
                 embed.addEventListener('mouseover', _onVideoMouseOver, false);
                 embed.addEventListener('mouseoout', _onVideoMouseOut, false);
-                this.debug('Added events listeners for mouse events successfully for embed:' + embed);
+                // this.debug('Added events listeners for mouse events successfully for embed:' + embed);
             } catch (e) {
-                alert("From: _addMouse events. \n Reason:" + e);
+                // alert("From: _addMouse events. \n Reason:" + e);
             }
         }
     },
@@ -767,7 +767,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         for (var i = 0; i < domains.length; i++) {
             // this.debug('Testing against domain: ' + domains[i] + ' with src: ' + src);
             if (src.indexOf(domains[i]) != -1) {
-                this.debug('Matched domain ' + domains[i]);
+                // this.debug('Matched domain ' + domains[i]);
                 return true;
             }
         }
@@ -776,7 +776,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
     _extractId: function(str, patterns, match) {
         for (var i = 0; i < patterns.length; i++) {
-            this.debug('Matching: ' + patterns[i] + ' against ' + str);
+            // this.debug('Matching: ' + patterns[i] + ' against ' + str);
             var videoId = patterns[i].exec(str);
             if (videoId) {
                 // this.debug('Matched: ' + str + " \tfor pattern:" + patterns[i]);
@@ -829,7 +829,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             $(this.kikinVideoBorder).find('#like-btn-text').mouseleave($.proxy(this._onLikeButtonMouseLeave, this));
 
         } catch (e) {
-            alert("from: createKikinBorder of base KikinVideoAdapter. \nReason:" + e);
+            // alert("from: createKikinBorder of base KikinVideoAdapter. \nReason:" + e);
             // $kat.trackError({from:"createKikinBorder of base KikinVideoAdapter", msg: "Unable to create the border around video.", exception:e});
         }
     },
@@ -927,7 +927,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
                 $(this.kikinVideoBorder).show();
             } catch (e) {
-                alert('from: drawKikinBorder of base KikinVideoAdapter. \nReason:' + e);
+                // alert('from: drawKikinBorder of base KikinVideoAdapter. \nReason:' + e);
                 // $kat.trackError({from: "drawKikinBorder of base KikinVideoAdapter", msg: "Unable to reposition border around video.", exception:e});
             }
         }
@@ -1009,7 +1009,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             return coordinates;
         } catch (e) {
-            alert('from: getVideoCoordinates of base KikinVideoAdapter. \nReason:' + e);
+            // alert('from: getVideoCoordinates of base KikinVideoAdapter. \nReason:' + e);
             // $kat.trackError({from: "getVideoCoordinates of base KikinVideoAdapter", msg: "Unable to calculate the coordinates for video.", exception:e});
         }
 
@@ -1035,7 +1035,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             if (!target)
                 target = evt.srcElement;
 
-            this.debug("Video mouse over for target:" + (target ? target.nodeName : "not found"));
+            // this.debug("Video mouse over for target:" + (target ? target.nodeName : "not found"));
 
             if (target) {
                 if (target.nodeType == 3) {
@@ -1051,7 +1051,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     }
                 }
 
-                this.debug("Video id associated with target:" + kikinVideoId);
+                // this.debug("Video id associated with target:" + kikinVideoId);
 
                 // if kikin video is is valid
                 // draw the border around video
@@ -1085,7 +1085,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     selectedVideo.coordinates = this._getVideoCoordinates(target);
 
                     if (selectedVideo.coordinates) {
-                        this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
+                        // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
 
                         // draw the border around video
                         this._drawKikinBorder(selectedVideo.coordinates.left,
@@ -1108,7 +1108,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }
             }
         } catch (err) {
-            alert('from: onVideoMouseOver of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: onVideoMouseOver of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onVideoMouseOver of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1183,7 +1183,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }
             }
         } catch (err) {
-            alert('from: onVideoMouseOut of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: onVideoMouseOut of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onVideoMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1199,7 +1199,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             this.selectedVideo.shareButtonSelected = true;
         } catch (err) {
-            alert('from: onSaveButtonMouseOver of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: onSaveButtonMouseOver of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOver of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1231,7 +1231,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }
             }, this), 1000);
         } catch (err) {
-            alert('from: onSaveButtonMouseOut of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: onSaveButtonMouseOut of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1244,7 +1244,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             $(watchlrLogoImg).removeClass();
             $(watchlrLogoImg).addClass('watchlr-image watchlr-logo-hover-image');
         } catch (err) {
-            alert('from: _onWatclrLogoMouseEnter of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: _onWatclrLogoMouseEnter of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1268,7 +1268,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             });
 
         } catch (err) {
-            alert('from: _onSaveButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: _onSaveButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1294,7 +1294,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             });
 
         } catch (err) {
-            alert('from: _onLikeButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: _onLikeButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1307,7 +1307,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             $(watchlrLogoImg).removeClass();
             $(watchlrLogoImg).addClass('watchlr-image watchlr-logo-image');
         } catch (err) {
-            alert('from: _onWatclrLogoMouseLeave of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: _onWatclrLogoMouseLeave of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1331,7 +1331,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             });
 
         } catch (err) {
-            alert('from: _onSaveButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: _onSaveButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1355,7 +1355,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             });
 
         } catch (err) {
-            alert('from: _onLikeButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: _onLikeButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1397,11 +1397,11 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     });*/
                 }
             } catch (e) {
-                alert('from: onSaveButtonClicked of base KikinVideoAdapter. \nReason:' + e);
+                // alert('from: onSaveButtonClicked of base KikinVideoAdapter. \nReason:' + e);
                 // $kat.trackError({ from: 'onSaveButtonClicked of base KikinVideoAdapter', msg: 'error while saving video', exception: e });
             }
         } catch (err) {
-            alert('from: onSaveButtonClicked of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: onSaveButtonClicked of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonClicked of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1468,11 +1468,11 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     }
                 } */
             } catch (e) {
-                alert('from: onLikeButtonClicked of base KikinVideoAdapter. \nReason:' + e);
+                // alert('from: onLikeButtonClicked of base KikinVideoAdapter. \nReason:' + e);
                 // $kat.trackError({ from: 'onLikeButtonClicked of base KikinVideoAdapter', msg: 'error while liking video', exception: e });
             }
         } catch (err) {
-            alert('from: onLikeButtonClicked of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: onLikeButtonClicked of base KikinVideoAdapter. \nReason:' + err);
         }
     },
 
@@ -1480,23 +1480,23 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 	 * determine if the popup window is closed, when it is call the commonCallback
 	 */
 	_monitorPopup: function() {
-        this.debug("Window is created:" + (this._connectionPopup==null));
-        this.debug("Window is closed:" + (this._connectionPopup.closed));
+        // this.debug("Window is created:" + (this._connectionPopup==null));
+        // this.debug("Window is closed:" + (this._connectionPopup.closed));
 		if(this._connectionPopup==null || this._connectionPopup.closed){
 			this._popupMonitor = false;
 			this._commonCallback();
 		} else if(this._popupMonitor){
-            console.log("Checking again");
+            // console.log("Checking again");
 			setTimeout($.proxy(this._monitorPopup, this), 600);
 		}
 	},
 
     _commonCallback: function() {
-        this.debug('get called in common callback');
+        // this.debug('get called in common callback');
         if (this.selectedVideo.savingVideo) {
             $cws.WatchlrRequests.sendSaveVideoRequest($.proxy(this._updateButtonState, this), this.selectedVideo.url);
         } else if (this.selectedVideo.likingVideo) {
-            this.debug('making the request for fetching user info');
+            // this.debug('making the request for fetching user info');
             $cws.WatchlrRequests.sendUserProfileRequest($.proxy(this.onUserProfileReceived, this));
         }
     },
@@ -1588,7 +1588,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                             }
 
                             case 401: {
-                                this.debug("Session sent was an invalid session");
+                                // this.debug("Session sent was an invalid session");
                                 var oAlert = new $cwui.modalwin.FacebookConnectWindow();
                                 oAlert.bind('close', $.proxy(this._handleFacebookConnectionCancelled, this));
                                 oAlert.bind('connect', $.proxy(this._handleFacebookConnectionRequested, this));
@@ -1603,7 +1603,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                                     this._localize('errorDlgMsg')
                                 );
                                 oAlert.show();
-                                alert('from: updateButtonState of base KikinVideoAdapter. \nReason:' + 'Unable to save video');
+                                // alert('from: updateButtonState of base KikinVideoAdapter. \nReason:' + 'Unable to save video');
                                 // $kat.trackError({from: "updateButtonState of base KikinVideoAdapter", msg:"Unable to save video. Error code:" + res.code + ", Error:" + res.error});
                             }
                         }
@@ -1613,7 +1613,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                             this._localize('errorDlgMsg')
                         );
 
-                        alert('from: updateButtonState of base KikinVideoAdapter. \nReason:' + 'Unable to save video');
+                        // alert('from: updateButtonState of base KikinVideoAdapter. \nReason:' + 'Unable to save video');
                         //$kat.trackError({from: "updateButtonState of base KikinVideoAdapter", msg:"Unable to save video. Reason:" + (res ? res.error : "Result is null")});
                     }
                 }
@@ -1660,7 +1660,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }, this), 1000);
             }
         } catch (err) {
-            alert('from: updateButtonState of base KikinVideoAdapter. \nReason:' + err);
+            // alert('from: updateButtonState of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "updateButtonState of base KikinVideoAdapter", exception:err});
         }
 	},
@@ -1716,7 +1716,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                                     );
                                     oAlert.show();
                                 }  */
-                                alert("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
+                                // alert("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
 
                                 // $kat.trackError({from: "_onVideoLiked of base KikinVideoAdapter", msg:"Unable to like video. Error code:" + res.code + ", Error:" + res.error});
                             }
@@ -1735,7 +1735,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                             );
                             oAlert.show();
                         }   */
-                        alert("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
+                        // alert("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
                         // $kat.trackError({from: "_onVideoLiked of base KikinVideoAdapter", msg:"Unable to like video. Reason:" + (res ? res.error : "Result is null")});
                     }
                 }
@@ -1793,7 +1793,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }, this), 1000);
             }
         } catch (err) {
-            alert("From: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
+            // alert("From: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
             //$kat.trackError({from: "_onVideoLiked of base KikinVideoAdapter", exception:err});
         }
 	},
@@ -1804,7 +1804,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                  $cws.WatchlrRequests.sendUpdateUserProfileRequest($.proxy(this._onUserProfileUpdated, this));
             }
         } catch (err) {
-            alert("From: _onSavedWindowClosed of base KikinVideoAdapter. \nReason:" + err);
+            // alert("From: _onSavedWindowClosed of base KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError
         }
     },
@@ -1827,7 +1827,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 });*/
             }
         } catch (err) {
-            alert("From: _onPushToFacebookWindowClosed of base KikinVideoAdapter. \nReason:" + err);
+            // alert("From: _onPushToFacebookWindowClosed of base KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError
         }
     },
@@ -1837,7 +1837,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         for (var i in data) {
             str += i + ": " + data[i] + "\r\n";
         }
-        this.debug(str);
+        // this.debug(str);
     },
 
 	/**
@@ -1848,7 +1848,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 	},
 
     onUserProfileReceived: function(data) {
-        this.debug("User profile info received.");
+        // this.debug("User profile info received.");
         var res = null;
         if (typeof data == 'object') {
             res = data;

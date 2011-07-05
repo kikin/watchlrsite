@@ -7,7 +7,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
 	/* @override */
 	attach: function() {
         try {
-            this.debug("Get called in Facebook video adapter.");
+            // this.debug("Get called in Facebook video adapter.");
             if (window.document.body.addEventListener) {
                 window.document.body.addEventListener('DOMNodeInserted', $.proxy(this._firePageModifiedEvent, this), false);
             } else {
@@ -93,7 +93,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                     anchorTagParent.kikinVideoId = videoId;
                     elem.kikinVideoId = videoId;
 
-                    console.log('AnchorTag kikinVideoId:' + elem.kikinVideoId);
+                    // console.log('AnchorTag kikinVideoId:' + elem.kikinVideoId);
 
                     var anchorTagChildNodes = $(elem).children() ;
                     if (anchorTagChildNodes && anchorTagChildNodes.length > 0) {
@@ -122,7 +122,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                 // this.debug("Number of videos found:" + this.videos.length);
 
         } catch (err) {
-            alert("From: findFlashVideoCandidates of facebook's KikinVideoAdapater. \nReason:" + err);
+            // alert("From: findFlashVideoCandidates of facebook's KikinVideoAdapater. \nReason:" + err);
             // $kat.trackError({from: "findFlashVideoCandidates of facebook's KikinVideoAdapater.", msg: "Unable to find flash videos on facebook page.", exception:err});
         }
     },
@@ -140,10 +140,10 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                     setTimeout($.proxy(this._fireOnVideoElementInserted, this), 500);
                 }
             } catch (er) {
-                alert("OnImageClicked error: " + er);
+                // alert("OnImageClicked error: " + er);
             }
         } catch (err) {
-            alert("From: onVideoImageClicked of facebook's KikinVideoAdapater. \nReason:" + err);
+            // alert("From: onVideoImageClicked of facebook's KikinVideoAdapater. \nReason:" + err);
             // $kat.trackError({from: "onVideoImageClicked of facebook's KikinVideoAdapater.", exception:err});
         }
     },
@@ -157,21 +157,21 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                 setTimeout($.proxy(this._fireOnVideoElementInserted, this), 500);
             }
         } catch (err) {
-            alert("From: fireOnVideoElementInserted of facebook's KikinVideoAdapater. \nReason:" + err);
+            // alert("From: fireOnVideoElementInserted of facebook's KikinVideoAdapater. \nReason:" + err);
             // $kat.trackError({from: "fireOnVideoElementInserted of facebook's KikinVideoAdapater.", msg: "Unable to fire the event.", exception:err});
         }
     },
 
     _onEmbedTagCreated: function() {
         try {
-            this.debug("In onEmbedTagCreated.");
+            // this.debug("In onEmbedTagCreated.");
             if (this.selectedVideo) {
                 var parentNode = this.selectedVideo.parentNode;
-                this.debug("Selected video id is:" + parentNode.kikinVideoId);
+                // this.debug("Selected video id is:" + parentNode.kikinVideoId);
 
                 var iframe = $(parentNode).find('iframe');
                 if (iframe && iframe.length > 0) {
-                    this.debug('Iframe found');
+                    // this.debug('Iframe found');
                     iframe = iframe.get(0);
                     this._addMouseEvents(iframe);
                     iframe.kikinVideoId = parentNode.kikinVideoId;
@@ -182,7 +182,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
 
                 var object = $(parentNode).find('object');
                 if (object && object.length > 0) {
-                    this.debug('Object found');
+                    // this.debug('Object found');
                     object = object.get(0);
                     this._addMouseEvents(object);
                     object.kikinVideoId = parentNode.kikinVideoId;
@@ -193,7 +193,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
 
                 var embed = $(parentNode).find('embed');
                 if (embed && embed.length > 0) {
-                    this.debug('Embed found');
+                    // this.debug('Embed found');
                     embed = embed.get(0);
                     this._addMouseEvents(embed);
                     embed.kikinVideoId = parentNode.kikinVideoId;
@@ -202,7 +202,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                 }
             }
         } catch (err) {
-            alert("From: onEmbedTagCreated of facebook's KikinVideoAdapater. \nReason:" + err);
+            // alert("From: onEmbedTagCreated of facebook's KikinVideoAdapater. \nReason:" + err);
             // $kat.trackError({from: "onEmbedTagCreated of facebook's KikinVideoAdapater.", exception:err});
         }
     },
@@ -255,7 +255,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
 
             return coordinates;
         } catch (err) {
-            alert("From: getVideoCoordinates of facebook's KikinVideoAdapater. \nReason:" + err);
+            // alert("From: getVideoCoordinates of facebook's KikinVideoAdapater. \nReason:" + err);
             //$kat.trackError({from: "getVideoCoordinates of facebook's KikinVideoAdapater.", exception:err});
         }
 
@@ -308,7 +308,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                 }
             }
         } catch (err) {
-            alert("From: _onVideoThumbnailMouseOver of facebook's KikinVideoAdapter. \nReason:" + err);
+            // alert("From: _onVideoThumbnailMouseOver of facebook's KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError({from: "_onVideoThumbnailMouseOver of facebook's KikinVideoAdapter", exception:err});
         }
     },
@@ -346,7 +346,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.facebook.adapters.Kiki
                 }
             }
         } catch (err) {
-            alert("From: _onVideoThumbnailMouseOut of facebook's KikinVideoAdapter. \nReason:" + err);
+            // alert("From: _onVideoThumbnailMouseOut of facebook's KikinVideoAdapter. \nReason:" + err);
             //$kat.trackError({from: "_onVideoThumbnailMouseOut of facebook's KikinVideoAdapter", exception:err});
         }
     }
