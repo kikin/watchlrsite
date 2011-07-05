@@ -268,14 +268,14 @@ a:hover {
     border-radius: 8px;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
-    position:absolute;
-    padding-top: 40px;
+    padding-top: 70px;
     top:0px;
     left:0px;
     z-index:9999;
     background-color: #FFFFFF;
     opacity: 0.2;
     padding-bottom:40px;
+    position:fixed;
 }
 
 .loading {
