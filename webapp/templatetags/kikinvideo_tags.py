@@ -9,7 +9,7 @@ from celery import states
 
 register = template.Library()
 
-HTML5_SOURCE_WHITELIST = ['espn', 'funnyordie']
+HTML5_SOURCE_WHITELIST = ['espn', 'funnyordie', 'ted']
 
 @register.filter
 def pretty_date(time=False):

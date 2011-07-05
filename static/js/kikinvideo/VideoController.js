@@ -147,7 +147,7 @@ kikinvideo.VideoController =
              var vid = curVID;
              if(vid_player_mappings[vid]){
                  if(vid_player_mappings[vid].type == 'YouTube'){
-                     if(vid_player_mappings[vid].player)
+                     if(vid_player_mappings[vid].player)     
                         vid_player_mappings[vid].player.pauseVideo();
                  }
                   if(vid_player_mappings[vid].type == 'Vimeo'){
