@@ -20,7 +20,8 @@
                         <h4>
                             You have no saved videos at the moment.
                         </h4>
-                        <div class="block" style="height:350px;">
+                        Install the Watchlr Browser App or Bookmarklet to save or like video from popular sources.
+                        <div class="block" style="height:350px; margin-top:30px;">
                             <img title="Watchlr Browser App" src="{{ STATIC_URL }}images/extras/browserapp.png" />
                             <div class="blockleft">
                                 <div class="blockblue">Watchlr Browser App</div>
@@ -45,8 +46,19 @@
                                  {%else%}
                                         Your browser is not supported (We support Chrome and Firefox on Mac and PC.)
                                  {%endif%}
-
                             </div>
+                        </div>
+                        <div class="block" style="height:270px;">
+                            <div class="blockleft" style="float:right; text-align: right; padding-right:10px;">
+                                <div class="blockblue">Watch Later Bookmarklet</div>
+                                <br />
+                                <div class="blockcopy">Click the Watch Later Bookmarklet when you're on a page with video and you can like or save a video right there! </div>
+                                <br />
+                                <div class="blockcopylight">Drag this to your Bookmarks Bar:</div>
+                                <br />
+                                <a href="javascript:(function(){_onWatchlrRequestComplete=function(a){if(a && typeof a == 'string'){a=JSON.parse(a);}if(a && a.js_url && (typeof a.js_url == 'string')){var b=document.createElement('script');b.src=a.js_url;b.type='text/javascript';document.body.appendChild(b);}};var c=document.createElement('link');c.rel='stylesheet';c.type='text/css';c.href='http://fonts.googleapis.com/css?family=PT%20Sans';document.getElementsByTagName('head')[0].appendChild(c);var d=document.createElement('div');d.style.width='350px';d.style.top='0px';d.style.left='0px';d.style.backgroundColor='#AAEB6E !important';d.style.position='fixed';d.style.display='block !important';d.style.textAlign='left !important';d.style.zIndex='10000';d.style.padding='10px';d.style.borderBottomRightRadius='10px';d.style.mozBorderRadiusBottomright='10px';var e=document.createElement('img');e.src='http://www.watchlr.com/static/images/favicon_75x75.png';e.style.display='inline-block !important';e.style.verticalAlign='text-top';e.style.width='45px';e.style.height='45px';var f=document.createElement('div');f.style.color='#ffffff !important';f.style.fontSize='18px !important';f.style.fontWeight='600 !important';f.style.fontFamily='PT Sans !important';f.style.fontStyle='normal !important';f.style.padding='10px';f.style.position='absolute';f.style.width='255px';f.style.height='40px';f.style.left='75px';f.style.top='0px';f.innerHTML='Mouseover the video to save it for watching later.';d.appendChild(e);d.appendChild(f);document.body.appendChild(d);var g=document.createElement('script');g.src='http://www.watchlr.com/static/html/jsloc.jsonp?callback=_onWatchlrRequestComplete';document.getElementsByTagName('head')[0].appendChild(g);})();" title="Watch Later"><div class="bookmarklet" style="float:right;"><div style="visibility: hidden;">Watch Later</div></div></a>
+                            </div>
+                            <img title="Watchlr Browser App" src="{{ STATIC_URL }}images/extras/bookmarkletimg.png" style="float:left; padding-bottom:20px;"/>
                         </div>
                     </div>
                 </div>
