@@ -143,16 +143,19 @@ function swapTab(selector) {
 };
 
 /*for displaying error messages...*/
-function showErrorDialog(msg){
+function showErrorDialog(msg, code){
     var error_info = "Error details:<br><br>";
-    if(!msg){
-        error_info += "[none]";
-    }else{
-        error_info += msg;
+    if(code == 401){
+        error_info = "You need to sign in to perform that action";
+    } else{
+        if(!msg){
+            error_info += "[none]";
+        }else{
+            error_info += msg;
+        }
     }
 
-    $(ERROR_DIALOG_MESSAGE_BODY_SELECTOR).html(error_info);
-    $(ERROR_DIALOG_SELECTOR).fadeIn(600);
+//    alert(error_info);
 }
 
 function hideErrorDialog(){

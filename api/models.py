@@ -479,6 +479,9 @@ class User(auth_models.User):
 
             for video in user.liked_videos():
 
+                if not video.status() == states.SUCCESS:
+                    continue
+
                 user_video = UserVideo.objects.get(user=user, video=video)
                 if since is not None:
                     if user_video.liked_timestamp < since:

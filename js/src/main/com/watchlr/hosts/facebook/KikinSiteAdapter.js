@@ -19,7 +19,7 @@ $cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.facebook.adapters.Kikin
 
             setTimeout($.proxy(this.injectIntoPage, this), 1000);
         } catch(err) {
-            alert("From: facebook_site_adapter.\nReason:" + err);
+            // alert("From: facebook_site_adapter.\nReason:" + err);
         }
 	},
 
@@ -29,7 +29,7 @@ $cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.facebook.adapters.Kikin
             if (kva) kva.attach();
 
         } catch(e) {
-            alert("From: facebook_site_adapter. \nReason:" + e);
+            // alert("From: facebook_site_adapter. \nReason:" + e);
             // $kat.trackError({ from: 'facebook_site_adapter', exception: e, msg: 'unable to create video adapter'});
         }
 

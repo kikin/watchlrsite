@@ -20,7 +20,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.youtube.adapters.Kikin
 
             return videoUrl;
         } catch (err) {
-            alert("From: _findVideoUrl of youtube's KikinVideoAdapter.\nReason: " + err);
+            // alert("From: _findVideoUrl of youtube's KikinVideoAdapter.\nReason: " + err);
             // $kat.trackError({from: "_findVideoUrl of youtube's KikinVideoAdapter.", msg:"Error while finding video url for video tag.", exception:err});
         }
 

@@ -163,6 +163,8 @@ def like_by_url(request):
 @jsonp_view
 @require_authentication
 def unlike(request, video_id):
+    if request.REQUEST.get('remove', '').lower() in ('true', '1'):
+        do_request(request, video_id, 'remove_video')
     return do_request(request, video_id, 'unlike_video')
 
 
@@ -248,6 +250,8 @@ def add(request):
 @jsonp_view
 @require_authentication
 def remove(request, video_id):
+    if request.REQUEST.get('unlike', '').lower() in ('true', '1'):
+        do_request(request, video_id, 'unlike_video')
     return do_request(request, video_id, 'remove_video')
 
 

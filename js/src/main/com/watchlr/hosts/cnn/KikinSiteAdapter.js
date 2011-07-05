@@ -10,7 +10,7 @@ $cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.cnn.adapters.KikinSiteA
             var kva = $cwh.adapters.KikinVideoAdapter.getInstance();
             if (kva) kva.attach();
         } catch(e) {
-            alert("From: cnn_site_adapter. \nReason:" + e);
+            // alert("From: cnn_site_adapter. \nReason:" + e);
             //$kat.trackError({ from: 'cnn_site_adapter', exception: e, msg: 'unable to create video adapter'});
         }
 	}

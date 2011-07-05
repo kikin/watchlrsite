@@ -17,14 +17,14 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.foxsports.adapters.Kik
                             original.apply(this, arguments);
                         }
                     } catch (e) {
-                        alert("From: attach of fox sports KikinVideoAdapter. \nReason: " + e);
+                        // alert("From: attach of fox sports KikinVideoAdapter. \nReason: " + e);
                         // $kat.trackError({from:"attach of fox sports KikinVideoAdapter", msg: "Unable to call fox sports original Player.OnVideoTitle function", exception:e});
                     }
                 }, this);
             }
 
         } catch (err) {
-            alert("From: attach of fox sports KikinVideoAdapter. \nReason: " + err);
+            // alert("From: attach of fox sports KikinVideoAdapter. \nReason: " + err);
             //$kat.trackError({from:"attach of fox sports KikinVideoAdapter", msg: "Unable to wrap Player.OnVideoTitle function", exception:err});
         }
 
@@ -75,7 +75,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.foxsports.adapters.Kik
                 }
             }
         } catch (err) {
-            alert("From: _onVideoUrlChange of fox sports KikinVideoAdapter. \nReason:" + err);
+            // alert("From: _onVideoUrlChange of fox sports KikinVideoAdapter. \nReason:" + err);
             //$kat.trackError({from:"_onVideoUrlChange of fox sports KikinVideoAdapter", msg: "Unable to change video URL on video change", exception:err});
         }
     }

@@ -144,6 +144,8 @@ kikinvideo.UIUniversal =
 
             function handleProfileEditPanelOpen(){
 
+                $(PROFILE_OPTIONS_PANEL_SELECTOR).hide()
+
                 /*grey overlay for all content outside of edit dialog*/
                 $('body').prepend(GREYED_BACKGROUND_ELEMENT);
 
@@ -206,6 +208,7 @@ kikinvideo.UIUniversal =
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         }
                 );
+
             }
 
 
