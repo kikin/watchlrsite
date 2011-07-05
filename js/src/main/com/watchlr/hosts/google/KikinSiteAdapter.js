@@ -13,7 +13,7 @@ $cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.google.adapters.KikinSi
             var kva = $cwh.adapters.KikinVideoAdapter.getInstance();
             if (kva) kva.attach();
         } catch(e) {
-            alert("From: google_site_adapter. \nReason: " + e);
+            // alert("From: google_site_adapter. \nReason: " + e);
             // $kat.trackError({ from: 'google_site_adapter', exception: e, msg: 'unable to create video adapter'});
         }
 	},
@@ -68,12 +68,12 @@ $cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.google.adapters.KikinSi
                 var kva = $cwh.adapters.KikinVideoAdapter.getInstance();
                 if (kva) kva.attach();
             } catch(e) {
-                alert("From: google_site_adapter. \nReason: " + e);
+                // alert("From: google_site_adapter. \nReason: " + e);
                 //$kat.trackError({ from: 'google_site_adapter', exception: e, msg: 'unable to create video adapter'});
             }
 
     	} catch(err) {
-            alert("From: site_adapter. \nReason:" + err);
+            // alert("From: site_adapter. \nReason:" + err);
 			// $kat.trackError({ from: 'site_adapter', exception: e, msg: 'injectiong failed in google'});
     	}
     	

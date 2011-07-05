@@ -43,7 +43,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.vimeo.adapters.KikinVi
 
             }
         } catch (err) {
-            alert("From: _findFlashVideos of vimeo's KikinVideoAdapter..\nReqason: " + err);
+            // alert("From: _findFlashVideos of vimeo's KikinVideoAdapter..\nReqason: " + err);
             // $kat.trackError({from: "_findFlashVideos of vimeo's KikinVideoAdapter.", exception:err});
         }
     },
@@ -103,7 +103,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.vimeo.adapters.KikinVi
                 selectedVideo.videoSelected = true;
             }
         } catch (err) {
-            alert("From: _onVideoThumbnailMouseOver of vimeo's KikinVideoAdapter.\nReason:" + err);
+            // alert("From: _onVideoThumbnailMouseOver of vimeo's KikinVideoAdapter.\nReason:" + err);
             // $kat.trackError({from: "_onVideoThumbnailMouseOver of vimeo's KikinVideoAdapter.", exception:err});
         }
     },
@@ -139,7 +139,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.vimeo.adapters.KikinVi
                 }, this), 1000);
             }
         } catch (err) {
-            alert("From: _onVideoThumbnailMouseOut of vimeo's KikinVideoAdapter.\nReason:" + err);
+            // alert("From: _onVideoThumbnailMouseOut of vimeo's KikinVideoAdapter.\nReason:" + err);
             // $kat.trackError({from: "_onVideoThumbnailMouseOut of vimeo's KikinVideoAdapter.", exception:err});
         }
     }
