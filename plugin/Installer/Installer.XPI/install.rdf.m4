@@ -26,5 +26,6 @@
     </em:targetApplication>
     <em:targetPlatform>Darwin_x86-gcc3</em:targetPlatform>
     <em:targetPlatform>WINNT</em:targetPlatform>
+    <em:targetPlatform>Darwin_x86_64-gcc3</em:targetPlatform>
   </Description>
 </RDF>
