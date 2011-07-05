@@ -10,7 +10,7 @@ $cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.cbsnews.adapters.KikinS
             var kva = $cwh.adapters.KikinVideoAdapter.getInstance();
             if (kva) kva.attach();
         } catch(e) {
-            alert("From: cbs_news_site_adapter. \nReason:" + e);
+            // alert("From: cbs_news_site_adapter. \nReason:" + e);
             //$kat.trackError({ from: 'cbs_news_site_adapter', exception: e, msg: 'unable to create video adapter'});
         }
 	}

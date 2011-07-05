@@ -40,7 +40,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cbsnews.adapters.Kikin
                             this._addVideo(videoElement, url);
                         }
                     } catch (err) {
-                        alert("From: _findFlashVideoCandidates of CBS news. \nReason:" + err);
+                        // alert("From: _findFlashVideoCandidates of CBS news. \nReason:" + err);
                         // $kat.trackError({from:"_findFlashVideoCandidates of CBS news", msg: "Unable to get falshvars using CBS JS API.", exception:err})
                     }
                 }
@@ -61,7 +61,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cbsnews.adapters.Kikin
             }
 
         } catch (outerErr) {
-            alert('From: _findFlashVideoCandidates of CBS news. \nReason:' + outerErr);
+            // alert('From: _findFlashVideoCandidates of CBS news. \nReason:' + outerErr);
             // $kat.trackError({from:"_findFlashVideoCandidates of CBS news", msg: "Unable to find CBS video element.", exception:outerErr})
         }
 
@@ -155,7 +155,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cbsnews.adapters.Kikin
                 }
             }
         } catch (err) {
-            alert("From: _onVideoUrlChange of CBS news KikinVideoAdapter. \nReason:" + err);
+            // alert("From: _onVideoUrlChange of CBS news KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError({from:"_onVideoUrlChange of CBS news KikinVideoAdapter", msg: "Unable to change video URL on video change", exception:err});
         }
     }

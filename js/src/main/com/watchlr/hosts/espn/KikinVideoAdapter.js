@@ -16,12 +16,12 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.espn.adapters.KikinVid
                         original.apply(this, arguments);
                     }
                 } catch (e) {
-                    alert("From: attach of espn's KikinVideoAdapter. \nReason:" + e);
+                    // alert("From: attach of espn's KikinVideoAdapter. \nReason:" + e);
                     // $kat.trackError({from:"attach of espn's KikinVideoAdapter", msg: "Unable to call espn's original espn.video.play function", exception:e});
                 }
             }, this);
         } catch (err) {
-            alert("From: attach of espn's KikinVideoAdapter. \nReason:" + err);
+            // alert("From: attach of espn's KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError({from:"attach of espn's KikinVideoAdapter", msg: "Unable to wrap espn.video.play function", exception:err});
         }
 
@@ -56,7 +56,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.espn.adapters.KikinVid
                 }, this), 1000);
             }
         } catch (err) {
-            alert("From: _onVideoUrlChange of espn's KikinVideoAdapter. \nReason:" + err);
+            // alert("From: _onVideoUrlChange of espn's KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError({from:"_onVideoUrlChange of espn's KikinVideoAdapter", msg: "Unable to change video URL on video change", exception:err});
         }
     }

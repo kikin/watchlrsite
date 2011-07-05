@@ -62,7 +62,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
                 }
             }
         } catch (e) {
-            alert("From: on page scroll on google reader. \nReason: " + e);
+            // alert("From: on page scroll on google reader. \nReason: " + e);
             // $kat.trackError({from: 'on page scroll on google reader', msg: '', exception: e});
         }
     },
@@ -118,9 +118,9 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
 
     _addKikinVideoBorder: function(pos, img) {
         try {
-            this.debug("Creating kikin border for img:" + img);
+            // this.debug("Creating kikin border for img:" + img);
             var videoUrl = this.getVideoUrl(img);
-            this.debug("URL for image element:" + videoUrl);
+            // this.debug("URL for image element:" + videoUrl);
             if (videoUrl) {
                 for (var i = 0; i < this.services.length; i++) {
                     if (!this.services[i].url_regex)
@@ -159,7 +159,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
                 }
             }
         } catch (err) {
-            alert("From: addKikinVideoBorder of Google Video adapter. \nReason: " + err);
+            // alert("From: addKikinVideoBorder of Google Video adapter. \nReason: " + err);
         }
     },
 
@@ -181,7 +181,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
         try {
             var target = $($(e.target).parents('table').get(0)).find('td a img');
             target = target.get(0);
-            this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
+            // this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
             if (target && target.kikinVideoId) {
 
                 var selectedVideo = this.videos[target.kikinVideoId - 1];
@@ -202,7 +202,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
                 selectedVideo.coordinates = this._getVideoCoordinates($(target).parents('table').get(0));
 
                 if (selectedVideo.coordinates) {
-                    this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
+                    // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
                     // draw the border around video
                     this._drawKikinBorder(selectedVideo.coordinates.left,
                                           selectedVideo.coordinates.top,
@@ -216,7 +216,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
 
             }
         } catch (err) {
-            alert("From: _onVideoThumbnailMouseOver of google's KikinVideoSearchAdapter.\nReason: " + err);
+            // alert("From: _onVideoThumbnailMouseOver of google's KikinVideoSearchAdapter.\nReason: " + err);
             // $kat.trackError({from: "_onVideoThumbnailMouseOver of google's KikinVideoSearchAdapter", exception:err});
         }
     },
@@ -225,7 +225,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
         try {
             var target = $($(e.target).parents('table').get(0)).find('td a img');
             target = target.get(0);
-            this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
+            // this.debug("Mouseover target kikin video id:" + target.kikinVideoId);
             if (target && target.kikinVideoId) {
                 // set the selected video property to false
                 var selectedVideo = this.videos[target.kikinVideoId - 1];
@@ -248,7 +248,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.google.adapters.KikinV
                 }, this), 1000);
             }
         } catch (err) {
-            alert("From: _onVideoThumbnailMouseOut of google's KikinVideoSearchAdapter.\nReason: " + err);
+            // alert("From: _onVideoThumbnailMouseOut of google's KikinVideoSearchAdapter.\nReason: " + err);
             // $kat.trackError({from: "_onVideoThumbnailMouseOut of google's KikinVideoSearchAdapter", exception:err});
         }
     }

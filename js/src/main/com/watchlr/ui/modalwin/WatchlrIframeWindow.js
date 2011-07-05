@@ -48,7 +48,7 @@ $.Class.extend("com.watchlr.ui.modalwin.WatchlrIframeWindow", {}, {
 				frame.contentWindow.document.write('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd"><html><head><link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=PT%20Sans"></head><body></body></html>');
 				frame.contentWindow.document.close();
 			} catch (e) {
-                alert("From: watchlr iframe window base class. \nReason:" + e);
+                // alert("From: watchlr iframe window base class. \nReason:" + e);
 				// $kat.trackError({ from: 'draggable_iframe', exception: e, msg: 'failed to create iframe' });
 			}
 		}
@@ -134,7 +134,7 @@ $.Class.extend("com.watchlr.ui.modalwin.WatchlrIframeWindow", {}, {
 
         var frameLeft = ((elemWidth - frameWidth) / 2) + elemOffset.left;
         var frameTop = ((elemHeight - frameHeight) / 2) + elemOffset.top;
-        console.log('watchlr frame position and size:' + frameLeft + ", " + frameTop + ", " + frameWidth + ", " + frameHeight);
+        // console.log('watchlr frame position and size:' + frameLeft + ", " + frameTop + ", " + frameWidth + ", " + frameHeight);
         if (frameLeft > 0 && frameTop > 0) {
             $(this._element).css('left', frameLeft);
             $(this._element).css('top', frameTop);
@@ -143,7 +143,7 @@ $.Class.extend("com.watchlr.ui.modalwin.WatchlrIframeWindow", {}, {
             $(this._element).css('top', frameHeight);
         }
 
-        console.log($(this._element).css('left') + ", " + $(this._element).css('top'));
+        // console.log($(this._element).css('left') + ", " + $(this._element).css('top'));
 	}/*,
 
     setTemplate: function(className) {

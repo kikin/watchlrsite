@@ -14,7 +14,7 @@ $cwh.adapters.KikinSiteAdapter.extend("com.watchlr.hosts.defaultEngine.adapters.
             var kva = $cwh.adapters.KikinVideoAdapter.getInstance();
             if (kva) kva.attach();
         } catch(e) {
-            alert("from: default_site_adapter. \nReason:" + e);
+            // alert("from: default_site_adapter. \nReason:" + e);
             // $kat.trackError({ from: 'default_site_adapter', exception: e, msg: 'unable to create video adapter'});
         }
 	}

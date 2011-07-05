@@ -27,7 +27,7 @@ $.Class.extend('com.watchlr.system.runtime.Bootstrap', {}, {
             if (ksa)
                 ksa.run();
     	} catch(e) {
-            alert("from: bootstrap. \nReason:" + e);
+            // alert("from: bootstrap. \nReason:" + e);
     		// $cwat.trackError({ from: 'bootstrap', exception: e, msg: 'KikinSiteAdapter failed'});
     	}
     }
