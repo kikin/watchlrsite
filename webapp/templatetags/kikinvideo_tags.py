@@ -162,6 +162,15 @@ def is_vimeo(video):
         pass
     return False
 
+# NOTE: THIS IS A STOPGAP.
+# KEEP FOR TONIGHT'S DEMO ONLY, THEN
+# RESOLVE THE MATTER OF WHY CERTAIN HTML5
+# VIDS FAIL TO PLAY IN CHROME
+@register.filter
+def is_html5_capable(video):
+    url_root = source_url_root(video)
+    return url_root.find('funnyordie') != -1\
+        or url_root.find('espn') != -1
 
 @register.filter
 def truncate_text(text, letter_count):
