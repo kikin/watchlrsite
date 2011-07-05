@@ -16,12 +16,38 @@
             {% endif %}
             {% if display_mode ==  "saved"%}
                 <div class="video-container" style="height:450px;border-bottom: none;">
-                    <div class="featureTxt" style="width: 600px;">
+                    <div class="featureTxt" style="width: 600px; margin-left:0px;">
                         <h4>
                             You have no saved videos at the moment.
                         </h4>
-                        <p>Click <img src="{{ STATIC_URL }}images/save_video.png" style="height:15px; padding-right:1px;"/> to add a video to your Saved Queue.
-                        <img class="featureImage" alt="Learn how to use Watchlr" src="{{ STATIC_URL }}images/education/empty_save_queue.png" style="width: 600px; padding-left: 0px;"/>
+                        <div class="block" style="height:350px;">
+                            <img title="Watchlr Browser App" src="{{ STATIC_URL }}images/extras/browserapp.png" />
+                            <div class="blockleft">
+                                <div class="blockblue">Watchlr Browser App</div>
+                                <br />
+                                <div class="blockcopy">With the Watchlr Browser App installed, place your mouse on any supported video and you can like or save the video right there!</div>
+                                <br />
+                                <div class="blockcopylight">Supported browsers - Chrome and Firefox for Mac and PC.</div>
+                                <br />
+                                {% if request|user_agent_class == 'firefox' or request|user_agent_class == 'chrome'%}
+                                    {% if request|user_agent_class == 'chrome' %}
+                                        <a href="http://dev.watchlr.com/static/downloads/watchlr_installer_1.0.0.crx"><div class="downloadapp">&nbsp;</div></a>
+                                    {%endif%}
+                                    {% if request|user_agent_class == 'firefox' %}
+                                        {%if request|user_agent_os == 'mac'%}
+                                        <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi?"><div class="downloadapp">&nbsp;</div></a>
+                                        {% else %}
+                                            {%if request|user_agent_os == 'windows'%}
+                                                <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi"><div class="downloadapp">&nbsp;</div></a>
+                                            {%endif%}
+                                        {%endif%}
+                                    {%endif%}
+                                 {%else%}
+                                        Your browser is not supported (We support Chrome and Firefox on Mac and PC.)
+                                 {%endif%}
+
+                            </div>
+                        </div>
                     </div>
                 </div>
         {% endif %}

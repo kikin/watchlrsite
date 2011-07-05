@@ -285,6 +285,15 @@ def user_agent_class(request):
         return 'firefox'
     return 'other'
 
+@register.filter
+def user_agent_os(request):
+    u_a = request.META['HTTP_USER_AGENT'].lower()
+    if u_a.find('mac') != -1:
+        return 'mac'
+    if u_a.find('windows') != -1:
+        return 'windows'
+
+
 @register.inclusion_tag('inclusion_tags/video_player_flash.hfrg')
 def video_player_flash(video):
     return { 'video' : video }

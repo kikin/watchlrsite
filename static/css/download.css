@@ -7,10 +7,6 @@ html {
 	width:900px;
 }
 
-#header-right {
-    visibility:hidden;
-}
-
 #wrapper {
 	position:relative;
 	left:-40px;
