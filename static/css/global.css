@@ -446,6 +446,7 @@ ol li {
     margin: 0;
     border-top: 1px solid #DDE0E5;
     padding-top:8px;
+    padding-left: 10px;
 }
 
 .video-wrapper:hover {
@@ -1081,7 +1082,6 @@ a#lnk-page-next:hover {
     z-index:11000;
     margin-left:auto;
     margin-right:auto;
-    border-bottom: 1px solid #cccccc;
 }
 
 video{
