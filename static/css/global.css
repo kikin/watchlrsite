@@ -960,7 +960,7 @@ a#lnk-page-next:hover {
 }
 
 .video-delete-button.clicked {
-    background: url(/static/images/x_red.png) no-repeat;
+    background: url(/static/images/x_maroon.png) no-repeat;
 }
 
 .heart-container.liked.hovered {
@@ -1015,24 +1015,20 @@ a#lnk-page-next:hover {
 .save-video-button{
     float: right;
     margin-top:0px;
-    width:20px;
+    width:22px;
     height:20px;
 }
 .save-video-button.not-saved.no-hover{
-    background:url(/static/images/save_video.png) no-repeat;
+    background:url(/static/images/plus_grey.png) no-repeat;
 }
 .save-video-button.not-saved.hovered{
-    background:url(/static/images/save_video_button_maroon.png) no-repeat;
+    background:url(/static/images/plus_maroon.png) no-repeat;
 }
 
-.save-video-button.saved.no-hover{
+.save-video-button.saved{
     margin-top:-1px;
-    background:url(/static/images/checkmark_grey.png) no-repeat;
-}
-
-.save-video-button.saved.hovered{
-    margin-top:-1px;
-    background:url(/static/images/checkmark_grey.png) no-repeat;
+    width:27px;
+    background:url(/static/images/checkmark.png) no-repeat;
 }
 
 #error-msg-dialog{
