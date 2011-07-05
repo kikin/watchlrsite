@@ -9,7 +9,7 @@
         <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
 
         {% autoescape off %}
-            {% if video|is_youtube or not video|html5_capable %}
+            {% if video|is_youtube or not video|is_html5_capable %}
                 <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}">
                 {{ video.html_embed_code }}
                 </div>
