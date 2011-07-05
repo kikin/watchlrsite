@@ -28,12 +28,12 @@ kikinvideo.ProfileViewController = function(){
                     if (response.success){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Unfollow");
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).attr("href", "javascript:profileViewController.handleUnfollow("+user_id+");");
-                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
+                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id + " .bold").html());
                         if(activeView == VIEWS.activity){
                             home.populatePanel();
                         }
                         numFollowers++;
-                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id + " .bold").html(numFollowers);
                     }
                 },
                 failure : function(err_msg){
@@ -49,9 +49,9 @@ kikinvideo.ProfileViewController = function(){
                     if (response.success){
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).text("Follow");
                         $(FOLLOW_BUTTON_ID_PREFIX+user_id).attr("href", "javascript:profileViewController.handleFollow("+user_id+")");
-                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html());
+                        var numFollowers = parseInt($(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id + " .bold").html());
                         numFollowers--;
-                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id).html(numFollowers);
+                        $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id +" .bold").html(numFollowers);
                         if(activeView == VIEWS.activity ){
                             home.populatePanel();
                         }

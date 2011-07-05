@@ -300,7 +300,7 @@ def video_player_flash(video):
 
 @register.inclusion_tag('inclusion_tags/video_player_html5.hfrg')
 def video_player_html5(video):
-    return { 'video' : video }
+    return { 'video' : video, 'settings' : app_settings }
 
 @register.inclusion_tag('inclusion_tags/video_player.hfrg')
 def video_player(video, request):

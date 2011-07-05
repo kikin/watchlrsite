@@ -1,5 +1,5 @@
 .activity-queue-item {
-    width:100%;
+    width:730px;
     height:160px;
     border-bottom: 1px solid #cccccc;
     margin-left:auto;
@@ -7,8 +7,6 @@
 }
 
 .activity-queue.inner{
-    margin-left:10px;
-    margin-right:10px;
     min-height:140px;
     margin-top: 5px;
 }
@@ -38,7 +36,7 @@
     font-size: 20px;
     padding-bottom: 5px;
     width: 450px;
-    margin-left: 250px;
+    margin-left: 245px;
     margin-top:27px;
 }
 
@@ -46,7 +44,7 @@
     position:absolute;
     width:360px;
     height:80px;
-    margin-left: 256px;
+    margin-left: 251px;
     margin-top:60px;
 }
 
