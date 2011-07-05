@@ -1053,7 +1053,7 @@ a#lnk-page-next:hover {
 }
 
 #error-msg-dialog{
-    position:absolute;
+    position:fixed;
     width:400px;
     height:200px;
     background-color:#DEDEDE;
@@ -1201,7 +1201,6 @@ box-shadow: 10px 10px 5px #888;
     width:720px;
     margin-left: auto;
     margin-right: auto;
-    border-bottom: 1px solid #cccccc;
     display:none;
     text-align: center;
 }
