@@ -38,7 +38,7 @@
                                     {%endif%}
                                     {% if request|user_agent_class == 'firefox' %}
                                         {%if request|user_agent_os == 'mac'%}
-                                        <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi?"><div class="downloadapp">&nbsp;</div></a>
+                                        <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi"><div class="downloadapp">&nbsp;</div></a>
                                         {% else %}
                                             {%if request|user_agent_os == 'windows'%}
                                                 <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi"><div class="downloadapp">&nbsp;</div></a>
