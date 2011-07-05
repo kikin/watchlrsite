@@ -155,7 +155,7 @@ function showErrorDialog(msg, code){
         }
     }
 
-    alert(error_info);
+//    alert(error_info);
 }
 
 function hideErrorDialog(){
