@@ -34,7 +34,7 @@
                                 <br />
                                 {% if request|user_agent_class == 'firefox' or request|user_agent_class == 'chrome'%}
                                     {% if request|user_agent_class == 'chrome' %}
-                                        <a href="http://dev.watchlr.com/static/downloads/watchlr_installer_1.0.0.crx"><div class="downloadapp">&nbsp;</div></a>
+                                        <a href="http://www.watchlr.com/static/downloads/watchlr_installer_1.0.0.crx"><div class="downloadapp">&nbsp;</div></a>
                                     {%endif%}
                                     {% if request|user_agent_class == 'firefox' %}
                                         {%if request|user_agent_os == 'mac'%}
