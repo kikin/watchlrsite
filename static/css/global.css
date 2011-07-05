@@ -313,6 +313,10 @@ a:hover {
     overflow: hidden;
 }
 
+#videoList a:hover{
+    text-decoration: none;
+}
+
 #videoListWrapper{
     background-color: #e5eff3;
     text-align: center;
