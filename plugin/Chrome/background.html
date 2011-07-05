@@ -1,0 +1,70 @@
+<html>
+    <body>
+        <script type="text/javascript">
+            
+            // URL from which script should be fetched.
+            var js_url = "";
+
+            // object for making XMLHttpRequest
+            var xhr = null;
+
+            /** Called when ready state changes for the XMLHttpRequest. */
+            var onRequestReadyStateChange = function () {
+                // if ready state is 4
+                // then save the JS URL.
+                if (xhr && xhr.readyState && xhr.readyState == 4) {
+                    try {
+                        // check if we have a response text
+                        if (xhr.responseText && (typeof xhr.responseText == 'string')) {
+                            // parse the response
+                            var jsonResult = JSON.parse(xhr.responseText);
+
+                            // check if we have a valid response
+                            if (jsonResult && jsonResult.js_url && (typeof jsonResult.js_url == 'string')) {
+                                // save the URL
+                                js_url = jsonResult.js_url;
+                                
+                            }
+                        }
+
+                    } catch (err) {
+                        // console.log("Error while fetching src URL. Reason:\n" + err);
+                    }
+                }
+            };
+
+            /** Make the request for getting the JS URL. */
+            var onPageLoad = function() {
+                console.log('Making Request');
+                xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = onRequestReadyStateChange;
+                xhr.open('GET', 'http://www.watchlr.com/static/html/jsloc.json');
+                xhr.send();
+
+                // Make the request every day, if browser is not closed. 
+                // Otherwise we are going to make the request whenever 
+                // browser restarts.
+                setTimeout(onPageLoad, 1000 * 60 * 60 * 24);
+            };
+
+            // called when page loads
+            onPageLoad();
+
+            // Add the listener for content_script.js
+            chrome.extension.onRequest.addListener(function (request, sender, sendResponse) {
+                try {
+                    switch (request.type) {
+                        case "getJsUrl":
+                            {
+                                sendResponse({ "url": js_url });
+                                break;
+                            }
+                    }
+                } catch (err) {
+                    consol.log("OnRequest: " + err);
+                }
+            });
+
+        </script>
+    </body>
+</html>

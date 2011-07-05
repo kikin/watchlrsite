@@ -1,104 +1,242 @@
-#user-info-container
-{
-	width:100%;
-	height:110px;
-	border:2px solid #e6e6e6;
-	-moz-border-radius:3px;
-	-webkit-border-radius:3px;
-    margin-bottom:40px;
+#content{
+    margin-top: 20px;
 }
 
+#videoListWrapper{
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;;
+    z-index:0;
+    margin-top:20px;
+    float:left;
+    text-align: center;
+    margin-left:15px;
+}
+
+#videoList{
+    min-height: 50px;
+}
+
+#user-info-container{
+    color:#0c536f;
+    float:left;
+}
+/*
+.user-info.gradient{
+    position:absolute;
+    width:760px;
+    height:130px;
+    background: -moz-linear-gradient(top,  #f6f6f6,  #ffffff);
+    background: -webkit-gradient(linear, center top, center bottom, from(#f6f6f6), to(#ffffff));
+    opacity:.9;
+}
+*/
 #user-info-container .inner
 {
-	margin:15px;
+	padding-top:15px;
+    padding-bottom: 15px;
 }
 
-#delta-img
+#facebook-img-container
 {
-	position:absolute;
-	height:110px;
-	width:205px;
-	margin-left:580px;
-	margin-top:-15px;
+    background-color: #ffffff;
+    padding: 10px;
+    border: 1px solid #cccccc;
 }
 
-#profile-image-container
-{
-    position:absolute;
-	width:80px;
-	height:80px;
+#facebook-img{
+    width:200px;
 }
 
-#username-display
+
+#user-info
 {
-	position:absolute;
-	margin-left:80px;
     margin-top:20px;
+    font-size:18px;
+    text-align: center;
+    width:100%;
 }
 
-#username-display .primary
+.follow-button
 {
-	font-family:Helvetica;
-	font-weight:900;
-}
-
-#username-display .sub
-{
-	margin-top:2px;
-	font-family:Georgia, serif;
-	font-style:italic;
-	font-weight:600;
-	color: #999999;
-}
-
-.profile-basic-statistics
-{
-	position:absolute;
-	font-family: Helvetica;
-	font-size:16px;
-	color: #999999;
-	width:40px;
-	top:0px;
-}
-.profile-basic-statistics .sub
-{
-	font-size:10px;
-	color: #999999;
-}
-
-#profile-stats-container
-{
-	position:absolute;
-	top:45px;
-	left:100px;
-}
-
-.profile-vertical-separator
-{
-	position:absolute;
-	height:30px;
-	width:1px;
-	top:0px;
-	background-color:#e6e6e6;
-}
-
-#follow-button
-{
-	position:absolute;
+    display:block;
+    float:left;
 	text-align:center;
-	padding-top:7px;
-	width:80px;
-	height:20px;
-	border:1px solid #e6e6e6;
-	font-family:Helvetica;
-	font-size:14px;
-	font-weight:900;
-	color:#999999;
+	padding-top:3px;
+    padding-bottom: 3px;
+	width:110px;
+	font-size:15px;
+	font-weight:500;
+	color:#FFFFFF;
 	-moz-border-radius:8px;
 	-webkit-border-radius:8px;
-	top:0px;
-	left:375px;
-    background-image:url(/static/images/profile/follow_button_background.png);
+    border-radius: 8px;
+    background-color: #0c536f;
+    margin-left:20px;
+    margin-top:3px;
 }
 
+.follow-button:hover{
+    text-decoration:none;
+    background-color: #4ab7e3;
+}
 
+.follow-link{
+    text-decoration: none;
+}
+
+#recent-activity-titlebar{
+    width:700px;
+    text-align: left;
+    font-size:20px;
+    font-family:Helvetica;
+    margin-bottom:15px;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight:800;
+    color:#0c536f;
+}
+
+.stats-breaker{
+    position:absolute;
+    width:1px;
+    height:60px;
+    background-color: #cccccc;
+}
+
+#left-fold{
+    position: absolute;
+    top:132px;
+    left:0px;
+    z-index:1;
+}
+
+#right-fold{
+    position: absolute;
+    top:125px;
+    right:2px;
+    z-index:1;
+}
+
+.no-liked-videos-wrapper{
+    width:100%;
+}
+
+.no-liked-videos{
+    width:100%;
+    text-align: center;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    font-size:20px;
+    padding-top:22px;
+    padding-bottom:22px;
+}
+#user-info-container a{
+    text-decoration: none;
+}
+
+.fb-signup{
+    position: absolute;
+    margin-top:15px;
+    width:235px;
+    height:50px;
+    background-image: url(/static/images/education/fb_signup.png);
+}
+
+.mozilla .fb-signup{
+    margin-top:40px;
+    left:50px;
+}
+
+.fb-signup:hover{
+    background-image: url(/static/images/education/fb_signup_hover.png);
+}
+
+#signup-pitch{
+    width:1050px;
+    height:140px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:20px;
+    margin-bottom: 30px;
+    visibility: hidden;
+
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+
+    background-image: url(/static/images/profile/reg_pitch.png);
+}
+
+#signup-pitch .inner{
+    position:absolute;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 50px;
+    padding-right: 50px;
+    text-align: left;
+    font-family: "Helvetica Neue";
+    font-size: 16px;
+}
+
+.user-info-button{
+    width:220px;
+    font-size:15px;
+    font-weight: 500;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom:10px;
+    background-color: #ffffff;
+    margin-left: auto;
+    margin-right: auto;
+    display:block;
+    color:#44b6e6;
+    border: 1px solid #cccccc;
+}
+
+.user-info-button:hover{
+    background-color:#E5EFF3;
+    border: 1px solid #296881;
+    color: #296881;
+}
+
+.user-info-button.selected{
+    background-color:#E5EFF3;
+    border: 1px solid #296881;
+    color: #296881;
+}
+
+#arrow{
+    position:absolute;
+    display:none;
+}
+
+.profile .link-wrapper{
+    margin-top: 10px;
+    height:40px;
+}
+
+#username-display{
+    margin-top:10px;
+    margin-left:15px;
+    width:780px;
+    color:#75c7e9;
+    float:left;
+    font-size: 22px;
+    font-weight:900;
+    text-align: left;
+}
+#username-wrapper{
+    float:left;
+}
+
+#username-display #real-name{
+    font-size:20px;
+    font-weight: 500;
+    font-style:italic;
+}
+
+.bold{
+    font-weight: 700;
+}

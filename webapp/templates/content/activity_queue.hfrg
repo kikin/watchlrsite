@@ -1,0 +1,100 @@
+{% load kikinvideo_tags %}
+
+<meta name="queue_item_count" content="{{ activity_items|length }}">
+{% if activity_items|length_is:0 %}
+    <div class="activity-queue-item" style="height:85px;border-bottom: none;">
+        <div class="activity-queue inner" style="min-height:30px;font-family: Helvetica;font-size: 18px;text-align: center;color:#4c4c4c;">
+            <div class="featureTxt" style="width: 600px;">
+                <h4>
+                    Your Activity Feed is empty.
+                </h4>
+                Your liked videos and videos liked by the people you follow, will appear here.
+            </div>
+        </div>
+    </div>
+{% else %}
+    {% for activity_item in activity_items %}
+    {% if not activity_item.video|fetching_data %}
+    <div class='video-wrapper'>
+    <div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
+        <div class="activity-queue inner">
+              <a href="{{  activity_item.users|fb_thumb_href:user }}">
+                  <div class="fb-thumb-wrapper">
+                      <img src="{{ activity_item.users|fb_thumb_small:user }}"/>
+                  </div>
+              </a>
+              <div class="activity-item-header" id="activity-item-header-vid-{{ activity_item.video.id }}">
+                  {% autoescape off %}
+                  {{ activity_item|activity_item_heading:user }}
+                  {% endautoescape %}
+              </div>
+
+             <div class="activity-queue-video-description">{{ activity_item.video.description|truncate_chars:125|urlize }}
+             <br>
+                <div class="video-source-info">
+                    <div class="video-source-favicon-wrapper">
+                        <a href="{{ activity_item.video|source_url_root }}" target="_blank">
+                        <img src="{{ activity_item.video|source_icon }}" style="width:16px;height:16px;"/>
+                        </a>
+                        &bull;
+                        <span class="video-timeago">{{ activity_item.timestamp|pretty_date }}</span>
+                        &bull;
+                        <a href="{{ activity_item.video.url }}" target="_blank">source</a>
+                    </div>
+                </div>
+             </div>
+
+
+             <div class="video-title"><a href="/video/{{activity_item.video.id}}">{{ activity_item.video.title|truncate_text:35 }}</a></div>
+              <a class="video-image" href="javascript:UI.loadPlayer({{ activity_item.video.id }})" id="video-{{ activity_item.video.id }}">
+                    <div class="video-thumb-wrapper">
+                        <img class="video-thumbnail" src="{{activity_item.video|web_thumbnail_url}}"/>
+                        <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ activity_item.video.id }}"></div>
+                    </div>
+                </a>
+
+            <div class="video-buttons">
+
+
+                    {% if activity_item.video not in user.saved_videos %}
+                    <a href="javascript:home.handleSave({{ activity_item.video.id }})" title="save">
+                        <div id="save-video-button-vid-{{ activity_item.video.id }}" class="save-video-button not-saved no-hover" title="save to your queue"></div>
+                    </a>
+                    {% endif %}
+
+                    {% if display_mode == 'profile' %}
+                    <a href="javascript:home.handleSave({{ activity_item.video.id }})" title="save">
+                        <div class="save-video-button no-hover"></div>
+                    </a>
+                    {% endif %}
+
+                    <a href="javascript:home.handleLike({{ activity_item.video.id }})">
+                    {% if activity_item.video in user.liked_videos %}
+                        <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}" title='unlike'></div>
+                    {% else %}
+                        <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ activity_item.video.id }}" title='like'></div>
+                    {% endif %}
+                    </a>
+
+                    <a href="javascript:home.showVidLikedBy({{ activity_item.video.id }})">
+                    {% if activity_item.video in user.liked_videos %}
+                    <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
+                        {{ activity_item.video.total_likes }}
+                    </span>
+                    {% else %}
+                    <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}" style="color:#d0d0d0;">
+                        {{ activity_item.video.total_likes }}
+                    </span>
+                    {%  endif %}
+                    </a>
+            </div>
+        </div>
+        <div id="video-player-container" style="margin-top:40px;margin-left: 15px;">
+                {% video_player activity_item.video request %}
+        </div>
+    </div>
+        <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
+    </div>
+    {% endif %}
+    {% endfor %}
+{% endif %}

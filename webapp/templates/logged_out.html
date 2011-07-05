@@ -1,57 +1,128 @@
-{% extends "base.html" %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Watchlr</title>
 
-{% block header_right %}
-    <div id="myConnectionsNot">
-        <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook">
+        <meta http-equiv="X-UA-Compatible" content="IE=8"/>
+        <meta name="Charset" content="UTF-8"/>
+        <meta name="title" content="Watchlr"/>
+        <meta name="copyright" content="Watchlr"/>
+        <meta name="description" content="Discover, save and share video online."/>
+        <meta name="keywords" content="Watchlr, video, save video, online video, instant video, save video for later, watch later"/>
+        <link rel="image_src" href="{{ STATIC_URL }}images/watchlr_logo_small.png"/>
+        <link rel="icon" href="{{ STATIC_URL }}images/favicon.ico"/>
 
-        </a>
-    </div>
-{% endblock header_right %}
+        <!-- Styles -->
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/homepage.css?v=4" media="all"/>{% block style_refs %}{% endblock style_refs %}
 
-{% block content %}
-    <div id="loggedout" style="display: block;">
-        <div style="padding-top:75px;"></div>
-        <div id="dvUninstalledPromo"></div>
-        <br>
+        <!-- jQuery & friends -->
+        <script type="text/javascript" src="{{ STATIC_URL }}js/cfon-yui+vag_400.js?v=0"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.6.1.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.hashchange-1.0.0.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/globals.js"></script>{% block script_refs %}{% endblock script_refs %}
+    </head>
+    <body>
+        <div id="header">
 
-        <div id="installed">
-            <div style="padding-top:10px;"></div>
-            <div class="btn_installed">&nbsp;</div>
         </div>
-        <div id="uninstalled" style="display: none;">
-            <a class="btn_dl download-cta-body-download" href="javascript://Download!"></a>
-        </div>
-        <br>
-
-        <div id="featuresSection">
-            <br class="clearFloats">
-            <br>
-
-            <div class="featureTxt" style="width:806px;">
-                <h4>
-                    Place your mouse on any video, on any webpage and kikin will add a
-                    <span class="blue">"Save For Later"</span>
-                    button.
+        <div id="header-wrapper">
+            <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
+            <div id="header-right" class="right">
+                <div id="myConnectionsNot">
+                    <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?campaign=hp2"></a>
+                </div>
             </div>
-            <img class="featureImage" alt="Download Now!" src="{{ settings.STATIC_URL }}images/education/education.png">
-            <br class="clearFloats">
 
-            <div style="height:40px;"></div>
-            <div class="featureTxt" style="width:806px;">
-                <h4>
-                    Watch Saved Videos on Your
-                    <span class="blue">Desktop</span>
-                    or
-                    <span class="blue">Mobile Device</span>
-                </h4>
-                Easily manage your saved videos and watch them
-                <span class="blue">anywhere.</span>
+            <div class="right" id="loggedInInstallPitch" style="display: none;">
+                <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
             </div>
-            <img class="featureImage" style="padding-left:145px;" alt="Download Now!"
-                 src="{{ settings.STATIC_URL }}images/screenshot2.png">
-            <br class="clearFloats">
         </div>
-        <br>
-        <br>
-    </div>
-{% endblock content %}
+
+        <div id="wrapper" style="height:370px;">
+            <script type="text/javascript">
+                if ((navigator.userAgent.indexOf("Firefox")) > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:32px; right:0px;" />');
+                }
+                else if ((navigator.userAgent.indexOf("MSIE")) > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:31px; right:0px;" />');
+                }
+                else if (navigator.userAgent.indexOf("Firefox") > 0)
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:21px; right:0px;" />');
+                }
+                else if (navigator.userAgent.indexOf("iPad") > 0)
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:42px; right:0px;" />');
+                }
+                else
+                {
+                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:33px; right:0px;" />');
+                }
+            </script>
+
+            <img title="Watchlr" src="{{ STATIC_URL }}images/logo_big.png" style="padding-top: 65px;"/>
+            <br />
+            <div style="font-family: Helvetica, Arial, sans-serif; font-size: 28px; padding-top:20px; padding-left: 8px;">
+                Discover, save and share video.
+            </div>
+            <div style="font-family: Helvetica, Arial, sans-serif; font-size: 19px; padding-top:51px; padding-left: 8px; font-style: italic;">
+                New Users
+            </div>
+            <a href="/login/facebook?campaign=hp1"><div title="Sign up" class="facebook_signup"></div></a>
+        </div>
+        <div id="wrapper" style="width:980px; margin-top:45px;">
+            <div style="width:300px; color:white; border-right: 1px solid white; float:left;">
+                <img title="Watch Later" src="{{ STATIC_URL }}images/white_plus.png" style="float:left; padding-right:25px;"/>
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
+                    Watch Later
+                </div>
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
+                    Don't have time?<br/>Save videos to watch later.
+                </div>
+            </div>
+            <div style="width:320px; color:white; border-right: 1px solid white; padding-left:35px; float:left;">
+                <img title="Watch Later" src="{{ STATIC_URL }}images/white_mobile.png" style="float:left; padding-right:25px;"/>
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
+                    Mobile Friendly
+                </div>
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
+                    View Watchlr on<br/>iPhone, iPad and Android.
+                </div>
+            </div>
+            <div style="width:320px; color:white; float:right;">
+                <img title="Watch Later" src="{{ STATIC_URL }}images/white_peeps.png" style="float:left; padding-left:25px; padding-right:25px;"/>
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
+                    People Powered
+                </div>
+                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
+                    Share and discover videos<br/>through friends and influencers.
+                </div>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+
+        <!-- footer -->
+        <div id="footer">
+            <div id="footer-copyright">&copy; 2008-2011 kikin Inc.</div>
+            <ul id="footer-nav" class="nav">
+                <li>
+                    <a href="http://watchlr.tumblr.com/" title="Blog">Blog</a>
+                </li>
+                <li>
+                    <span class="footer-nav-separator">|</span><a href="/privacy" title="Privacy">Privacy</a>
+                </li>
+                <li>
+                    <span class="footer-nav-separator">|</span><a href="/terms_of_service" title="Terms of Service">Terms
+                    of
+                    Service</a>
+                </li>
+            </ul>
+        </div>
+        <!-- #footer -->
+		<br/>
+		{% include "includes/analytics.html" %}
+    </body>
+</html>

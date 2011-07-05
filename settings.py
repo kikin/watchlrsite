@@ -4,49 +4,51 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-#if on production server, change to dev
-#(perhaps we want to set some environment
-#variable on dev, look for it with os.environ
-#and have this AUTOMATICALLY set to dev if found?)
-active_db = 'local_postgresql'
+VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local_sqlite')
 
-DEBUG = True
+# Turn DEBUG on only if running locally
+DEBUG = VIDEO_ENV.startswith('local')
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Sandesh Devaraju', 'sandesh@kikin.com')
+    ('Sandesh Devaraju', 'sandesh@kikin.com'),
 )
 
 MANAGERS = ADMINS
 
 database_configurations = {
-    'dev': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'kikinvideo',
-        'USER': 'webapp',
-        'PASSWORD': 'savemore',
-        'HOST': 'dev-video.kikin.com',
-        'PORT': '',
-        },
-    'local_postgresql': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'prod': {
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
         'HOST': '',
         'PORT': '',
         },
-    'local_mysql': {
+    'dev': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+        'HOST': '',
         'PORT': '',
-        }
+        },
+    'local': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kikinvideo',
+        'USER': 'webapp',
+        'PASSWORD': 'savemore',
+        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
+        'PORT': '',
+        },
+    'local_sqlite':{
+        'ENGINE':'django.db.backends.sqlite3',
+        'NAME':'kikinvideo',
+        },
 }
 
-DATABASES = { 'default': database_configurations[active_db] }
+# Picks up database configuration from environment variable
+DATABASES = { 'default': database_configurations[VIDEO_ENV] }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -123,8 +125,9 @@ TEMPLATE_LOADERS = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
-    'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.auth',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -145,6 +148,7 @@ ROOT_URLCONF = 'kikinvideo.urls'
 TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates',)
 
 INSTALLED_APPS = (
+    'django_auth_longer_email',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -160,6 +164,8 @@ INSTALLED_APPS = (
     'api',
     'djcelery',
     'djkombu',
+    'south',
+    'django_ses',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -188,42 +194,75 @@ LOGGING = {
 AUTH_PROFILE_MODULE = 'api.User'
 SOCIAL_AUTH_USER_MODEL = 'api.User'
 
-FACEBOOK_APP_ID = '0d50511f22c6ec9f3a78db5f724e320d'
-FACEBOOK_API_SECRET = '3271261af598bdeb1a260699dd5b18ca'
+FACEBOOK_APP_ID = '220283271338035'
+FACEBOOK_API_SECRET = '0cac4be4d10a908b2b961f6ea6108b0f'
 
-LOGIN_REDIRECT_URL = '/'
+# the django-social-auth module uses the @login_required
+# decorator, which directs browsers to settings.LOGIN_URL
+# after either a successful OR failed login
+LOGIN_URL = '/'
 LOGOUT_URL = '/'
 
-SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = LOGIN_REDIRECT_URL = LOGIN_URL
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/login_complete'
 
-# broker transport
-BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
+SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
+FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']
 
 import djcelery
 djcelery.setup_loader()
 
-# broker settings
-BROKER_HOST = "localhost"
-BROKER_PORT = 5672
-BROKER_USER = "guest"
-BROKER_PASSWORD = "guest"
-BROKER_VHOST = "/"
+# broker transport
+BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
-# No tasks currently produce results or use rate limits
-CELERY_IGNORE_RESULT = True
-CELERY_DISABLE_RATE_LIMITS = True
+# Periodic task definitions go here
+from datetime import timedelta
+CELERYBEAT_SCHEDULE = {
+    "refresh-friend-list-every-15-mins": {
+        "task": "api.tasks.refresh_friends_list",
+        "schedule": timedelta(minutes=10)
+    },
+}
 
-CELERY_ALWAYS_EAGER = True
-TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'
+# For the facebook friends list fetcher, number of users to schedule every time
+# the task gets fired.
+FACEBOOK_FRIENDS_FETCHER_SCHEDULE = 5
 
 # Set up logging
-from logging import basicConfig, DEBUG
-basicConfig(level=DEBUG)
-
 import logconfig
 logconfig.init()
 
 # Session cookies
 SESSION_COOKIE_AGE = 2592000 # 30 days in seconds
 SESSION_COOKIE_NAME = '_KVS' # Plugin converts this into a kikin cookie
-SESSION_COOKIE_DOMAIN = '.kikin.com' # Cross-domain!
+SESSION_COOKIE_DOMAIN = '.watchlr.com' # Cross-domain!
+SESSION_COOKIE_HTTPONLY = True # Prevent script access to cookie
+
+# Caching
+cache_configurations = {
+    'local': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'local_sqlite': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'dev': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'prod': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+CACHES = { 'default': cache_configurations[VIDEO_ENV] }
+
+#frontend feature switches
+ENABLE_HTML5_VIDEO = True
+
+# Use SES as email backend.
+EMAIL_BACKEND = 'django_ses.SESBackend'
+
+AWS_ACCESS_KEY_ID = 'AKIAIZDME4VOHZPYNXSQ'
+AWS_SECRET_ACCESS_KEY = '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'
+
+SENDER_EMAIL_ADDRESS = 'Watchlr <noreply@watchlr.com>'

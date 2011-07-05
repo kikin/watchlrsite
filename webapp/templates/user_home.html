@@ -1,10 +1,16 @@
 {% extends "base.html" %}
 
+{% block style_refs %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}video_player/video-js.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
+{% endblock style_refs %}
+
 {% block script_refs %}
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/jquery.hashchange-1.0.0.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/raphael.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_video_panel.js"></script>
-    <script type="text/javascript" src="{{ settings.STATIC_URL }}js/kikin_user_home.js"></script>
+    <script src="{{ STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
 {% endblock script_refs %}
 
 {% block header_right %}
@@ -21,11 +27,18 @@
                 <div class="options-breaker"></div>
                 <ul>
                     <li>
-                        <a id="myProfile">My Profile</a>
+                        <a id="myActualProfile" href="/{{ user.username }}">My Profile</a>
+                    </li>
+                    <li>
+                        <a id="myProfile" href="javascript:UI.handleProfileEditPanelOpen()">Settings</a>
+                    </li>
                     <li>
                         <a href="https://webux.wufoo.com/forms/m7x1p5/"
-                           onclick="window.open(this.href,  null, 'height=685, width=680, toolbar=0, location=0, status=1, scrollbars=1, resizable=1'); return false"
-                           title="kikin Video Feedback">Feedback</a>
+                           onclick="$('#options').hide(); window.open(this.href,  null, 'height=685, width=680, toolbar=0, location=0, status=1, scrollbars=1, resizable=1'); return false"
+                           title="Watchlr Feedback">Feedback</a>
+                    </li>
+                    <li>
+                        <a href="/download">Extras</a>
                     </li>
                     <li>
                         <a href="/logout" id="logout">Sign Out</a>
@@ -44,23 +57,38 @@
 {% endblock header_right %}
 
 {% block content %}
-
+    {% if user %}
+        <meta name="user" content="{{ user.id }}"/>
+    {% endif %}
     <div id="video-section">
         <ul class="navigation">
             <li class="tabQueue selected">
-                <a href="#!/saved_queue">Queue</a>
+                <a href="#!/saved_queue">Saved</a>
             </li>
             <li class="tabLikes">
-                <a href="#!/liked_queue">Likes</a>
+                <a href="#!/liked_queue">Liked</a>
+            </li>
+            <li class="tabActivity">
+                <a href="#!/activity">Activity</a>
             </li>
         </ul>
         <br class="clear">
-
-        <div style="border-top: 1px solid rgb(204, 204, 204);"></div>
-        <br class="clear">
-        <div id="videoList">
-            {% block videolist %}
-            {% endblock videolist %}
+        {% block right_panel %}
+        {% endblock right_panel %}
+        <div id="videoListWrapper" class="shadow-4">
+            <div id="video-wrapper-left-filler" style="position:absolute;height:40px;width:10px;margin-left:0px;margin-top:-8px;background-color:#E5EFF3;z-index:0;"></div>
+            <div id="videoList">
+                    <div class="loading-container initial"  style="position:static;width:200px;margin-left: auto;margin-right: auto;">
+                        <div class="loading"></div>
+                    </div>
+                {% block videolist %}
+                {% endblock videolist %}
+            </div>
+            <a id="lnk-page-next" href="javascript:home.loadMoreVideos()" style="display: none;">load more</a>
         </div>
     </div>
 {% endblock content %}
+<div id="error-msg-dialog" style="display:none;">
+    An error occurred processing your request.<br>We apologize for this inconvenience.
+    <div class="msg-body"></div>
+</div>

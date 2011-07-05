@@ -1,6 +1,6 @@
 <style>
     #profile-edit-panel {
-        height: 195px;
+        height: 215px;
         width: 460px;
         border: 2px solid;
         position: fixed;
@@ -11,7 +11,8 @@
         border-color: #707070;
         z-index: 100;
         top: 210px;
-        left: 463px;
+        left: 50%;
+        margin-left:-230px;
         text-align: left;
     }
 
@@ -25,7 +26,7 @@
     #profile-edit-panel button {
         position: absolute;
         width: 70px;
-        margin-top: 155px;
+        margin-top: 180px;
     }
 
     #profile-edit-panel .cancel-button {
@@ -82,31 +83,27 @@
         margin-left: 10px;
     }
 
-    #profile-view-close {
-        background: none repeat scroll 0 0 #111111;
-        border: 1px solid #DEDEDE;
-        border-radius: 12px 12px 12px 12px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-        color: #DEDEDE;
-        cursor: pointer;
-        display: block;
-        float: right;
-        font-weight: bold;
-        height: 12px;
-        padding: 4px;
-        position: relative;
-        right: -10px;
-        text-align: center;
-        text-decoration: none;
-        top: -15px;
-        width: 12px;
+    #follow-email-span {
+        position: absolute;
+        margin-top: 152px;
+        margin-left: 181px;
+        font-size: 12.5px;
+    }
+
+    #follow-email-span input {
+        margin-left: 10px;
+    }
+
+    #profile-view-close{
+        margin-top:-18px;
+        margin-right: -16px;
     }
 
 </style>
 
 <div id="profile-edit-panel">
-    <a id="profile-view-close" title="Close">X</a>
-    <span id="fb-username">Edit Profile:</span>
+    <a id="profile-view-close" class="close-button-fancy" title="Close"></a>
+    <span id="fb-username" style="font-weight: 800">Edit Profile</span>
     <img id="facebook-thumbnail" src="https://graph.facebook.com/{{ user.facebook_uid }}/picture?type=normal"/>
 
     <div id="profile-input-container">
@@ -121,8 +118,20 @@
     </div>
     <span id="share-likes-span">
         Automatically update Facebook when I like videos
-        <input type='checkbox' id="share-likes-checkbox"/>
+        {% if syndicate_likes == 1 %}
+        <input type='checkbox' id="share-likes-checkbox" checked/>
+        {% else %}
+         <input type='checkbox' id="share-likes-checkbox"/>
+        {% endif %}
     </span>
-    <button class="cancel-button">Cancel</button>
-    <button class="save-button">Save</button>
+    <span id="follow-email-span">
+        Email me whenever someone follows me
+        {% if follow_email == 1 %}
+        <input type='checkbox' id="follow-email-checkbox" checked/>
+        {% else %}
+        <input type='checkbox' id="follow-email-checkbox"/>
+        {% endif %}
+    </span>
+    <a><button class="cancel-button">Cancel</button></a>
+    <a href="javascript:UI.handleProfileSave({{ user.id }})"><button class="save-button">Save</button></a>
 </div>

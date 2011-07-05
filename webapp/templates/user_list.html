@@ -1,0 +1,97 @@
+{% extends "profile.html" %}
+
+{% load kikinvideo_tags %}
+
+{% block style_refs %}
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}css/profile.css'/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/user_list.css"/>
+{% endblock style_refs %}
+
+{% block script_ext %}
+    <script type='text/javascript'>
+    $(document).ready(function(){
+        $('.user-info-button.selected').removeClass('selected');
+        {% if display_mode == 'followers' %}
+        $('.user-info-button.followers').addClass('selected');
+        {% else %}
+        $('.user-info-button.following').addClass('selected');
+        {% endif %}
+    });
+
+    </script>
+{% endblock script_ext %}
+
+{% block video_section_ext %}
+
+    <div id="user-list">
+        <div class="user-list-wrapper">
+            <div id="videoListWrapper">
+                <div id="videoList" style="min-height: 0px;">
+                    {% if related_users|length_is:0 %}
+                    <div class="user-info no-users">
+                        <div class='inner'>
+                            {% if display_mode == 'following' %}
+                            {{ profile_owner.first_name }} isn't following any users yet
+                            {% else %}
+                             {{ profile_owner.first_name }} doesn't have any followers yet
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    {% for related_user in related_users %}
+                        <div class="user-info wrapper">
+                                <a href="/{{ related_user.username }}">
+                                    <img class="fb-thumb-square" src="https://graph.facebook.com/{{ related_user.facebook_uid }}/picture?type=square"/>
+                                </a>
+                                {% if related_user != user %}
+                                <div class="username">
+                                    <a href="/{{ related_user.username }}">{{ related_user.username|truncate_text:25 }}</a><br>
+                                </div>
+                                {% else %}
+                                <div class="username">
+                                    <a href="/{{ related_user.username }}">You</a><br>
+                                </div>
+                                {% endif %}
+
+                                {% comment %}
+                                "follow" buttons
+                                {% endcomment %}
+                                {% if related_user != user %}
+                                    {% if related_user in user.following %}
+                                        <a href="javascript:profileViewController.handleUnfollow({{ related_user.id }})" id="follow-button-user-{{ related_user.id }}"
+                                                class="user-list-follow-button shadow-5l">
+                                            Unfollow
+                                        </a>
+                                    {% else %}
+                                        {% if not user.is_authenticated %}
+                                        <a href="javascript:alert('you must register an account with Watchlr before you can follow people');"
+                                           id="follow-button-user-{{ related_user.id }}" class="user-list-follow-button shadow-5l">
+                                            Follow
+                                        </a>
+                                        {% else %}
+                                        <a href="javascript:profileViewController.handleFollow({{ related_user.id }})" id="follow-button-user-{{ related_user.id }}"
+                                                class="user-list-follow-button shadow-5l">
+                                            Follow
+                                        </a>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% if page.has_next or page.has_previous %}
+                <div class='page-button-container'>
+                    {% if page.has_previous %}
+                        <a href="?page={{ page.previous_page_number }}" class='page-button previous rounded-corners-5'>Previous</a>
+                    {% endif %}
+                    {% if page.has_next %}
+                        <a href="?page={{ page.next_page_number }}" class='page-button next rounded-corners-5'>Next</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock video_section_ext %}

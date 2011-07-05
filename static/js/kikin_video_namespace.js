@@ -1,1 +1,0 @@
-var com = { kikin : {video : {} } };

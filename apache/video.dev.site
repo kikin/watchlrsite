@@ -1,0 +1,27 @@
+<VirtualHost *:80>
+    ServerName dev.watchlr.com
+
+    Alias /static/ /opt/video_env/kikinvideo/static/
+
+    <Directory /opt/video_env/kikinvideo/static/>
+    Order deny,allow
+    Allow from all
+    Options -Indexes
+    </Directory>
+
+    WSGIDaemonProcess video processes=2 threads=25 stack-size=524288
+    WSGIProcessGroup video
+
+    SetEnv VIDEO_ENV dev
+
+    WSGIScriptAlias / /opt/video_env/kikinvideo/apache/django.wsgi
+
+    <Directory /opt/video_env/kikinvideo/apache>
+    Order allow,deny
+    Allow from all
+    </Directory>
+
+    LogLevel info
+    CustomLog "|/usr/bin/cronolog --symlink=/opt/video_env/logs/accessLog /opt/video_env/logs/accessLog.%Y%m%d" combined
+
+</VirtualHost>

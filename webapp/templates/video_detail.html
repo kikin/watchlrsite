@@ -1,83 +1,105 @@
-{% extends "base.html" %}
+{% extends "user_home.html" %}
 {% load kikinvideo_tags %}
+{% block style_refs %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
+    <link rel='stylesheet' href='{{ STATIC_URL }}css/profile.css' type='text/css'/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
+    <link rel='stylesheet' href="{{ STATIC_URL }}css/video_detail.css"/>
+    <style>
+    {% if not user.is_authenticated %}
+        #video-section{
+            padding-top: 0px;
+        }
+    {% else %}
+        #videoListWrapper{
+            border-radius: 8px 8px 8px 8px;
+            -webkit-border-radius:8px 8px 8px 8px;;
+            -moz-border-radius: 8px 8px 8px 8px;
+            padding-top: 12px;
+        }
+    {% endif %}
+
+	h3.video-title{
+		margin-bottom:20px;
+	}
+    .video-player{
+        position:static;
+        margin-top:20px;
+        margin-left: auto;
+        margin-right: auto;
+        display:block;
+    }
+
+    .close-button-fancy{
+        display: none;
+    }
+
+	.video-thumb{
+		clear:left;
+	}
+
+    .video-info{
+        margin-left:30px;
+    }
+
+    .right-panel{
+        margin-left: 740px;
+    }
+	
+	.video-buttons-container{float:right;}
+
+    .video-thumbnail-btn{
+        display:none;
+    }
+
+    .video-description{
+        position: absolute;
+        margin-left:140px;
+    }
+
+
+    .video-saved{
+        position: absolute;
+        margin-left: 140px;
+        margin-top:90px;
+    }
+    </style>
+{% endblock style_refs%}
+
+{% block script_refs %}
+    <script src="{{ STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js"></script>
+    <script type="text/javascript">
+    activeView = VIEWS.detail;
+    $(window).load(function(){
+        home.bindVideoPanelEvents();
+        videoController.prepareEmbeds();
+        videoController.setCurVid({{ video.id }});
+        
+    });
+    </script>
+{% endblock script_refs %}
+
 {% block content %}
-    <div id="video-{{video.id}}" class="video-wrapper">
-        <div class="video-container">
-            <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
-
-            <div class="video-buttons">
-                {% if display_mode == 'saved' %}
-                <a href="#!/remove?vid={{ video.id }}">
-                    <div class="video-delete-button no-hover"></div>
-                </a>
-                {% endif %}
-
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
-                {% if video.total_likes != 0 %}
-                    {{ video.total_likes }}
-                {%  endif %}
-                </div>
-                <a href="#!/like?vid={{ video.id }}">
-                {% if video in user.liked_videos %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                {% else %}
-                    <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-                {% endif %}
-                </a>
-            </div>
-            <a href="#!/player?vid={{ video.id }}">
-                <div class="video-image" id="video-{{ video.id }}">
-                    <div class="video-thumb-wrapper">
-                        <img class="video-thumbnail" src="{{video.get_thumbnail.url}}"
-                             onerror="this.style.visibility='hidden'"
-                             onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
-                    </div>
-                </div>
-            </a>
-
-            <div class="video-info">
-                <div class="video-description">{{ video.description }}</div>
-                <div class="video-saved">
-                    <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
-                    &bull;
-                    <a href="{{video.url}}">{{ video.title }}</a>
-                </div>
-            </div>
-
-            <br style="clear:both;"/>
-
-            {% if video.html_embed_code or video.html5_embed_code %}
-
-            <div class="video-player" id="video-player-{{ video.id }}"
-                    style="display:block;">
-                <div>
-                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                </div>
-                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                {% autoescape off %}
-                    {{ video.html_embed_code }}
-                {% endautoescape %}
-                </div>
-            </div>
-
-            {% else %}
-
-            <div class="video-player" id="video-player-{{ video.id }}"
-                    style="background-color:#DEDEDE;font-size:16px;display:block;">
-                <div>
-                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                </div>
-                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                    <div class="video-no-embed-link">
-                        The host of the video you have selected requests that
-                        you access it at<br>
-                        <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
-                    </div>
-                </div>
-            </div>
-
-            {% endif %}
+    {% if not user.is_authenticated %}
+    <div id="user-info-container" class="rounded-corners-5">
+        <div class="user-info gradient"></div>
+        <div class="inner">
+            Watchlr helps you <span class="blue">discover</span>, <span class="blue">save</span> and
+            <span class="blue">share</span> video online.<br>
+            Sign up using your existing Facebook account!<br>
+            <a class="fb-signup" href="/login/facebook"></a>
         </div>
-        <div class="my-video-breaker"></div>
+    </div>
+    {% endif %}
+    <div id="video-section">
+        <div id="videoListWrapper">
+            <div id="videoList">
+                {% video_queue_item %}
+            </div>
+        </div>
     </div>
 {% endblock %}

@@ -1,27 +1,46 @@
-from celery.decorators import task
-
 import re
 import urllib
 import urllib2
 import json
 
+from re import sub
+from unicodedata import normalize
 from time import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from traceback import format_exc
 from lxml import etree
 from urllib import urlencode
+from smtplib import SMTPException
 
 import gdata.youtube
 import gdata.youtube.service
 from gdata.service import RequestError
 
-from api.models import Video, Thumbnail, Source as VideoSource
-from utils import remove_html
+from celery import states
+from celery.task import task
+from celery.task.sets import subtask
+
+from django.utils.html import strip_tags
+from django.contrib.sites.models import Site
+from django.template.defaultfilters import stringfilter
+from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
+
+from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend
+from kikinvideo.settings import SENDER_EMAIL_ADDRESS, FACEBOOK_FRIENDS_FETCHER_SCHEDULE
+
+import logging
+logger = logging.getLogger('kikinvideo')
+
+USERNAME_MAX_LENGTH = 28
+
+IPAD_USER_AGENT = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
 
 class Source(dict):
     FAVICON_FETCHER = 'http://fav.us.kikin.com/favicon/s?%s'
 
     def __init__(self, name, url, favicon=None):
+        super(Source, self).__init__()
         self['name'] = name
         self['url'] = url
         if favicon is None:
@@ -35,6 +54,7 @@ class Source(dict):
 
 class UrlNotSupported(Exception):
     def __init__(self, url):
+        super(UrlNotSupported, self).__init__()
         self.url = url
 
     def __str__(self):
@@ -51,71 +71,52 @@ class OEmbed(object):
         video.title = meta.get('title')
 
         try:
-            video.description = remove_html(meta['description'])
+            video.description = strip_tags(meta['description'])
         except KeyError:
             pass
-        except:
-            logger.warn('Error cleaning HTML markup from description:%s\n%s' %\
+        except Exception:
+            logger.warning('Error cleaning HTML markup from description:%s\n%s' %\
                         (meta['description'], format_exc()))
 
         video.html_embed_code = meta.get('html')
+        video.html5_embed_code = meta.get('html5')
 
         video.fetched = datetime.utcnow()
 
-        try:
-            thumbnail = Thumbnail(url=meta['thumbnail_url'],
-                                  width=meta['thumbnail_width'],
-                                  height=meta['thumbnail_height'],
-                                  video=video)
+        if meta.get('thumbnail_url'):
+            video.set_thumbnail(meta['thumbnail_url'],
+                                meta['thumbnail_width'],
+                                meta['thumbnail_height'])
 
-            thumbnail.save()
-
-            video.thumbnails.add(thumbnail)
-
-        except KeyError:
-            pass
+        if meta.get('mobile_thumbnail_url'):
+            video.set_thumbnail(meta['mobile_thumbnail_url'],
+                                meta['mobile_thumbnail_width'],
+                                meta['mobile_thumbnail_height'],
+                                type='mobile')
 
         try:
-            mobile_thumbnail = Thumbnail(type='mobile',
-                                         url=meta['mobile_thumbnail_url'],
-                                         width=meta['mobile_thumbnail_width'],
-                                         height=meta['mobile_thumbnail_height'],
-                                         video=video)
-
-            mobile_thumbnail.save()
-
-            video.thumbnails.add(mobile_thumbnail)
-
-        except KeyError:
-            pass
-
-        try:
-            source = VideoSource.objects.get(url__exact=meta['source'].url)
+            source = VideoSource.objects.get(name=meta['source'].name)
         except VideoSource.DoesNotExist:
-            source = VideoSource(name=meta['source'].name,
-                                 url=meta['source'].url,
-                                 favicon=meta['source'].favicon)
-
-            source.save()
+            source = VideoSource.objects.create(name=meta['source'].name,
+                                                url=meta['source'].url,
+                                                favicon=meta['source'].favicon)
 
         video.source = source
+        video.result = states.SUCCESS
 
         video.save()
+        return video
 
     def fetch(self, user_id, url, host, logger):
         logger.info('Fetching metadata for url:%s' % url)
 
-        try:
-            meta = Video.objects.get(url__exact=url)
-            fetched = meta.fetched
+        video = Video.objects.get(url__exact=url)
+        fetched = video.fetched
 
-            # Refresh metadata if cache older than a day
-            if fetched and (datetime.utcnow() - fetched).days < 1:
-                logger.debug('Url cache hit:%s, fetched:%s' % (url, fetched))
-                return
-
-        except Video.DoesNotExist:
-            pass
+        # Refresh metadata if cache older than a day
+        if fetched and (datetime.utcnow() - fetched).days < 1:
+            logger.debug('Url cache hit:%s, fetched:%s' % (url, fetched))
+            return
 
         for fetcher in self.fetchers:
             try:
@@ -125,24 +126,20 @@ class OEmbed(object):
                              (url, str(fetcher), str(meta)))
 
                 # First matched fetcher wins!
-                break
+                return self.update(url, meta, logger)
 
             except UrlNotSupported:
                 logger.debug('Url:%s not supported by fetcher:%s' % (url, str(fetcher)))
                 continue
 
-            except:
-                logger.error('Error fetching metadata for url:%s through %s\n%s' %\
-                             (url, str(fetcher), format_exc()))
+            except Exception:
+                logger.error('Error fetching metadata for url:%s through %s\n%s' % (url, str(fetcher), format_exc()))
 
                 # Re-raise exception
                 raise
-
         else:
+            logger.warning('Url:%s not supported! Configured fetchers:%s' % (url, str(self.fetchers)))
             raise UrlNotSupported(url)
-
-        self.update(url, meta, logger)
-        logger.info('Updated url:%s with metadata' % url)
 
 
 class EmbedlyFetcher(object):
@@ -180,8 +177,8 @@ class EmbedlyFetcher(object):
             re.compile(r'http://www\.myspace\.com/index\.cfm\?fuseaction=.*&videoid.*'),
             re.compile(r'http://www\.metacafe\.com/watch/.*'),
             re.compile(r'http://www\.metacafe\.com/w/.*'),
-            re.compile(r'http://blip\.tv/file/.*'),
-            re.compile(r'http://.*\.blip\.tv/file/.*'),
+            re.compile(r'http://blip\.tv/.*'),
+            re.compile(r'http://.*\.blip\.tv/.*'),
             re.compile(r'http://video\.google\.com/videoplay\?.*'),
             re.compile(r'http://.*revver\.com/video/.*'),
             re.compile(r'http://video\.yahoo\.com/watch/.*/.*'),
@@ -461,6 +458,10 @@ class EmbedlyFetcher(object):
             </object>''',
         }
 
+    PRO_OEMBED_API_ENDPOINT = 'http://pro.embed.ly/1/oembed'
+
+    KEY = '59772722865011e088ae4040f9f86dcd'
+
     def __init__(self):
         self.providers = dict()
         sources = urllib2.urlopen(self.OEMBED_SERVICE_ENDPOINT).read()
@@ -491,7 +492,7 @@ class EmbedlyFetcher(object):
             pass
 
         # Gather options
-        params = {url: url,
+        params = {'url': url,
                   'maxwidth': self.MAX_WIDTH,
                   'maxheight': self.MAX_HEIGHT,
                   'autoplay': True}
@@ -520,7 +521,67 @@ class EmbedlyFetcher(object):
         except KeyError:
             meta['source'] = Source(provider, meta['provider_url'])
 
+        try:
+            meta['html5'] = self.fetch_html5(url)
+        except Exception:
+            logger.error('Error fetching HTML5 embed code for: %s' % url)
+
+        # See issue #45
+        if meta['provider_name'] and meta['provider_name'].lower().startswith('cnn'):
+            try:
+                meta['title'] = meta['title'][0:meta['title'].index('cnn')]
+            except ValueError:
+                pass
+            meta['title'] = meta['title'].title()
+
+            # Issue #63
+            if meta['html5']:
+                try:
+                    video_tag = etree.fromstring(meta['html5'])
+                    poster = video_tag.get('poster', '')
+
+                    poster_match = re.match(r'(.+\.)(\d+)x(\d+)\.jpg$', poster)
+                    if poster_match:
+                        meta['thumbnail_url'] = '%s%dx%d.jpg' % (poster_match.group(1), 320, 240)
+                        meta['thumbnail_width'], meta['thumbnail_height'] = 320, 240
+
+                        meta['mobile_thumbnail_url'] = '%s%dx%d.jpg' % (poster_match.group(1), 120, 90)
+                        meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 120, 90
+
+                    else:
+                        logger.warning('CNN poster url not of expected format:%s' % video_tag)
+
+                except etree.XMLSyntaxError:
+                    logger.warning('Error parsing HTML5 video tag', exc_info=True)
+
+                except KeyError:
+                    logger.debug('No poster found for CNN HTML5 video:%s' % url)
+
         return meta
+
+    def fetch_html5(self, url):
+        params = {'url': url, 'autoplay': True, 'key': self.KEY}
+
+        logger.debug('Fetching HTML5 video metadata for URL:%s' % url)
+
+        query = urllib.urlencode(params)
+
+        opener = urllib2.build_opener()
+        opener.addheaders = [('User-agent', IPAD_USER_AGENT)]
+
+        fetch_url = '%s?%s' % (self.PRO_OEMBED_API_ENDPOINT, query)
+
+        response = opener.open(fetch_url)
+
+        if not response.getcode() == 200:
+            logger.warning('Non-success response code fetching metadata: %s' % fetch_url)
+            return None
+
+        content = response.read()
+        logger.debug('Embed.ly response for url:%s\n%s' % (url, content))
+
+        meta = json.loads(content)
+        return meta.get('html')
 
 
 class YoutubeFetcher(object):
@@ -543,6 +604,9 @@ class YoutubeFetcher(object):
   </embed>
 </object>'''
 
+    YOUTUBE_HTML5_EMBED_TAG = '''<iframe type="text/html" width="100%%" height="100%%"
+    src="http://www.youtube.com/embed/%(id)s?autoplay=1" frameborder="0"></iframe>'''
+
     def __init__(self):
         self.yt_service = gdata.youtube.service.YouTubeService()
         self.yt_service.ssl = False
@@ -551,7 +615,6 @@ class YoutubeFetcher(object):
         return (self.SOURCE,)
 
     def fetch(self, url, logger, **kwargs):
-        match = None
         for pattern in self.YOUTUBE_URL_PATTERNS:
             match = pattern.match(url)
             if match:
@@ -612,9 +675,10 @@ class YoutubeFetcher(object):
 
             meta['embeddable'] = False if entry.noembed else True
             if not meta['embeddable']:
-                logger.warn('Youtube video:%s not embeddable' % video_id)
+                logger.warning('Youtube video:%s not embeddable' % video_id)
 
             meta['html'] = self.YOUTUBE_EMBED_TAG % {'id': video_id}
+            meta['html5'] = self.YOUTUBE_HTML5_EMBED_TAG % {'id': video_id}
 
             meta['source'] = self.SOURCE
 
@@ -707,7 +771,7 @@ class MockHuluFetcher(object):
 
         logger.debug('Mock Hulu fetcher formulating embed code for url:%s' % url)
 
-        meta = {'html': HuluFetcher.HULU_EMBED_TAG % {'eid': eid}}
+        meta = dict(html=HuluFetcher.HULU_EMBED_TAG % {'eid': eid})
 
         meta['source'] = HuluFetcher.SOURCE
 
@@ -745,7 +809,7 @@ class MockLiveLeakFetcher(object):
 
         logger.debug('Mock LiveLeak fetcher formulating embed code for url:%s' % url)
 
-        meta = {'html': self.LIVELEAK_EMBED_TAG % {'id': id}}
+        meta = dict(html=self.LIVELEAK_EMBED_TAG % {'id': id})
 
         meta['source'] = self.SOURCE
 
@@ -772,6 +836,9 @@ class VimeoFetcher(object):
   <embed src="http://vimeo.com/moogaloop.swf?clip_id=%(id)s&server=vimeo.com&show_title=0&show_byline=0&show_portrait=0&fullscreen=1&autoplay=1"
          type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="640" height="360"></embed>
 </object>'''
+
+    VIMEO_HTML5_EMBED_TAG = '''<iframe src="http://player.vimeo.com/video/%(id)s?title=0&amp;byline=0&amp;portrait=0&amp;autoplay=1"
+    width="100%%" height="100%%" frameborder="0"></iframe>'''
 
     def sources(self):
         return (self.SOURCE,)
@@ -810,9 +877,10 @@ class VimeoFetcher(object):
         meta['thumbnail_width'], meta['thumbnail_height'] = 200, 150
 
         meta['mobile_thumbnail_url'] = video['thumbnail_small']
-        meta['mobile_thumbnail_width'], meta['thumbnail_height'] = 100, 75
+        meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 100, 75
 
         meta['html'] = self.VIMEO_EMBED_TAG % {'id': id}
+        meta['html5'] = self.VIMEO_HTML5_EMBED_TAG % {'id': id}
 
         meta['source'] = self.SOURCE
 
@@ -838,8 +906,7 @@ class FacebookFetcher(object):
             try:
                 logger.debug('Forwarding metadata fetched for url:%s by fetcher:%s' %\
                              (url, str(fetcher)))
-                meta = fetcher.fetch(url, **kwargs)
-                return meta
+                return fetcher.fetch(url, logger, **kwargs)
             except UrlNotSupported:
                 pass
         else:
@@ -852,21 +919,21 @@ class FacebookFetcher(object):
 
         logger.debug('Fetching Facebook metadata for url:%s' % url)
 
-        user = User.get(pk=kwargs['user_id'])
+        user = User.objects.get(pk=kwargs['user_id'])
         access_token = user.facebook_access_token()
 
         url = '%s?%s' % (url, urlencode({'access_token': access_token}))
         response = json.loads(urllib2.urlopen(url).read())
 
         # Facebook sometimes does this for facebook-videos!
-        if response == False:
+        if not response:
             fb_url = self.EMBEDLY_FACEBOOK_URL % match.group(1)
-            meta = self.forward(fb_url, **kwargs)
+            meta = self.forward(fb_url, logger, **kwargs)
 
         else:
             # Link to original video?
             try:
-                meta = self.forward(response['link'])
+                meta = self.forward(response['link'], logger)
 
             except KeyError:
                 meta = dict()
@@ -1049,6 +1116,92 @@ class FoxFetcher(object):
         return meta
 
 
+class ESPNFetcher(object):
+    SOURCE = Source('ESPN',
+                    'http://espn.com/',
+                    'http://c2548752.cdn.cloudfiles.rackspacecloud.com/espn.ico')
+
+    ESPN_URL_SCHEME = re.compile(r'http://espn\.go\.com/video/clip\?id=([0-9]+)')
+
+    IMAGE_SCHEME = re.compile(r'(http://assets\.espn\.go\.com/media/motion/)(.+)_thumbnail_wsmall(\.jpg)', re.IGNORECASE)
+
+    ESPN_EMBED_TEMPLATE = '''<object width="576" height="324" type="application/x-shockwave-flash"
+    data="http://assets.espn.go.com/espnvideo/mpf32/prod/r_3_2_0_15/ESPN_Player.swf?id=%s">
+        <param name="flashVars" value="SWID=ECF783CB-BE64-4821-994E-5172301DE983&amp;adminOver=3805638&amp;player=videoHub09&amp;height=324&amp;width=576&amp;autostart=true&amp;localSite=undefined&amp;pageName=undefined">
+        <param name="bgcolor" value="#000000">
+        <param name="wmode" value="transparent">
+        <param name="allowscriptaccess" value="always">
+        <param name="quality" value="autohigh">
+        <param name="align" value="t">
+        <param name="swliveconnect" value="true">
+        <param name="menu" value="false">
+        <param name="play" value="true">
+        <param name="allowfullscreen" value="true">
+        <param name="seamlesstabbing" value="true">
+    </object>'''
+
+    ESPN_HTML5_EMBED_TEMPLATE = '''<video width="100%%" height="100%%" preload="none" style="z-index:inherit; position: relative;"
+    data-track-start="true" data-track-mid="true" data-track-end="true" tabindex="0" controls
+    src="http://brsseavideo-ak.espn.go.com/motion/%(id)s.mp4" poster="http://assests.espn.go.com/media/motion/%(id)s.jpg">
+    </video>'''
+
+    def sources(self):
+        return (self.SOURCE,)
+
+    def fetch(self, url, logger, **kwargs):
+        logger.debug('ESPN fetcher received url:%s' % url)
+
+        match = self.ESPN_URL_SCHEME.match(url)
+        if not match:
+            raise UrlNotSupported(url)
+        id = match.group(1)
+
+        opener = urllib2.build_opener()
+        opener.addheaders = [('User-agent', IPAD_USER_AGENT)]
+
+        tree = etree.parse(urllib2.urlopen(url), etree.HTMLParser())
+
+        meta = dict()
+
+        meta['title'] = tree.find('/head/title').text
+
+        for tag in tree.findall('/head/meta'):
+            try:
+                if tag.attrib['name'] == 'description':
+                    meta['description'] = tag.attrib['content']
+                    continue
+            except KeyError:
+                pass
+
+            try:
+                if tag.attrib['property'] == 'og:image':
+                    image = tag.attrib['content']
+                else:
+                    raise KeyError()
+            except KeyError:
+                continue
+
+            image_match = self.IMAGE_SCHEME.match(image)
+            if not image_match:
+                raise Exception('Image url:%s not of expected format' % image)
+
+            meta['mobile_thumbnail_url'] = image
+            meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 110, 61
+
+            meta['thumbnail_url'] = ''.join(image_match.groups())
+            meta['thumbnail_width'], meta['thumbnail_height'] = 576, 324
+
+            meta['html5'] = self.ESPN_HTML5_EMBED_TEMPLATE % {'id': image_match.group(2)}
+
+        if 'thumbnail_url' not in meta:
+            raise Exception('Meta tag "og:image" missing')
+
+        meta['html'] = self.ESPN_EMBED_TEMPLATE % id
+        meta['source'] = self.SOURCE
+
+        return meta
+
+
 _fetchers = [
         YoutubeFetcher(),
         VimeoFetcher(),
@@ -1056,6 +1209,7 @@ _fetchers = [
         AolVideoFetcher(),
         CBSNewsFetcher(),
         FoxFetcher(),
+        ESPNFetcher(),
         EmbedlyFetcher(),
         ]
 
@@ -1063,6 +1217,257 @@ _facebook_fetcher = FacebookFetcher(_fetchers)
 
 _fetcher = OEmbed([_facebook_fetcher] + _fetchers)
 
+@task(max_retries=5, default_retry_delay=120)
+def fetch(user_id, url, host, callback=None):
+    def failed():
+        try:
+            video = Video.objects.get(url=url)
+            video.fetched = datetime.utcnow()
+            video.result = states.FAILURE
+            video.save()
+        except Video.DoesNotExist:
+            pass
+
+    try:
+        video = _fetcher.fetch(user_id, url, host, fetch.get_logger())
+        if callback is not None:
+            subtask(callback).delay(video.id)
+
+    except UrlNotSupported:
+        failed()
+
+    except Exception, exc:
+        try:
+            fetch.retry(exc=exc)
+        except Exception:
+            failed()
+
+
+# Read username blacklist file on module load
+read_user_blacklist = False
+if not read_user_blacklist:
+    import os.path
+    user_blacklist_file = os.path.join(os.path.dirname(__file__), 'data', 'blacklisted_usernames')
+    with open(user_blacklist_file, 'r') as f:
+        user_blacklist = frozenset([line.strip() for line in f.readlines()])
+    read_user_blacklist = True
+
+
+def slugify(username, id):
+    """
+    Normalizes string, converts to lowercase, removes non-alphanumeric characters (including spaces).
+    Also, checks and appends offset integer to ensure that username is unique.
+
+    >>> slugify('whatsherface', 123)
+    u'whatsherface'
+    >>> User.objects.create(username='whatsherface')
+    <User: whatsherface>
+    >>> slugify('whatsherface', 123)
+    u'whatsherface1'
+    >>> slugify('whats_her_face', 123)
+    u'whatsherface1'
+    >>> slugify('whatsherface2', 123)
+    u'whatsherface2'
+    >>> slugify('admin', 123)
+    u'user0'
+    >>> User.objects.create(username='user0')
+    <User: user0>
+    >>> slugify('about', 123)
+    u'user01'
+    """
+    username = normalize('NFKD', username).encode('ascii', 'ignore')[:USERNAME_MAX_LENGTH]
+    username = basename = unicode(sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
+
+    if username.lower() in user_blacklist:
+        logger.info('User:%s tried to use a blocked username:%s' % (id, username))
+        username = basename = u'user0'
+
+    counter = 1
+    while True:
+        try:
+            found = User.objects.get(username=username)
+            if found.id == id:
+                return username
+        except User.DoesNotExist:
+            break
+        username = '%s%d' % (basename, counter)
+        counter += 1
+
+    return username
+
+slugify.is_safe = True
+slugify = stringfilter(slugify)
+
+
+@task(max_retries=3, default_retry_delay=60)
+def push_like_to_fb(video_id, user):
+    from social_auth.backends.facebook import FACEBOOK_SERVER
+    def encode(text):
+        if isinstance(text, unicode):
+            return text.encode('utf-8')
+        return text
+
+    logger = push_like_to_fb.get_logger()
+
+    video = Video.objects.get(pk=video_id)
+
+    if not video.status() == states.SUCCESS:
+        logger.info('Video metadata unavailable...sleeping')
+        return push_like_to_fb.retry()
+
+    if not user.preferences()['syndicate'] == 1:
+        logger.debug('Not pushing to FB for user:%s' % user.username)
+        return
+
+    server_name = Site.objects.get_current().domain
+
+    params = { 'access_token': user.facebook_access_token(),
+               'link': '%s/%s' % (server_name, video.get_absolute_url()),
+               'caption': server_name,
+               'name': encode(video.title),
+               'description': encode(video.description),
+               'message': 'likes \'%s\'' % encode(video.title) }
+
+    try:
+        params['picture'] = video.get_thumbnail().url
+    except Thumbnail.DoesNotExist:
+        params['picture'] = '%s%s' % (server_name, '/static/images/default_video_icon.png')
+
+    url = 'https://%s/me/feed' % FACEBOOK_SERVER
+    try:
+        response = json.loads(urllib2.urlopen(url, urlencode(params)).read())
+        logger.debug('Facebook post id: %s' % response['id'])
+    except Exception:
+        logger.exception('Could not post to Facebook')
+
+
+@task(max_retries=3)
+def fetch_facebook_friends(user):
+    from social_auth.backends.facebook import FACEBOOK_SERVER
+    from social_auth.models import UserSocialAuth
+
+    logger = fetch_facebook_friends.get_logger()
+    logger.info('Fetching facebook friends for user:%s' % user.username)
+
+    if user.social_auth.get().extra_data is None:
+        logger.info('Facebook credentials unavailable...sleeping')
+        return fetch_facebook_friends.retry()
+
+    url = 'https://%s/me/friends?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
+    try:
+        response = urllib2.urlopen(url)
+
+        code = response.getcode()
+        if not code == 200:
+            logger.error('Facebook server responded with code=%s when fetching friends' % code)
+            return fetch_facebook_friends.retry()
+
+        content = response.read()
+        try:
+            friends = json.loads(content)['data']
+        except (TypeError, ValueError, KeyError):
+            raise Exception('Facebook friends response not valid JSON:\n%s' % content)
+
+        for friend in friends:
+            try:
+                fb_identity = UserSocialAuth.objects.get(uid=friend['id'])
+            except UserSocialAuth.DoesNotExist:
+                fb_identity = UserSocialAuth(uid=friend['id'], provider='facebook')
+
+            try:
+                fb_friend = fb_identity.user
+            except User.DoesNotExist:
+                parts = friend['name'].split(None, 1)
+                if len(parts) == 2:
+                    first, last = parts
+                    username = slugify('.'.join([first, last]), -1)
+                else:
+                    first, last = parts[0], ''
+                    username = slugify(first, -1)
+
+                fb_friend = User.objects.create(first_name=first,
+                                                last_name=last,
+                                                username=username,
+                                                is_registered=False)
+
+                fb_identity.user = fb_friend
+                fb_identity.save()
+
+            try:
+                FacebookFriend.objects.get(user=user, fb_friend=fb_friend)
+            except FacebookFriend.DoesNotExist:
+                FacebookFriend.objects.create(user=user, fb_friend=fb_friend)
+
+        user.fb_friends_fetched = datetime.utcnow()
+        user.save()
+
+        logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
+
+    except urllib2.URLError, exc:
+        if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
+            logger.info('User:%s revoked access from facebook...disabling' % user.username)
+            user.is_registered = False
+            user.save()
+        else:
+            logger.error('Error opening facebook friends resource: %s' % url, exc_info=True)
+            return fetch_facebook_friends.retry(exc=exc)
+
+
 @task
-def fetch(user_id, url, host):
-    _fetcher.fetch(user_id, url, host, fetch.get_logger())
+def refresh_friends_list():
+    logger = refresh_friends_list.get_logger()
+
+    queued = 0
+    for user in User.objects.filter(is_registered=True).order_by('fb_friends_fetched'):
+
+        if queued >= FACEBOOK_FRIENDS_FETCHER_SCHEDULE:
+            break
+
+        # Skip over users who have been refreshed in the 6 hours
+        if user.fb_friends_fetched and datetime.utcnow() - user.fb_friends_fetched < timedelta(hours=6):
+            logger.debug('Skipping over user:%s, last refresh:%s' % (user.username, user.fb_friends_fetched))
+            continue
+
+        fetch_facebook_friends.delay(user)
+        queued += 1
+
+    logger.info('Refreshing %d user friend lists' % queued)
+
+
+@task
+def send_follow_email_notification(followee, follower):
+    message_template = '''Hey there {0},
+
+{1} {2} is now following your liked videos on Watchlr.
+You {3} follow {1}. You can check out their profile{4} at {5}.
+
+Best,
+Team Watchlr
+
+If you'd rather not receive follow notification emails, you can manage your settings here - {6}.'''
+
+    logger = send_follow_email_notification.get_logger()
+    logger.info('Sending follow notification to %s for %s' % (followee.username, follower.username))
+
+    try:
+        subject = '{0} {1} is now following you on Watchlr'.format(follower.first_name, follower.last_name)
+
+        following = follower in followee.following()
+        server_name = 'http://%s' % Site.objects.get_current().domain
+
+        message = message_template.format(followee.first_name, follower.first_name, follower.last_name,
+                                          'already' if following else 'don\'t',
+                                          ' and follow them' if not following else '',
+                                          '%s%s' % (server_name, follower.get_absolute_url()),
+                                          '%s%s' % (server_name, reverse('email_preferences')))
+
+        send_mail(subject, message, SENDER_EMAIL_ADDRESS, [followee.email])
+
+    except SMTPException, exc:
+        logger.exception('Error sending follow notification')
+        send_follow_email_notification.retry(exc=exc)
+
+
+@task
+def fetch_news_feed():
+    pass

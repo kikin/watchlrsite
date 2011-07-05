@@ -1,91 +1,74 @@
 {% load kikinvideo_tags %}
-{% for video in videos %}
-    <div id="video-{{video.id}}" class="video-wrapper">
-        <div class="video-container">
-            <h3 class="video-title"><a href="/detail?vid={{video.id}}">{{ video.title }}</a></h3>
 
-            <div class="video-buttons">
-                {% if display_mode == 'saved' %}
-                <a href="#!/remove?vid={{ video.id }}" title="remove">
-                    <div class="video-delete-button no-hover"></div>
-                </a>
-                {% endif %}
+<meta name="queue_item_count" content="{{ videos|length }}"/>
 
-                <div class ="video-liked-info"id="video-liked-info-vid-{{ video.id }}">
-                {% if video.total_likes != 0 %}
-                    {{ video.total_likes }}
-                {%  endif %}
+{% if videos|length_is:"0"%}
+            {% if display_mode == "liked" %}
+                <div class="video-container" style="height:270px;border-bottom: none;">
+                    <div class="featureTxt" style="width: 600px;">
+                    <h4>
+                        You have no liked videos at the moment.
+                    </h4>
+                    <p>Click <img src="{{ STATIC_URL }}images/heart_grey.png" style="height:15px; padding-right:2px;"/> to like a video.  Your liked videos appear on your public profile so your friends and others can enjoy them too.
+                    <img class="featureImage" alt="Learn how to use Watchlr" src="{{ STATIC_URL }}images/education/empty_likes2.png" style="width: 600px; padding-left: 0px;"/>
+                    </div>
                 </div>
-                <a href="#!/like?vid={{ video.id }}" title="like">
-                {% if video in user.liked_videos %}
-                    <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}"></div>
-                {% else %}
-                    <div class="heart-container no-hover" id="liked-icon-vid-{{ video.id }}"></div>
-                {% endif %}
-                </a>
-            </div>
-            <a href="#!/player?vid={{ video.id }}">
-                <div class="video-image" id="video-{{ video.id }}">
-                    <div class="video-thumb-wrapper">
-                        <img class="video-thumbnail" src="{{video.get_thumbnail.url}}"
-                             onerror="this.style.visibility='hidden'"
-                             onload="if(this.height<147) this.style.marginTop = (147-this.height)+'px'"/>
-
-                        <div class="abs-position">
-                            <div class="video-thumbnail-btn" id="video-thumbnail-btn-vid-{{ video.id }}"></div>
+            {% endif %}
+            {% if display_mode ==  "saved"%}
+                <div class="video-container" style="height:450px;border-bottom: none;">
+                    <div class="featureTxt" style="width: 600px; margin-left:0px;">
+                        <h4 style="margin-left:10px;">
+                            You have no saved videos at the moment.
+                        </h4>
+                        <div style="margin-left:10px;">
+                            Install the Watchlr Browser App or Bookmarklet to save or like video from popular sources.
+                        </div>
+                        <div class="block" style="height:350px; margin-top:30px;">
+                            <img title="Watchlr Browser App" src="{{ STATIC_URL }}images/extras/browserapp.png" style="margin-right:10px;"/>
+                            <div class="blockleft" style="padding-left:0px;">
+                                <div class="blockblue">Watchlr Browser App</div>
+                                <br />
+                                <div class="blockcopy">With the Watchlr Browser App installed, place your mouse on any supported video and you can like or save the video right there!</div>
+                                <br />
+                                <div class="blockcopylight">Supported browsers - Chrome and Firefox for Mac and PC.</div>
+                                <br />
+                                {% if request|user_agent_class == 'firefox' or request|user_agent_class == 'chrome'%}
+                                    {% if request|user_agent_class == 'chrome' %}
+                                        <a href="http://dev.watchlr.com/static/downloads/watchlr_installer_1.0.0.crx"><div class="downloadapp">&nbsp;</div></a>
+                                    {%endif%}
+                                    {% if request|user_agent_class == 'firefox' %}
+                                        {%if request|user_agent_os == 'mac'%}
+                                        <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi?"><div class="downloadapp">&nbsp;</div></a>
+                                        {% else %}
+                                            {%if request|user_agent_os == 'windows'%}
+                                                <a href="http://www.kikin.com/download/kikinvideo2/KikinInstallerWin.xpi"><div class="downloadapp">&nbsp;</div></a>
+                                            {%endif%}
+                                        {%endif%}
+                                    {%endif%}
+                                 {%else%}
+                                        Your browser is not supported (We support Chrome and Firefox on Mac and PC.)
+                                 {%endif%}
+                            </div>
+                        </div>
+                        <div class="block" style="height:270px;">
+                            <div class="blockleft" style="float:right; text-align: right; padding-right:10px;">
+                                <div class="blockblue" style="margin-right:10px;">Watch Later Bookmarklet</div>
+                                <br />
+                                <div class="blockcopy" style="margin-right:10px;">Click the Watch Later Bookmarklet when you're on a page with video and you can like or save a video right there! </div>
+                                <br />
+                                <div class="blockcopylight" style="margin-right:10px;">Drag this to your Bookmarks Bar:</div>
+                                <br />
+                                <div style="padding-right:10px;">
+                                    <a href="javascript:(function(){_onWatchlrRequestComplete=function(a){if(a && typeof a == 'string'){a=JSON.parse(a);}if(a && a.js_url && (typeof a.js_url == 'string')){var b=document.createElement('script');b.src=a.js_url;b.type='text/javascript';document.body.appendChild(b);}};var c=document.createElement('link');c.rel='stylesheet';c.type='text/css';c.href='http://fonts.googleapis.com/css?family=PT%20Sans';document.getElementsByTagName('head')[0].appendChild(c);var d=document.createElement('div');d.style.width='350px';d.style.top='0px';d.style.left='0px';d.style.backgroundColor='#AAEB6E !important';d.style.position='fixed';d.style.display='block !important';d.style.textAlign='left !important';d.style.zIndex='10000';d.style.padding='10px';d.style.borderBottomRightRadius='10px';d.style.mozBorderRadiusBottomright='10px';var e=document.createElement('img');e.src='http://www.watchlr.com/static/images/favicon_75x75.png';e.style.display='inline-block !important';e.style.verticalAlign='text-top';e.style.width='45px';e.style.height='45px';var f=document.createElement('div');f.style.color='#ffffff !important';f.style.fontSize='18px !important';f.style.fontWeight='600 !important';f.style.fontFamily='PT Sans !important';f.style.fontStyle='normal !important';f.style.padding='10px';f.style.position='absolute';f.style.width='255px';f.style.height='40px';f.style.left='75px';f.style.top='0px';f.innerHTML='Mouseover the video to save it for watching later.';d.appendChild(e);d.appendChild(f);document.body.appendChild(d);var g=document.createElement('script');g.src='http://www.watchlr.com/static/html/jsloc.jsonp?callback=_onWatchlrRequestComplete';document.getElementsByTagName('head')[0].appendChild(g);})();" title="Watch Later"><div class="bookmarklet" style="float:right;"><div style="visibility: hidden;">Watch Later</div></div></a>
+                                </div>
+                            </div>
+                            <img title="Watchlr Bookmarklet" src="{{ STATIC_URL }}images/extras/bookmarkletimg.png" style="float:left; padding-bottom:20px;"/>
                         </div>
                     </div>
                 </div>
-            </a>
+        {% endif %}
+{% endif %}
 
-            <div class="video-info">
-                <div class="video-description">{{ video.description }}</div>
-                <div class="video-saved">
-                    {% if display_mode == 'saved' %}
-                        <span class="video-timeago">{{ video|pretty_date_saved:user }}</span>
-                    {% endif %}
-                    &bull;
-                    <a href="{{video.url}}">{{ video.title }}</a>
-                    {% if display_mode != 'public_profile' %}
-                    &bull;
-                    <a href="#!/remove?vid={{ video.id }}" class="lnk-delete">remove</a>
-                    {% endif %}
-                </div>
-            </div>
-
-            <br style="clear:both;"/>
-
-            {% if video.html_embed_code or video.html5_embed_code %}
-
-            <div class="video-player" id="video-player-{{ video.id }}">
-                <div>
-                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                </div>
-                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                {% autoescape off %}
-                    {{ video.html_embed_code }}
-                {% endautoescape %}
-                </div>
-            </div>
-
-            {% else %}
-
-            <div class="video-player" id="video-player-{{ video.id }}"
-                    style="background-color:#DEDEDE;font-size:16px;">
-                <div>
-                    <a href="#!/close_player?vid={{ video.id }}" class="video-player-close"></a>
-                </div>
-                <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                    <div class="video-no-embed-link">
-                        The host of the video you have selected requests that
-                        you access it at<br>
-                        <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
-                    </div>
-                </div>
-            </div>
-
-            {% endif %}
-        </div>
-        <div class="my-video-breaker"></div>
-    </div>
+{% for video in videos %}
+    {% video_queue_item %}
 {% endfor %}

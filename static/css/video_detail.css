@@ -1,0 +1,101 @@
+h3.video-title{
+    margin-bottom:20px;
+}
+#video-section{
+    width:780px;
+    float:none;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.video-player{
+    position:static;
+    width:640px;
+    padding: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom:10px;
+    background: #333;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    text-align: center;
+    display:block;
+}
+
+.close-button-fancy{
+    display: none;
+}
+
+.video-thumb{
+    clear:left;
+}
+
+.right-panel{
+    margin-left: 740px;
+}
+
+.video-buttons-container{float:right;}
+
+.video-thumbnail-btn{
+    display:none;
+}
+
+.liked-by-wrapper{
+    width:640px;
+    margin-left:auto;
+    margin-right: auto;
+    border-top: 1px solid #cccccc;
+    border-bottom: none;
+}
+
+.user-dropdown .close-button{
+    margin-right:0px;
+}
+
+.blue{
+    color:#4cb3de;
+}
+
+#user-info-container{
+    width: 780px;
+    height:140px;
+    margin-bottom:10px;
+    margin-left:auto;
+    margin-right:auto;
+    background-image: url(/static/images/profile/reg_pitch.png);
+    float:none;
+}
+
+#user-info-container .inner{
+    position:absolute;
+    color:#414141;
+    text-align: left;
+    font-size:17px;
+    font-family: "Helvetica Neue";
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+#user-info-container .fb-signup{
+    position: absolute;
+    margin-top:15px;
+    width:235px;
+    height:50px;
+    background-image: url(/static/images/education/fb_signup.png);
+}
+
+#user-info-container .fb-signup:hover{
+    background-image: url(/static/images/education/fb_signup_hover.png);
+}
+
+#signup-pitch{
+    width:760px;
+    height:120px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.video-player-container{
+    margin-top: 20px;
+}

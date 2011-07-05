@@ -67,7 +67,7 @@ Environment
 
 + DBMS:
   The production server is running
-  Postgresql 9, though provided you only touch the database
+  MySQL 5, though provided you only touch the database
   through Django's ORM layer, you can use any database
   management system you please for testing.
 
@@ -79,7 +79,13 @@ http://www.pip-installer.org/en/latest/requirement-format.html for more informat
 
 To install all required dependencies, run the following command
 
-    pip install -r requirements.txt
+    $ pip install -r requirements.txt
+
+Note that this requires additional operating system level packages to be present. If you are
+running ubuntu you can install these by running the following command
+
+    $ apt-get install mysql-server libmysqlclient16-dev python-dev libxslt1-dev apache2 libapache2-mod-wsgi \
+      git-core python-pip cronolog
 
 Working on this app
 -------------------
@@ -89,18 +95,18 @@ to the key of the corresponding nested config dict in the database_configuration
 
 i.e.:
 
-    active_db = 'local_test'
+    active_db = 'local'
 
     database_configurations = {
         'dev': {
-          'ENGINE': 'django.db.backends.postgresql_psycopg2',
+          'ENGINE': 'django.db.backends.mysql',
           'NAME': 'kikinvideo',
           'USER': 'webapp',
           'PASSWORD': 'savemore',
           'HOST': 'dev-video.kikin.com',
           'PORT': '',
         },
-          'local_test':{
+          'local':{
           'ENGINE': 'django.db.backends.mysql',
           'NAME': 'kikinvideo',
           'USER': 'webapp',
@@ -112,19 +118,16 @@ i.e.:
 
     DATABASES = { 'default': database_configurations[active_db] }
 
-...perhaps there's a more correct way to do this, but
-for now the solution above works fine.
-
 Before you can get to work, you will need to run
  
-    python manage.py syncdb
+    $ python manage.py syncdb
 
 from the top level project directory to create the database schema.
 
 			
 finally, to start your local development server, run
 
-    python manage.py runserver [port or addr:port]
+    $ python manage.py runserver [port or addr:port]
 
 the default addr/port is 127.0.0.1:8000, if you want your development server to be externally accessible, you
 could set the address to 0.0.0.0 (firewall/network config permitting).
@@ -141,7 +144,7 @@ Example usage of the models defined in api/models.py:
     >>>
     >>>  from api.models import *
     >>>
-    >>>  v_thumb_1 = ThumbnailImage()
+    >>>  v_thumb_1 = Thumbnail()
     >>>  v_thumb_1.width = 480
     >>>  v_thumb_1.height = 360
     >>>  v_thumb_1.url = 'http://i.ytimg.com/vi/UbDFS6cg1AI/0.jpg'
@@ -156,7 +159,7 @@ Example usage of the models defined in api/models.py:
     >>>  v_1.url = "http://www.youtube.com/watch?v=UbDFS6cg1AI"
     >>>  v_1.title='Can I Kick It?'
     >>>  v_1.description = "An awesome music video!"
-    >>>  v_1.thumbnail = v_thumb_1
+    >>>  v_1.thumbnails.add(v_thumb_1)
     >>>  v_1.source = v_source_1
     >>>  v_1.last_updated = datetime.datetime.now()
     >>>  v_1.save()
@@ -193,7 +196,7 @@ Fetching Video Metadata
 Fetching video metadata is done in the background using a Celery task queue. You need to spawn the Celery worker
 server as follows:
 
-    python manage.py celeryd -l info
+    $ python manage.py celeryd -B -l info
 
 Note that this runs the server in the foreground. More information about Celery can be found at
 http://django-celery.readthedocs.org/en/latest/index.html
@@ -206,4 +209,98 @@ http://docs.djangoproject.com/en/dev/topics/testing/#writing-doctests
 
 Example:
 
-    python manage.py test api.User.like_video
+    $ python manage.py test api.User.like_video
+
+Deployment
+----------
+
+On development and production environments, the project will be deployed behind Apache running mod_wsgi.
+Apache site configuration file is apache/video.site and associated WSGI script is apache/django.wsgi.
+
+Pushing Changes to Development Server
+-------------------------------------
+
+Assuming you have the SSH permissions on dev-video.kikin.com, the following steps illustrate pushing changes
+to the development server.
+
+Push procedure:
+
+    $ ssh root@dev-video.kikin.com /root/bin/updog
+
+Database Migration
+------------------
+
+We will be using [South](http://south.aeracode.org/) to handle database migrations.
+
+Initial run (make sure that your schema and models are up-to-date before you run this):
+
+    $ python manage.py migrate api 0001 --fake
+
+In case you change the model:
+
+    $ python manage.py schemamigration api --auto
+
+Remember to add the created file (api/migrations/<seq#>_auto_<change_description>.py to git.
+
+Applying migrations:
+
+    $ python manage.py migrate api
+
+Git Workflow
+------------
+
+For a complete description see [this](http://nvie.com/posts/a-successful-git-branching-model/) blog post. You
+can also use [gitflow](http://github.com/nvie/gitflow) to make your life easier.
+
+To summarize:
+
++ All development should eventually end up on the <code>develop</code> branch.
+
++ Every new feature that you are participating in should ideally be on a separate feature branch.
+
+        $ git checkout -b myfeature develop  # branch off from develop branch
+        $ git push origin myfeature  # optional: if there are other people working on this feature
+        $ # hack on myfeature branch
+        $ git checkout develop
+        $ git merge --no-ff myfeature  # note the --no-ff option
+        $ git push origin develop
+
++ Release branches support preparation of a new production release.
+
+    + Creating release branches
+
+            $ git checkout -b release-1.4 develop
+            $ git push origin release-1.4
+
+    + Finishing a release branch
+
+            $ git checkout master
+            $ git merge --no-ff release-1.4
+            $ git tag -a 1.4
+
+    + Merging back changes in release branch to development
+
+            $ git checkout develop
+            $ git merge --no-ff release-1.4
+
++ Hotfix branches allow you to act immediately upon an undesired state of a live production version.
+
+    + Create a hotfix branch
+
+            $ git checkout -b hotfix-1.4.1 master
+            $ git push origin hotfix-1.4.1
+
+    + Fix issue
+
+             $ git commit -m "Fixed severe production problem"
+
+    + Finish up
+
+            $ git checkout master
+            $ git merge --no-ff hotfix-1.4.1
+            $ git tag -a 1.4.1
+
+    + Include fix in development
+
+            $ git checkout develop
+            $ git merge --no-ff hotfix-1.4.1

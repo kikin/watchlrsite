@@ -1,0 +1,70 @@
+{% extends "user_home.html" %}
+
+{% load kikinvideo_tags %}
+
+{% block style_refs %}
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}css/profile.css'/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/user_list.css"/>
+{% endblock style_refs %}
+
+{% block content %}
+    {% block video_section %}
+    <div id="user-list">
+        <div class="user-list-wrapper">
+            <div id="videoListWrapper">
+                <div id="videoList" style="min-height: 0px;">
+                    {% for other in users.object_list %}
+                        <div class="user-info wrapper">
+                            <a href="/{{ other.username }}">
+                                <img class="fb-thumb-square" src="https://graph.facebook.com/{{ other.facebook_uid }}/picture?type=square"/>
+                            </a>
+                            <div class="username">
+                                <a href="/{{ other.username }}">{{ other.username|truncate_text:25 }}</a><br>
+                                <span class="karma" title="karma">
+                                    {{ other.karma }}
+                                </span>
+                            </div>
+                            {% if other != user %}
+                                {% if other in user.following %}
+                                    <a href="javascript:profileViewController.handleUnfollow({{ other.id }})" id="follow-button-user-{{ other.id }}"
+                                            class="user-list-follow-button shadow-5l">
+                                        Unfollow
+                                    </a>
+                                {% else %}
+                                    {% if not user.is_authenticated %}
+                                    <a href="javascript:alert('you must register an account with Watchlr before you can follow people');"
+                                       id="follow-button-user-{{ other.id }}" class="user-list-follow-button shadow-5l">
+                                        Follow
+                                    </a>
+                                    {% else %}
+                                    <a href="javascript:profileViewController.handleFollow({{ other.id }})" id="follow-button-user-{{ other.id }}"
+                                            class="user-list-follow-button shadow-5l">
+                                        Follow
+                                    </a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="pagination">
+            <span class="step-links">
+                {% if users.has_previous %}
+                    <a href="?page={{ users.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ users.number }} of {{ users.paginator.num_pages }}.
+                </span>
+
+                {% if users.has_next %}
+                    <a href="?page={{ users.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    {% endblock video_section %}
+{% endblock content%}

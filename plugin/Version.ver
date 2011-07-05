@@ -1,0 +1,3 @@
+define(`__K_MAJOR_VERSION__', `1')dnl
+define(`__K_MINOR_VERSION__', `0')dnl
+define(`__K_BUILD_NUMBER__', `0')dnl

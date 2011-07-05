@@ -1,0 +1,104 @@
+a {
+	color: #2AACE1;
+	text-decoration: none;
+    cursor: pointer;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#video-liked-window {
+
+}
+
+#video-liked-window .header {
+    width: 100%;
+    height: 60px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+#video-liked-window .watchlr-logo {
+    background:url('http://local.watchlr.com/watchlr/img/watchlr.png') no-repeat scroll 0px 0px transparent;
+    width: 90px;
+    height: 31px;
+    margin: 5px;
+    display: block;
+}
+
+#video-liked-window .close-button {
+    background:url('http://local.watchlr.com/watchlr/img/close.png') no-repeat scroll 0px 0px transparent;
+    width: 18px;
+    height: 19px;
+    display: block;
+    margin-top: 10px;
+}
+
+#video-liked-window .message {
+    overflow: hidden;
+    padding: 5px;
+}
+
+#video-liked-window .video-liked-img {
+    background:url('http://local.watchlr.com/watchlr/img/heart_fb.png') no-repeat scroll 0px 0px transparent;
+    width: 150px;
+    height: 45px;
+    display: block;
+    margin: 5px;
+    position: absolute;
+    left: 90px;
+    top: 55px;
+}
+
+#video-liked-window .video-liked-msg {
+    width : 245px;
+    height: 35px;
+    text-align: center;
+    font-size: 16px;
+    position: absolute;
+    top: 105px;
+    left: 47px;
+}
+
+#video-liked-window .footer {
+    left: 0px;
+    top: 180px;
+    width : 100%;
+    height: 30px;
+    position: absolute;
+}
+
+#video-liked-window .footer-left {
+    margin-top: 5px;
+}
+
+#fb-push-message {
+    position:relative;
+    top:-2px;
+    margin-left:3px;
+    margin-right: 2px;
+}
+
+#video-liked-window .fb-show-message-label {
+    position:relative;
+    top:-2px;
+    font-size: 13px;
+}
+
+#video-liked-window .left {
+    float: left;
+}
+
+#video-liked-window .right {
+    float: right;
+}
+
+#video-liked-window .ok-button {
+    background:url('http://local.watchlr.com/watchlr/img/okay_button.png') no-repeat scroll 0px 0px transparent;
+    width: 47px;
+    height: 21px;
+    display: block;
+    margin: 0 5px 0 0;
+}
