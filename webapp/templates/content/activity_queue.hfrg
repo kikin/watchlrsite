@@ -29,7 +29,7 @@
                   {% endautoescape %}
               </div>
 
-             <div class="activity-queue-video-description">{{ activity_item.video.description|truncate_text:170|urlize }}
+             <div class="activity-queue-video-description">{{ activity_item.video.description|truncate_chars:125|urlize }}
              <br>
                 <div class="video-source-info">
                     <div class="video-source-favicon-wrapper">
