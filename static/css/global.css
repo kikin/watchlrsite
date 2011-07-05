@@ -981,16 +981,20 @@ a#lnk-page-next:hover {
 	margin-top:-2px;
 }
 
+.webkit .video-liked-info{
+    margin-top: -3px;
+}
+
+.mozilla .video-liked-info{
+    margin-top: -3px;
+}
+
 .video-buttons a:hover{
     color:#cccccc;
 }
 
 .video-buttons-container a:hover{
     color:#cccccc;
-}
-
-.mozilla .video-liked-info{
-    margin-top:-3px;
 }
 .win.mozilla .video-liked-info{
     margin-top:-4px;
