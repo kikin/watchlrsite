@@ -187,7 +187,7 @@
     text-align: center;
     padding-top: 10px;
     padding-bottom:10px;
-    background-color: #e5eff3;
+    background-color: #ffffff;
     margin-left: auto;
     margin-right: auto;
     display:block;
@@ -196,13 +196,13 @@
 }
 
 .user-info-button:hover{
-    background-color:#93c7df;
+    background-color:#E5EFF3;
     border: 1px solid #296881;
     color: #296881;
 }
 
 .user-info-button.selected{
-    background-color:#93c7df;
+    background-color:#E5EFF3;
     border: 1px solid #296881;
     color: #296881;
 }
