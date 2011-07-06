@@ -166,8 +166,8 @@ kikinvideo.HomeViewController = function() {
         if(!initialLoad){
         $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
         $(LOADING_ICON_BACKGROUND).css({width:780,
-            height:$(VIDEO_PANEL_SELECTOR).height(), left:$(VIDEO_PANEL_SELECTOR).offset().left+20,
-            top:$(VIDEO_PANEL_SELECTOR).offset().top-50});
+            height:$(VIDEO_PANEL_SELECTOR).height(), left:$(VIDEO_PANEL_SELECTOR).offset().left,
+            top:$(VIDEO_PANEL_SELECTOR).offset().top});
         }
         initialLoad = false;
         var contentSource, requestParams;
@@ -238,6 +238,7 @@ kikinvideo.HomeViewController = function() {
                         populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                     }
                 }
+                trackEvent('Video', 'Remove');
             });
         });
     }
@@ -278,8 +279,13 @@ kikinvideo.HomeViewController = function() {
                                                     activity_item_header.html(like_details);
                                                     activity_item_header.fadeIn(500);
                                                 });
+                                                trackEvent('Video', 'Like_Activity');
+                                            }else{
+                                                trackEvent('Video', 'Like_Queue');
                                             }
                                         });
+                                        //analytics....
+                                        trackEvent('Video', 'Like');
                                     }
                                 }
                             }
@@ -323,13 +329,19 @@ kikinvideo.HomeViewController = function() {
                                                     activity_item_header.html(like_details);
                                                     activity_item_header.fadeIn(500);
                                                 });
+                                                trackEvent('Video', 'Unlike_Activity');
+                                            }else{
+                                                trackEvent('Video', 'Unlike_Queue');
                                             }
                                         }else if(activeView == VIEWS.activity){
                                             //means that we are in activity queue AND had been the only
                                             //"liker" of this video, so we may gracefully remove it
                                             $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
+                                            trackEvent('Video', 'Unlike_Activity');
                                         }
                                     });
+                                 //analytics...
+                                trackEvent('Video', 'Unlike');
                                 }
                             }
                         }
@@ -363,6 +375,14 @@ kikinvideo.HomeViewController = function() {
                                 $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).addClass('not-saved');
                             }
                         }
+
+                    if(activeView == VIEWS.activity){
+                        trackEvent('Video', 'Save_Activity');
+                    }else{
+                        trackEvent('Video', 'Save_Queues');
+                    }
+                    //analytics...
+                    trackEvent('Video', 'Save');
                     }
 
                 },

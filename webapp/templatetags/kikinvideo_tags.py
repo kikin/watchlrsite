@@ -384,6 +384,6 @@ def truncate_chars(s, num):
 def saved_from(video, user):
     try:
         user_video = UserVideo.objects.get(video=video, user=user)
-        return user_video.host
+        return user_video.host or video.url
     except UserVideo.DoesNotExist:
         return video.url
