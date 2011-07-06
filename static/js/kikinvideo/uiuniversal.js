@@ -84,9 +84,9 @@ kikinvideo.UIUniversal =
                     //necessary hack -- center fixed-width embeds (the embeds often have
                     // fixed width+height but no margin-properties)!
                     try{
-             //           var wrapper = $('#video-embed-container-'+vid + ' .video-embed-wrapper');
-               //         var embed = wrapper.children('embed:first-child');
-                 //       embed.css({marginRight:'auto', marginLeft:'auto'});
+                        var wrapper = $('#video-embed-container-'+vid + ' .video-embed-wrapper');
+                        var embed = wrapper.children('embed:first-child');
+                        embed.css({marginRight:'auto', marginLeft:'auto'});
                     }catch(excp){}
 
                     /*remove the 'play' button from the thumb...*/
