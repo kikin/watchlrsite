@@ -1,53 +1,41 @@
 {% load kikinvideo_tags %}
 
-{% if video.html5_embed_code %}
+<div class="video-player" id="video-player-{{ video.id }}">
+    <a href="javascript: UI.closePlayer({{ video.id }})">
+        <div class="close-button-fancy"></div>
+    </a>
+    <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
 
-    <div class="video-player" id="video-player-{{ video.id }}">
-        <a href="javascript: UI.closePlayer({{ video.id }})">
-            <div class="close-button-fancy"></div>
-        </a>
-        <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-
-        {% autoescape off %}
-            {% if video|is_html5_capable or video|is_vimeo %}
-            <div id='video-buffering-vid-{{ video.id }}' style="position:absolute;width:640px;
-                height:360px;font-size:22px;color:#ffffff;
-                padding-top:110px;text-align: center;display: none;">
-                    Restoring your previous playback position.<br>Please be patient.
-                    <div style="margin-top:30px;">
-                        <span class='buffering-progress'>0%</span> complete
+    {% autoescape off %}
+        {% if video|is_html5_capable or video|is_vimeo %}
+            {% if video.html5_embed_code %}
+                <div id='video-buffering-vid-{{ video.id }}' style="position:absolute;width:640px;
+                    height:360px;font-size:22px;color:#ffffff;
+                    padding-top:110px;text-align: center;display: none;">
+                        Restoring your previous playback position.<br>Please be patient.
+                        <div style="margin-top:30px;">
+                            <span class='buffering-progress'>0%</span> complete
+                        </div>
+                        <img src="/static/images/loaders/loader_round.gif" style="margin-top:20px;"/>
                     </div>
-                    <img src="/static/images/loaders/loader_round.gif" style="margin-top:20px;"/>
-                </div>
-                <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}"
-                        style="width:640px;height:360px;">
-                {{ video.html5_embed_code }}
-                </div>
+                    <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}"
+                            style="width:640px;height:360px;">
+                    {{ video.html5_embed_code }}
+                    </div>
             {% else %}
-                {% if video|is_youtube or not video|is_html5_capable %}
+                {% video_no_embed video %}
+            {% endif %}
+        {% else %}
+            {% if video|is_youtube or not video|is_html5_capable %}
+                {% if video.html_embed_code %}
                     <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}">
                     {{ video.html_embed_code }}
                     </div>
+                {% else %}
+                    {% video_no_embed video %}
                 {% endif %}
             {% endif %}
-        {% endautoescape %}
-        </div>
+        {% endif %}
+    {% endautoescape %}
     </div>
-
-{% else %}
-    <div class="videoplayerContainer">
-        <div class="video-player" id="video-player-{{ video.id }}"
-                style="background-color:#DEDEDE;font-size:16px;">
-            <a href="javascript: UI.closePlayer({{ video.id }})" >
-                <div class="close-button-fancy"></div>
-            </a>
-            <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
-                <div class="video-no-embed-link">
-                    The host of the video you have selected requests that
-                    you access it at<br>
-                    <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endif %}
+</div>

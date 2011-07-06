@@ -1217,3 +1217,8 @@ box-shadow: 10px 10px 5px #888;
     color: gray;
     font-size: 120%;
 }
+
+
+.video-embed-wrapper{
+    text-align:center;
+}
