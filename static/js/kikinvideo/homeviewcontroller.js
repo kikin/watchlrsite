@@ -238,6 +238,7 @@ kikinvideo.HomeViewController = function() {
                         populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
                     }
                 }
+                trackEvent('Video', 'Remove');
             });
         });
     }
@@ -280,6 +281,8 @@ kikinvideo.HomeViewController = function() {
                                                 });
                                             }
                                         });
+                                        //analytics....
+                                        trackEvent('Video', 'Like');
                                     }
                                 }
                             }
@@ -330,6 +333,8 @@ kikinvideo.HomeViewController = function() {
                                             $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
                                         }
                                     });
+                                 //analytics...
+                                trackEvent('Video', 'Unlike');
                                 }
                             }
                         }
@@ -363,6 +368,8 @@ kikinvideo.HomeViewController = function() {
                                 $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).addClass('not-saved');
                             }
                         }
+                    //analytics...
+                    trackEvent('Video', 'Save');
                     }
 
                 },
