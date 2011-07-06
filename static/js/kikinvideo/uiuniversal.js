@@ -17,6 +17,8 @@ kikinvideo.UIUniversal =
 
             var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
 
+            var VIDEO_IMAGE_CLASS = "video-image";
+
             var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
 
             var VIDEO_PLAYER_BG_HTML = '<div class="video-player-bg"></div>';
@@ -223,10 +225,8 @@ kikinvideo.UIUniversal =
                                 $('#header-right').removeClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         }
-                );
-
+                )
             }
-
 
             //expose public functions...
             return {
