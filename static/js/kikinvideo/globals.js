@@ -163,5 +163,5 @@ function hideErrorDialog(){
 }
 
 function trackEvent(category, action){
-    _gaq.push(['_trackEvent', category, action]);
+    _gaq.push(['_trackEvent', category, action, 'web_app']);
 }
