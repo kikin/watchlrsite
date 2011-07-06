@@ -93,7 +93,7 @@
     </a>
 
     <div class="video-info">
-        <div class="video-description">{{ video.description|truncatewords:35|urlize }}</div>
+        <div class="video-description">{{ video.description|truncate_chars:175|urlize }}</div>
         <div class="video-saved">
             <a href="{{ video|source_url_root }}" target="_blank">
                 <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
