@@ -165,7 +165,7 @@ kikinvideo.HomeViewController = function() {
 
         if(!initialLoad){
         $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-        $(LOADING_ICON_BACKGROUND).css({width:760,
+        $(LOADING_ICON_BACKGROUND).css({width:780,
             height:$(VIDEO_PANEL_SELECTOR).height(), left:$(VIDEO_PANEL_SELECTOR).offset().left,
             top:$(VIDEO_PANEL_SELECTOR).offset().top});
         }
