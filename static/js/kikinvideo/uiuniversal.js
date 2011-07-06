@@ -120,6 +120,8 @@ kikinvideo.UIUniversal =
                         videoController.setMode(videoController.modes.NORMAL);
                         videoController.setCurVid(vid);
                     }
+
+                    trackEvent('Video', 'LoadPlayer');
                 }
             }
 
@@ -141,7 +143,9 @@ kikinvideo.UIUniversal =
                         videoController.setMode(videoController.modes.NORMAL);
                         videoController.pauseVideo();
                         videoController.savePosition();
-                    }
+                }
+
+                trackEvent('Video', 'ClosePlayer');
             }
 
             function handleProfileEditPanelOpen(){

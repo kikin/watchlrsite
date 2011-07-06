@@ -1015,7 +1015,7 @@ a#lnk-page-next:hover {
     color:#cccccc;
 }
 .win.mozilla .video-liked-info{
-    margin-top:-4px;
+    margin-top:-1px;
 }
 .video-delete-button {
     float:right;
