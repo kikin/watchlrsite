@@ -893,7 +893,7 @@ class FacebookFetcher(object):
                     'http://c2548752.cdn.cloudfiles.rackspacecloud.com/facebook.ico')
 
     FACEBOOK_URL_SCHEME = re.compile(r'https://graph\.facebook\.com/(.+)')
-    EMBEDLY_FACEBOOK_URL = 'http://www.facebook.com/v/%s'
+    EMBEDLY_FACEBOOK_URL = 'http://www.facebook.com/video/video.php?v=%s'
 
     def __init__(self, fetchers):
         self.fetchers = fetchers
