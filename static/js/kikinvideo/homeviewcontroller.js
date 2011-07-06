@@ -166,8 +166,8 @@ kikinvideo.HomeViewController = function() {
         if(!initialLoad){
         $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
         $(LOADING_ICON_BACKGROUND).css({width:780,
-            height:$(VIDEO_PANEL_SELECTOR).height(), left:$(VIDEO_PANEL_SELECTOR).offset().left+20,
-            top:$(VIDEO_PANEL_SELECTOR).offset().top-50});
+            height:$(VIDEO_PANEL_SELECTOR).height(), left:$(VIDEO_PANEL_SELECTOR).offset().left,
+            top:$(VIDEO_PANEL_SELECTOR).offset().top});
         }
         initialLoad = false;
         var contentSource, requestParams;
