@@ -269,7 +269,6 @@ a:hover {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     padding-top: 70px;
-    padding-left:20px;
     top:0px;
     left:0px;
     z-index:9999;
@@ -1000,7 +999,7 @@ a#lnk-page-next:hover {
 }
 
 .webkit .video-liked-info{
-    margin-top: -3px;
+    margin-top: -2px;
 }
 
 .mozilla .video-liked-info{
@@ -1015,7 +1014,7 @@ a#lnk-page-next:hover {
     color:#cccccc;
 }
 .win.mozilla .video-liked-info{
-    margin-top:-4px;
+    margin-top:-1px;
 }
 .video-delete-button {
     float:right;
@@ -1025,7 +1024,6 @@ a#lnk-page-next:hover {
 .video-buttons {
     position:absolute;
     margin-left:640px;
-    margin-top:5px;
     min-width: 90px;
     height: 34px;
 }

@@ -17,6 +17,8 @@ kikinvideo.UIUniversal =
 
             var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
 
+            var VIDEO_IMAGE_CLASS = "video-image";
+
             var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
 
             var VIDEO_PLAYER_BG_HTML = '<div class="video-player-bg"></div>';
@@ -118,6 +120,14 @@ kikinvideo.UIUniversal =
                         videoController.setMode(videoController.modes.NORMAL);
                         videoController.setCurVid(vid);
                     }
+
+                    if (activeView == VIEWS.activity){
+                        trackEvent('Video', 'OpenPlayer_Activity');
+                    }else{
+                        trackEvent('Video', 'OpenPlayer_Queue');
+                    }
+
+                    trackEvent('Video', 'OpenPlayer');
                 }
             }
 
@@ -139,7 +149,15 @@ kikinvideo.UIUniversal =
                         videoController.setMode(videoController.modes.NORMAL);
                         videoController.pauseVideo();
                         videoController.savePosition();
-                    }
+                }
+
+                if (activeView == VIEWS.activity){
+                    trackEvent('Video', 'ClosePlayer_Activity');
+                }else{
+                    trackEvent('Video', 'ClosePlayer_Queue');
+                }
+
+                trackEvent('Video', 'ClosePlayer');
             }
 
             function handleProfileEditPanelOpen(){
@@ -207,10 +225,8 @@ kikinvideo.UIUniversal =
                                 $('#header-right').removeClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         }
-                );
-
+                )
             }
-
 
             //expose public functions...
             return {

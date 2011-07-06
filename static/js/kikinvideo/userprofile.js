@@ -34,6 +34,8 @@ kikinvideo.ProfileViewController = function(){
                         }
                         numFollowers++;
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id + " .bold").html(numFollowers);
+                        //analytics...
+                        trackEvent('User', 'FollowUser');
                     }
                 },
                 failure : function(err_msg){
@@ -55,6 +57,8 @@ kikinvideo.ProfileViewController = function(){
                         if(activeView == VIEWS.activity ){
                             home.populatePanel();
                         }
+                        //analytics...
+                        trackEvent('User', 'UnfollowUser');
                     }
                 },
                 failure : function(err_msg){

@@ -161,3 +161,7 @@ function showErrorDialog(msg, code){
 function hideErrorDialog(){
     $(ERROR_DIALOG_SELECTOR).fadeOut(600);
 }
+
+function trackEvent(category, action){
+    _gaq.push(['_trackEvent', category, action, 'web_app']);
+}
