@@ -81,6 +81,14 @@ kikinvideo.UIUniversal =
                         }
                     }
 
+                    //necessary hack -- center fixed-width embeds (the embeds often have
+                    // fixed width+height but no margin-properties)!
+                    try{
+                        var wrapper = $('#video-embed-container-'+vid + ' .video-embed-wrapper');
+                        var embed = wrapper.children('embed:first-child');
+                        embed.css({marginRight:'auto', marginLeft:'auto'});
+                    }catch(excp){}
+
                     /*remove the 'play' button from the thumb...*/
                     if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
                         $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
