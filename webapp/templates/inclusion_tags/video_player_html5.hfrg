@@ -13,7 +13,7 @@
                     height:360px;font-size:22px;color:#ffffff;background-color: #000000;
                     text-align: center;display: none;">
                     <a class='vid-buffering-close-button' href="javascript:videoController.hideVideoBufferingOverlay()"></a>
-                        <div style="margin-top:110px;">
+                        <div style="margin-top: 110px;">
                         Restoring your previous playback position.<br>Please be patient.
                         </div>
                         <div style="margin-top:30px;">
