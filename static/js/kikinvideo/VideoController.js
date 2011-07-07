@@ -238,6 +238,11 @@ kikinvideo.VideoController =
             }
         }
 
+        function hideVideoBufferingOverlay(){
+            if($('#video-buffering-vid-'+curVID).length != 0)
+                $('#video-buffering-vid-'+curVID).fadeOut(100);
+        }
+
          function prepareEmbeds(){
             $('.video-embed-wrapper.html5').each(function()
                 {
@@ -475,7 +480,8 @@ kikinvideo.VideoController =
             playNext : playNext,
             playPrevious : playPrevious,
             modes : modes,
-            setMode : setMode
+            setMode : setMode,
+            hideVideoBufferingOverlay : hideVideoBufferingOverlay
         }
     }
 
