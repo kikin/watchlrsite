@@ -353,6 +353,10 @@ def video_queue_item(context):
 def liked_by_panel(video):
     return {'video':video, 'users':video.all_likers()}
 
+@register.inclusion_tag('inclusion_tags/video_no_embed.hfrg')
+def video_no_embed(video):
+    return {'video': video }
+
 @register.filter
 def user_profile_link(user):
     target = 'href=%s' % user.get_absolute_url()
@@ -361,9 +365,37 @@ def user_profile_link(user):
     return target
 
 @register.filter
+def truncate_chars(s, num):
+    """
+    Template filter to truncate a string to at most num characters respecting word
+    boundaries.
+    """
+    s = force_unicode(s)
+    length = int(num)
+    if len(s) > length:
+        length -= 3
+        if s[length-1] == ' ' or s[length] == ' ':
+            s = s[:length].strip()
+        else:
+            words = s[:length].split()
+            if len(words) > 1:
+                del words[-1]
+            s = u' '.join(words)
+        s += '...'
+    return s
+
+@register.filter
 def saved_from(video, user):
     try:
         user_video = UserVideo.objects.get(video=video, user=user)
-        return user_video.host
+
+        try:
+            if user_video.video.source.name.lower() == 'facebook':
+                return video.url
+        except Exception:
+            pass
+
+        return user_video.host or video.url
+
     except UserVideo.DoesNotExist:
         return video.url

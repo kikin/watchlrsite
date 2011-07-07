@@ -17,6 +17,8 @@ kikinvideo.UIUniversal =
 
             var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
 
+            var VIDEO_IMAGE_CLASS = "video-image";
+
             var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
 
             var VIDEO_PLAYER_BG_HTML = '<div class="video-player-bg"></div>';
@@ -79,6 +81,14 @@ kikinvideo.UIUniversal =
                         }
                     }
 
+                    //necessary hack -- center fixed-width embeds (the embeds often have
+                    // fixed width+height but no margin-properties)!
+                    try{
+                        var wrapper = $('#video-embed-container-'+vid + ' .video-embed-wrapper');
+                        var embed = wrapper.children('embed:first-child');
+                        embed.css({marginRight:'auto', marginLeft:'auto'});
+                    }catch(excp){}
+
                     /*remove the 'play' button from the thumb...*/
                     if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
                         $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
@@ -119,7 +129,13 @@ kikinvideo.UIUniversal =
                         videoController.setCurVid(vid);
                     }
 
-                    trackEvent('Video', 'LoadPlayer');
+                    if (activeView == VIEWS.activity){
+                        trackEvent('Video', 'OpenPlayer_Activity');
+                    }else{
+                        trackEvent('Video', 'OpenPlayer_Queue');
+                    }
+
+                    trackEvent('Video', 'OpenPlayer');
                 }
             }
 
@@ -141,6 +157,12 @@ kikinvideo.UIUniversal =
                         videoController.setMode(videoController.modes.NORMAL);
                         videoController.pauseVideo();
                         videoController.savePosition();
+                }
+
+                if (activeView == VIEWS.activity){
+                    trackEvent('Video', 'ClosePlayer_Activity');
+                }else{
+                    trackEvent('Video', 'ClosePlayer_Queue');
                 }
 
                 trackEvent('Video', 'ClosePlayer');
@@ -211,10 +233,8 @@ kikinvideo.UIUniversal =
                                 $('#header-right').removeClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         }
-                );
-
+                )
             }
-
 
             //expose public functions...
             return {

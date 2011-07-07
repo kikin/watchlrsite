@@ -32,7 +32,7 @@
 .activity-queue-item .video-title{
     position:absolute;
     color: #43B6E6;
-    font-size: 20px;
+    font-size: 17px;
     padding-bottom: 5px;
     width: 450px;
     margin-left: 245px;
@@ -41,10 +41,11 @@
 
 .activity-queue-video-description{
     position:absolute;
-    width:400px;
+    width:435px;
     height:80px;
     margin-left: 251px;
     margin-top:60px;
+    font-size: 13px;
 }
 
 .video-source-info{
