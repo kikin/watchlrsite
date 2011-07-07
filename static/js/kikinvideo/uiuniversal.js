@@ -210,13 +210,13 @@ kikinvideo.UIUniversal =
             function bindEvents() {
                 $(PROFILE_OPTIONS_BUTTON_SELECTOR).hover(
                         function() {
-                            if(!$('#header-right').hasClass('selected'))
-                                $('#header-right').addClass('selected');
+                            if(!$(this).hasClass('selected') && $('#lnkConnectFb').length == 0)
+                                $(this).addClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
                         },
                         function() {
-                            if($('#header-right').hasClass('selected'))
-                                $('#header-right').removeClass('selected');
+                            if($(this).hasClass('selected'))
+                                $(this).removeClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         }
                 )
