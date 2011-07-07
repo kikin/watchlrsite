@@ -73,9 +73,11 @@ kikinvideo.VideoController =
 
         function setCurVid(vid){
             curVID = vid;
+            if(vid_player_mappings[vid]){
             if (vid_player_mappings[vid].type == 'Vimeo' ||
                     vid_player_mappings[vid].type == 'html5')
                 prepareVidForPlayback();
+            }
         }
 
         function prepareCurVidForPlayback(){
@@ -168,7 +170,11 @@ kikinvideo.VideoController =
              if(vid_player_mappings[vid]){
                  if(vid_player_mappings[vid].type == 'YouTube'){
                      if(vid_player_mappings[vid].player)     
-                        vid_player_mappings[vid].player.pauseVideo();
+                        try{
+                         vid_player_mappings[vid].player.pauseVideo();
+                        }catch(excp){
+                            //...video not yet loaded...
+                        }
                  }
                   if(vid_player_mappings[vid].type == 'Vimeo'){
                      if(vid_player_mappings[vid].player)

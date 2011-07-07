@@ -139,6 +139,7 @@ function swapTab(selector) {
         $(activeTab).removeClass('selected');
         $(selector).addClass('selected');
         activeTab = selector;
+        registerPageview();
     }
 };
 
@@ -163,8 +164,6 @@ function hideErrorDialog(){
 }
 
 function trackEvent(category, action){
-
-
     switch(activeView){
         case VIEWS.activity:
              _gaq.push(['_trackEvent', category, action + '_Activity', 'web_app']);
@@ -183,4 +182,12 @@ function trackEvent(category, action){
     }
 
     _gaq.push(['_trackEvent', category, action, 'web_app']);
+}
+
+
+function registerPageview(){
+    try{
+        var tracker = _gat._getTracker('UA-4788978-3');
+        tracker._trackPageview(window.location.hash);
+    }catch(excp){}
 }
