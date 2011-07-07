@@ -189,6 +189,7 @@ function trackEvent(category, action){
 
 function registerPageview(){
     try{
-        _gaq.push(['_trackPageView', window.location.hash]);
+        var hashURLPath = parseHashURL(window.location.hash).path;
+        _gaq.push(['_trackPageView', hashURLPath]);
     }catch(excp){}
 }
