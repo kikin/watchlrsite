@@ -139,6 +139,7 @@ function swapTab(selector) {
         $(activeTab).removeClass('selected');
         $(selector).addClass('selected');
         activeTab = selector;
+        registerPageview();
     }
 };
 
@@ -183,4 +184,11 @@ function trackEvent(category, action){
     }
 
     _gaq.push(['_trackEvent', category, action, 'web_app']);
+}
+
+
+function registerPageview(){
+    try{
+        _gaq.push(['_trackPageView', window.location.hash]);
+    }catch(excp){}
 }
