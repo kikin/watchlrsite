@@ -12,6 +12,7 @@
                 <div id='video-buffering-vid-{{ video.id }}' style="position:absolute;width:640px;
                     height:360px;font-size:22px;color:#ffffff;
                     padding-top:110px;text-align: center;display: none;">
+                    <a class='vid-buffering-close-button' href="javascript:videoController.hideVideoBufferingOverlay()"></a>
                         Restoring your previous playback position.<br>Please be patient.
                         <div style="margin-top:30px;">
                             <span class='buffering-progress'>0%</span> complete
