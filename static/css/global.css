@@ -1225,7 +1225,7 @@ box-shadow: 10px 10px 5px #888;
 
 .vid-buffering-close-button{
     float:left;
-    margin-top:-100px;
+    margin-top:10px;
     margin-left:11px;
     width:20px;
     height:20px;

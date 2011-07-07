@@ -239,8 +239,10 @@ kikinvideo.VideoController =
         }
 
         function hideVideoBufferingOverlay(){
-            if($('#video-buffering-vid-'+curVID).length != 0)
+            if($('#video-buffering-vid-'+curVID).length != 0){
                 $('#video-buffering-vid-'+curVID).fadeOut(100);
+                vimeoSeekTarget = null;
+            }
         }
 
          function prepareEmbeds(){
