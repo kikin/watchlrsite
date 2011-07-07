@@ -82,6 +82,26 @@ kikinvideo.VideoController =
             prepareVidForPlayback(curVID);
         }
 
+        function getPlaybackPosition(onComplete){
+            var vid = curVID;
+            if (vid_player_mappings[vid].type == 'YouTube'){
+                try{
+                    onComplete(vid_player_mappings[vid].player.getCurrentTime());
+                }catch(excp){}
+            }if (vid_player_mappings[vid].type == 'Vimeo'){
+                try{
+                    vid_player_mappings[vid].player.api('getCurrentTime', function(value, pid){
+                        onComplete(parseFloat(value));
+                    });
+                }catch(excp){}
+            }if (vid_player_mappings[vid].type == 'html5'){
+                try{
+                    onComplete(vid_player_mappings[vid].player.currentTime);
+                }catch(excp){}
+            }
+
+        }
+
          function prepareVidForPlayback(){
              /*no preparation can occur until the player has loaded,
              * so proper prep logic is in onPlayerReady callback*/
@@ -238,6 +258,13 @@ kikinvideo.VideoController =
             }
         }
 
+        function hideVideoBufferingOverlay(){
+            if($('#video-buffering-vid-'+curVID).length != 0){
+                $('#video-buffering-vid-'+curVID).fadeOut(100);
+                vimeoSeekTarget = null;
+            }
+        }
+
          function prepareEmbeds(){
             $('.video-embed-wrapper.html5').each(function()
                 {
@@ -277,28 +304,29 @@ kikinvideo.VideoController =
 
                     if(obj.is('object')){
                         /*we're likely dealing with either a YouTube or a Vimeo embed...*/
+                        try{
+                            var embed = obj.children('embed')[0];
 
-                        
+                            var source = embed.src;
 
-                        var embed = obj.children('embed')[0];
+                            if (isYouTube(source)){
 
-                        var source = embed.src;
+                               var ytVID = youtubeVID(source);
 
-                        if (isYouTube(source)){
-
-                           var ytVID = youtubeVID(source);
-
-                           embed.id = 'youtube-embed-'+ytVID;
-                           /*remove the damn autoplay flag*/
-                           source = source.replace("autoplay=1", "autoplay=0");
-                           source += "&enablejsapi=1"+"&playerapiid="+embed.id;
-                           embed.src = source;
+                               embed.id = 'youtube-embed-'+ytVID;
+                               /*remove the damn autoplay flag*/
+                               source = source.replace("autoplay=1", "autoplay=0");
+                               source += "&enablejsapi=1"+"&playerapiid="+embed.id;
+                               embed.src = source;
 
 
-                            var player = embed;
+                                var player = embed;
 
-                            vid_player_mappings[vid] = {player:player, type:'YouTube', isReady:false};
-                            player_vid_mappings[player] = vid;
+                                vid_player_mappings[vid] = {player:player, type:'YouTube', isReady:false};
+                                player_vid_mappings[player] = vid;
+                            }
+                        }catch(excp){
+                            //likely, youtube embeds are broken
                         }
 
                     }
@@ -331,8 +359,8 @@ kikinvideo.VideoController =
         function _onVideoEnded(){
             //we want to toggle on leanback mode whenever we get to the end
             //of a video...
-            //mode = modes.LEANBACK;
-           // playNext();
+            mode = modes.LEANBACK;
+            playNext();
         }
 
         function queueNext(onComplete){
@@ -474,7 +502,8 @@ kikinvideo.VideoController =
             playNext : playNext,
             playPrevious : playPrevious,
             modes : modes,
-            setMode : setMode
+            setMode : setMode,
+            hideVideoBufferingOverlay : hideVideoBufferingOverlay
         }
     }
 
@@ -493,16 +522,29 @@ function vimeo_player_paused(event){
     videoController.savePosition();
 }
 
+//note: this is a hack...The youtube
+//player js api fires a "paused" event
+//after it fires an "ended" event.  Because
+//we have "save current position" functionality bound to the
+//"pause" event, we end up saving the user's playback
+//pos when scrubber's at video end, which we obviously
+//don't want to do, so we need to set a window during which we
+//will ignore "pause" events...(namely, one second within the
+//firing of the "ended" event.
+var endTimeout=true;
 function stateChangeListener(newState){
     //youtube iframe api provided a STATES var in
-    //YT namespace, but this swf variant of the api doesn't
-    //...state "2" == paused
-    if (newState == 2 && videoController.mode != videoController.modes.LEANBACK){
-        videoController.savePosition();
-    }
+    //YT namespace, but this swfobject variant of the api doesn't, so for
+    //ref, 0 is "ended" and 2 is "paused".
     //if video ended...
     if(newState == 0){
+        endTimeout=false;
         videoController._onVideoEnded();
+        setTimeout(function(){endTimeout=true;}, 1000);
+    }
+    //...state "2" == paused
+    else if (newState == 2 && videoController.mode != videoController.modes.LEANBACK && !endTimeout){
+        videoController.savePosition();
     }
 }
 
