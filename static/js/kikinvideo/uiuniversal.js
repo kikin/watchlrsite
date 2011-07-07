@@ -148,9 +148,7 @@ kikinvideo.UIUniversal =
 
                 //pause video if it is html5
                 if($.browser.webkit){
-                        videoController.setMode(videoController.modes.NORMAL);
-                        videoController.pauseVideo();
-                        videoController.savePosition();
+                        videoController.handleClose();
                 }
                 
                 trackEvent('Video', 'ClosePlayer');

@@ -74,9 +74,9 @@ kikinvideo.VideoController =
         function setCurVid(vid){
             curVID = vid;
             if(vid_player_mappings[vid]){
-            if (vid_player_mappings[vid].type == 'Vimeo' ||
-                    vid_player_mappings[vid].type == 'html5')
-                prepareVidForPlayback();
+                if (vid_player_mappings[vid].type == 'Vimeo' ||
+                        vid_player_mappings[vid].type == 'html5')
+                    prepareVidForPlayback();
             }
         }
 
@@ -260,6 +260,8 @@ kikinvideo.VideoController =
                     $('#video-buffering-vid-'+curVID).fadeOut(500);
                     playVideo();
                     vimeoSeekTarget = null;
+                }else{
+                    
                 }
             }
         }
@@ -491,6 +493,17 @@ kikinvideo.VideoController =
             mode = nextMode;
         }
 
+        function handleClose(){
+            var vid = curVID;
+            setMode(videoController.modes.NORMAL);
+            pauseVideo();
+            savePosition();
+            if(vid_player_mappings[vid].type == 'Vimeo'){
+                $('#video-buffering-vid-'+vid).css({display:'none'});
+                vimeoSeekTarget = null;
+            }
+        }
+
         return {
             _vid_player_mappings : vid_player_mappings,
             _player_vid_mappings : player_vid_mappings,
@@ -509,7 +522,8 @@ kikinvideo.VideoController =
             playPrevious : playPrevious,
             modes : modes,
             setMode : setMode,
-            hideVideoBufferingOverlay : hideVideoBufferingOverlay
+            hideVideoBufferingOverlay : hideVideoBufferingOverlay,
+            handleClose : handleClose
         }
     }
 
