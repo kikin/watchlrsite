@@ -277,28 +277,29 @@ kikinvideo.VideoController =
 
                     if(obj.is('object')){
                         /*we're likely dealing with either a YouTube or a Vimeo embed...*/
+                        try{
+                            var embed = obj.children('embed')[0];
 
-                        
+                            var source = embed.src;
 
-                        var embed = obj.children('embed')[0];
+                            if (isYouTube(source)){
 
-                        var source = embed.src;
+                               var ytVID = youtubeVID(source);
 
-                        if (isYouTube(source)){
-
-                           var ytVID = youtubeVID(source);
-
-                           embed.id = 'youtube-embed-'+ytVID;
-                           /*remove the damn autoplay flag*/
-                           source = source.replace("autoplay=1", "autoplay=0");
-                           source += "&enablejsapi=1"+"&playerapiid="+embed.id;
-                           embed.src = source;
+                               embed.id = 'youtube-embed-'+ytVID;
+                               /*remove the damn autoplay flag*/
+                               source = source.replace("autoplay=1", "autoplay=0");
+                               source += "&enablejsapi=1"+"&playerapiid="+embed.id;
+                               embed.src = source;
 
 
-                            var player = embed;
+                                var player = embed;
 
-                            vid_player_mappings[vid] = {player:player, type:'YouTube', isReady:false};
-                            player_vid_mappings[player] = vid;
+                                vid_player_mappings[vid] = {player:player, type:'YouTube', isReady:false};
+                                player_vid_mappings[player] = vid;
+                            }
+                        }catch(excp){
+                            //likely, youtube embeds are broken
                         }
 
                     }
