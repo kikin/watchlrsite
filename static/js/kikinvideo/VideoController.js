@@ -359,8 +359,8 @@ kikinvideo.VideoController =
         function _onVideoEnded(){
             //we want to toggle on leanback mode whenever we get to the end
             //of a video...
-            mode = modes.LEANBACK;
-            playNext();
+        //    mode = modes.LEANBACK;
+         //   playNext();
         }
 
         function queueNext(onComplete){
