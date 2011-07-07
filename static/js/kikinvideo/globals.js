@@ -164,8 +164,6 @@ function hideErrorDialog(){
 }
 
 function trackEvent(category, action){
-
-
     switch(activeView){
         case VIEWS.activity:
              _gaq.push(['_trackEvent', category, action + '_Activity', 'web_app']);
@@ -189,7 +187,7 @@ function trackEvent(category, action){
 
 function registerPageview(){
     try{
-        var hashURLPath = parseHashURL(window.location.hash).path;
-        _gaq.push(['_trackPageView', hashURLPath]);
+        var tracker = _gat._getTracker('UA-4788978-3');
+        tracker._trackPageview(window.location.hash);
     }catch(excp){}
 }
