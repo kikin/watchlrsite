@@ -129,12 +129,6 @@ kikinvideo.UIUniversal =
                         videoController.setCurVid(vid);
                     }
 
-                    if (activeView == VIEWS.activity){
-                        trackEvent('Video', 'OpenPlayer_Activity');
-                    }else{
-                        trackEvent('Video', 'OpenPlayer_Queue');
-                    }
-
                     trackEvent('Video', 'OpenPlayer');
                 }
             }
@@ -158,13 +152,7 @@ kikinvideo.UIUniversal =
                         videoController.pauseVideo();
                         videoController.savePosition();
                 }
-
-                if (activeView == VIEWS.activity){
-                    trackEvent('Video', 'ClosePlayer_Activity');
-                }else{
-                    trackEvent('Video', 'ClosePlayer_Queue');
-                }
-
+                
                 trackEvent('Video', 'ClosePlayer');
             }
 

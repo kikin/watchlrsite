@@ -163,5 +163,24 @@ function hideErrorDialog(){
 }
 
 function trackEvent(category, action){
+
+
+    switch(activeView){
+        case VIEWS.activity:
+             _gaq.push(['_trackEvent', category, action + '_Activity', 'web_app']);
+        break;
+        case VIEWS.profile:
+           _gaq.push(['_trackEvent', category, action + '_Profile', 'web_app']);
+       break;
+        case VIEWS.detail:
+            _gaq.push(['_trackEvent', category, action + '_Detail', 'web_app']);
+        break;
+        case VIEWS.savedQueue:
+            _gaq.push(['_trackEvent', category, action + '_Queue', 'web_app']);
+        break;
+        case VIEWS.likedQueue:
+            _gaq.push(['_trackEvent', category, action + '_Queue', 'web_app']);
+    }
+
     _gaq.push(['_trackEvent', category, action, 'web_app']);
 }
