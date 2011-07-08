@@ -193,10 +193,13 @@ kikinvideo.UIUniversal =
                                 if(data){
                                     if(data.code && (data.code == 406 || data.code == 409)){
                                         if(data.code == '406'){
-                                            $('#err-display').html('Usernames can consist only of numbers, lowercase letters and periods, and may not contain spaces');
+                                            var errMsg = 'Usernames can consist only of numbers, lowercase letters and periods, and may not contain spaces'
+                                                + ' (for example "<a href="javascript:$(\'#username-input\').val(\''+data.error+'\');">'+data.error+'</a>")';
+                                            $('#err-display').html(errMsg);
                                         }if(data.code == '409'){
                                             $('#err-display').html('The username you have entered is already in use');
                                         }
+                                        $('#username-input').focus();
                                         $(PROFILE_EDIT_PANEL_SELECTOR).height(258);
                                         $('#err-display').show();
                                     }
