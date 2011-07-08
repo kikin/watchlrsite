@@ -181,6 +181,11 @@ a:hover {
     width: 0;
 }
 
+.mozilla #header-right .gbma{
+    top:3px;
+    left:11px;
+}
+
 .win.webkit534 #header-right .gbma {
     top: 10px;
 }
