@@ -520,7 +520,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
     debug : function(str) {
         //if (!$ks.__PRODUCTION__) {
             try {
-                // console.log(str);
+                console.log(str);
                 // alert(str);
             } catch (e) {}
         //}
@@ -534,13 +534,13 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             var embeds = [];
 
             var embed_tags = $('embed');
-            // this.debug('Found ' + embed_tags.length + ' embeds');
+            this.debug('Found ' + embed_tags.length + ' embeds');
             for (var i = 0; i < embed_tags.length; i++) {
                 embeds.push(embed_tags[i]);
             }
 
             var objects = $('object');
-            // this.debug('Found ' + objects.length + ' objects');
+            this.debug('Found ' + objects.length + ' objects');
             for (var i = 0; i < objects.length; i++) {
                 if (!/<embed/i.test(objects[i].innerHTML) || (!/<object/i.test(objects[i].innerHTML))) {
                     embeds.push(objects[i]);
@@ -548,20 +548,20 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             }
 
             var iframes = $('iframe');
-            // this.debug('Found ' + iframes.length + ' iframes');
+            this.debug('Found ' + iframes.length + ' iframes');
             for (var i = 0; i < iframes.length; i++) {
                 embeds.push(iframes[i]);
             }
 
             var videos = $('video');
-            // this.debug('Found ' + videos.length + ' videos');
+            this.debug('Found ' + videos.length + ' videos');
             for (var i = 0; i < videos.length; i++) {
                 embeds.push(videos[i]);
             }
 
             return embeds;
         } catch (err) {
-            // alert("from: _findFlashVideoCandidates of base KikinVideoAdapter. \n Reason:" + err);
+            this.debug("from: _findFlashVideoCandidates of base KikinVideoAdapter. \n Reason:" + err);
             //$kat.trackError({from: "_findFlashVideoCandidates of base KikinVideoAdapter.", exception:err});
         }
 
@@ -597,7 +597,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             // this.debug("Number of videos found:" + this.videos.length);
         } catch (err) {
-            // alert("from: _findFlashVideos of base KikinVideoAdapter. \nReason:" + err);
+            this.debug("from: _findFlashVideos of base KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError({from: "_findFlashVideos of base KikinVideoAdapter.", exception:err});
         }
     },
@@ -638,7 +638,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     } else if (match.video_id) {
                         // this.debug('Found video with id: ' + match.video_id);
                         if (typeof(oService.url) == 'function') {
-                            // this.debug('Using URL:' + oService.url(match.video_id));
+                            this.debug('Using URL:' + oService.url(match.video_id));
                             return oService.url(match.video_id);
                         } else {
                             // this.debug("Video ids:" + match.video_id);
@@ -685,7 +685,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             return video;
         } catch (err) {
-            // alert("from: _addVideo of base KikinVideoAdapter. \n Reason:" + err);
+            this.debug("from: _addVideo of base KikinVideoAdapter. \n Reason:" + err);
             // $kat.trackError({from: "_addVideo of base KikinVideoAdapter.", msg:"Error while adding kikin video.", exception:err});
         }
     },
@@ -714,7 +714,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             embed.onmouseout = _onVideoMouseOut;
             // this.debug('Added mouse events successfully for embed:' + embed);
         } catch (e) {
-            // alert("From: _addMouse events. \n Reason:" + e);
+            this.debug("From: _addMouse events. \n Reason:" + e);
         }
 
         // If attachEvent is supported listen mouse events using attachEvent
@@ -724,7 +724,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 embed.attachEvent('onmouseout', _onVideoMouseOut);
                 // this.debug('Attached mouse events successfully for embed:' + embed);
             } catch (e) {
-                // alert("From: _addMouse events. \n Reason:" + e);
+                this.debug("From: _addMouse events. \n Reason:" + e);
             }
         }
 
@@ -735,7 +735,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 embed.addEventListener('mouseoout', _onVideoMouseOut, false);
                 // this.debug('Added events listeners for mouse events successfully for embed:' + embed);
             } catch (e) {
-                // alert("From: _addMouse events. \n Reason:" + e);
+                this.debug("From: _addMouse events. \n Reason:" + e);
             }
         }
     },
@@ -799,37 +799,42 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
     _createKikinBorder : function() {
         try {
+
+
             $($('head').get(0)).append('<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=PT%20Sans">');
             $cwutil.Styles.insert('VideoBorderStyles', document);
             // create a div tag for the video
             $(document.body).append($cws.html['VideoBorder']);
             this.kikinVideoBorder = $('#watchlr-video-border');
 
-            $(this.kikinVideoBorder).find('#like-btn-text').html(this._localize('like'));
 
+            $cwutil.Styles.addCSSHelperClasses(this.kikinVideoBorder);
+
+            $(this.kikinVideoBorder).find('#watchlr-like-btn-text').html(this._localize('like'));
+            // this.debug('Changing like button image because kikin border is created.');
             $(this.kikinVideoBorder).find('#watchlr-logo').click($.proxy(this._handleVisitingVideoPageRequested, this));
-            $(this.kikinVideoBorder).find('#watch-later-btn-img').click($.proxy(this._onSaveButtonClicked, this));
-            $(this.kikinVideoBorder).find('#watch-later-btn-text').click($.proxy(this._onSaveButtonClicked, this));
-            $(this.kikinVideoBorder).find('#like-btn-img').click($.proxy(this._onLikeButtonClicked, this));
-            $(this.kikinVideoBorder).find('#like-btn-text').click($.proxy(this._onLikeButtonClicked, this));
+            $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img').click($.proxy(this._onSaveButtonClicked, this));
+            $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text').click($.proxy(this._onSaveButtonClicked, this));
+            $(this.kikinVideoBorder).find('#watchlr-like-btn-img').click($.proxy(this._onLikeButtonClicked, this));
+            $(this.kikinVideoBorder).find('#watchlr-like-btn-text').click($.proxy(this._onLikeButtonClicked, this));
 
-            $(this.kikinVideoBorder).find('#options-button').mouseenter($.proxy(this._onSaveButtonMouseOver, this));
-            $(this.kikinVideoBorder).find('#options-button').mouseleave($.proxy(this._onSaveButtonMouseOut, this));
+            $(this.kikinVideoBorder).find('#watchlr-options-button').mouseenter($.proxy(this._onSaveButtonMouseOver, this));
+            $(this.kikinVideoBorder).find('#watchlr-options-button').mouseleave($.proxy(this._onSaveButtonMouseOut, this));
 
             $(this.kikinVideoBorder).find('#watchlr-logo').mouseenter($.proxy(this._onWatclrLogoMouseEnter, this));
-            $(this.kikinVideoBorder).find('#watch-later-btn-img').mouseenter($.proxy(this._onSaveButtonMouseEnter, this));
-            $(this.kikinVideoBorder).find('#watch-later-btn-text').mouseenter($.proxy(this._onSaveButtonMouseEnter, this));
-            $(this.kikinVideoBorder).find('#like-btn-img').mouseenter($.proxy(this._onLikeButtonMouseEnter, this));
-            $(this.kikinVideoBorder).find('#like-btn-text').mouseenter($.proxy(this._onLikeButtonMouseEnter, this));
+            $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img').mouseenter($.proxy(this._onSaveButtonMouseEnter, this));
+            $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text').mouseenter($.proxy(this._onSaveButtonMouseEnter, this));
+            $(this.kikinVideoBorder).find('#watchlr-like-btn-img').mouseenter($.proxy(this._onLikeButtonMouseEnter, this));
+            $(this.kikinVideoBorder).find('#watchlr-like-btn-text').mouseenter($.proxy(this._onLikeButtonMouseEnter, this));
 
             $(this.kikinVideoBorder).find('#watchlr-logo').mouseleave($.proxy(this._onWatclrLogoMouseLeave, this));
-            $(this.kikinVideoBorder).find('#watch-later-btn-img').mouseleave($.proxy(this._onSaveButtonMouseLeave, this));
-            $(this.kikinVideoBorder).find('#watch-later-btn-text').mouseleave($.proxy(this._onSaveButtonMouseLeave, this));
-            $(this.kikinVideoBorder).find('#like-btn-img').mouseleave($.proxy(this._onLikeButtonMouseLeave, this));
-            $(this.kikinVideoBorder).find('#like-btn-text').mouseleave($.proxy(this._onLikeButtonMouseLeave, this));
+            $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img').mouseleave($.proxy(this._onSaveButtonMouseLeave, this));
+            $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text').mouseleave($.proxy(this._onSaveButtonMouseLeave, this));
+            $(this.kikinVideoBorder).find('#watchlr-like-btn-img').mouseleave($.proxy(this._onLikeButtonMouseLeave, this));
+            $(this.kikinVideoBorder).find('#watchlr-like-btn-text').mouseleave($.proxy(this._onLikeButtonMouseLeave, this));
 
         } catch (e) {
-            // alert("from: createKikinBorder of base KikinVideoAdapter. \nReason:" + e);
+            this.debug("from: createKikinBorder of base KikinVideoAdapter. \nReason:" + e);
             // $kat.trackError({from:"createKikinBorder of base KikinVideoAdapter", msg: "Unable to create the border around video.", exception:e});
         }
     },
@@ -851,7 +856,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     'width'  : '' + this.BORDER_WIDTH + 'px',
                     'height' : '' + height + 'px'
                 };
-                $(this.kikinVideoBorder).find('#left-border').css(leftBorderStyle);
+                $(this.kikinVideoBorder).find('#watchlr-left-border').css(leftBorderStyle);
 
 
                 // this.debug("Left border is created with dimensions:" + leftBorder.style.left + "," + leftBorder.style.top + ", " + leftBorder.style.width + ", " + leftBorder.style.height);
@@ -863,7 +868,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     'width'  : '' + this.BORDER_WIDTH + 'px',
                     'height' : '' + height + 'px'
                 };
-                $(this.kikinVideoBorder).find('#right-border').css(rightBorderStyle);
+                $(this.kikinVideoBorder).find('#watchlr-right-border').css(rightBorderStyle);
 
 
                 // this.debug("Right border is created with dimensions:" + rightBorder.style.left + "," + rightBorder.style.top + ", " + rightBorder.style.width + ", " + rightBorder.style.height);
@@ -875,7 +880,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     'width'  : '' + (width + (2 * this.BORDER_WIDTH)) + 'px',
                     'height' : '' + this.BORDER_WIDTH + 'px'
                 };
-                $(this.kikinVideoBorder).find('#top-border').css(topBorderStyle);
+                $(this.kikinVideoBorder).find('#watchlr-top-border').css(topBorderStyle);
 
                 // this.debug("Top border is created with dimensions:" + topBorder.style.left + "," + topBorder.style.top + ", " + topBorder.style.width + ", " + topBorder.style.height);
 
@@ -886,36 +891,43 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     'width'  : '' + (width + (2 * this.BORDER_WIDTH)) + 'px',
                     'height' : '' + this.BORDER_WIDTH + 'px'
                 };
-                var bottomBorder = $(this.kikinVideoBorder).find('#bottom-border');
+                var bottomBorder = $(this.kikinVideoBorder).find('#watchlr-bottom-border');
                 $(bottomBorder).css(bottomBorderStyle);
 
                 if (saved) {
-                    $(this.kikinVideoBorder).find('#watch-later-btn-text').html(this._localize('btnSaved'));
-                    $(this.kikinVideoBorder).find('#watch-later-btn-img').removeClass();
-                    $(this.kikinVideoBorder).find('#watch-later-btn-img').addClass("watchlr-image saved-button-image");
+                    $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text').html(this._localize('btnSaved'));
+                    $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img').removeClass();
+                    $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img').addClass("watchlr-image watchlr-saved-button-image");
                 } else if (!this.selectedVideo.savingVideo) {
-                    $(this.kikinVideoBorder).find('#watch-later-btn-text').html(this._localize('btnSave'));
-                    $(this.kikinVideoBorder).find('#watch-later-btn-img').removeClass();
-                    $(this.kikinVideoBorder).find('#watch-later-btn-img').addClass("watchlr-image watch-later-button-image");
+                    $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text').html(this._localize('btnSave'));
+                    $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img').removeClass();
+                    $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img').addClass("watchlr-image watchlr-watch-later-button-image");
                 }
 
-
-                var kikinLikeBtn = $(this.kikinVideoBorder).find('#like-btn-img');
-                var likeBtnText = $(this.kikinVideoBorder).find('#like-btn-text');
+                // this.debug('Changing like button image because we are drawing kikin border.');
+                var kikinLikeBtn = $(this.kikinVideoBorder).find('#watchlr-like-btn-img');
+                var likeBtnText = $(this.kikinVideoBorder).find('#watchlr-like-btn-text');
                 // var kikinLikeBtnText = $(this.kikinVideoBorder).find('#kikinLikeBtnText');
                 if (liked) {
                     $(kikinLikeBtn).removeClass();
-                    $(kikinLikeBtn).addClass('watchlr-image like-button-image');
+                    $(kikinLikeBtn).addClass('watchlr-image watchlr-like-button-image');
                     $(likeBtnText).html(this._localize('liked'));
+                    $(likeBtnText).css('margin', '0 5px 0 5px');
                 } else {
                     $(kikinLikeBtn).removeClass();
-                    $(kikinLikeBtn).addClass('watchlr-image unlike-button-image');
+                    $(kikinLikeBtn).addClass('watchlr-image watchlr-unlike-button-image');
                     $(likeBtnText).html(this._localize('like'));
+                    $(likeBtnText).css('margin', '0 10px 0 5px');
                 }
 
-                var saveButton =  $(this.kikinVideoBorder).find('#options-button');
-                var saveButtonTop = parseInt($(bottomBorder).css('top'));
+                // If value was added by css, there is no method to get it in FF3.6 when
+                // position=absolute and display=none
+                // because of this stupid bug in jquery for FF3.6, we have to show the element
+                // first and then calculate the position of bottom border
+                $(this.kikinVideoBorder).show();
 
+                var saveButton =  $(this.kikinVideoBorder).find('#watchlr-options-button');
+                var saveButtonTop = parseInt($(bottomBorder).css('top'));
                 var saveButtonLeft = parseInt($(bottomBorder).css('left')) +
                                      parseInt($(bottomBorder).css('width')) -
                                      (parseInt($(saveButton).css('width')) + /*paddign*/23);
@@ -925,9 +937,9 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     'top'  : '' + saveButtonTop + 'px'
                 });
 
-                $(this.kikinVideoBorder).show();
+
             } catch (e) {
-                // alert('from: drawKikinBorder of base KikinVideoAdapter. \nReason:' + e);
+                this.debug('from: drawKikinBorder of base KikinVideoAdapter. \nReason:' + e);
                 // $kat.trackError({from: "drawKikinBorder of base KikinVideoAdapter", msg: "Unable to reposition border around video.", exception:e});
             }
         }
@@ -967,7 +979,6 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 // offsetTop = element.scrollTop - (absolute position of video in the element)
                 var parentElement = oldParent;
                 while (parentElement && (parentElement != parent)) {
-                    // alert(parentElement);
                     // this.debug('Parent element: ' + parentElement.tagName);
                     var overFlow = $(parentElement).css('overflow');
                     if (overFlow && (overFlow == "scroll" || overFlow == "auto")) {
@@ -1009,7 +1020,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             return coordinates;
         } catch (e) {
-            // alert('from: getVideoCoordinates of base KikinVideoAdapter. \nReason:' + e);
+            this.debug('from: getVideoCoordinates of base KikinVideoAdapter. \nReason:' + e);
             // $kat.trackError({from: "getVideoCoordinates of base KikinVideoAdapter", msg: "Unable to calculate the coordinates for video.", exception:e});
         }
 
@@ -1069,32 +1080,34 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
                     // if selected video is different than the video saved in the object
                     // hide the saved object video if it is visible
-                    if (this.selectedVideo && (this.selectedVideo != selectedVideo)) {
+                    if (this.selectedVideo && this.selectedVideo != selectedVideo) {
                         $(this.kikinVideoBorder).fadeOut();
-                        // this.kikinVideoBorder.style.visibility = "hidden";
                         this.selectedVideo.videoSelected = false;
-                        this.selectedVideo.shareButtonSelected = false;
+                        this.selectedVideo.saveButtonSelected = false;
                     }
 
                     // set the new selected video
                     this.selectedVideo = selectedVideo;
 
+                    // if border is not visible, then draw the border
+                    var kikinBorderVisibility = $(this.kikinVideoBorder).css('display');
+                    // this.debug("CSS border is visible:" + kikinBorderVisibility);
+                    if (!kikinBorderVisibility || kikinBorderVisibility == 'none') {
+                        // calculate the coordinates for video
+                        selectedVideo.coordinates = this._getVideoCoordinates(target);
 
+                        if (selectedVideo.coordinates) {
+                            // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
 
-                    // calculate the coordinates for video
-                    selectedVideo.coordinates = this._getVideoCoordinates(target);
-
-                    if (selectedVideo.coordinates) {
-                        // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
-
-                        // draw the border around video
-                        this._drawKikinBorder(selectedVideo.coordinates.left,
-                                              selectedVideo.coordinates.top,
-                                              selectedVideo.coordinates.width,
-                                              selectedVideo.coordinates.height,
-                                              selectedVideo.saved,
-                                              selectedVideo.liked,
-                                              selectedVideo.likes);
+                            // draw the border around video
+                            this._drawKikinBorder(selectedVideo.coordinates.left,
+                                                  selectedVideo.coordinates.top,
+                                                  selectedVideo.coordinates.width,
+                                                  selectedVideo.coordinates.height,
+                                                  selectedVideo.saved,
+                                                  selectedVideo.liked,
+                                                  selectedVideo.likes);
+                        }
                     }
 
                     selectedVideo.videoSelected = true;
@@ -1108,7 +1121,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }
             }
         } catch (err) {
-            // alert('from: onVideoMouseOver of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: onVideoMouseOver of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onVideoMouseOver of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1163,11 +1176,17 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
                         // if mouse is not over the video or share button of the video
                         // hide the video
+                        this.debug('selected video: ' + selectedVideo +
+                            '\nShare Button Selected: ' + selectedVideo.saveButtonSelected +
+                            '\nVideo selected: ' + selectedVideo.videoSelected +
+                            '\nSaving video: ' + selectedVideo.savingVideo +
+                            '\nLiking video: ' + selectedVideo.likingVideo
+                        );
                         if (selectedVideo &&
-                        	!selectedVideo.shareButtonSelected &&
+                        	!selectedVideo.saveButtonSelected &&
                             !selectedVideo.videoSelected &&
-                            !this.selectedVideo.savingVideo &&
-                            !this.selectedVideo.likingVideo)
+                            !selectedVideo.savingVideo &&
+                            !selectedVideo.likingVideo)
                         {
                             // $(this.kikinVideoBorder).css('visibility', 'hidden');
                             $(this.kikinVideoBorder).fadeOut();
@@ -1183,7 +1202,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 }
             }
         } catch (err) {
-            // alert('from: onVideoMouseOut of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: onVideoMouseOut of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onVideoMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1197,9 +1216,9 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             // this.debug("On button mouse over");
             if (e) e.stopPropagation();
 
-            this.selectedVideo.shareButtonSelected = true;
+            this.selectedVideo.saveButtonSelected = true;
         } catch (err) {
-            // alert('from: onSaveButtonMouseOver of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: onSaveButtonMouseOver of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOver of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1214,24 +1233,32 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             // this.debug("On button mouse out");
 
-            this.selectedVideo.shareButtonSelected = false;
+            this.selectedVideo.saveButtonSelected = false;
 
             // hide the border after 1 second
             setTimeout($.proxy(function() {
+                var selectedVideo = this.selectedVideo;
 
                 // if mouse is not over share button or video,
                 // hide the border
-                var selectedVideo = this.selectedVideo;
-                if (!selectedVideo.shareButtonSelected &&
+                this.debug('selected video: ' + selectedVideo +
+                    '\nShare Button Selected: ' + selectedVideo.saveButtonSelected +
+                    '\nVideo selected: ' + selectedVideo.videoSelected +
+                    '\nSaving video: ' + selectedVideo.savingVideo +
+                    '\nLiking video: ' + selectedVideo.likingVideo
+                );
+                if (selectedVideo &&
+                    !selectedVideo.saveButtonSelected &&
                     !selectedVideo.videoSelected &&
-                    !this.selectedVideo.savingVideo &&
-                    !this.selectedVideo.likingVideo)
+                    !selectedVideo.savingVideo &&
+                    !selectedVideo.likingVideo)
                 {
+                    // $(this.kikinVideoBorder).css('visibility', 'hidden');
                     $(this.kikinVideoBorder).fadeOut();
                 }
             }, this), 1000);
         } catch (err) {
-            // alert('from: onSaveButtonMouseOut of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: onSaveButtonMouseOut of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1244,7 +1271,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             $(watchlrLogoImg).removeClass();
             $(watchlrLogoImg).addClass('watchlr-image watchlr-logo-hover-image');
         } catch (err) {
-            // alert('from: _onWatclrLogoMouseEnter of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: _onWatclrLogoMouseEnter of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1252,23 +1279,23 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
     _onSaveButtonMouseEnter : function(e) {
         try {
             if (e) e.stopPropagation();
+            if (!this.selectedVideo.savingVideo) {
+                var watchLaterButtonImg = $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img');
+                $(watchLaterButtonImg).removeClass();
+                if (this.selectedVideo.saved) {
+                    $(watchLaterButtonImg).addClass('watchlr-image watchlr-saved-button-hover-image');
+                } else {
+                    $(watchLaterButtonImg).addClass('watchlr-image watchlr-watch-later-button-hover-image');
+                }
 
-            var watchLaterButtonImg = $(this.kikinVideoBorder).find('#watch-later-btn-img');
-            $(watchLaterButtonImg).removeClass();
-            if (this.selectedVideo.saved) {
-                $(watchLaterButtonImg).addClass('watchlr-image saved-button-hover-image');
-            } else {
-                $(watchLaterButtonImg).addClass('watchlr-image watch-later-button-hover-image');
+                var watchLaterButtonText = $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text');
+                $(watchLaterButtonText).css({
+                    'color': '#000000'
+                });
             }
 
-            var watchLaterButtonText = $(this.kikinVideoBorder).find('#watch-later-btn-text');
-            $(watchLaterButtonText).css({
-                'text-decoration': 'underline',
-                'color': '#000000'
-            });
-
         } catch (err) {
-            // alert('from: _onSaveButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: _onSaveButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1277,24 +1304,26 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         try {
             if (e) e.stopPropagation();
 
-            var likeButtonImg = $(this.kikinVideoBorder).find('#like-btn-img');
+            if (!this.selectedVideo.likingVideo) {
+                // this.debug('Changing like button image because user mouse overed the like button.');
+                var likeButtonImg = $(this.kikinVideoBorder).find('#watchlr-like-btn-img');
 
-            if (this.selectedVideo.liked) {
-                // $(likeButtonImg).removeClass();
-                // $(likeButtonImg).addClass('watchlr-image like-button-hover-image');
-            } else {
-                $(likeButtonImg).removeClass();
-                $(likeButtonImg).addClass('watchlr-image unlike-button-hover-image');
+                if (this.selectedVideo.liked) {
+                    $(likeButtonImg).removeClass();
+                    $(likeButtonImg).addClass('watchlr-image watchlr-like-button-hover-image');
+                } else {
+                    $(likeButtonImg).removeClass();
+                    $(likeButtonImg).addClass('watchlr-image watchlr-unlike-button-hover-image');
+                }
+
+                var likeButtonText = $(this.kikinVideoBorder).find('#watchlr-like-btn-text');
+                $(likeButtonText).css({
+                    'color': '#000000'
+                });
             }
 
-            var likeButtonText = $(this.kikinVideoBorder).find('#like-btn-text');
-            $(likeButtonText).css({
-                'text-decoration': 'underline',
-                'color': '#000000'
-            });
-
         } catch (err) {
-            // alert('from: _onLikeButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: _onLikeButtonMouseEnter of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1307,7 +1336,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             $(watchlrLogoImg).removeClass();
             $(watchlrLogoImg).addClass('watchlr-image watchlr-logo-image');
         } catch (err) {
-            // alert('from: _onWatclrLogoMouseLeave of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: _onWatclrLogoMouseLeave of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1316,22 +1345,23 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         try {
             if (e) e.stopPropagation();
 
-            var watchLaterButtonImg = $(this.kikinVideoBorder).find('#watch-later-btn-img');
-            $(watchLaterButtonImg).removeClass();
-            if (this.selectedVideo.saved) {
-                $(watchLaterButtonImg).addClass('watchlr-image saved-button-image');
-            } else {
-                $(watchLaterButtonImg).addClass('watchlr-image watch-later-button-image');
+            if (!this.selectedVideo.savingVideo) {
+                var watchLaterButtonImg = $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img');
+                $(watchLaterButtonImg).removeClass();
+                if (this.selectedVideo.saved) {
+                    $(watchLaterButtonImg).addClass('watchlr-image watchlr-saved-button-image');
+                } else {
+                    $(watchLaterButtonImg).addClass('watchlr-image watchlr-watch-later-button-image');
+                }
+
+                var watchLaterButtonText = $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text');
+                $(watchLaterButtonText).css({
+                    'color': '#ffffff'
+                });
             }
 
-            var watchLaterButtonText = $(this.kikinVideoBorder).find('#watch-later-btn-text');
-            $(watchLaterButtonText).css({
-                'text-decoration': 'none',
-                'color': '#ffffff'
-            });
-
         } catch (err) {
-            // alert('from: _onSaveButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: _onSaveButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1340,22 +1370,24 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         try {
             if (e) e.stopPropagation();
 
-            var likeButtonImg = $(this.kikinVideoBorder).find('#like-btn-img');
-            $(likeButtonImg).removeClass();
-            if (this.selectedVideo.liked) {
-                $(likeButtonImg).addClass('watchlr-image like-button-image');
-            } else {
-                $(likeButtonImg).addClass('watchlr-image unlike-button-image');
+            if (!this.selectedVideo.likingVideo) {
+                // this.debug('Changing like button image because user mouse out the like button.');
+                var likeButtonImg = $(this.kikinVideoBorder).find('#watchlr-like-btn-img');
+                $(likeButtonImg).removeClass();
+                if (this.selectedVideo.liked) {
+                    $(likeButtonImg).addClass('watchlr-image watchlr-like-button-image');
+                } else {
+                    $(likeButtonImg).addClass('watchlr-image watchlr-unlike-button-image');
+                }
+
+                var likeButtonText = $(this.kikinVideoBorder).find('#watchlr-like-btn-text');
+                $(likeButtonText).css({
+                    'color': '#ffffff'
+                });
             }
 
-            var likeButtonText = $(this.kikinVideoBorder).find('#like-btn-text');
-            $(likeButtonText).css({
-                'text-decoration': 'none',
-                'color': '#ffffff'
-            });
-
         } catch (err) {
-            // alert('from: _onLikeButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: _onLikeButtonMouseLeave of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonMouseOut of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1378,12 +1410,12 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 if (!this.selectedVideo.saved) {
 
                     // change the save button to saving spinner
-                    var saveButton = $(this.kikinVideoBorder).find('#watch-later-btn-img');
+                    var saveButton = $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img');
                     $(saveButton).removeClass();
-                    $(saveButton).addClass("watchlr-image spinner-image");
+                    $(saveButton).addClass("watchlr-image watchlr-spinner-image");
 
                     // change the save button text to saving...
-                    $($(this.kikinVideoBorder).find('#watch-later-btn-text')).html(this._localize('btnSaving'));
+                    $($(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text')).html(this._localize('btnSaving'));
 
                     this.selectedVideo.savingVideo = true;
                     $cws.WatchlrRequests.sendSaveVideoRequest($.proxy(this._updateButtonState, this), this.selectedVideo.url);
@@ -1397,11 +1429,11 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     });*/
                 }
             } catch (e) {
-                // alert('from: onSaveButtonClicked of base KikinVideoAdapter. \nReason:' + e);
+                this.debug('from: onSaveButtonClicked of base KikinVideoAdapter. \nReason:' + e);
                 // $kat.trackError({ from: 'onSaveButtonClicked of base KikinVideoAdapter', msg: 'error while saving video', exception: e });
             }
         } catch (err) {
-            // alert('from: onSaveButtonClicked of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: onSaveButtonClicked of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "onSaveButtonClicked of base KikinVideoAdapter", exception:err});
         }
     },
@@ -1420,20 +1452,19 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             // this.debug("On button mouse clicked");
 
             try {
-                // change the like button to saving spinner
-                var likeButton = $(this.kikinVideoBorder).find('#like-btn-img');
-                $(likeButton).removeClass();
-                $(likeButton).addClass("watchlr-image spinner-image");
-
-                // change the save button text to liking...
-                // $($(this.kikinVideoBorder).find('#watch-later-btn-text')).html(this._localize('btnSaving'));
-
-                this.selectedVideo.likingVideo = true;
 
                 // If we don't have to show the push to facebook dialog, then make the request to server
                 // else we are going to make the call when user closes the push to facebook dialog.
 
                 if (!this.selectedVideo.liked) {
+                    // change the like button to saving spinner
+                    // change the save button text to liking...
+                    // this.debug('Changing like button image because user clicked the like button.');
+                    var likeButton = $(this.kikinVideoBorder).find('#watchlr-like-btn-img');
+                    $(likeButton).removeClass();
+                    $(likeButton).addClass("watchlr-image watchlr-spinner-image");
+                    this.selectedVideo.likingVideo = true;
+
                     if (this._showFbPushDialog) {
                         var oAlert = new $cwui.modalwin.FirstVideoLikedWindow();
                         oAlert.bind('close', $.proxy(this._onPushToFacebookWindowClosed, this));
@@ -1449,7 +1480,16 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     window.open(this.WATCHLR_COM + '#!/liked_queue');
                 }
 
-                /*if (this._showFbPushDialog) {
+                /*
+                // change the like button to saving spinner
+                    // change the save button text to liking...
+                    this.debug('Changing like button image because user clicked the like button.');
+                    var likeButton = $(this.kikinVideoBorder).find('#watchlr-like-btn-img');
+                    $(likeButton).removeClass();
+                    $(likeButton).addClass("watchlr-image watchlr-spinner-image");
+                    this.selectedVideo.likingVideo = true;
+
+                if (this._showFbPushDialog) {
                     var oAlert = new $cwui.modalwin.FirstVideoLikedWindow();
                     oAlert.bind('close', $.proxy(this._onPushToFacebookWindowClosed, this));
                     oAlert.bind('visituserprofilepage', $.proxy(this._handleVisitingVideoPageRequested, this));
@@ -1468,11 +1508,11 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     }
                 } */
             } catch (e) {
-                // alert('from: onLikeButtonClicked of base KikinVideoAdapter. \nReason:' + e);
+                this.debug('from: onLikeButtonClicked of base KikinVideoAdapter. \nReason:' + e);
                 // $kat.trackError({ from: 'onLikeButtonClicked of base KikinVideoAdapter', msg: 'error while liking video', exception: e });
             }
         } catch (err) {
-            // alert('from: onLikeButtonClicked of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: onLikeButtonClicked of base KikinVideoAdapter. \nReason:' + err);
         }
     },
 
@@ -1506,12 +1546,14 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             this.selectedVideo.savingVideo = false;
 
             // change the save button to saving spinner
-            var saveButton = $(this.kikinVideoBorder).find('#watch-later-btn-img');
+            var saveButton = $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img');
             $(saveButton).removeClass();
-            $(saveButton).addClass("watchlr-image watch-later-button-image");
+            $(saveButton).addClass("watchlr-image watchlr-watch-later-button-image");
 
             // change the save button text to saving...
-            $($(this.kikinVideoBorder).find('#watch-later-btn-text')).html(this._localize('btnSave'));
+            var saveButtonText = $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text');
+            $(saveButtonText).html(this._localize('btnSave'));
+            $(saveButtonText).css('color', '#FFFFFF');
 
             var oAlert = new $cwui.modalwin.AlertWindow(
                 this._localize('errorDlgTitle'),
@@ -1523,11 +1565,10 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             this.selectedVideo.likingVideo = false;
 
             // change the like button to saving spinner
-            var saveButton = $(this.kikinVideoBorder).find('#like-btn-img');
-            $(saveButton).removeClass();
-
-            // change the save button text to liking...
-            // $($(this.kikinVideoBorder).find('#watch-later-btn-text')).html(this._localize('btnSaving'));
+            // this.debug('Changing like button image because facebook connect dialog is dismissed.');
+            var likeButton = $(this.kikinVideoBorder).find('#watchlr-like-btn-img');
+            $(likeButton).removeClass();
+            $($(this.kikinVideoBorder).find('#watchlr-like-btn-text')).css('color', '#FFFFFF');
 
             if (!this.selectedVideo.liked) {
                 var oAlert = new $cwui.modalwin.AlertWindow(
@@ -1535,15 +1576,16 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                     this._localize('errorDlgLikeMsg')
                 );
                 oAlert.show();
-                $(saveButton).addClass("watchlr-image unlike-button-image");
-            } else {
+                $(likeButton).addClass("watchlr-image watchlr-unlike-button-image");
+
+            } /*else {
                 var oAlert = new $cwui.modalwin.AlertWindow(
                     this._localize('errorDlgUnlikeTitle'),
                     this._localize('errorDlgUnlikeMsg')
                 );
                 oAlert.show();
-                $(saveButton).addClass("watchlr-image like-button-image");
-            }
+                $(likeButton).addClass("watchlr-image watchlr-like-button-image");
+            }   */
         }
 
         /*$kat.track('VideoAdapterEvt', 'LoginCancel', {
@@ -1594,6 +1636,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                                 oAlert.bind('connect', $.proxy(this._handleFacebookConnectionRequested, this));
                                 oAlert.bind('visituserprofilepage', $.proxy(this._handleVisitingVideoPageRequested, this));
                                 oAlert.show();
+                                return;
                                 break;
                             }
 
@@ -1603,7 +1646,6 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                                     this._localize('errorDlgMsg')
                                 );
                                 oAlert.show();
-                                // alert('from: updateButtonState of base KikinVideoAdapter. \nReason:' + 'Unable to save video');
                                 // $kat.trackError({from: "updateButtonState of base KikinVideoAdapter", msg:"Unable to save video. Error code:" + res.code + ", Error:" + res.error});
                             }
                         }
@@ -1613,19 +1655,20 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                             this._localize('errorDlgMsg')
                         );
 
-                        // alert('from: updateButtonState of base KikinVideoAdapter. \nReason:' + 'Unable to save video');
+                        this.debug('from: updateButtonState of base KikinVideoAdapter. \nReason:' + 'Unable to save video');
                         //$kat.trackError({from: "updateButtonState of base KikinVideoAdapter", msg:"Unable to save video. Reason:" + (res ? res.error : "Result is null")});
                     }
                 }
 
-                var saveButtonText = $(this.kikinVideoBorder).find('#watch-later-btn-text');
-                var saveButtonImg = $(this.kikinVideoBorder).find('#watch-later-btn-img');
+                var saveButtonText = $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text');
+                var saveButtonImg = $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img');
                 $(saveButtonImg).removeClass();
                 if (videoSavedSuccessfully) {
                     this.selectedVideo.savingVideo = false;
                     this.selectedVideo.saved = true;
                     $(saveButtonText).html(this._localize('btnSaved'));
-                    $(saveButtonImg).addClass("watchlr-text saved-button-image");
+                    $(saveButtonText).css('color', '#FFFFFF');
+                    $(saveButtonImg).addClass("watchlr-text watchlr-saved-button-image");
 
                     // video Id can be 0;
                     if (res.result) {
@@ -1642,25 +1685,35 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
                 } else {
                     $(saveButtonText).html(this._localize('btnSave'));
-                    $(saveButtonImg).addClass("watchlr-text watch-later-button-text");
+                    $(saveButtonText).css('color', '#FFFFFF');
+                    $(saveButtonImg).addClass("watchlr-text watchlr-watch-later-button-text");
                 }
 
                 // hide the border after 1 second
                 setTimeout($.proxy(function() {
+                    var selectedVideo = this.selectedVideo;
+
                     // if mouse is not over share button or video,
                     // hide the border
-                    var selectedVideo = this.selectedVideo;
-                    if (!selectedVideo.shareButtonSelected &&
+                    this.debug('selected video: ' + selectedVideo +
+                        '\nShare Button Selected: ' + selectedVideo.saveButtonSelected +
+                        '\nVideo selected: ' + selectedVideo.videoSelected +
+                        '\nSaving video: ' + selectedVideo.savingVideo +
+                        '\nLiking video: ' + selectedVideo.likingVideo
+                    );
+                    if (selectedVideo &&
+                        !selectedVideo.saveButtonSelected &&
                         !selectedVideo.videoSelected &&
-                        !this.selectedVideo.savingVideo &&
-                        !this.selectedVideo.likingVideo)
+                        !selectedVideo.savingVideo &&
+                        !selectedVideo.likingVideo)
                     {
+                        // $(this.kikinVideoBorder).css('visibility', 'hidden');
                         $(this.kikinVideoBorder).fadeOut();
                     }
                 }, this), 1000);
             }
         } catch (err) {
-            // alert('from: updateButtonState of base KikinVideoAdapter. \nReason:' + err);
+            this.debug('from: updateButtonState of base KikinVideoAdapter. \nReason:' + err);
             // $kat.trackError({from: "updateButtonState of base KikinVideoAdapter", exception:err});
         }
 	},
@@ -1699,6 +1752,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                                 oAlert.bind('connect', $.proxy(this._handleFacebookConnectionRequested, this));
                                 oAlert.bind('visituserprofilepage', $.proxy(this._handleVisitingVideoPageRequested, this));
                                 oAlert.show();
+                                return;
                                 break;
                             }
 
@@ -1716,7 +1770,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                                     );
                                     oAlert.show();
                                 }  */
-                                // alert("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
+                                this.debug("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
 
                                 // $kat.trackError({from: "_onVideoLiked of base KikinVideoAdapter", msg:"Unable to like video. Error code:" + res.code + ", Error:" + res.error});
                             }
@@ -1735,13 +1789,13 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                             );
                             oAlert.show();
                         }   */
-                        // alert("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
+                        this.debug("from: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
                         // $kat.trackError({from: "_onVideoLiked of base KikinVideoAdapter", msg:"Unable to like video. Reason:" + (res ? res.error : "Result is null")});
                     }
                 }
 
-                var likeBtnImage = $(this.kikinVideoBorder).find('#like-btn-img');
-                var likeBtnText = $(this.kikinVideoBorder).find('#like-btn-text');
+                var likeBtnImage = $(this.kikinVideoBorder).find('#watchlr-like-btn-img');
+                var likeBtnText = $(this.kikinVideoBorder).find('#watchlr-like-btn-text');
                 if (videoLikedSuccessfully) {
                     this.selectedVideo.likingVideo = false;
                     if (res.result) {
@@ -1753,47 +1807,57 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                             this.selectedVideo.likes = oResult.likes;
                     }
 
-
-                    // var kikinLikeBtnText = $(this.kikinVideoBorder).find('#kikinLikeBtnText');
+                    // this.debug('Changing like button image because video is liked successfully.');
                     if (this.selectedVideo.liked) {
                         $(likeBtnImage).removeClass();
-                        $(likeBtnImage).addClass('watchlr-image like-button-image');
+                        $(likeBtnImage).addClass('watchlr-image watchlr-like-button-image');
                         $(likeBtnText).html(this._localize('liked'));
-                        // $(kikinLikeBtnText).css('color', '#FF0000');
+                        $(likeBtnText).css('margin', '0 5px 0 5px');
+                        $(likeBtnText).css('color', '#FFFFFF');
                     } else {
                         $(likeBtnImage).removeClass();
-                        $(likeBtnImage).addClass('watchlr-image unlike-button-image');
-                        // $(kikinLikeBtnText).css('color', '#505050');
+                        $(likeBtnImage).addClass('watchlr-image watchlr-unlike-button-image');
+                        $(likeBtnText).css('color', '#FFFFFF');
                     }
                 } else {
                     if (!this.selectedVideo.liked) {
                         $(likeBtnImage).removeClass();
-                        $(likeBtnImage).addClass('watchlr-image like-button-image');
+                        $(likeBtnImage).addClass('watchlr-image watchlr-like-button-image');
                         $(likeBtnText).html(this._localize('like'));
-                        // $(kikinLikeBtnText).css('color', '#FF0000');
+                        $(likeBtnText).css('margin', '0 10px 0 5px');
+                        $(likeBtnText).css('color', '#FFFFFF');
                     } else {
                         $(likeBtnImage).removeClass();
-                        $(likeBtnImage).addClass('watchlr-image unlike-button-image');
-                        // $(kikinLikeBtnText).css('color', '#505050');
+                        $(likeBtnImage).addClass('watchlr-image watchlr-unlike-button-image');
+                        $(likeBtnText).css('color', '#FFFFFF');
                     }
                 }
 
                 // hide the border after 1 second
                 setTimeout($.proxy(function() {
+                    var selectedVideo = this.selectedVideo;
+
                     // if mouse is not over share button or video,
                     // hide the border
-                    var selectedVideo = this.selectedVideo;
-                    if (!selectedVideo.shareButtonSelected &&
+                    this.debug('selected video: ' + selectedVideo +
+                        '\nShare Button Selected: ' + selectedVideo.saveButtonSelected +
+                        '\nVideo selected: ' + selectedVideo.videoSelected +
+                        '\nSaving video: ' + selectedVideo.savingVideo +
+                        '\nLiking video: ' + selectedVideo.likingVideo
+                    );
+                    if (selectedVideo &&
+                        !selectedVideo.saveButtonSelected &&
                         !selectedVideo.videoSelected &&
-                        !this.selectedVideo.savingVideo &&
-                        !this.selectedVideo.likingVideo)
+                        !selectedVideo.savingVideo &&
+                        !selectedVideo.likingVideo)
                     {
+                        // $(this.kikinVideoBorder).css('visibility', 'hidden');
                         $(this.kikinVideoBorder).fadeOut();
                     }
                 }, this), 1000);
             }
         } catch (err) {
-            // alert("From: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
+            this.debug("From: _onVideoLiked of base KikinVideoAdapter. \nReason:" + err);
             //$kat.trackError({from: "_onVideoLiked of base KikinVideoAdapter", exception:err});
         }
 	},
@@ -1804,7 +1868,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                  $cws.WatchlrRequests.sendUpdateUserProfileRequest($.proxy(this._onUserProfileUpdated, this));
             }
         } catch (err) {
-            // alert("From: _onSavedWindowClosed of base KikinVideoAdapter. \nReason:" + err);
+            this.debug("From: _onSavedWindowClosed of base KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError
         }
     },
@@ -1827,7 +1891,7 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                 });*/
             }
         } catch (err) {
-            // alert("From: _onPushToFacebookWindowClosed of base KikinVideoAdapter. \nReason:" + err);
+            this.debug("From: _onPushToFacebookWindowClosed of base KikinVideoAdapter. \nReason:" + err);
             // $kat.trackError
         }
     },

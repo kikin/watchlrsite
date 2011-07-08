@@ -1,9 +1,14 @@
 a {
 	cursor: pointer;
+    border: none;
 }
 
-a:hover {
-    text-decoration: underline;
+div {
+    border:  none;
+}
+
+span {
+    border: none;
 }
 
 #watchlr-video-border {
@@ -11,25 +16,25 @@ a:hover {
     display: none;
 }
 
-#watchlr-video-border .video-border {
+#watchlr-video-border .video-border-watchlr {
     position : absolute;
     background-color: #AAEB6E;
     z-index: 1000000
 }
 
-#watchlr-video-border .video-top-border {
+#watchlr-video-border .watchlr-video-top-border {
     border-top-left-radius: 7px;
     border-top-right-radius: 7px;
     -moz-border-radius-topleft: 7px;
     -moz-border-radius-topright: 7px;
 }
 
-#watchlr-video-border .video-bottom-border {
+#watchlr-video-border .watchlr-video-bottom-border {
     border-bottom-left-radius: 7px;
     -moz-border-radius-bottomleft: 7px;
 }
 
-#watchlr-video-border .video-options-button {
+#watchlr-video-border .watchlr-video-options-button {
     border-bottom-right-radius: 7px;
     border-bottom-left-radius: 7px;
     -moz-border-radius-bottomleft: 7px;
@@ -44,17 +49,18 @@ a:hover {
     font-family: 'PT Sans';
     font-size: 18px;
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
     font-variant: normal;
     display: inline;
     color: #ffffff;
-    margin: 0px 5px;
     position: relative;
     top: 3px;
+    cursor: pointer;
 }
 
 #watchlr-video-border .watchlr-image {
     vertical-align: text-bottom;
+    display: block;
     display: inline-block;
     position: relative;
     top: 4px;
@@ -72,76 +78,104 @@ a:hover {
     width: 75px;
 }
 
-#watchlr-video-border .unlike-button-image {
+#watchlr-video-border .watchlr-unlike-button-image {
     background-image : url('http://local.watchlr.com/watchlr/img/heart_normal.png');
     height: 21px;
     width: 24px;
 }
 
-#watchlr-video-border .unlike-button-hover-image {
+#watchlr-video-border .watchlr-unlike-button-hover-image {
     background-image : url('http://local.watchlr.com/watchlr/img/heart_hover1.png');
     height: 21px;
-    width: 23px;
+    width: 24px;
 }
 
-#watchlr-video-border .like-button-image {
+#watchlr-video-border .watchlr-like-button-image {
     background-image : url('http://local.watchlr.com/watchlr/img/heart_normal2.png');
     height: 21px;
     width: 24px;
 }
 
-#watchlr-video-border .like-button-hover-image {
-    background-image : url('http://local.watchlr.com/watchlr/img/heart_broken_hover.png');
+#watchlr-video-border .watchlr-like-button-hover-image {
+    background-image : url('http://local.watchlr.com/watchlr/img/heart_click1.png');
     height: 21px;
     width: 24px;
 }
 
-#watchlr-video-border .watch-later-button-image {
+#watchlr-video-border .watchlr-watch-later-button-image {
     background-image : url('http://local.watchlr.com/watchlr/img/plus_normal.png');
     height: 21px;
     width: 21px;
 }
 
-#watchlr-video-border .watch-later-button-hover-image {
+#watchlr-video-border .watchlr-watch-later-button-hover-image {
     background-image : url('http://local.watchlr.com/watchlr/img/plus_hover.png');
     height: 21px;
     width: 21px;
 }
 
-#watchlr-video-border .saved-button-image {
+#watchlr-video-border .watchlr-saved-button-image {
     background-image : url('http://local.watchlr.com/watchlr/img/check_hover.png');
     height: 21px;
     width: 24px;
 }
 
-#watchlr-video-border .saved-button-hover-image {
+#watchlr-video-border .watchlr-saved-button-hover-image {
     background-image : url('http://local.watchlr.com/watchlr/img/check_click.png');
     height: 21px;
     width: 24px;
 }
 
-#watchlr-video-border .spinner-image {
-    background-image : url('http://local.watchlr.com/watchlr/img/ajax-loader.gif');
+#watchlr-video-border .watchlr-spinner-image {
+    background-image : url('http://local.watchlr.com/watchlr/img/spinner.gif');
     height: 16px;
     width: 16px;
+    top: 2px;
 }
 
-#watchlr-video-border .slash {
+#watchlr-video-border .watchlr-slash {
     background-image : url('http://local.watchlr.com/watchlr/img/slash.png');
     height: 41px;
     width: 26px;
     vertical-align: middle;
+    display: block;
     display: inline-block;
 }
 
-#like-btn-text {
-    width: 100px;
+#watchlr-like-btn-text {
+    margin: 0px 10px 0 5px;
 }
 
-#watch-later-btn-text {
-    width: 100px;
+#watchlr-watch-later-btn-text {
+    margin: 0px 5px;
 }
 
+#watchlr-video-border.msie7  .watchlr-image,
+#watchlr-video-border.msie7  .watchlr-text {
+    float:left;
+    top: 8px;
+    position: relative;
+}
 
+#watchlr-video-border.msie7  .watchlr-slash {
+    float:left;
+}
 
+#watchlr-video-border.msie7 .watchlr-unlike-button-image,
+#watchlr-video-border.msie7 .watchlr-unlike-button-hover-image,
+#watchlr-video-border.msie7 .watchlr-like-button-image,
+#watchlr-video-border.msie7 .watchlr-like-button-hover-image,
+#watchlr-video-border.msie7 .watchlr-watch-later-button-image,
+#watchlr-video-border.msie7 .watchlr-watch-later-button-hover-image,
+#watchlr-video-border.msie7 .watchlr-saved-button-image,
+#watchlr-video-border.msie7 .watchlr-saved-button-hover-image,
+#watchlr-video-border.msie7 .watchlr-spinner-image {
+    top: 10px;
+    position: relative;
+}
+
+#watchlr-video-border.msie7 .watchlr-text {
+    top: 9px;
+    position: relative;
+}
 

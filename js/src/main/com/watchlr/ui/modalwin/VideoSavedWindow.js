@@ -10,13 +10,13 @@ $cwui.modalwin.WatchlrIframeWindow.extend("com.watchlr.ui.modalwin.VideoSavedWin
             parentWindow: window
         });
 
-        $(this.getBody()).attr('id', 'video-saved-window');
+        $(this.getBody()).attr('id', 'watchlr-video-saved-window');
         this.setContent($cws.html['VideoSavedWindow']);
         $cwutil.Styles.insert('VideoSavedWindowStyles', this.getDocument());
 
-        $(this.getElement('a.close-button')).click($.proxy(this._onCloseCallback, this));
-        $(this.getElement('a.ok-button')).click($.proxy(this._onOkCallback, this));
-        $(this.getElement('#video-page')).click($.proxy(this._onVisitUserProfilePageCallback, this));
+        $(this.getElement('a.watchlr-close-button')).click($.proxy(this._onCloseCallback, this));
+        $(this.getElement('a.watchlr-ok-button')).click($.proxy(this._onOkCallback, this));
+        $(this.getElement('#watchlr-video-page')).click($.proxy(this._onVisitUserProfilePageCallback, this));
         $(this.getElement('#show-message')).click($.proxy(this._onShowMessageClicked, this));
     },
     

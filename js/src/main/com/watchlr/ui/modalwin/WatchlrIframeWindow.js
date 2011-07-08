@@ -5,7 +5,7 @@
 */
 
 $.Class.extend("com.watchlr.ui.modalwin.WatchlrIframeWindow", {}, {
-    _currentTemplateName: 'popup-flash-alert',
+    _currentTemplateName: 'watchlr-popup-flash-alert',
     _parentWindow: null,
     _element: null,
     _body: null,
@@ -67,7 +67,7 @@ $.Class.extend("com.watchlr.ui.modalwin.WatchlrIframeWindow", {}, {
         $(this.getBody()).html($cws.html['WatchlrIframeWindow']);
 
         // set content div after setting the body of iframe
-        this._contentDiv = this.getElement('.content');
+        this._contentDiv = this.getElement('.watchlr-content');
 	},
 
     getDocument: function() {

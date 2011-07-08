@@ -9,23 +9,25 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cnn.adapters.KikinVide
         //if (/cnn\.com\/video/.test(window.document.location.href)) {
             // this.debug("Hooking into cnn.com/video api");
             try {
-                if (window.CVP && window.CVP.instances) {
-                    for (var i in window.CVP.instances) {
-                        var original = window.CVP.instances[i].onContentBegin;
-                        window.CVP.instances[i].onContentBegin = $.proxy(function() {
+                if (window.CVP && window.CVP.onCallback) {
+                    // for (var i in window.CVP.instances) {
+                        var original = window.CVP.onCallback;
+                        window.CVP.onCallback = $.proxy(function(id, args) {
                             try {
-                                this._onVideoUrlChange(window.CVP.instances[i], arguments[0]);
-                                return original.apply(this, arguments);
+                                if (args[0] == 'onContentBegin') {
+                                    this._onVideoUrlChange(id, args[1]);
+                                }
+                                return original(id, args);
                             } catch (e) {
-                                // alert("From: attach of cnn's KikinVideoAdapter.\nReason:" + e);
+                                this.debug("From: attach of cnn's KikinVideoAdapter.\nReason:" + e);
                                 // $kat.trackError({from:"attach of cnn's KikinVideoAdapter", msg: "Unable to call cnn's original onContentBegin callback", exception:e});
                             }
                         }, this);
-                    }
+                    // }
                 }
 
             } catch (err) {
-                // alert("From: attach of cnn's KikinVideoAdapter. \nReason:" + err);
+                this.debug("From: attach of cnn's KikinVideoAdapter. \nReason:" + err);
                 // $kat.trackError({from:"attach of cnn's KikinVideoAdapter", msg: "Unable to wrap onContentBegin callback", exception:err});
             }
         // }
@@ -48,10 +50,12 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cnn.adapters.KikinVide
     },
 
     _onVideoUrlChange : function(target, videoId) {
+
         try {
             // this.debug('Changed video id:' + videoId + " for target:" + target.options.id);
+
             if (this.videos) {
-                var embed = $('#' + target.options.id);
+                var embed = document.getElementById(target);
                 if (embed && embed.kikinVideoId) {
                     // this.debug("Video id associated with changed video target:" + embed.kikinVideoId);
                     this.videos[embed.kikinVideoId - 1].url = "http://www.cnn.com/video/?/video/" + videoId;
@@ -67,7 +71,7 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.cnn.adapters.KikinVide
                 }
             }
         } catch (err) {
-            // alert("From: _onVideoUrlChange of cnn's KikinVideoAdapter. \n Reason:" + err);
+            this.debug("From: _onVideoUrlChange of cnn's KikinVideoAdapter. \n Reason:" + err);
             // $kat.trackError({from:"_onVideoUrlChange of cnn's KikinVideoAdapter", msg: "Unable to change video URL on video change", exception:err});
         }
     }
