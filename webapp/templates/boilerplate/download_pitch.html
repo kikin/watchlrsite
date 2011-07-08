@@ -4,6 +4,7 @@
 {% endblock style_refs %}
 
 {% block script_refs %}
+    {{ block.super }}
     <script type="text/javascript">
     $(document).ready(function(){
          Cufon.replace('h3', {

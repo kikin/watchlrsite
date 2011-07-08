@@ -191,9 +191,13 @@ kikinvideo.UIUniversal =
                     $.post('/api/auth/profile', {'preferences':preferences, 'username':username,
                                 'email':email}, function(data){
                                 if(data){
-                                    if(data.code && data.code == '406'){
+                                    if(data.code && (data.code == 406 || data.code == 409)){
+                                        if(data.code == '406'){
+                                            $('#err-display').html('Usernames can consist only of numbers, lowercase letters and periods, and may not contain spaces');
+                                        }if(data.code == '409'){
+                                            $('#err-display').html('The username you have entered is already in use');
+                                        }
                                         $(PROFILE_EDIT_PANEL_SELECTOR).height(258);
-                                        $('#err-display').html('Usernames can consist only of the characters "A"-"Z", "1"-"9" and "." and may not contain spaces');
                                         $('#err-display').show();
                                     }
                                     else if(data.result){
