@@ -218,15 +218,22 @@ BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 # Periodic task definitions go here
 from datetime import timedelta
 CELERYBEAT_SCHEDULE = {
-    "refresh-friend-list-every-15-mins": {
+    "refresh-friend-list-every-10-mins": {
         "task": "api.tasks.refresh_friends_list",
         "schedule": timedelta(minutes=10)
+    },
+    "fetch-news-feed-every-5-mins": {
+        "task": "api.tasks.fetch_news_feed",
+        "schedule": timedelta(minutes=1)
     },
 }
 
 # For the facebook friends list fetcher, number of users to schedule every time
 # the task gets fired.
 FACEBOOK_FRIENDS_FETCHER_SCHEDULE = 5
+
+# Number of users to schedule for news feed fetch every time
+FACEBOOK_NEWS_FEED_FETCH_SCHEDULE = 5
 
 # Set up logging
 import logconfig

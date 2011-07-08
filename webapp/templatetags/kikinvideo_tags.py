@@ -1,6 +1,7 @@
 from django import template
 from datetime import datetime
 from urlparse import urlparse
+from operator import attrgetter
 from kikinvideo.api.models import UserVideo
 from django.conf import settings as app_settings
 from django.utils.encoding import force_unicode
@@ -264,7 +265,9 @@ def activity_item_heading(activity_item, user):
                 content += ' and 1 other liked...'
             else:
                 content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
+
     return content
+
 
 @register.filter
 def last_element(list):
