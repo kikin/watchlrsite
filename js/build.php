@@ -131,6 +131,7 @@ if (!isset($_GET['rebuild']) || $_GET['rebuild'] == 'true') {
 			$content = str_replace("\n", "", $content);
 			$content = str_replace("\r", "", $content);
 			$content = str_replace("\t", "", $content);
+            $content = str_replace("    ", "", $content);
 
 			$name = basename($cssFiles[$i], ".css");
 
@@ -149,7 +150,7 @@ if (!isset($_GET['rebuild']) || $_GET['rebuild'] == 'true') {
 			$content = str_replace("\n", "", $content);
 			$content = str_replace("\r", "", $content);
 			$content = str_replace("\t", "", $content);
-            $content = str_replace("^\S*", "", $content);
+            $content = str_replace("    ", "", $content);
 
 			$name = basename($htmlFiles[$i], ".html");
 
