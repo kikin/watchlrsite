@@ -373,6 +373,13 @@ def info(request):
     return info_response
 
 
+class UsernameConflict(ApiError):
+    code = 409
+
+    def __init__(self, suggested):
+        super(UsernameConflict, self).__init__(self.code, suggested)
+
+
 class InvalidUsername(ApiError):
     code = 406
 
@@ -413,9 +420,15 @@ def profile(request):
 
         try:
             username = slugify(querydict['username'], user.id)
+
             if not username == querydict['username']:
-                raise InvalidUsername(username)
+                if username.startswith(querydict['username']):
+                    raise UsernameConflict(username)
+                else:
+                    raise InvalidUsername(username)
+
             user.username = username
+
         except KeyError:
             pass
 
