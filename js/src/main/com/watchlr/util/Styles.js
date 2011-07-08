@@ -26,10 +26,13 @@ $.Class.extend("com.watchlr.util.Styles", {
         // document we are looking for. In other browsers we can get window object
         // using document.defaultView
         if ($.browser.msie) {
+            console.log('Is a top document: ' + (window.document == doc));
             if (window.document == doc) {
                 docWindow = window;
             } else {
                 $.get('iframe').each(function(index, value) {
+                    console.log('Is an iframe document: ' + (value.document == doc));
+                    console.log('iframe window object: ' + value);
                     if (value.document == doc) docWindow = value;
                 });
             }
@@ -45,6 +48,7 @@ $.Class.extend("com.watchlr.util.Styles", {
         if (!head) {
             head = doc.body;
         }
+        console.log('head element: ' + head);
 
 		// make sure we don't add twice the same stylesheet
 		if (styleName) {
@@ -59,11 +63,13 @@ $.Class.extend("com.watchlr.util.Styles", {
 		if ($.browser.msie) {
 			try {
 				// Try to use IE functions
+                console.log('Creating style sheet using IE native function.');
 				var style = doc.createStyleSheet();
 				style.cssText = css;
 				
 			} catch(e) {
 				try {
+                    console.log('Creating style sheet using IE hack way.');
 					// Default to the normal method
 					// should even work if we exceed 31 stylesheets
 					var style = doc.createElement('style');
@@ -142,5 +148,42 @@ $.Class.extend("com.watchlr.util.Styles", {
 	 */
 	get:function(_id){
 		return $('head').get(0).find('#'+_id);
-	}
+	},
+
+
+    /**
+     *
+     * @param jQuery _element
+     */
+   addCSSHelperClasses: function(_element){
+       var userAgent = navigator.userAgent,
+           browserVersion = document.documentMode || $.browser.version,
+           os_browser,
+           dlURL;
+
+        if(!document.documentMode){
+            browserVersion = browserVersion.substring(0,browserVersion.indexOf('.'));
+        }
+
+       //set OS
+       if(userAgent.indexOf('Windows')!=-1){
+           os_browser='win';
+       }else if(userAgent.indexOf('Macintosh')!=-1){
+           os_browser='mac';
+       }else{
+           os_browser='';
+       }
+
+       //add the OS first
+       _element.addClass(os_browser);
+
+       //now add the user
+       $.each($.browser, function(i, val) {
+           if(val===true){
+               os_browser+=i;
+               _element.addClass(i).addClass(i+browserVersion);
+               return false;
+           }
+       });
+   }
 }, {});

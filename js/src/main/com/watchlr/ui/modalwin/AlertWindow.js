@@ -31,11 +31,11 @@ $cwui.modalwin.WatchlrIframeWindow.extend("com.watchlr.ui.modalwin.AlertWindow",
             this._body = this._doc.body;
         }
 
-        $(this.getElement('a.closeButton')).click($.proxy(this._onCloseCallback, this));
-        $(this.getElement('a.okButton')).click($.proxy(this._onCloseCallback, this));
+        $(this.getElement('a.watchlr-close-button')).click($.proxy(this._onCloseCallback, this));
+        $(this.getElement('a.watchlr-ok-button')).click($.proxy(this._onCloseCallback, this));
 
-        $(this.getElement('.description')).html(this._description);
-        $(this.getElement('.title')).html(this._title);
+        $(this.getElement('.watchlr-description')).html(this._description);
+        $(this.getElement('.watchlr-title')).html(this._title);
     },
 
     show: function() {
