@@ -13,6 +13,4 @@ celerybeat-schedule
 plugin/Chrome/manifest.json
 Thumbs.db
 plugin/Builds/
-celerybeat-schedule
 *.iml
-src

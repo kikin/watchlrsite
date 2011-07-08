@@ -479,6 +479,9 @@ class User(auth_models.User):
 
             for video in user.liked_videos():
 
+                if not video.status() == states.SUCCESS:
+                    continue
+
                 user_video = UserVideo.objects.get(user=user, video=video)
                 if since is not None:
                     if user_video.liked_timestamp < since:
@@ -503,30 +506,25 @@ class User(auth_models.User):
             return reverse('user_profile', args=[str(self.username)])
         return 'http://www.facebook.com/profile.php?id=%s' % self.facebook_uid()
 
-    def _build_follow_suggestions(self, queryset, page, count):
+    def _build_follow_suggestions(self, queryset, count):
         suggestions = list()
-
-        paginator = Paginator(queryset, count)
-        try:
-            users = paginator.page(page).object_list
-        except EmptyPage:
-            # If page is out of range, deliver last page of results.
-            users = paginator.page(paginator.num_pages).object_list
 
         following = self.following()
         dismissed = list(self.dismissed_user_suggestions.all())
 
-        for user in users:
+        for user in queryset:
             if not user == self and user not in following and user not in dismissed:
                 suggestions.append(user)
+                if len(suggestions) == count:
+                    break
 
         return suggestions
 
-    def popular_users(self, count=10, page=1):
-        return self._build_follow_suggestions(User.objects.filter(karma__gt=0).order_by('-karma'), page, count)
+    def popular_users(self, count=10):
+        return self._build_follow_suggestions(User.objects.filter(karma__gt=0).order_by('-karma'), count)
 
-    def follow_suggestions(self, count=10, page=1):
-        return self._build_follow_suggestions(self.fb_friends.filter(is_registered=True), page, count)
+    def follow_suggestions(self, count=10):
+        return self._build_follow_suggestions(self.fb_friends.filter(is_registered=True), count)
 
     def invite_friends_list(self, num=10):
 

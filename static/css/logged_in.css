@@ -42,6 +42,10 @@
     padding-bottom: 10px;
 }
 
+.suggested-followee-item a:hover{
+    text-decoration: none;
+}
+
 .suggested-followees .profile-link-container{
     float:left;
     width:130px;

@@ -266,3 +266,7 @@ AWS_ACCESS_KEY_ID = 'AKIAIZDME4VOHZPYNXSQ'
 AWS_SECRET_ACCESS_KEY = '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'
 
 SENDER_EMAIL_ADDRESS = 'Watchlr <noreply@watchlr.com>'
+
+# IE cross-domain cookie fix
+P3P_COMPACT = 'policyref="http://www.example.com/p3p.xml", CP="NON DSP COR CURa TIA"'
+MIDDLEWARE_CLASSES += ('kikinvideo.middleware.P3PHeaderMiddleware',)
