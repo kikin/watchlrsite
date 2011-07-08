@@ -91,17 +91,23 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.yahoo.adapters.KikinVi
                 // set the new selected video
                 this.selectedVideo = selectedVideo;
 
-                // calculate the coordinates for video
-                selectedVideo.coordinates = this._getVideoCoordinates(target);
+                // if border is not visible, then draw the border
+                var kikinBorderVisibility = $(this.kikinVideoBorder).css('display');
+                // this.debug("CSS border is visible:" + kikinBorderVisibility);
+                if (!kikinBorderVisibility || kikinBorderVisibility == 'none') {
 
-                if (selectedVideo.coordinates) {
-                    // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
-                    // draw the border around video
-                    this._drawKikinBorder(selectedVideo.coordinates.left,
-                                          selectedVideo.coordinates.top,
-                                          selectedVideo.coordinates.width,
-                                          selectedVideo.coordinates.height,
-                                          selectedVideo.saved);
+                    // calculate the coordinates for video
+                    selectedVideo.coordinates = this._getVideoCoordinates(target);
+
+                    if (selectedVideo.coordinates) {
+                        // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
+                        // draw the border around video
+                        this._drawKikinBorder(selectedVideo.coordinates.left,
+                                              selectedVideo.coordinates.top,
+                                              selectedVideo.coordinates.width,
+                                              selectedVideo.coordinates.height,
+                                              selectedVideo.saved);
+                    }
                 }
 
                 // this.debug("Border around selected video is visible: " + this.kikinVideoBorder.style.visibility);

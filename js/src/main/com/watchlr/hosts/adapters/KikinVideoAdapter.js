@@ -803,16 +803,13 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
 
             $($('head').get(0)).append('<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=PT%20Sans">');
             $cwutil.Styles.insert('VideoBorderStyles', document);
+
             // create a div tag for the video
             $(document.body).append($cws.html['VideoBorder']);
             this.kikinVideoBorder = $('#watchlr-video-border');
-
-
             $cwutil.Styles.addCSSHelperClasses(this.kikinVideoBorder);
 
             $(this.kikinVideoBorder).find('#watchlr-like-btn-text').html(this._localize('like'));
-            // this.debug('Changing like button image because kikin border is created.');
-            $(this.kikinVideoBorder).find('#watchlr-logo').click($.proxy(this._handleVisitingVideoPageRequested, this));
             $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-img').click($.proxy(this._onSaveButtonClicked, this));
             $(this.kikinVideoBorder).find('#watchlr-watch-later-btn-text').click($.proxy(this._onSaveButtonClicked, this));
             $(this.kikinVideoBorder).find('#watchlr-like-btn-img').click($.proxy(this._onLikeButtonClicked, this));
@@ -846,6 +843,8 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
         if (!this.kikinVideoBorder) {
             this._createKikinBorder();
         }
+
+
 
         if ((left >= 0 )&& (top >= 0) && width && height && this.kikinVideoBorder) {
             try {
@@ -965,6 +964,8 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
             var parent = embed;
             var offsetLeft = 0;
             var offsetTop = 0;
+
+            this.debug('Embed element: ' + parent);
             // Calculate the absolute position of the video
             while (parent && (parent != document.body)) {
                 offsetLeft += parent.offsetLeft;
@@ -1097,7 +1098,10 @@ $.Class.extend("com.watchlr.hosts.adapters.KikinVideoAdapter", {
                         selectedVideo.coordinates = this._getVideoCoordinates(target);
 
                         if (selectedVideo.coordinates) {
-                            // this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " + selectedVideo.coordinates.top + ", " + selectedVideo.coordinates.width + ", " + selectedVideo.coordinates.height);
+                            this.debug("Coordinates for video:" + selectedVideo.coordinates.left + ", " +
+                                selectedVideo.coordinates.top + ", " +
+                                selectedVideo.coordinates.width + ", " +
+                                selectedVideo.coordinates.height);
 
                             // draw the border around video
                             this._drawKikinBorder(selectedVideo.coordinates.left,
