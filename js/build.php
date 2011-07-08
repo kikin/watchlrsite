@@ -158,20 +158,20 @@ if (!isset($_GET['rebuild']) || $_GET['rebuild'] == 'true') {
 		}
 	}
 
-  $servers = array("dev" => "http://dev.watchlr.com/", "prod" => "http://www.watchlr.com/");
-  $server = $servers["prod"];
-  if(count($argv) > 1){
+    $servers = array("dev" => "http://dev.watchlr.com/", "prod" => "http://www.watchlr.com/");
+    $server = $servers["prod"];
+    if(count($argv) > 1){
       if(array_key_exists($argv[1], $servers)){
           $server = $servers[$argv[1]];
       }
-  }
+    }
 
-  $result .= "var bootstrap = new com.watchlr.system.runtime.Bootstrap(); bootstrap.run();";
-  $result = str_replace("http://www.watchlr.com", $server, $result);
+    $result .= "var bootstrap = new com.watchlr.system.runtime.Bootstrap(); bootstrap.run();";
+    $result = str_replace("http://www.watchlr.com", $server, $result);
 
-  $result1 = "(function() {";
-  $result1 .= $result;
-  $result1 .= "})();";
+    $result1 = "(function() {";
+    $result1 .= $result;
+    $result1 .= "})();";
 
 	// optionnal: using a template
 	//$template = file_get_contents('src/main/javascript/template.js');
