@@ -188,14 +188,23 @@ kikinvideo.UIUniversal =
                     var username = $(PROFILE_EDIT_USERNAME_INPUT).val();
                     var email = $(PROFILE_EDIT_EMAIL_INPUT).val();
 
-                    $(PROFILE_EDIT_PANEL_SELECTOR).remove();
-                    $(GREYED_BACKGROUND_SELECTOR).remove();
-
                     $.post('/api/auth/profile', {'preferences':preferences, 'username':username,
                                 'email':email}, function(data){
-                                if(data && data.result){
-                                    if(data.result.username){
-                                        $(PROFILE_NAME_DISPLAY).html(data.result.username);
+                                if(data){
+                                    if(data.code && data.code == '406'){
+                                        $(PROFILE_EDIT_PANEL_SELECTOR).height(258);
+                                        $('#err-display').html('Usernames can consist only of the characters "A"-"Z", "1"-"9" and "." and may not contain spaces');
+                                        $('#err-display').show();
+                                    }
+                                    else if(data.result){
+                                        if(data.result.username){
+                                            $(PROFILE_EDIT_PANEL_SELECTOR).height(210);
+                                            $('#err-display').html('');
+                                            $(PROFILE_EDIT_PANEL_SELECTOR).remove();
+                                            $(GREYED_BACKGROUND_SELECTOR).remove();
+                                            $(PROFILE_NAME_DISPLAY).html(data.result.username);
+                                            $('#myActualProfile').attr('href', data.result.username)
+                                        }
                                     }
                                 }
                             });
