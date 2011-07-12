@@ -338,6 +338,10 @@ a:hover {
     float:left;
 }
 
+.navigation a{
+    font-weight: 500;
+}
+
 ul.navigation { 
     width:700px; 
     margin-left:0px;
