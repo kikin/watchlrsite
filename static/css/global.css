@@ -338,6 +338,10 @@ a:hover {
     float:left;
 }
 
+.navigation a{
+    font-weight: 500;
+}
+
 ul.navigation { 
     width:700px; 
     margin-left:0px;
@@ -991,6 +995,7 @@ a#lnk-page-next:hover {
     background: url(/static/images/heart_broken.png) no-repeat;
     width: 26px;
     height: 22px;
+    margin-top:1px;
 }
 
 .video-liked-info{
