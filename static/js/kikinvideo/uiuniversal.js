@@ -17,6 +17,8 @@ kikinvideo.UIUniversal =
 
             var VIDEO_BUTTON_ID_PREFIX = "#video-thumbnail-btn-vid-";
 
+            var VIDEO_IMAGE_CLASS = "video-image";
+
             var VIDEO_BUTTON_CLASS = "video-thumbnail-btn";
 
             var VIDEO_PLAYER_BG_HTML = '<div class="video-player-bg"></div>';
@@ -79,6 +81,14 @@ kikinvideo.UIUniversal =
                         }
                     }
 
+                    //necessary hack -- center fixed-width embeds (the embeds often have
+                    // fixed width+height but no margin-properties)!
+                    try{
+                        var wrapper = $('#video-embed-container-'+vid + ' .video-embed-wrapper');
+                        var embed = wrapper.children('embed:first-child');
+                        embed.css({marginRight:'auto', marginLeft:'auto'});
+                    }catch(excp){}
+
                     /*remove the 'play' button from the thumb...*/
                     if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
                         $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
@@ -118,6 +128,8 @@ kikinvideo.UIUniversal =
                         videoController.setMode(videoController.modes.NORMAL);
                         videoController.setCurVid(vid);
                     }
+
+                    trackEvent('Video', 'OpenPlayer');
                 }
             }
 
@@ -136,10 +148,10 @@ kikinvideo.UIUniversal =
 
                 //pause video if it is html5
                 if($.browser.webkit){
-                        videoController.setMode(videoController.modes.NORMAL);
-                        videoController.pauseVideo();
-                        videoController.savePosition();
-                    }
+                        videoController.handleClose();
+                }
+                
+                trackEvent('Video', 'ClosePlayer');
             }
 
             function handleProfileEditPanelOpen(){
@@ -176,14 +188,30 @@ kikinvideo.UIUniversal =
                     var username = $(PROFILE_EDIT_USERNAME_INPUT).val();
                     var email = $(PROFILE_EDIT_EMAIL_INPUT).val();
 
-                    $(PROFILE_EDIT_PANEL_SELECTOR).remove();
-                    $(GREYED_BACKGROUND_SELECTOR).remove();
-
                     $.post('/api/auth/profile', {'preferences':preferences, 'username':username,
                                 'email':email}, function(data){
-                                if(data && data.result){
-                                    if(data.result.username){
-                                        $(PROFILE_NAME_DISPLAY).html(data.result.username);
+                                if(data){
+                                    if(data.code && (data.code == 406 || data.code == 409)){
+                                        if(data.code == '406'){
+                                            var errMsg = 'Usernames can consist only of numbers, lowercase letters and periods, and may not contain spaces'
+                                                + ' (for example "<a href="javascript:$(\'#username-input\').val(\''+data.error+'\');">'+data.error+'</a>")';
+                                            $('#err-display').html(errMsg);
+                                        }if(data.code == '409'){
+                                            $('#err-display').html('The username you have entered is already in use');
+                                        }
+                                        $('#username-input').focus();
+                                        $(PROFILE_EDIT_PANEL_SELECTOR).height(258);
+                                        $('#err-display').show();
+                                    }
+                                    else if(data.result){
+                                        if(data.result.username){
+                                            $(PROFILE_EDIT_PANEL_SELECTOR).height(210);
+                                            $('#err-display').html('');
+                                            $(PROFILE_EDIT_PANEL_SELECTOR).remove();
+                                            $(GREYED_BACKGROUND_SELECTOR).remove();
+                                            $(PROFILE_NAME_DISPLAY).html(data.result.username);
+                                            $('#myActualProfile').attr('href', data.result.username)
+                                        }
                                     }
                                 }
                             });
@@ -198,19 +226,17 @@ kikinvideo.UIUniversal =
             function bindEvents() {
                 $(PROFILE_OPTIONS_BUTTON_SELECTOR).hover(
                         function() {
-                            if(!$('#header-right').hasClass('selected'))
-                                $('#header-right').addClass('selected');
+                            if(!$(this).hasClass('selected') && $('#lnkConnectFb').length == 0)
+                                $(this).addClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
                         },
                         function() {
-                            if($('#header-right').hasClass('selected'))
-                                $('#header-right').removeClass('selected');
+                            if($(this).hasClass('selected'))
+                                $(this).removeClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         }
-                );
-
+                )
             }
-
 
             //expose public functions...
             return {

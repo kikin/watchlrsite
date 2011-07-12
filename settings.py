@@ -4,7 +4,7 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local')
+VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local_sqlite')
 
 # Turn DEBUG on only if running locally
 DEBUG = VIDEO_ENV.startswith('local')
@@ -266,3 +266,7 @@ AWS_ACCESS_KEY_ID = 'AKIAIZDME4VOHZPYNXSQ'
 AWS_SECRET_ACCESS_KEY = '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'
 
 SENDER_EMAIL_ADDRESS = 'Watchlr <noreply@watchlr.com>'
+
+# IE cross-domain cookie fix
+P3P_COMPACT = 'policyref="http://www.example.com/p3p.xml", CP="NON DSP COR CURa TIA"'
+MIDDLEWARE_CLASSES += ('kikinvideo.middleware.P3PHeaderMiddleware',)

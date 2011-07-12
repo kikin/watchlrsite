@@ -3,6 +3,8 @@
     ServerAlias www.watchlr.com
 
     Alias /static/ /opt/video_env/kikinvideo/static/
+    Alias /robots.txt /opt/video_env/kikinvideo/static/robots.txt
+    Alias /favicon.ico /opt/video_env/kikinvideo/static/images/favicon.ico
 
     <Directory /opt/video_env/kikinvideo/static/>
     Order deny,allow

@@ -139,6 +139,7 @@ function swapTab(selector) {
         $(activeTab).removeClass('selected');
         $(selector).addClass('selected');
         activeTab = selector;
+        registerPageview();
     }
 };
 
@@ -160,4 +161,33 @@ function showErrorDialog(msg, code){
 
 function hideErrorDialog(){
     $(ERROR_DIALOG_SELECTOR).fadeOut(600);
+}
+
+function trackEvent(category, action){
+    switch(activeView){
+        case VIEWS.activity:
+             _gaq.push(['_trackEvent', category, action + '_Activity', 'web_app']);
+        break;
+        case VIEWS.profile:
+           _gaq.push(['_trackEvent', category, action + '_Profile', 'web_app']);
+       break;
+        case VIEWS.detail:
+            _gaq.push(['_trackEvent', category, action + '_Detail', 'web_app']);
+        break;
+        case VIEWS.savedQueue:
+            _gaq.push(['_trackEvent', category, action + '_Queue', 'web_app']);
+        break;
+        case VIEWS.likedQueue:
+            _gaq.push(['_trackEvent', category, action + '_Queue', 'web_app']);
+    }
+
+    _gaq.push(['_trackEvent', category, action, 'web_app']);
+}
+
+
+function registerPageview(){
+    try{
+        var tracker = _gat._getTracker('UA-4788978-3');
+        tracker._trackPageview(window.location.hash);
+    }catch(excp){}
 }

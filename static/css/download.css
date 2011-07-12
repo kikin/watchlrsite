@@ -2,10 +2,8 @@
 html {
 
 }
-
-#wrapper {
-	position:relative;
-	left:-40px;
+body{
+    text-align: center;
 }
 
 .firefox_mac {
@@ -40,8 +38,9 @@ html {
 .block {
     padding-top:10px;
     border-top: 2px solid #dedede;
-    width: 740px;
-    margin-left:10px;
+    width: 730px;
+    margin-left:auto;
+    margin-right: auto;
 }
 .block img {
     float:right;

@@ -353,6 +353,10 @@ def video_queue_item(context):
 def liked_by_panel(video):
     return {'video':video, 'users':video.all_likers()}
 
+@register.inclusion_tag('inclusion_tags/video_no_embed.hfrg')
+def video_no_embed(video):
+    return {'video': video }
+
 @register.filter
 def user_profile_link(user):
     target = 'href=%s' % user.get_absolute_url()
@@ -384,6 +388,14 @@ def truncate_chars(s, num):
 def saved_from(video, user):
     try:
         user_video = UserVideo.objects.get(video=video, user=user)
-        return user_video.host
+
+        try:
+            if user_video.video.source.name.lower() == 'facebook':
+                return video.url
+        except Exception:
+            pass
+
+        return user_video.host or video.url
+
     except UserVideo.DoesNotExist:
         return video.url

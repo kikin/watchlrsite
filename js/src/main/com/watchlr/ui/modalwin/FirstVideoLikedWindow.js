@@ -10,14 +10,14 @@ $cwui.modalwin.WatchlrIframeWindow.extend("com.watchlr.ui.modalwin.FirstVideoLik
             parentWindow: window
         });
 
-        $(this.getBody()).attr('id', 'video-liked-window');
+        $(this.getBody()).attr('id', 'watchlr-video-liked-window');
         this.setContent($cws.html['FirstVideoLikedWindow']);
         $cwutil.Styles.insert('FirstVideoLikedWindowStyles', this.getDocument());
 
-        $(this.getElement('a.close-button')).click($.proxy(this._onCloseCallback, this));
-        $(this.getElement('a.ok-button')).click($.proxy(this._onOkCallback, this));
-        $(this.getElement('#user-profile')).click($.proxy(this._onVisitUserProfilePageCallback, this));
-        $(this.getElement('#fb-push-message')).click($.proxy(this._onFacebookPushMessageClicked, this));
+        $(this.getElement('a.watchlr-close-button')).click($.proxy(this._onCloseCallback, this));
+        $(this.getElement('a.watchlr-ok-button')).click($.proxy(this._onOkCallback, this));
+        $(this.getElement('#watchlr-user-profile')).click($.proxy(this._onVisitUserProfilePageCallback, this));
+        $(this.getElement('#watchlr-fb-push-message')).click($.proxy(this._onFacebookPushMessageClicked, this));
     },
     
     show: function() {

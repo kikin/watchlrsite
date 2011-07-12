@@ -13,18 +13,18 @@ $cwui.modalwin.WatchlrIframeWindow.extend("com.watchlr.ui.modalwin.FacebookConne
 			parentWindow: window
 		});
 
-        $(this.getBody()).attr('id', 'facebook-connect-window');
+        $(this.getBody()).attr('id', 'watchlr-facebook-connect-window');
         this.setContent($cws.html['FacebookConnectWindow']);
         $cwutil.Styles.insert('FacebookConnectWindowStyles', this.getDocument());
 
-        $(this.getElement('a.closeButton')).click($.proxy(this._onCloseCallback, this));
+        $(this.getElement('a.watchlr-close-button')).click($.proxy(this._onCloseCallback, this));
         $(this.getElement('a.watchlr-fb-connect')).click($.proxy(this._onConnectCallback, this));
         $(this.getElement('#facebook-sign-in')).click($.proxy(this._onConnectCallback, this));
-        $(this.getElement('#video-page')).click($.proxy(this._onVisitUserProfilePageCallback, this));
+        $(this.getElement('#watchlr-video-page')).click($.proxy(this._onVisitUserProfilePageCallback, this));
     },
 
     show: function() {
-        this.setSize(375, 185);
+        this.setSize(380, 190);
         this._super();
         this.trigger('show');
     },

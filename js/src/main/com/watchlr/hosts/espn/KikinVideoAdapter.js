@@ -45,9 +45,10 @@ $cwh.adapters.KikinVideoAdapter.extend("com.watchlr.hosts.espn.adapters.KikinVid
 
             } else {
                 setTimeout($.proxy(function() {
-                   var embeds = this._findFlashVideoCandidates();
+                    var embeds = this._findFlashVideoCandidates();
                     if (embeds)
                         this._findFlashVideos(embeds);
+
                     if (this.videos && (this.videos.length == 1)) {
                         this.videos[0].url = "http://espn.go.com/video/clip?id=" + videoId;
                         this.videos[0].saved = false;
