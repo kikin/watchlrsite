@@ -1576,7 +1576,7 @@ def fetch_news_feed(*args, **kwargs):
             break
 
         # Update user's news feed every hour
-        if user.fb_news_feed_fetched and datetime.utcnow() - user.fb_news_feed_fetched < timedelta(hours=1):
+        if user.fb_news_feed_fetched and datetime.utcnow() - user.fb_news_feed_fetched < timedelta(minutes=15):
             logger.debug('Skipping over user:%s, last feed refresh:%s' % (user.username, user.fb_news_feed_fetched))
             continue
 
