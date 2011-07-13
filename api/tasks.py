@@ -1529,7 +1529,7 @@ def fetch_user_news_feed(user, until=None, page=1):
                 video = None
                 for fetcher in _fetcher.fetchers:
                     try:
-                        meta = fetcher.fetch(item['link'], logger)
+                        meta = fetcher.fetch(url, logger)
                         Video.objects.create(url=url)
                         video = update_video_metadata(url, meta, logger)
                     except UrlNotSupported:
