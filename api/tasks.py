@@ -1526,18 +1526,21 @@ def fetch_user_news_feed(user, until=None):
             except Video.DoesNotExist:
                 logger.info('Candidate video url:%s' % url)
 
+                video = None
                 for fetcher in _fetcher.fetchers:
                     try:
                         meta = fetcher.fetch(item['link'], logger)
-                        break
+                        Video.objects.create(url=url)
+                        video = update_video_metadata(url, meta, logger)
                     except UrlNotSupported:
                         continue
-                else:
+                    except Exception:
+                        logger.exception('Error fetching link:%s' % item['link'])
+                        break
+
+                if not video:
                     logger.info('Shared link:%s not supported' % item['link'])
                     continue
-
-                Video.objects.create(url=url)
-                video = update_video_metadata(url, meta, logger)
 
             fb_friend = get_or_create_fb_identity(item['from'], user, logger)
             FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
@@ -1559,7 +1562,7 @@ def fetch_user_news_feed(user, until=None):
 
         
 @task
-def fetch_news_feed():
+def fetch_news_feed(*args, **kwargs):
     logger = fetch_news_feed.get_logger()
 
     queued = 0
