@@ -197,6 +197,8 @@ def privacy(request):
 def no_plugin_no_videos(request):
     return render_to_response('content/no_plugin_no_videos.hfrg', context_instance=RequestContext(request))
 
+def plugin_no_videos(request):
+    return render_to_response('content/plugin_no_videos.hfrg', context_instance=RequestContext(request))
 
 def activity(request):
     if request.user.is_authenticated():

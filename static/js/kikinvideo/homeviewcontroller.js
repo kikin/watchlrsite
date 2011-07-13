@@ -60,7 +60,51 @@ kikinvideo.HomeViewController = function() {
 
     var uid = $(UID_META_SELECTOR).attr('content');
 
+    //ugly state vars...
     var initialLoad = true;
+    //how many times have we pitched the plugin...
+    //(we want to set a little delay for our check FIRST
+    // TIME AROUND, because the plugin may take a second
+    // or two to attach its dummy element to the doc body)
+    var initialPluginPitch = true;
+
+    var pluginPitchDelay=700;
+    //this is a not-pretty hack around the fact that it can take
+    //several seconds for the Watchlr plugin to get around to
+    //attaching the "watchlr_dummy_element_for_plugin_detection"
+    //to the document body...
+    $(document).ready(function(){
+          //we'll try once every 20 ms for 2 seconds,
+          // then give up...
+          var maxTries = 100;
+          var checkInterval = 20;
+          var numTries = 0;
+          var intervalObj = setInterval(function(){
+                if(numTries++ <= maxTries){
+                    if($('#watchlr_dummy_element_for_plugin_detection').length == 1 &&
+                            $('.video-wrapper').length == 0){
+                        $.ajax({url:'/content/plugin_no_videos',
+                            success:function(content){
+                                    if(activeView == VIEWS.saves){
+                                        $('#videoList').html('')
+                                        $('#videoList').html(content);
+                                        $('.video-container.plugin-pitch').fadeIn(1200, function(){
+                                            initialPluginPitch = false;
+                                            clearInterval(intervalObj);
+                                        });
+                                    }
+                            }
+                        });
+                    }
+                }else{
+                    initialPluginPitch = false;
+                    clearInterval(intervalObj);
+                    $('.loading-container').fadeOut(0, function(){
+                            onHashChange(window.location.hash);
+                    });
+              }
+          }, checkInterval);
+    });
 
     /*hashbang url routing...*/
     function onHashChange(hash_url){
@@ -69,37 +113,40 @@ kikinvideo.HomeViewController = function() {
         if(url_content.path == SAVED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.savedQueue);
             activeView = VIEWS.savedQueue;
+
             /*plugin check*/
-            function pluginDetect(onComplete){
+            function pluginDetect(){
                 if($('#watchlr_dummy_element_for_plugin_detection').length == 0
                     && $('.video-wrapper').length == 0){
-                    $('#videoList').html('');
                     $.ajax({url:'/content/no_plugin_no_videos',
                         success:function(content){
                             if($('.video-wrapper').length == 0){
-                                $('#videoList').html(content);
-                                var downloadPitchScript = $('#dlPitch');
-                                downloadPitchScript.load();
-                                if(onComplete)
-                                    onComplete();
+                                setTimeout(function(){
+                                    $('#videoList').html('');
+                                    $('#videoList').html(content);
+                                    var downloadPitchScript = $('#dlPitch');
+                                    downloadPitchScript.load();
+                                    $('.video-container.plugin-pitch').fadeIn(1200);
+                                }, pluginPitchDelay);
                             }
                         }
                     });
-                }else{
-                    $('.video-container.plugin-pitch').css({visibility:'visible'});
+                }else if ($("#watchlr_dummy_element_for_plugin_detection").length == 1 &&
+                    $('.video-wrapper').length == 0){
+                        $.ajax({url:'/content/plugin_no_videos',
+                            success:function(content){
+                                    $('#videoList').html(content);
+                                    setTimeout(function(){
+                                        $('.video-container.plugin-pitch').fadeIn(1200);
+                                    }, pluginPitchDelay);
+                            }
+                        });
                 }
             }
-            /*function presentPitch(){
-                var noVidsContent;
-                if($('#videoList').length == 0){
-                    noVidsContent = $('#videoList').html();
-                }
-                pluginDetect(function(){
-                    
-                });
-            }*/
-            $(document).ready(pluginDetect);
-            populatePanel(pluginDetect);
+            if(!initialPluginPitch)
+                populatePanel(pluginDetect);
+            else
+                populatePanel();
         }if(url_content.path == LIKED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.likedQueue);
             activeView = VIEWS.likedQueue;
@@ -266,7 +313,7 @@ kikinvideo.HomeViewController = function() {
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
                 if(activeView == VIEWS.savedQueue){
                     if($(VIDEO_CONTAINER_CLASS).length == 0){
-                        populatePanel();
+                        onHashChange(window.location.hash);
                     }
                 }
                 trackEvent('Video', 'Remove');

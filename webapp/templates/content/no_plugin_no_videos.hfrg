@@ -1,4 +1,4 @@
-<div class="video-container plugin-pitch" style="height:450px;border-bottom: none;">
+<div class="video-container plugin-pitch" style="height:450px;border-bottom: none;display:none;">
     <div class="featureTxt" style="width: 600px; margin-left:0px;">
         <h4 style="width:730px;">
             You have no saved videos at the moment.

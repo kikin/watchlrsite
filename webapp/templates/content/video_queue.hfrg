@@ -15,19 +15,9 @@
                 </div>
             {% endif %}
             {% if display_mode ==  "saved"%}
-                <div class="video-container plugin-pitch" style="height:480px;border-bottom: none;width: 670px;text-align: left;visibility: visible;">
-                <div class="featureTxt">
-                    <h4 style="width:100%">
-                        You have no saved videos at the moment.
-                    </h4>
-                    <div>
-                        Place your mouse on a video and you can save it to watch later.  Watchlr supports YouTube, Facebook Vimeo and more!
+                    <div class="loading-container initial"  style="position:static;width:200px;margin-left: auto;margin-right: auto;">
+                        <div class="loading"></div>
                     </div>
-                    <div style="height:350px; margin-top:30px;width:100%;text-align: left;">
-                        <img title="Watchlr Browser App" src="{{ STATIC_URL }}images/extras/browserapp.png" style="margin-left: auto;margin-right: auto;"/>
-                    </div>
-                </div>
-            </div>
         {% endif %}
 {% endif %}
 
