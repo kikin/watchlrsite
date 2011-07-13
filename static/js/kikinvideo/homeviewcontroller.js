@@ -106,6 +106,36 @@ kikinvideo.HomeViewController = function() {
           }, checkInterval);
     });
 
+    /*(non-initial) plugin check logic*/
+    function pluginDetect(){
+        if($('#watchlr_dummy_element_for_plugin_detection').length == 0
+            && $('.video-wrapper').length == 0){
+            $.ajax({url:'/content/no_plugin_no_videos',
+                success:function(content){
+                    if($('.video-wrapper').length == 0){
+                        setTimeout(function(){
+                            $('#videoList').html('');
+                            $('#videoList').html(content);
+                            var downloadPitchScript = $('#dlPitch');
+                            downloadPitchScript.load();
+                            $('.video-container.plugin-pitch').fadeIn(1200);
+                        }, pluginPitchDelay);
+                    }
+                }
+            });
+        }else if ($("#watchlr_dummy_element_for_plugin_detection").length == 1 &&
+            $('.video-wrapper').length == 0){
+                $.ajax({url:'/content/plugin_no_videos',
+                    success:function(content){
+                            $('#videoList').html(content);
+                            setTimeout(function(){
+                                $('.video-container.plugin-pitch').fadeIn(1200);
+                            }, pluginPitchDelay);
+                    }
+                });
+        }
+    }
+
     /*hashbang url routing...*/
     function onHashChange(hash_url){
         var url_content = parseHashURL(hash_url);
@@ -114,35 +144,6 @@ kikinvideo.HomeViewController = function() {
             swapTab(TAB_SELECTORS.savedQueue);
             activeView = VIEWS.savedQueue;
 
-            /*plugin check*/
-            function pluginDetect(){
-                if($('#watchlr_dummy_element_for_plugin_detection').length == 0
-                    && $('.video-wrapper').length == 0){
-                    $.ajax({url:'/content/no_plugin_no_videos',
-                        success:function(content){
-                            if($('.video-wrapper').length == 0){
-                                setTimeout(function(){
-                                    $('#videoList').html('');
-                                    $('#videoList').html(content);
-                                    var downloadPitchScript = $('#dlPitch');
-                                    downloadPitchScript.load();
-                                    $('.video-container.plugin-pitch').fadeIn(1200);
-                                }, pluginPitchDelay);
-                            }
-                        }
-                    });
-                }else if ($("#watchlr_dummy_element_for_plugin_detection").length == 1 &&
-                    $('.video-wrapper').length == 0){
-                        $.ajax({url:'/content/plugin_no_videos',
-                            success:function(content){
-                                    $('#videoList').html(content);
-                                    setTimeout(function(){
-                                        $('.video-container.plugin-pitch').fadeIn(1200);
-                                    }, pluginPitchDelay);
-                            }
-                        });
-                }
-            }
             if(!initialPluginPitch)
                 populatePanel(pluginDetect);
             else
