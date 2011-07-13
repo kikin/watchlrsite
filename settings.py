@@ -224,7 +224,7 @@ CELERYBEAT_SCHEDULE = {
     },
     "fetch-news-feed-every-5-mins": {
         "task": "api.tasks.fetch_news_feed",
-        "schedule": timedelta(minutes=1)
+        "schedule": timedelta(minutes=5)
     },
 }
 
