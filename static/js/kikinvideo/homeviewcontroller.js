@@ -115,9 +115,7 @@ kikinvideo.HomeViewController = function() {
                         setTimeout(function(){
                             $('#videoList').html('');
                             $('#videoList').html(content);
-                            $.getScript('/static/js/kikinvideo/DownloadPitch.js', function(){
-                                browserSpecificPitch();
-                            });
+                             browserSpecificPitch();
                             $('.video-container.plugin-pitch').fadeIn(1200);
                         }, pluginPitchDelay);
                     }
