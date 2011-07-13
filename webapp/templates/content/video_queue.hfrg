@@ -15,7 +15,7 @@
                 </div>
             {% endif %}
             {% if display_mode ==  "saved"%}
-                <div class="video-container plugin-pitch" style="height:480px;border-bottom: none;width: 670px;text-align: left;">
+                <div class="video-container plugin-pitch" style="height:480px;border-bottom: none;width: 670px;text-align: left;visibility: hidden;">
                 <div class="featureTxt">
                     <h4 style="width:100%">
                         You have no saved videos at the moment.
