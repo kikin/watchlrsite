@@ -70,21 +70,35 @@ kikinvideo.HomeViewController = function() {
             swapTab(TAB_SELECTORS.savedQueue);
             activeView = VIEWS.savedQueue;
             /*plugin check*/
-            function pluginDetect(){
-                if($('#watchlr_dummy_element_for_plugin_detection').length == 0){
+            function pluginDetect(onComplete){
+                if($('#watchlr_dummy_element_for_plugin_detection').length == 0
+                    && $('.video-wrapper').length == 0){
                     $('#videoList').html('');
                     $.ajax({url:'/content/no_plugin_no_videos',
                         success:function(content){
-                            $('#videoList').html(content);
-                            var downloadPitchScript = $('#dlPitch');
-                            downloadPitchScript.load();
+                            if($('.video-wrapper').length == 0){
+                                $('#videoList').html(content);
+                                var downloadPitchScript = $('#dlPitch');
+                                downloadPitchScript.load();
+                                if(onComplete)
+                                    onComplete();
+                            }
                         }
                     });
                 }else{
                     $('.video-container.plugin-pitch').css({visibility:'visible'});
                 }
             }
-            $(window).load(pluginDetect);
+            /*function presentPitch(){
+                var noVidsContent;
+                if($('#videoList').length == 0){
+                    noVidsContent = $('#videoList').html();
+                }
+                pluginDetect(function(){
+                    
+                });
+            }*/
+            $(document).ready(pluginDetect);
             populatePanel(pluginDetect);
         }if(url_content.path == LIKED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.likedQueue);
@@ -252,7 +266,7 @@ kikinvideo.HomeViewController = function() {
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
                 if(activeView == VIEWS.savedQueue){
                     if($(VIDEO_CONTAINER_CLASS).length == 0){
-                        populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+                        populatePanel();
                     }
                 }
                 trackEvent('Video', 'Remove');
