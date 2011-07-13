@@ -279,7 +279,7 @@ def activity_item_heading(activity_item, user):
                     content += ', ' + str(len(all_likers)) + ' others liked...'
             else:
                 other = likers[0] if not user == likers[0] else likers[1]
-                content += ', <a href="/'+other.username+'">'+other[0].first_name+'</a> '
+                content += ', <a href="/'+other.username+'">'+other.first_name+'</a> '
                 if len(all_likers) - 2 == 1:
                     content += ' and 1 other liked...'
                 else:
