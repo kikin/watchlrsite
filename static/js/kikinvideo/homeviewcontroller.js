@@ -68,7 +68,7 @@ kikinvideo.HomeViewController = function() {
     // or two to attach its dummy element to the doc body)
     var initialPluginPitch = true;
 
-    var pluginPitchDelay=700;
+    var pluginPitchDelay=0;
     //this is a not-pretty hack around the fact that it can take
     //several seconds for the Watchlr plugin to get around to
     //attaching the "watchlr_dummy_element_for_plugin_detection"
@@ -85,16 +85,15 @@ kikinvideo.HomeViewController = function() {
                             $('.video-wrapper').length == 0){
                         $.ajax({url:'/content/plugin_no_videos',
                             success:function(content){
-                                    if(activeView == VIEWS.saves){
+                                    if(activeView == VIEWS.savedQueue){
                                         $('#videoList').html('')
                                         $('#videoList').html(content);
-                                        $('.video-container.plugin-pitch').fadeIn(1200, function(){
-                                            initialPluginPitch = false;
-                                            clearInterval(intervalObj);
-                                        });
+                                        $('.video-container.plugin-pitch').fadeIn(1200);
                                     }
                             }
                         });
+                        initialPluginPitch = false;
+                        clearInterval(intervalObj);
                     }
                 }else{
                     initialPluginPitch = false;
