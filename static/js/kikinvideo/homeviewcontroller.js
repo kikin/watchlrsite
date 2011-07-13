@@ -272,9 +272,21 @@ kikinvideo.HomeViewController = function() {
                                                 var like_details = trim(activity_item_header.html());
 
                                                 if(data.result.likes == 2){
-                                                    like_details = 'You and '+like_details;
+                                                    if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                        like_details = 'You and '+like_details;
+                                                    }else{
+                                                        var like_offset = like_details.indexOf('shared, ');
+                                                        like_details = like_details.substr(0, like_offset)+'shared, You and '+like_details.substr(like_offset+8, like_details.length);
+                                                    }
+                                                }else if(data.result.likes > 2){
+                                                    if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                        like_details = 'You, '+like_details;
+                                                    }else{
+                                                        var like_offset = like_details.indexOf('shared, ');
+                                                        like_details = like_details.substr(0, like_offset)+'shared, You, '+like_details.substr(like_offset+8, like_details.length);
+                                                    }
                                                 }else{
-                                                    like_details = 'You, '+like_details;
+                                                    like_details = like_details.substr(0, like_details.length-3)+', You liked...'
                                                 }
                                                 activity_item_header.fadeOut(500, function(){
                                                     activity_item_header.html(like_details);
@@ -329,9 +341,20 @@ kikinvideo.HomeViewController = function() {
                                                 });
                                             }
                                         }else if(activeView == VIEWS.activity){
-                                            //means that we are in activity queue AND had been the only
-                                            //"liker" of this video, so we may gracefully remove it
-                                            $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
+                                            if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                //means that we are in activity queue AND had been the only
+                                                //"liker" of this video, so we may gracefully remove it
+                                                $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
+                                            } else {
+                                                // Get rid of the trailing '.., You liked...'
+                                                var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
+                                                var like_details = trim(activity_item_header.html());
+                                                like_details = like_details.substr(0, like_details.length - 14) + '...';
+                                                activity_item_header.fadeOut(500, function(){
+                                                    activity_item_header.html(like_details);
+                                                    activity_item_header.fadeIn(500);
+                                                });
+                                            }
                                         }
                                     });
                                  //analytics...

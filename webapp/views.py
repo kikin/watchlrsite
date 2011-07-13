@@ -157,7 +157,7 @@ def video_detail(request, video_id):
 
 def public_profile(request, username):
     try:
-        user = User.objects.get(username=username)
+        user = User.objects.get(username=username, is_registered=True)
         if user == request.user:
             return render_to_response('profile.html', {'profile_owner':user, 'user':user, 'display_mode':'profile',\
                                                        'is_own_profile':True, 'videos':user.liked_videos()},\
