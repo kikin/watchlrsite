@@ -194,7 +194,7 @@ a:hover {
 #options {
     display: none;
     position: relative;
-    top:-2px;
+    top:-3px;
     min-width: 100%;
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
     z-index: 10000;
