@@ -15,12 +15,12 @@
                 </div>
             {% endif %}
             {% if display_mode ==  "saved"%}
-                <div class="video-container" style="height:450px;border-bottom: none;">
+                <div class="video-container plugin-pitch" style="height:450px;border-bottom: none;">
                     <div class="featureTxt" style="width: 600px; margin-left:0px;">
-                        <h4 style="margin-left:10px;">
+                        <h4 style="width:730px;">
                             You have no saved videos at the moment.
                         </h4>
-                        <div style="margin-left:10px;">
+                        <div>
                             Install the Watchlr Browser App or Bookmarklet to save or like video from popular sources.
                         </div>
                         <div class="block" style="height:350px; margin-top:30px;">

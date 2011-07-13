@@ -205,7 +205,7 @@ def fb_thumb_href(user_activities, user):
     for user_activity in user_activities:
         if user_activity.user != user:
            return  user_profile_link(user_activity.user)
-    if len(users) == 1:
+    if len(user_activities) == 1:
         return user_profile_link(user_activities[0].user)
     return ""
 

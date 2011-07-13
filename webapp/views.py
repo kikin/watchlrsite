@@ -188,11 +188,14 @@ def tos(request):
 
 
 def plugin_pitch(request):
-    return render_to_response('content/plugin_pitch.hfrg')
+    return render_to_response('content/plugin_pitch.hfrg', context_instance=RequestContext(request))
 
 
 def privacy(request):
     return render_to_response('boilerplate/privacy.html', context_instance=RequestContext(request))
+
+def no_videos(request):
+    return render_to_response('content/no_videos.hfrg', context_instance=RequestContext(request))
 
 
 def activity(request):
