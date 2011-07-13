@@ -202,11 +202,17 @@ def fb_thumb_small(user_activities, user):
 
 @register.filter
 def fb_thumb_href(user_activities, user):
+    def get_link(user):
+        target = 'href="%s"' % user.get_absolute_url()
+        if not user.is_registered:
+            target += ' target="_blank"'
+        return target
+
     for user_activity in user_activities:
         if user_activity.user != user:
-           return  user_profile_link(user_activity.user)
+           return get_link(user_activity.user)
     if len(user_activities) == 1:
-        return user_profile_link(user_activities[0].user)
+        return get_link(user_activities[0].user)
     return ""
 
 @register.filter
