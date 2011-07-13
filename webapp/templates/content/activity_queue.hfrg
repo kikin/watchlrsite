@@ -18,7 +18,7 @@
     <div class='video-wrapper'>
     <div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
         <div class="activity-queue inner">
-              <a href="{{  activity_item.user_activities|fb_thumb_href:user }}">
+              <a {{ activity_item.user_activities|fb_thumb_href:user }}>
                   <div class="fb-thumb-wrapper">
                       <img src="{{ activity_item.user_activities|fb_thumb_small:user }}"/>
                   </div>
