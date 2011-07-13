@@ -194,7 +194,7 @@ a:hover {
 #options {
     display: none;
     position: relative;
-    top:-2px;
+    top:-3px;
     min-width: 100%;
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
     z-index: 10000;
@@ -284,7 +284,7 @@ a:hover {
 }
 
 .loading-container.initial{
-    padding-top: 35px;
+    padding-top: 25px;
 }
 
 .loading {
@@ -311,7 +311,7 @@ a:hover {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     width:760px;
-    min-height:120px;
+    min-height:180px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;

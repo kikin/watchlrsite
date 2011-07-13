@@ -118,6 +118,16 @@ function parseHashURL(hash_url) {
     }
 }
 
+function pluginAbsent(callback){
+    var plugin_check_interval = 200;
+    var interval_obj = setInterval(function(){
+        if($('#watchlr_dummy_element_for_plugin_detection').length > 0){
+            clearInterval(interval_obj);
+            callback();
+        }
+    }, plugin_check_interval);
+}
+
 /*util function to trim whitespace from beginning and end of string*/
 function trim(s) {
     s = s.replace(/(^\s*)|(\s*$)/gi,"");
@@ -125,6 +135,10 @@ function trim(s) {
     s = s.replace(/\n /,"\n");
     return s;
 }
+
+//because jQuery's $.browser doesn't yet have a repr. for Chrome...
+var userAgent = navigator.userAgent.toLowerCase();
+$.browser.chrome = /chrome/.test(navigator.userAgent.toLowerCase()); 
 
 function stylizeVideoTitles() {
     Cufon.replace('.video-title, .activity-item-video-title, .section-title, h4', {
