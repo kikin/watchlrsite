@@ -1507,13 +1507,23 @@ def fetch_user_news_feed(user, until=None):
             raise Exception('Facebook news feed response not valid JSON:\n%s' % content)
 
         for index, item in enumerate(items):
+            try:
+                shared = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
+            except Exception:
+                logger.exception('Could not parse created time for news feed item:\n%s' % item)
+                continue
+
+            # Fetch next page
+            if index == len(items) - 1:
+                User.objects.filter(id=user.id).update(fb_news_feed_fetched=shared)
+                fetch_user_news_feed.delay(user, shared)
+
             # Is news feed item a shared link?
             if item.get('type') not in ('link', 'video'):
                 continue
 
             try:
                 url = url_fix(item['link'])
-                shared = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
             except KeyError:
                 logger.info('Skipping over item with missing required fields:\n%s' % json.dumps(item))
                 continue
@@ -1526,28 +1536,26 @@ def fetch_user_news_feed(user, until=None):
             except Video.DoesNotExist:
                 logger.info('Candidate video url:%s' % url)
 
+                video = None
                 for fetcher in _fetcher.fetchers:
                     try:
                         meta = fetcher.fetch(item['link'], logger)
-                        break
+                        Video.objects.create(url=url)
+                        video = update_video_metadata(url, meta, logger)
                     except UrlNotSupported:
                         continue
-                else:
+                    except Exception:
+                        logger.exception('Error fetching link:%s' % item['link'])
+                        break
+
+                if not video:
                     logger.info('Shared link:%s not supported' % item['link'])
                     continue
-
-                Video.objects.create(url=url)
-                video = update_video_metadata(url, meta, logger)
 
             fb_friend = get_or_create_fb_identity(item['from'], user, logger)
             FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
 
             UserVideo.objects.get_or_create(user=fb_friend, video=video, shared_timestamp=shared)
-
-            # Fetch next page
-            if index == len(items) - 1:
-                User.objects.filter(id=user.id).update(fb_news_feed_fetched=shared)
-                fetch_user_news_feed.delay(user, shared)
 
     except urllib2.URLError, exc:
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
@@ -1559,7 +1567,7 @@ def fetch_user_news_feed(user, until=None):
 
         
 @task
-def fetch_news_feed():
+def fetch_news_feed(*args, **kwargs):
     logger = fetch_news_feed.get_logger()
 
     queued = 0
