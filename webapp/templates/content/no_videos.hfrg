@@ -1,0 +1,19 @@
+{% extends "user_home.html" %}
+
+{% block videolist %}
+    <div class="video-container plugin-pitch" style="height:480px;border-bottom: none;">
+        <div class="featureTxt" style="width: 600px; margin-left:0px;">
+            <h4 style="width:730px;">
+                You have no saved videos at the moment.
+            </h4>
+            <div>
+                To save a video, place your mouse on a video and you can save it to watch later.  Watchlr supports YouTube, Facebook Vimeo and more!
+            </div>
+            <center>
+            <div class="block" style="height:350px; margin-top:30px;">
+                <img title="Watchlr Browser App" src="{{ STATIC_URL }}images/extras/browserapp.png" style="margin-right:10px; padding-bottom:30px;"/>
+            </div>
+            </center>
+        </div>
+    </div>
+{% endblock videolist %}

@@ -70,6 +70,7 @@ kikinvideo.HomeViewController = function() {
             swapTab(TAB_SELECTORS.savedQueue);
             activeView = VIEWS.savedQueue;
             populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+            /*plugin check*/
         }if(url_content.path == LIKED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.likedQueue);
             activeView = VIEWS.likedQueue;
