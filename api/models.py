@@ -488,7 +488,7 @@ class User(auth_models.User):
             since = datetime(1970, 1, 1)
 
         by_video = dict()
-        for user in chain(self.following(), self.fb_friends.all(), [self,]):
+        for user in chain(self.following(), [self,]):
 
             for video in user.liked_videos():
 
@@ -508,6 +508,8 @@ class User(auth_models.User):
                 if not by_video[video].timestamp or user_video.liked_timestamp > by_video[video].timestamp:
                     by_video[video].timestamp = user_video.liked_timestamp
 
+        for user in self.fb_friends.all():
+            
             for video in filter(lambda v: v.status() == states.SUCCESS, user.shared_videos()):
 
                 user_video = UserVideo.objects.get(user=user, video=video)
@@ -516,7 +518,7 @@ class User(auth_models.User):
 
                 user_activity = UserActivity(user, user_video.shared_timestamp, 'share')
                 try:
-                    by_video[video].users.append(user_share_tuple)
+                    by_video[video].user_activities.append(user_activity)
                 except KeyError:
                     by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
 
@@ -525,7 +527,7 @@ class User(auth_models.User):
 
         items = sorted(by_video.values(), reverse=True)
         for item in items:
-            item.users.sort(reverse=True)
+            item.user_activities.sort(reverse=True)
 
         return items
 

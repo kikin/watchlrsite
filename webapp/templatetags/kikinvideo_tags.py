@@ -194,73 +194,145 @@ def no_likes(video):
     return len(video.all_likers()) == 0
 
 @register.filter
-def fb_thumb_small(users, user):
-    for user_tuple in users:
-        if user_tuple[0] != user:
-           return  "https://graph.facebook.com/"+user_tuple[0].facebook_uid()+ "/picture?type=square"
+def fb_thumb_small(user_activities, user):
+    for user_activity in user_activities:
+        if user_activity.user != user:
+           return  "https://graph.facebook.com/"+user_activity.user.facebook_uid()+ "/picture?type=square"
     return "https://graph.facebook.com/"+user.facebook_uid()+ "/picture?type=square"
 
 @register.filter
-def fb_thumb_href(users, user):
-    for user_tuple in users:
-        if user_tuple[0] != user:
-           return  "/"+user_tuple[0].username
+def fb_thumb_href(user_activities, user):
+    for user_activity in user_activities:
+        if user_activity.user != user:
+           return  user_profile_link(user_activity.user)
     if len(users) == 1:
-        return  "/"+users[0][0].username
+        return user_profile_link(user_activities[0].user)
     return ""
 
 @register.filter
 def activity_item_heading(activity_item, user):
     video = activity_item.video
-    all_likers = activity_item.video.all_likers()
+    user_activities = activity_item.user_activities
+
+    all_likers = video.all_likers()
+
+    # A video appears in a user's activity queue under the following scenarios:
+    # 1. User (and possibly, others) liked a video.
+    # 2. User shared a video on Facebook (and others possibly liked it).
+    # 3. One or more of the followed users liked a video.
+    # 4. One or more of user's Facebook friends shared a video (and others possibly liked it).
+
     content = ''
-    if activity_item.video in user.liked_videos():
-        content = "You"
-        if len(activity_item.users) == 1 and len(all_likers) == 1:
-            content += " liked..."
+    for user_activity in user_activities:
+        if not user_activity.user == user:
+            continue
 
-        elif len(activity_item.users) == 1 and len(all_likers) == 2:
-            content += ' and 1 other liked...'
+        content = 'You'
 
-        elif len(activity_item.users) == 1 and len(all_likers) > 2:
-            content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
-        elif len(activity_item.users) == 2 and len(all_likers) == 2:
-            if activity_item.users[0][0] != user:
-                content += ' and <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'
-            else:
-                content += ' and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> liked...'
-        elif len(activity_item.users) >= 2:
-            if activity_item.users[0][0] != user:
-                content += ', <a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
-            else:
-                content += ', <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> '
-            if len(all_likers) - 2 == 1:
+        if len(user_activities) == 1 and len(all_likers) == 0:
+            content += ' shared...'
+
+        elif len(user_activities) == 1 and len(all_likers) == 1:
+            content += ' liked...'
+
+        elif len(user_activities) == 1 and len(all_likers) == 2:
+            if user_activity.type == 'like':
                 content += ' and 1 other liked...'
+            elif user_activity.type == 'share':
+                content += ' shared and 1 other liked...'
+
+        elif len(user_activities) == 1 and len(all_likers) > 2:
+            if user_activity.type == 'like':
+                content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
+            elif user_activity.type == 'share':
+                content += ' shared and ' + str(len(all_likers)) + ' others liked...'
+
+        elif len(user_activities) == 2 and len(all_likers) == 2:
+            if not 'share' in map(attrgetter('type'), user_activities):
+                other = user_activities[0].user if not user == user_activities[0].user else user_activities[1].user
+                content += ' and <a href="/'+other.username+'">'+other.first_name+'</a> liked...'
             else:
-                content += ' and ' + str(len(all_likers) - 2) + ' others liked...'
+                sharer = map(attrgetter('user'), filter(lambda a: a.type == 'share', user_activities))[0]
+                content = '<a '+user_profile_link(sharer)+'>'+sharer.first_name+'</a> shared, You and 1 other liked...'
+
+        elif len(user_activities) >= 2:
+            sharers = map(attrgetter('user'), filter(lambda a: a.type == 'share', user_activities))
+            if sharers:
+                other = sharers[0] if not user == sharers[0] else sharers[1]
+                if user in sharers:
+                    content += ', <a href="/'+other.username+'">'+other.first_name+'</a> shared'
+                else:
+                    content = '<a href="/'+other.username+'">'+other.first_name+'</a> shared'
+
+            likers = map(attrgetter('user'), filter(lambda a: a.type == 'like', user_activities))
+            if len(sharers):
+                if len(likers) >= 1:
+                    if user in likers:
+                        content += ', You'
+                    else:
+                        content += ', <a '+user_profile_link(likers[0].user)+'>'+likers[0].user.first_name+'</a>'
+                    if len(all_likers) - 1 > 0:
+                        content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
+                    else:
+                        content += ' liked...'
+                else:
+                    content += ', ' + str(len(all_likers)) + ' others liked...'
+            else:
+                other = likers[0] if not user == likers[0] else likers[1]
+                content += ', <a href="/'+other.username+'">'+other[0].first_name+'</a> '
+                if len(all_likers) - 2 == 1:
+                    content += ' and 1 other liked...'
+                else:
+                    content += ' and ' + str(len(all_likers) - 2) + ' others liked...'
+
+        break
 
     else:
-        if len(activity_item.users) == 1 and len(all_likers) == 1:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> liked...'
-        elif len(activity_item.users) == 1 and len(all_likers) == 2:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>'
+        if len(user_activities) == 1 and len(all_likers) == 0:
+            content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a> shared...'
+
+        if len(user_activities) == 1 and len(all_likers) == 1:
+            if user_activities[0].type == 'like':
+                content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a> liked...'
+            else:
+                content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a> shared, 1 other liked...'
+
+        elif len(user_activities) == 1 and len(all_likers) == 2:
+            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>'
             content += ' and 1 other liked...'
-        elif len(activity_item.users) == 1 and len(all_likers) > 2:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>'
+
+        elif len(user_activities) == 1 and len(all_likers) > 2:
+            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>'
             content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
-        elif len(activity_item.users) == 2 and len(all_likers) == 2:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a> '
-            content += ' and <a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a> liked...'
-        elif len(activity_item.users) == 2 and len(all_likers) == 3:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>, '
-            content += '<a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a>'
+
+        elif len(user_activities) == 2 and len(all_likers) == 1:
+            sharer = user_activities[0].user if user_activities[0].type == 'share' else user_activities[1].user
+            content += '<a '+user_profile_link(sharer)+'>'+sharer.first_name+'</a> shared, '
+            other = user_activities[0].user if not user_activities[0].user == sharer else user_activities[1].user
+            content += '<a '+user_profile_link(other)+'>'+other.first_name+'</a> liked...'
+
+        elif len(user_activities) == 2 and len(all_likers) == 2:
+            if 'share' in map(attrgetter('type'), user_activities):
+                sharer = user_activities[0].user if user_activities[0].type == 'share' else user_activities[1].user
+                content += '<a '+user_profile_link(sharer)+'>'+sharer.first_name+'</a> shared, '
+                other = user_activities[0].user if not user_activities[0].user == sharer else user_activities[1].user
+                content += '<a '+user_profile_link(other)+'>'+other.first_name+'</a> and 1 other liked...'
+            else:
+                content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>, '
+                content += ' and <a href="/'+user_activities[1].user.username+'">'+user_activities[1].user.first_name+'</a> liked...'
+
+        elif len(user_activities) == 2 and len(all_likers) == 3:
+            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>, '
+            content += '<a href="/'+user_activities[1].user.username+'">'+user_activities[1].user.first_name+'</a>'
             content += ' and 1 other liked...'
-        elif len(activity_item.users) == 2 and len(all_likers) > 3:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>, '
-            content += '<a href="/'+activity_item.users[1][0].username+'">'+activity_item.users[1][0].first_name+'</a>'
+
+        elif len(user_activities) == 2 and len(all_likers) > 3:
+            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>, '
+            content += '<a href="/'+user_activities[1].user.username+'">'+user_activities[1].user.first_name+'</a>'
             content += ' and '+ str(len(all_likers)-2) + ' others liked...'
-        elif len(activity_item.users) > 2:
-            content += '<a href="/'+activity_item.users[0][0].username+'">'+activity_item.users[0][0].first_name+'</a>'
+
+        elif len(user_activities) > 2:
+            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>, '
             if len(all_likers) - 2 == 1:
                 content += ' and 1 other liked...'
             else:
@@ -268,6 +340,9 @@ def activity_item_heading(activity_item, user):
 
     return content
 
+@register.filter
+def is_shared_activity_item(activity_item):
+    return 'share' in map(attrgetter('type'), activity_item.user_activities)
 
 @register.filter
 def last_element(list):
