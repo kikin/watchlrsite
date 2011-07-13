@@ -29,7 +29,7 @@
                             $('#downloadButtonContainer').html('<a href="http://www.watchlr.com/static/downloads/watchlr_installer_1.0.1.xpi"><div class="downloadapp">&nbsp;</div></a>')
                         }
                     }else{
-                        $('#downloadButtonContainer').html('Your browser is not supported (We support Chrome and Firefox on Mac and PC.)');
+                        $('#downloadButtonContainer').html('Your browser is not supported (we support Chrome and Firefox on Mac and PC).');
                     }
                 </script>
             </div>
