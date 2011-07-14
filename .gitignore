@@ -15,5 +15,4 @@ Thumbs.db
 plugin/Builds/
 *.iml
 src
-player/bin-debug
 static/video_player
