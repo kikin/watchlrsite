@@ -64,9 +64,7 @@ class UrlNotSupported(Exception):
         return str(self.url)
 
 
-def update_video_metadata(url, meta, logger):
-    video = Video.objects.get(url__exact=url)
-
+def update_video_metadata(video, meta, logger):
     video.title = meta.get('title')
 
     try:
@@ -102,9 +100,7 @@ def update_video_metadata(url, meta, logger):
 
     video.source = source
     video.result = states.SUCCESS
-
     video.save()
-    return video
 
 
 class OEmbed(object):
@@ -130,7 +126,8 @@ class OEmbed(object):
                              (url, str(fetcher), str(meta)))
 
                 # First matched fetcher wins!
-                return update_video_metadata(url, meta, logger)
+                update_video_metadata(video, meta, logger)
+                return video
 
             except UrlNotSupported:
                 logger.debug('Url:%s not supported by fetcher:%s' % (url, str(fetcher)))
@@ -1533,7 +1530,7 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
                     try:
                         meta = fetcher.fetch(url, logger)
                         Video.objects.create(url=url)
-                        video = update_video_metadata(url, meta, logger)
+                        update_video_metadata(video, meta, logger)
                     except UrlNotSupported:
                         continue
                     except Exception:
@@ -1547,12 +1544,12 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
             fb_friend = get_or_create_fb_identity(item['from'], user, logger)
             FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
 
-            shared = datetime.strptime(items[-1]['created_time'], FACEBOOK_DATETIME_FMT)
+            shared = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
             UserVideo.objects.get_or_create(user=fb_friend, video=video, shared_timestamp=shared)
 
         if items:
             shared = datetime.strptime(items[-1]['created_time'], FACEBOOK_DATETIME_FMT)
-            fetch_user_news_feed.delay(user, until=shared+timedelta(seconds=1), page=page+1)
+            fetch_user_news_feed.delay(user, until=shared, page=page+1)
 
     except urllib2.URLError, exc:
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
@@ -1561,10 +1558,10 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
         else:
             logger.error('Error fetching facebook news feed: %s' % news_feed_url, exc_info=True)
             return fetch_news_feed.retry(exc=exc)
+        raise
 
-    else:
-        if page == 1:
-            User.objects.filter(id=user.id).update(fb_news_feed_fetched=start)
+    if page == 1:
+        User.objects.filter(id=user.id).update(fb_news_feed_fetched=start)
 
 
 @task
