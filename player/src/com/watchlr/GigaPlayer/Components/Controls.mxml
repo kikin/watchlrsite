@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:gp="com.watchlr.GigaPlayer.*"
+		 creationComplete="init()" height="28" width="100%" xmlns:watchlr="com.watchlr.*"
+		 xmlns:Components="com.watchlr.GigaPlayer.Components.*" resize="onResize(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.watchlr.GigaPlayer.Components.events.ScrubberEvent;
+			import com.watchlr.GigaPlayer.GigaPlayer;
+			
+			import flash.utils.*;
+			
+			import mx.events.ResizeEvent;
+			
+			import org.osmf.events.TimeEvent;
+			
+			protected var _gigaPlayer:GigaPlayer;
+			
+			/*element positioning constants...*/
+			//the width of scrubber relative to container 
+			//(i.e. it's width will be container's width minus this val)
+			protected var SCRUBBER_WIDTH_REL:Number = 194;
+			protected var SCRUBBER_LEFT:Number = 60;
+			protected var TIME_DISPLAY_RIGHT:Number = 70;
+			protected var VOLUME_BUTTON_RIGHT:Number = 45;
+			protected var VOLUME_SLIDER_RIGHT_OFFSET:Number = 2;
+			
+			//wish there were a more elegant way to do this...
+			protected var mouseOverVolumeSlider:Boolean = false;
+			
+			protected function init():void{
+				scrubber.addEventListener(ScrubberEvent.SCRUB, handleScrubberDrag);
+				timeDisplay.right = TIME_DISPLAY_RIGHT;
+				volumeButton.right = VOLUME_BUTTON_RIGHT;
+				volumeSlider.right = volumeButton.right + VOLUME_SLIDER_RIGHT_OFFSET;
+				
+				volumeButton.addEventListener(MouseEvent.ROLL_OVER, showVolumeSlider);
+				volumeSlider.addEventListener(MouseEvent.ROLL_OVER, onVolumeSliderMouseOver);
+				volumeSlider.addEventListener(MouseEvent.ROLL_OUT, hideVolumeSlider);
+				volumeButton.addEventListener(MouseEvent.ROLL_OUT, onVolumeButtonMouseOut);
+			}
+			
+			public function set gigaPlayer(val:GigaPlayer):void{
+				_gigaPlayer = val;
+				playButton.gigaPlayer = _gigaPlayer;
+				scrubber.gigaPlayer = _gigaPlayer;
+				timeDisplay.gigaPlayer = _gigaPlayer;
+				volumeSlider.gigaPlayer = _gigaPlayer;
+				_gigaPlayer.videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onTimeChange);
+			}
+			
+			public function get gigaPlayer():GigaPlayer{
+				return _gigaPlayer;
+			}
+			
+			protected function onResize(event:ResizeEvent):void{
+				timeDisplay.right = TIME_DISPLAY_RIGHT;
+				scrubber.width= width - SCRUBBER_WIDTH_REL;
+				scrubber.left = SCRUBBER_LEFT;
+			}
+			
+			protected function handleScrubberDrag(event:ScrubberEvent):void{
+				timeDisplay.updateTime(event.time);
+			}
+			
+			protected function onTimeChange(event:TimeEvent):void{
+				if(!scrubber.dragging)
+					timeDisplay.updateTime(event.time);
+			}
+			
+			protected function showVolumeSlider(event:MouseEvent):void{
+				volumeSlider.visible=true;
+			}
+			
+			protected function hideVolumeSlider(event:MouseEvent):void{
+				mouseOverVolumeSlider=false;
+				volumeSlider.visible=false;
+			}
+			
+			protected function onVolumeSliderMouseOver(event:MouseEvent):void{
+				mouseOverVolumeSlider=true;
+			}
+			
+			protected function onVolumeButtonMouseOut(event:MouseEvent):void{
+				setTimeout(function():void{
+					if(!mouseOverVolumeSlider){
+						volumeSlider.visible=false;
+					}
+				}, 150);
+			}
+			
+			protected function onClick(event:MouseEvent):void{
+				volumeSlider.mute();
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%">
+		<s:fill><s:SolidColor color="#000000" /></s:fill>
+	</s:Rect>
+	<Components:PlayButton id="playButton" width="22" height="22" y="3" x="15">
+	</Components:PlayButton>
+	<Components:Scrubber id="scrubber" left="60" width="90%" top="10">
+	</Components:Scrubber>
+	<Components:TimeDisplay id="timeDisplay" top="10">		
+	</Components:TimeDisplay>
+	<Components:VolumeSlider id="volumeSlider" bottom="28" visible="false">
+	</Components:VolumeSlider>
+	<Components:VolumeButton id="volumeButton" top="3" click="onClick(event)">
+	</Components:VolumeButton>
+	<Components:FullScreenButton id="fullScreenButton" right="9" top="2">
+	</Components:FullScreenButton>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:LinearGradient id="bottomPanelGradient" rotation="90">
+				<s:entries>
+					<s:GradientEntry color="0xEEEEFF" alpha="0.3"/>
+					<s:GradientEntry color="0x000000" alpha="0.7"/>
+				</s:entries>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+</s:Group>

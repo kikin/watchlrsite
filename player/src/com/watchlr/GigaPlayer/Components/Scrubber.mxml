@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="init()"
+		 xmlns:gp="com.watchlr.*"
+		 mouseDown="onMouseDown(event)" mouseUp="onMouseUp(event)" click="onClick(event)" 
+		 resize="onResize(event)"
+		 xmlns:GigaPlayer="com.watchlr.GigaPlayer.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.watchlr.GigaPlayer.Components.*;
+			import com.watchlr.GigaPlayer.Components.events.ScrubberEvent;
+			import com.watchlr.GigaPlayer.GigaPlayer;
+			
+			import flash.ui.Mouse;
+			import flash.utils.Timer;
+			
+			import mx.events.ResizeEvent;
+			
+			import org.osmf.events.LoadEvent;
+			import org.osmf.events.TimeEvent;
+			
+			protected var _dragging:Boolean = false;
+			
+			protected var _gigaPlayer:GigaPlayer;
+			protected var playHeadTarget:Number;
+			
+			protected function init():void{
+				addEventListener(MouseEvent.MOUSE_MOVE, playHeadPosUpdate);
+				positionElements();
+			}
+			protected function onClick(event:MouseEvent):void{
+				playHead.left = event.localX;	
+			}
+			
+			public function get gigaPlayer():GigaPlayer{
+				return _gigaPlayer;
+			}
+			
+			public function get dragging():Boolean{
+				return _dragging;
+			}
+			
+			public function set gigaPlayer(val:GigaPlayer):void{
+				_gigaPlayer = val;
+				_gigaPlayer.videoDisplay.addEventListener(LoadEvent.BYTES_LOADED_CHANGE, onBytesLoaded);
+				_gigaPlayer.videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onTimeChange);
+			}
+			
+			protected function onMouseDown(event:MouseEvent):void{
+				playHead.left = event.localX;	
+				playHeadTarget = getPlayHeadTarget();
+				_dragging = true;
+			}
+			
+			protected function onMouseUp(event:MouseEvent):void{
+				_dragging = false;
+				if(playHeadTarget){
+					if(playHeadTarget < util.timeBuffered(_gigaPlayer.videoDisplay)){
+						_gigaPlayer.videoDisplay.seek(playHeadTarget)
+					}
+					else{
+						setPlayHead(util.timeBuffered(_gigaPlayer.videoDisplay));
+					}
+				}
+			}
+			
+			protected function playHeadPosUpdate(event:MouseEvent):void{
+				if(_dragging){
+					playHead.left = event.localX;
+					playHeadTarget = getPlayHeadTarget();
+					var scrubberEvent:ScrubberEvent = new ScrubberEvent(ScrubberEvent.SCRUB);
+					scrubberEvent.time = getPlayHeadTarget();
+					dispatchEvent(scrubberEvent);
+				}	
+			}
+			
+			protected function onBytesLoaded(event:LoadEvent):void{
+				var bytesLoaded:Number = event.bytes;
+				var totalBytes:Number = event.target.bytesTotal;
+				var percent:Number = bytesLoaded/totalBytes;
+				loadProgress.width = progressOuter.width*percent;
+			}
+			
+			protected function onTimeChange(event:TimeEvent):void{
+				if(!_dragging){
+					setPlayHead(event.time);
+				}
+			}
+			
+			protected function setPlayHead(seconds:Number):void{
+				var curTime:Number = seconds;
+				var percent:Number = curTime/_gigaPlayer.videoDisplay.duration;
+				playHead.left = percent*progressWrapper.width;
+				playProgress.width = (playHead.left as Number) + 0.5*playHead.width;
+			}
+			
+			private function getPlayHeadTarget():Number{
+				var percent:Number = (playHead.left as Number)/progressWrapper.width;
+				return percent*_gigaPlayer.videoDisplay.duration;
+			}
+			
+			protected function positionElements():void{
+				var barWidth:Number = width;
+				progressWrapper.width= barWidth;
+				progressWrapper.left=0;
+				progressOuter.width = barWidth;
+				if(_gigaPlayer){
+					setPlayHead(_gigaPlayer.videoDisplay.currentTime);
+				}
+				if (_gigaPlayer && _gigaPlayer.videoDisplay.bytesLoaded == 
+						_gigaPlayer.videoDisplay.bytesTotal){
+					loadProgress.width = barWidth;
+				}
+			}
+			
+			protected function onResize(event:ResizeEvent):void{
+				positionElements();
+			}
+		]]>
+	</fx:Script>
+	<s:Group id="progressWrapper" height="8">
+		<s:Rect id="progressOuter" height="8" radiusX="4" radiusY="4">
+			<s:fill>
+				<s:SolidColor color="#212121">
+				</s:SolidColor>
+			</s:fill>
+		</s:Rect>
+		<s:Rect id="loadProgress" width="0" height="8" radiusX="4" radiusY="4">
+			<s:fill>
+				<s:SolidColor color="#515151">
+				</s:SolidColor>
+			</s:fill>
+		</s:Rect>
+		<s:Rect id="playProgress"  width="0" height="100%" radiusX="4" radiusY="4">
+			<s:fill>
+				<s:SolidColor color="#fdfdfd">
+				</s:SolidColor>
+			</s:fill>
+		</s:Rect>
+	</s:Group>
+	<s:Ellipse id="playHead" height="10" width="10" left="0" top="-1">
+		<s:fill>
+			<s:SolidColor color="#000000">
+			</s:SolidColor>
+		</s:fill>
+	</s:Ellipse>
+</s:Group>
