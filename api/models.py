@@ -628,7 +628,7 @@ class UserVideo(models.Model):
                  'likes': self.like_count(self.video),
                  'saved': self.saved,
                  'saves': self.save_count(self.video),
-                 'position': self.position and str(self.position) }
+                 'position': str(self.position) if self.position is not None else None }
 
 
 class Notification(models.Model):
