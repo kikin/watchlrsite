@@ -1544,8 +1544,9 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
             fb_friend = get_or_create_fb_identity(item['from'], user, logger)
             FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
 
-            shared = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
-            UserVideo.objects.get_or_create(user=fb_friend, video=video, shared_timestamp=shared)
+            user_video, created = UserVideo.objects.get_or_create(user=fb_friend, video=video)
+            user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
+            user_video.save()
 
         if items:
             shared = datetime.strptime(items[-1]['created_time'], FACEBOOK_DATETIME_FMT)
