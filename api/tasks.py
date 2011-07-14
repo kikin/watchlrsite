@@ -1491,7 +1491,6 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
     elif since is not None:
         news_feed_url += '&since=%s' % since.strftime('%s')
 
-    start = datetime.utcnow()
     try:
         response = urllib2.urlopen(news_feed_url)
 
@@ -1549,8 +1548,11 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
             user_video.save()
 
         if items:
-            shared = datetime.strptime(items[-1]['created_time'], FACEBOOK_DATETIME_FMT)
-            fetch_user_news_feed.delay(user, until=shared, page=page+1)
+            oldest = datetime.strptime(items[-1]['created_time'], FACEBOOK_DATETIME_FMT)
+            fetch_user_news_feed.delay(user, until=oldest, page=page+1)
+            if page == 1:
+                newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
+                User.objects.filter(id=user.id).update(fb_news_feed_fetched=newest)
 
     except urllib2.URLError, exc:
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
@@ -1560,9 +1562,6 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
             logger.error('Error fetching facebook news feed: %s' % news_feed_url, exc_info=True)
             return fetch_news_feed.retry(exc=exc)
         raise
-
-    if page == 1:
-        User.objects.filter(id=user.id).update(fb_news_feed_fetched=start)
 
 
 @task
