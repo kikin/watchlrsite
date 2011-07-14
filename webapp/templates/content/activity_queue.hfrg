@@ -2,8 +2,8 @@
 
 <meta name="queue_item_count" content="{{ activity_items|length }}">
 {% if activity_items|length_is:0 %}
-    <div class="activity-queue-item" style="height:85px;border-bottom: none;">
-        <div class="activity-queue inner" style="min-height:30px;font-family: Helvetica;font-size: 18px;text-align: center;color:#4c4c4c;">
+    <div class="activity-queue-item" style="min-height:140px;border-bottom: none;">
+        <div class="activity-queue inner" style="margin-top:60px;font-family: Helvetica;font-size: 18px;text-align: center;color:#4c4c4c;">
             <div class="featureTxt" style="width: 600px;">
                 <h4>
                     Your Activity Feed is empty.
