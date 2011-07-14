@@ -37,7 +37,7 @@ body{
 }
 .block {
     padding-top:10px;
-    border-top: 2px solid #dedede;
+    border-top: 1px solid #dedede;
     width: 730px;
     margin-left:auto;
     margin-right: auto;
