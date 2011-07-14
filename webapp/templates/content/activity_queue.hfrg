@@ -84,7 +84,7 @@
                     {% endif %}
                     </a>
 
-                    <a href="javascript:home.showVidLikedBy({{ activity_item.video.id }})">
+                    <a href="javascript:home.showVidLikedBy({{ activity_item.video.id }})" title="See who liked this video">
                     {% if activity_item.video in user.liked_videos %}
                     <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
                         {{ activity_item.video.total_likes }}
