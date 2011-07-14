@@ -25,11 +25,7 @@
 			body { margin:0; padding:0; overflow:auto; text-align:center; 
 			       background-color: ${bgcolor}; }   
 			object:focus { outline:none; }
-			#flashContent { display:block; width:100%; height:98.5%; }
-			#flash-content-wrapper{
-				width:100%;
-				height:100%;
-			}
+			#flashContent { display:none; }
         </style>
 		
 		<!-- Enable Browser History by replacing useBrowserHistory tokens with two hyphens -->
@@ -40,12 +36,11 @@
 		    
         <script type="text/javascript" src="swfobject.js"></script>
         <script type="text/javascript">
-     /*
             <!-- For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. --> 
             var swfVersionStr = "${version_major}.${version_minor}.${version_revision}";
             <!-- To use express install, set to playerProductInstall.swf, otherwise the empty string. -->
             var xiSwfUrlStr = "${expressInstallSwf}";
-            var flashvars = {src:"http://www.ted.com/talks/download/video/11818/talk/1183"};
+            var flashvars = { src : "http://brsseavideo-ak.espn.go.com/motion/2011/0616/dm_110616_golf_2PM.mp4"};
             var params = {};
             params.quality = "high";
             params.bgcolor = "${bgcolor}";
@@ -62,10 +57,8 @@
                 flashvars, params, attributes);
 			<!-- JavaScript enabled so display the flashContent div in case it is not replaced with a swf object. -->
 			swfobject.createCSS("#flashContent", "display:block;text-align:left;");
-			*/
 			
-			function onPlayerReady(){
-			//	alert('ready');
+			function onPlayerReady(){		
 			}
         </script>
     </head>
@@ -74,21 +67,30 @@
 			 JavaScript and Flash plug-in support is available. The div is initially hidden so that it doesn't show
 			 when JavaScript is disabled.
 		-->
-		<div id='flash-content-wrapper'>
         <div id="flashContent">
-            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="640px" height="480px" id="${application}">
+        	<p>
+	        	To view this page ensure that Adobe Flash Player version 
+				${version_major}.${version_minor}.${version_revision} or greater is installed. 
+			</p>
+			<script type="text/javascript"> 
+				var pageHost = ((document.location.protocol == "https:") ? "https://" :	"http://"); 
+				document.write("<a href='http://www.adobe.com/go/getflashplayer'><img src='" 
+								+ pageHost + "www.adobe.com/images/shared/download_buttons/get_flash_player.gif' alt='Get Adobe Flash player' /></a>" ); 
+			</script> 
+        </div>
+	   	
+       	<noscript>
+            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="${width}" height="${height}" id="${application}">
                 <param name="movie" value="${swf}.swf" />
                 <param name="quality" value="high" />
                 <param name="bgcolor" value="${bgcolor}" />
                 <param name="allowScriptAccess" value="sameDomain" />
                 <param name="allowFullScreen" value="true" />
-                <param name="FlashVars" value="source=123&src=http://www.ted.com/talks/download/video/11818/talk/1183"/>
                 <!--[if !IE]>-->
                 <object type="application/x-shockwave-flash" data="${swf}.swf" width="${width}" height="${height}">
                     <param name="quality" value="high" />
                     <param name="bgcolor" value="${bgcolor}" />
                     <param name="allowScriptAccess" value="sameDomain" />
-                    <param name="FlashVars" value="source=123&src=http://www.ted.com/talks/download/video/11818/talk/1183"/>
                     <param name="allowFullScreen" value="true" />
                 <!--<![endif]-->
                 <!--[if gte IE 6]>-->
@@ -104,7 +106,6 @@
                 </object>
                 <!--<![endif]-->
             </object>
-        </div>
-        </div>
+	    </noscript>		
    </body>
 </html>
