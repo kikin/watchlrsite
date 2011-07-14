@@ -1478,7 +1478,7 @@ If you'd rather not receive follow notification emails, you can manage your sett
 
 
 @task(max_retries=3, default_retry_delay=60)
-def fetch_user_news_feed(user, until=None, page=1):
+def fetch_user_news_feed(user, until=None, since=None, page=1):
     from social_auth.backends.facebook import FACEBOOK_SERVER
 
     logger = fetch_news_feed.get_logger()
@@ -1491,6 +1491,8 @@ def fetch_user_news_feed(user, until=None, page=1):
     news_feed_url = 'https://%s/me/home?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
     if until is not None:
         news_feed_url += '&until=%s' % until.strftime('%s')
+    elif since is not None:
+        news_feed_url += '&since=%s' % since.strftime('%s')
 
     start = datetime.utcnow()
     try:
@@ -1550,7 +1552,7 @@ def fetch_user_news_feed(user, until=None, page=1):
 
         if items:
             shared = datetime.strptime(items[-1]['created_time'], FACEBOOK_DATETIME_FMT)
-            fetch_user_news_feed.delay(user, shared + timedelta(seconds=1), page + 1)
+            fetch_user_news_feed.delay(user, until=shared+timedelta(seconds=1), page=page+1)
 
     except urllib2.URLError, exc:
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
@@ -1580,7 +1582,7 @@ def fetch_news_feed(*args, **kwargs):
             logger.debug('Skipping over user:%s, last feed refresh:%s' % (user.username, user.fb_news_feed_fetched))
             continue
 
-        fetch_user_news_feed.delay(user, user.fb_news_feed_fetched)
+        fetch_user_news_feed.delay(user, since=user.fb_news_feed_fetched)
         queued += 1
 
     logger.info('Refreshing %d user news feeds' % queued)
