@@ -2,11 +2,14 @@ from django import template
 from datetime import datetime
 from urlparse import urlparse
 from operator import attrgetter
-from kikinvideo.api.models import UserVideo
+
 from django.conf import settings as app_settings
 from django.utils.encoding import force_unicode
 
 from celery import states
+
+from kikinvideo.api.models import UserVideo
+from kikinvideo.webapp.helpers import VideoHelper
 
 register = template.Library()
 
@@ -490,3 +493,8 @@ def saved_from(video, user):
 
     except UserVideo.DoesNotExist:
         return video.url
+
+@register.tag
+def raw_source(video_tag):
+    return VideoHelper.source_from_tag(video_tag)
+
