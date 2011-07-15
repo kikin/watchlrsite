@@ -157,7 +157,7 @@ def video_detail(request, video_id):
 
 def public_profile(request, username):
     try:
-        user = User.objects.get(username=username)
+        user = User.objects.get(username=username, is_registered=True)
         if user == request.user:
             return render_to_response('profile.html', {'profile_owner':user, 'user':user, 'display_mode':'profile',\
                                                        'is_own_profile':True, 'videos':user.liked_videos()},\
@@ -188,12 +188,17 @@ def tos(request):
 
 
 def plugin_pitch(request):
-    return render_to_response('content/plugin_pitch.hfrg')
+    return render_to_response('content/plugin_pitch.hfrg', context_instance=RequestContext(request))
 
 
 def privacy(request):
     return render_to_response('boilerplate/privacy.html', context_instance=RequestContext(request))
 
+def no_plugin_no_videos(request):
+    return render_to_response('content/no_plugin_no_videos.hfrg', context_instance=RequestContext(request))
+
+def plugin_no_videos(request):
+    return render_to_response('content/plugin_no_videos.hfrg', context_instance=RequestContext(request))
 
 def activity(request):
     if request.user.is_authenticated():

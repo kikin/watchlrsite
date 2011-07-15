@@ -1,5 +1,4 @@
 from datetime import datetime
-from operator import itemgetter
 from itertools import chain
 from decimal import Decimal
 
@@ -9,7 +8,6 @@ from django.db.models.signals import post_save
 from django.contrib.auth import models as auth_models
 from django.dispatch import receiver
 from django.core.urlresolvers import reverse
-from django.core.paginator import Paginator, EmptyPage
 
 from celery.app import default_app
 from celery import states
@@ -224,11 +222,22 @@ class Thumbnail(models.Model):
         return { 'url': self.url, 'width': self.width, 'height': self.height }
 
 
+class UserActivity(object):
+    def __init__(self, user, timestammp, type):
+        super(UserActivity, self).__init__()
+        self.user = user
+        self.timestamp = timestammp
+        self.type = type
+
+    def __cmp__(self, other):
+        return cmp(self.timestamp, other.timestamp)
+
+
 class ActivityItem(object):
-    def __init__(self, video, users, timestamp=None):
+    def __init__(self, video, user_activities, timestamp=None):
         super(ActivityItem, self).__init__()
         self.video = video
-        self.users = users
+        self.user_activities = user_activities
         self.timestamp = timestamp
 
     def __cmp__(self, other):
@@ -254,6 +263,7 @@ class User(auth_models.User):
     is_registered = models.BooleanField(default=True)
     fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_fb_friends', symmetrical=False)
     fb_friends_fetched = models.DateTimeField(null=True)
+    fb_news_feed_fetched = models.DateTimeField(null=True)
     dismissed_user_suggestions = models.ManyToManyField('self', through='DismissedUserSuggestions',
                                                         related_name='r_dismissed_user_suggestions', symmetrical=False)
     karma = models.PositiveIntegerField(default=0, db_index=True)
@@ -364,6 +374,9 @@ class User(auth_models.User):
 
     def liked_videos(self):
         return Video.objects.filter(user__id=self.id, uservideo__liked=True).order_by('-uservideo__liked_timestamp')
+
+    def shared_videos(self):
+        return Video.objects.filter(user__id=self.id, uservideo__shared_timestamp__isnull=False).order_by('-uservideo__shared_timestamp')
 
     def save_video(self, video, timestamp=None):
         """
@@ -483,21 +496,38 @@ class User(auth_models.User):
                     continue
 
                 user_video = UserVideo.objects.get(user=user, video=video)
-                if since is not None:
-                    if user_video.liked_timestamp < since:
-                        continue
+                if since is not None and user_video.liked_timestamp < since:
+                    continue
 
-                user_like_tuple = (user_video.user, user_video.liked_timestamp)
+                user_activity = UserActivity(user, user_video.liked_timestamp, 'like')
                 try:
-                    by_video[video].users.append(user_like_tuple)
+                    by_video[video].user_activities.append(user_activity)
                 except KeyError:
-                    by_video[video] = ActivityItem(video=user_video.video, users=[user_like_tuple])
+                    by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
 
-                by_video[video].timestamp = user_like_tuple[1]
+                if not by_video[video].timestamp or user_video.liked_timestamp > by_video[video].timestamp:
+                    by_video[video].timestamp = user_video.liked_timestamp
+
+        for user in self.fb_friends.all():
+            
+            for video in filter(lambda v: v.status() == states.SUCCESS, user.shared_videos()):
+
+                user_video = UserVideo.objects.get(user=user, video=video)
+                if since is not None and user_video.shared_timestamp < since:
+                    continue
+
+                user_activity = UserActivity(user, user_video.shared_timestamp, 'share')
+                try:
+                    by_video[video].user_activities.append(user_activity)
+                except KeyError:
+                    by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
+
+                if not by_video[video].timestamp or user_video.shared_timestamp > by_video[video].timestamp:
+                    by_video[video].timestamp = user_video.shared_timestamp
 
         items = sorted(by_video.values(), reverse=True)
         for item in items:
-            item.users.sort(key=itemgetter(1), reverse=True)
+            item.user_activities.sort(reverse=True)
 
         return items
 
@@ -595,6 +625,7 @@ class UserVideo(models.Model):
     liked_timestamp = models.DateTimeField(null=True, db_index=True)
     watched = models.BooleanField(default=False, db_index=True)
     watched_timestamp = models.DateTimeField(null=True, db_index=True)
+    shared_timestamp = models.DateTimeField(null=True, db_index=True)
     _position = models.DecimalField(max_digits=7, decimal_places=2, null=True)
 
     @property
@@ -628,7 +659,7 @@ class UserVideo(models.Model):
                  'likes': self.like_count(self.video),
                  'saved': self.saved,
                  'saves': self.save_count(self.video),
-                 'position': self.position and str(self.position) }
+                 'position': str(self.position) if self.position is not None else None }
 
 
 class Notification(models.Model):

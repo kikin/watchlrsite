@@ -57,7 +57,7 @@ DATABASES = { 'default': database_configurations[VIDEO_ENV] }
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = None
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -218,15 +218,22 @@ BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 # Periodic task definitions go here
 from datetime import timedelta
 CELERYBEAT_SCHEDULE = {
-    "refresh-friend-list-every-15-mins": {
+    "refresh-friend-list-every-10-mins": {
         "task": "api.tasks.refresh_friends_list",
         "schedule": timedelta(minutes=10)
+    },
+    "fetch-news-feed-every-5-mins": {
+        "task": "api.tasks.fetch_news_feed",
+        "schedule": timedelta(minutes=5)
     },
 }
 
 # For the facebook friends list fetcher, number of users to schedule every time
 # the task gets fired.
 FACEBOOK_FRIENDS_FETCHER_SCHEDULE = 5
+
+# Number of users to schedule for news feed fetch every time
+FACEBOOK_NEWS_FEED_FETCH_SCHEDULE = 5
 
 # Set up logging
 import logconfig
