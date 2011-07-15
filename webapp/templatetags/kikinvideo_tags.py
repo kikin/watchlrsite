@@ -496,7 +496,7 @@ def saved_from(video, user):
 
 @register.filter
 def raw_source(video_tag):
-    return VideoHelper.source_from_tag(video_tag)
+    return VideoHelper.source_from_video_tag(video_tag)
 
 @register.inclusion_tag('inclusion_tags/watchlr_player.hfrg', takes_context=True)
 def watchlr_player(context):

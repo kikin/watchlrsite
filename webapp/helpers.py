@@ -2,7 +2,7 @@ from BeautifulSoup import BeautifulSoup
 
 class VideoHelper(object):
     @staticmethod
-    def source_from_tag(tag_content):
+    def source_from_video_tag(tag_content):
         tag = BeautifulSoup(tag_content)
         print tag_content
         video_element = tag.findAll('video')[0]

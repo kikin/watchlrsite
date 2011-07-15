@@ -713,7 +713,10 @@ ul>span.cufon-canvas {
     display: none;
     position:fixed;
     /*margin: 10px 0 0;*/
-    padding: 10px;
+    padding-left:10px;
+    padding-right: 10px;
+    padding-top:5px;
+    padding-bottom:4px;
     background: #333;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -1152,7 +1155,7 @@ box-shadow: 10px 10px 5px #888;
 
 .close-button-fancy{
     float:right;
-    margin-top:-22px;
+    margin-top:-17px;
     margin-right: -22px;
     width:30px;
     height:30px;

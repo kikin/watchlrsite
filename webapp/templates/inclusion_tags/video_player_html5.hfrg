@@ -30,7 +30,10 @@
                 {% video_no_embed video %}
             {% endif %}
             {% endcomment %}
-                {% watchlr_player %}
+                <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}"
+                            style="width:640px;height:385px;padding-bottom:0px;">
+                    {% watchlr_player %}
+                </div>
                 {% endif %}
         {% else %}
             {% if video|is_youtube or not video|is_html5_capable %}
