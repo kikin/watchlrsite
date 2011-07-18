@@ -69,7 +69,12 @@ kikinvideo.HomeViewController = function() {
         if(url_content.path == SAVED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.savedQueue);
             activeView = VIEWS.savedQueue;
-            populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+            populatePanel(function(){
+                if(url_content.params.scroll_to_vid){
+                    scrollToVID(url_content.params.scroll_to_vid);
+                }
+            });
+
         }if(url_content.path == LIKED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.likedQueue);
             activeView = VIEWS.likedQueue;
@@ -161,7 +166,7 @@ kikinvideo.HomeViewController = function() {
 
     }
 
-    function populatePanel() {
+    function populatePanel(onComplete) {
 
         if(!initialLoad){
         $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
@@ -220,6 +225,9 @@ kikinvideo.HomeViewController = function() {
             //because HTML5 videos don't respect display:'none'
             //like swf object embeds do...
             videoController.prepareEmbeds();
+
+            if(onComplete)
+                onComplete();
 
         });
 
@@ -432,6 +440,10 @@ kikinvideo.HomeViewController = function() {
                     active_vid_liked_by_dropdown.height(active_vid_liked_by_dropdown_orig_height);
             });
         }
+    }
+
+    function scrollToVID(vid){
+        $('html,body').animate({scrollTop: $(VIDEO_CONTAINER_ID_PREFIX + vid).offset().top}, 1500);
     }
 
     /*expose public functions...*/
