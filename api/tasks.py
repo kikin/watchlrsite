@@ -10,6 +10,7 @@ from traceback import format_exc
 from lxml import etree
 from urllib import urlencode
 from smtplib import SMTPException
+from urlparse import urlparse, urlunparse, parse_qsl
 
 import gdata.youtube
 import gdata.youtube.service
@@ -1157,9 +1158,6 @@ class ESPNFetcher(object):
             raise UrlNotSupported(url)
         id = match.group(1)
 
-        opener = urllib2.build_opener()
-        opener.addheaders = [('User-agent', IPAD_USER_AGENT)]
-
         tree = etree.parse(urllib2.urlopen(url), etree.HTMLParser())
 
         meta = dict()
@@ -1200,6 +1198,71 @@ class ESPNFetcher(object):
         meta['html'] = self.ESPN_EMBED_TEMPLATE % id
         meta['source'] = self.SOURCE
 
+        return meta
+
+
+class NBCFetcher(object):
+    SOURCE = Source('NBC',
+                    'http://www.nbc.com',
+                    'http://c2548752.cdn.cloudfiles.rackspacecloud.com/msnbc.ico')
+
+    NBC_URL_SCHEME = re.compile(r'^http://(www\.)?nbc\.com/.+?/(\d+)/?$')
+
+    NBC_HTM5_EMBED_FETCH_URL = 'http://www.nbc.com/app/esp/modules/feed/getMobileVideo/index.xhml?videoId=%s'
+
+    NBC_EMBED_TEMPLATE = '''<iframe id="NBC Video Widget" width="512" height="347"
+    src="http://www.nbc.com/assets/video/widget/widget.html?vid=%s" frameborder="0"></iframe>'''
+
+    def sources(self):
+        return (self.SOURCE,)
+
+    def fetch(self, url, logger, **kwargs):
+        logger.debug('ESPN fetcher received url:%s' % url)
+
+        match = self.NBC_URL_SCHEME.match(url)
+        if not match:
+            raise UrlNotSupported(url)
+        id = match.group(2)
+
+        tree = etree.parse(urllib2.urlopen(url), etree.HTMLParser())
+
+        meta = dict()
+
+        for tag in tree.findall('/head/meta'):
+            try:
+                property = tag.attrib['property']
+            except KeyError:
+                continue
+
+            if property == 'og:title':
+                meta['title'] = tag.attrib['content']
+
+            elif property == 'og:description':
+                meta['description'] = tag.attrib['content']
+
+            elif property == 'og:image':
+                parsed = urlparse(tag.attrib['content'])
+                query = dict(parse_qsl(parsed.query))
+
+                meta['thumbnail_width'], meta['thumbnail_height'] = 350, 196
+                query['w'], query['h'] = meta['thumbnail_width'], meta['thumbnail_height']
+                query_str = urllib.urlencode(query)
+                meta['thumbnail_url'] = urlunparse([parsed.scheme, parsed.netloc, parsed.path, '', query_str, ''])
+
+                meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 129, 72
+                query['w'], query['h'] = meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height']
+                query_str = urllib.urlencode(query)
+                meta['mobile_thumbnail_url'] = urlunparse([parsed.scheme, parsed.netloc, parsed.path, '', query_str, ''])
+
+        meta['html'] = self.NBC_EMBED_TEMPLATE % id
+
+        opener = urllib2.build_opener()
+        opener.addheaders = [('User-agent', IPAD_USER_AGENT)]
+
+        meta['html5'] = opener.open(self.NBC_HTM5_EMBED_FETCH_URL % id).read()
+        meta['html5'] = re.sub(r'poster=".+?"', 'poster="%s"' % meta['thumbnail_url'], meta['html5'])
+
+        meta['source'] = self.SOURCE
         return meta
 
 
