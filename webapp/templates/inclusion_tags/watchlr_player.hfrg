@@ -11,7 +11,12 @@
         <param name="bgcolor" value="#000000" />
         <param name="allowScriptAccess" value="sameDomain" />
         <param name="allowFullScreen" value="true" />
-        <param name="flashvars" value="src={{video.html5_embed_code|raw_source }}"
+
+        {% if video|is_vimeo or video|is_youtube %}
+            <param name="flashvars" value="src={{video.html5_embed_code|iframe_source }}"
+        {% else %}
+            <param name="flashvars" value="src={{video.html5_embed_code|raw_source }}"
+        {% endif %}
     <!--<![endif]-->
     <!--[if gte IE 6]>-->
         <p>
