@@ -1,18 +1,17 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-    <title>Watchlr</title>
-    <link type='text/css' rel='stylesheet' href='/static/css/goodbye.css'/>
-</head>
-<body>
-    <div id='wrapper'>
-        <div id='content'>
-            <div id='info'>
-                We fucked up...
+{% extends "base.html" %}
+{% block style_refs %}
+    {{ block.super }}
+    <link type='text/css' rel='stylesheet' href='{{ STATIC_URL }}css/goodbye.css'/>
+{% endblock style_refs %}
+    {% block content %}
+            <div class='info'>
+                So long!
             </div>
-            <img src='/static/images/kitten.png' id='kitten'/>
-        </div>
-    </div>
-</body>
-</html>
+            <img src='/static/images/kitten.png' id='kitten' class='shadow-5l'/>
+            <div class='info bottom'>
+                ...goodbyes are always hard, but we're afraid we've 
+                <a href='http://blog.watchlr.com/' target='_blank'>
+                got to go.
+                </a>
+            </div>
+    {% endblock content %}

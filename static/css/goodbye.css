@@ -10,10 +10,28 @@ body{
     width:960px;
     margin-left:auto;
     margin-right:auto;
-    margin-top:140px;
 }
 
 #kitten{
     margin-left:auto;
     margin-right:auto;
+}
+
+.info{
+    margin-top:28px;
+    margin-bottom: 25px;
+    font-size:30px;
+    font-weight: 500;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.info.bottom{
+    width:400px;
+    font-size:25px;
+}
+
+.info a:hover{
+    text-decoration: none;
+    color: #0C536F;
 }

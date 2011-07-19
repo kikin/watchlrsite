@@ -23,8 +23,8 @@ urlpatterns = patterns('webapp',
                        (r'^following/(?P<user_id>[0-9]+)', 'views.following'),
                        (r'^followers/(?P<user_id>[0-9]+)', 'views.followers'),
                        (r'video_liked_by/(?P<video_id>[0-9]+)', 'views.video_liked_by'),
+                       (r'^goodbye', 'views.goodbye'),
                        url(r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile', name='user_profile'),
-                       (r'^goodbye$', 'views.goodbye'),
                        )
 
 urlpatterns += patterns('',
