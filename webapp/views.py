@@ -325,3 +325,6 @@ def email_preferences(request):
                                       context_instance=RequestContext(request))
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
+
+def goodbye(request):
+    return render_to_response('goodbye.html', context_instance=RequestContext(request))
