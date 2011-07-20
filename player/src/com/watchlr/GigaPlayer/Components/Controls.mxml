@@ -21,7 +21,6 @@
 			import mx.events.ResizeEvent;
 			
 			import org.osmf.events.TimeEvent;
-			import org.osmf.layout.AbsoluteLayoutFacet;
 			
 			protected var _gigaPlayer:GigaPlayer;
 			
