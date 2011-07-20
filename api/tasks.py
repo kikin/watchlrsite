@@ -1125,27 +1125,13 @@ class ESPNFetcher(object):
 
     ESPN_URL_SCHEME = re.compile(r'http://espn\.go\.com/video/clip\?id=([0-9]+)')
 
-    IMAGE_SCHEME = re.compile(r'(http://assets\.espn\.go\.com/media/motion/)(.+)_thumbnail_wsmall(\.jpg)', re.IGNORECASE)
+    IMAGE_SCHEME = re.compile(r'(.+?espncdn\.com/media/motion/)(.+)_thumbnail_wsmall(\.jpg)', re.IGNORECASE)
 
-    ESPN_EMBED_TEMPLATE = '''<object width="576" height="324" type="application/x-shockwave-flash"
-    data="http://assets.espn.go.com/espnvideo/mpf32/prod/r_3_2_0_15/ESPN_Player.swf?id=%s">
-        <param name="flashVars" value="SWID=ECF783CB-BE64-4821-994E-5172301DE983&amp;adminOver=3805638&amp;player=videoHub09&amp;height=324&amp;width=576&amp;autostart=true&amp;localSite=undefined&amp;pageName=undefined">
-        <param name="bgcolor" value="#000000">
-        <param name="wmode" value="transparent">
-        <param name="allowscriptaccess" value="always">
-        <param name="quality" value="autohigh">
-        <param name="align" value="t">
-        <param name="swliveconnect" value="true">
-        <param name="menu" value="false">
-        <param name="play" value="true">
-        <param name="allowfullscreen" value="true">
-        <param name="seamlesstabbing" value="true">
-    </object>'''
+    ESPN_EMBED_TEMPLATE = '''<script src="http://player.espn.com/player.js?pcode=1kNG061cgaoolOncv54OAO1ceO-I&width=576&height=324&externalId=espn:%s&thruParam_espn-ui[autoPlay]=true&thruParam_espn-ui[playRelatedExternally]=false"></script>'''
 
-    ESPN_HTML5_EMBED_TEMPLATE = '''<video width="100%%" height="100%%" preload="none" style="z-index:inherit; position: relative;"
-    data-track-start="true" data-track-mid="true" data-track-end="true" tabindex="0" controls
-    src="http://brsseavideo-ak.espn.go.com/motion/%(id)s.mp4" poster="http://assests.espn.go.com/media/motion/%(id)s.jpg">
-    </video>'''
+    ESPN_HTML5_EMBED_TEMPLATE = '''<video width="768" height="432" controls="controls" poster="">
+    <source type="video/mp4" src="http://vod.espn.go.com/motion/%s.m3u8?js=1"></source>
+</video>'''
 
     def sources(self):
         return (self.SOURCE,)
@@ -1190,7 +1176,7 @@ class ESPNFetcher(object):
             meta['thumbnail_url'] = ''.join(image_match.groups())
             meta['thumbnail_width'], meta['thumbnail_height'] = 576, 324
 
-            meta['html5'] = self.ESPN_HTML5_EMBED_TEMPLATE % {'id': image_match.group(2)}
+            meta['html5'] = self.ESPN_HTML5_EMBED_TEMPLATE % image_match.group(2)
 
         if 'thumbnail_url' not in meta:
             raise Exception('Meta tag "og:image" missing')
