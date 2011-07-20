@@ -494,7 +494,15 @@ def saved_from(video, user):
     except UserVideo.DoesNotExist:
         return video.url
 
-@register.tag
+@register.filter
 def raw_source(video_tag):
-    return VideoHelper.source_from_tag(video_tag)
+    return VideoHelper.source_from_video_tag(video_tag)
+
+@register.filter
+def iframe_source(youtube_html5_embed_code):
+    return VideoHelper.iframe_source(youtube_html5_embed_code)
+
+@register.inclusion_tag('inclusion_tags/watchlr_player.hfrg', takes_context=True)
+def watchlr_player(context):
+    return {'video':context['video']}
 
