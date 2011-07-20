@@ -13,7 +13,7 @@ from kikinvideo.webapp.helpers import VideoHelper
 
 register = template.Library()
 
-HTML5_SOURCE_WHITELIST = ['espn', 'funnyordie', 'ted']
+HTML5_SOURCE_WHITELIST = ['funnyordie', 'ted']
 
 @register.filter
 def pretty_date(time=False):
