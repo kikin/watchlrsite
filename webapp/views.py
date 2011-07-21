@@ -1,9 +1,10 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, Http404
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.contrib.auth.views import login, logout
+from django.contrib.auth.views import logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
+from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from kikinvideo.api.models import Video, User
 
@@ -25,12 +26,18 @@ _VID_LIKED_BY_PAGINATION_THRESHOLD = 1
 def login_complete(request):
     if request.user.is_authenticated():
         logger.info('Wohoo! New user registered:%s (campaign=%s)' % (request.user.username, request.GET.get('campaign')))
+
         try:
             request.user.campaign = request.GET['campaign']
             request.user.save()
         except KeyError:
             pass
-        return home(request)
+
+        if request.GET.get(REDIRECT_FIELD_NAME):
+            return HttpResponseRedirect(request.GET[REDIRECT_FIELD_NAME])
+        else:
+            return home(request)
+        
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
 

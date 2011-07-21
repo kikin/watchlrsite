@@ -708,6 +708,9 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
         # This will ensure that the welcome experience gets triggered for this user
         setattr(user, 'is_new', True)
 
+        # Set attribute `date_joined` to current time
+        user.date_joined = datetime.utcnow()
+
     # Handlers must return True if any value was updated/changed
     return not saved == user.username or not registered == user.is_registered
 
