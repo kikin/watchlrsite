@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 rollOver="onRollOver(event)" rollOut="onRollOut(event)"
+		 click="onClick(event)"
+		 width="22" height="22">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			protected function onRollOver(event:MouseEvent):void{
+				fullScreenImgNoHover.visible=false;
+				fullScreenImgHover.visible=true;			
+			}
+			protected function onRollOut(event:MouseEvent):void{
+				fullScreenImgNoHover.visible=true;
+				fullScreenImgHover.visible=false;
+			}
+			
+			protected function onClick(event:MouseEvent):void{
+				if(stage.displayState == StageDisplayState.NORMAL)
+					goFullScreen();
+				else
+					exitFullScreen();
+			}
+			
+			protected function goFullScreen():void {
+				stage.displayState = StageDisplayState.FULL_SCREEN;
+			}
+			protected function exitFullScreen():void {
+				stage.displayState = StageDisplayState.NORMAL;
+			}
+		]]>
+	</fx:Script>
+	<mx:Image id="fullScreenImgNoHover" source="assets/controls/fullscreen_button.png"></mx:Image>
+	<mx:Image id="fullScreenImgHover" source="assets/controls/fullscreen_button_glow.png" visible="false"></mx:Image>
+</s:Group>

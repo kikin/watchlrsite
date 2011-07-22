@@ -18,9 +18,9 @@
     <div class='video-wrapper'>
     <div class="activity-queue-item" id="activity-queue-item-vid-{{ activity_item.video.id }}">
         <div class="activity-queue inner">
-              <a href="{{  activity_item.users|fb_thumb_href:user }}">
+              <a {{ activity_item.user_activities|fb_thumb_href:user }}>
                   <div class="fb-thumb-wrapper">
-                      <img src="{{ activity_item.users|fb_thumb_small:user }}"/>
+                      <img src="{{ activity_item.user_activities|fb_thumb_small:user }}"/>
                   </div>
               </a>
               <div class="activity-item-header" id="activity-item-header-vid-{{ activity_item.video.id }}">
@@ -70,13 +70,21 @@
 
                     <a href="javascript:home.handleLike({{ activity_item.video.id }})">
                     {% if activity_item.video in user.liked_videos %}
-                        <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}" title='unlike'></div>
+                        {% if activity_item|is_shared_activity_item %}
+                            <div class="heart-container liked shared" id="liked-icon-vid-{{ activity_item.video.id }}" title='unlike'></div>
+                        {% else %}
+                            <div class="heart-container liked" id="liked-icon-vid-{{ activity_item.video.id }}" title='unlike'></div>
+                        {% endif %}
                     {% else %}
-                        <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ activity_item.video.id }}" title='like'></div>
+                        {% if activity_item|is_shared_activity_item %}
+                            <div class="heart-container not-liked shared no-hover" id="liked-icon-vid-{{ activity_item.video.id }}" title='like'></div>
+                        {% else %}
+                            <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ activity_item.video.id }}" title='like'></div>
+                        {% endif %}
                     {% endif %}
                     </a>
 
-                    <a href="javascript:home.showVidLikedBy({{ activity_item.video.id }})">
+                    <a href="javascript:home.showVidLikedBy({{ activity_item.video.id }})" title="See who liked this video">
                     {% if activity_item.video in user.liked_videos %}
                     <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
                         {{ activity_item.video.total_likes }}

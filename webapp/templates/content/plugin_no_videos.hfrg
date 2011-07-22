@@ -1,0 +1,35 @@
+<div class="video-container plugin-pitch" style="height:850px;border-bottom: none;width: 670px;text-align: left; display:none;">
+                <div class="featureTxt">
+                    <h4 style="width:100%">
+                        You have no saved videos at the moment.
+                    </h4>
+                    <div>
+                        Place your mouse on a video and you can save it to watch later.
+                    </div>
+                    <div style="height:350px; margin-top:30px;width:100%;text-align: left;">
+                        <img title="Watchlr Browser Plugin" src="{{ STATIC_URL }}images/extras/browserapp.png" style="margin-left: auto;margin-right: auto;"/>
+                    </div>
+                    <div style="font-weight:bold">Watchlr supports:</div>
+                    <ul>
+                        <li>YouTube</li>
+                        <li>Facebook</li>
+                        <li>Vimeo</li>
+                        <li>UStream</li>
+                        <li>Revision3</li>
+                        <li>TwitVid</li>
+                        <li>Blip.tv</li>
+                        <li>Big Think</li>
+                        <li>Socialcam</li>
+                        <li>The White House</li>
+                        <li>Funny or Die</li>
+                        <li>TED</li>
+                        <li>Kickstarter</li>
+                        <li>Posterous</li>
+                        <li>NPR</li>
+                        <li>CNN</li>
+                        <li>CNN Edition</li>
+                        <li>CNN Money</li>
+                        <li>ESPN</li>
+                    </ul>
+                </div>
+</div>

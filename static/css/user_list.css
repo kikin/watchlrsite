@@ -3,6 +3,12 @@
     border-bottom: 1px solid #cccccc;
 }
 
+#user-list .user-info.wrapper:hover{
+    background-color: #FAFCFC;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAFCAYAAAB8ZH1oAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAACFJREFUeNpiZGBg4GcgArAA8R+qKmQEYmZiFTISoxAgwAAmGgIXxUDz0gAAAABJRU5ErkJggg==);
+    background-repeat: repeat-x;
+    background-position: top;
+}
 
 .user-info.no-users{
     height:40px;

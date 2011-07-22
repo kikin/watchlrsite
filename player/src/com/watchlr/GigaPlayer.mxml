@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:VideoPlayer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   xmlns:watchlr="com.watchlr.*" mediaPlayerStateChange="onStateChange(event)"
-			   bytesLoadedChange="onBytesLoadedChange(event)" complete="onComplete(event)"
-			   currentTimeChange="onCurrentTimeChange(event)" creationComplete="init()">
+			   xmlns:watchlr="com.watchlr.*"
+			   creationComplete="init()">
+	<fx:Style source="assets/GigaPlayer.css"/>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
@@ -13,102 +13,219 @@
 			import com.watchlr.Globals;
 			
 			import flash.external.*;
+			import flash.utils.Timer;
 			
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
 			
 			import org.osmf.events.LoadEvent;
 			import org.osmf.events.MediaPlayerStateChangeEvent;
 			import org.osmf.events.TimeEvent;
 			
-				//point beyond seek target that we would like to buffer
-				//video before we start playback (a percentage)
-				protected var SEEK_BUFFER_PADDING:Number = 20;
+			import spark.effects.Fade;
+		
+			//point beyond seek target that we would like to buffer
+			//video before we start playback (a percentage)
+			protected var SEEK_BUFFER_PADDING:Number = 20;
 			
-				//we'll need to fetch this from the api whenever the embed's
-				//source is modified
-				[bindable]
-				protected var _seekTarget:Number = 0;
+			//duration of mouse inactivity after which UI
+			//chrome fades out
+			protected var UI_CHROME_TIMEOUT:Number = 2000;
+		
+			//we'll need to fetch this from the api whenever the embed's
+			//source is modified
+			[bindable]
+			protected var _seekTarget:Number = 0;
+		
+			protected var UIChromeFadeoutTimer:Timer;
 			
-				public function set seekTarget(value:Number):void{
-					_seekTarget = value;
-					ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);
-				}
-			
-				protected function init():void{
+			public function set seekTarget(value:Number):void{
+				_seekTarget = value;
+				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);
+			}
+		
+			protected function init():void{
+				positionPrevNextButtons();
+				UIChromeFadeoutTimer = new Timer(UI_CHROME_TIMEOUT);
 				
-				}
+				addEventListener(Event.RESIZE, this.onResize);
+				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				UIChromeFadeoutTimer.addEventListener(TimerEvent.TIMER, UIChromeFadeout);
+			}
 			
-				public function onStateChange(event:MediaPlayerStateChangeEvent):void{
-					switch(event.state){
-						case "ready":
-							handleVideoReady();
-							break;
-						case "paused":
-							handleVideoPaused();
-							break;
-					}
+			public function onStateChange(event:MediaPlayerStateChangeEvent):void{
+				switch(event.state){
+					case "ready":
+						handleVideoReady();
+						break;
+					case "paused":
+						handleVideoPaused();
+						break;
 				}
-			
-				protected function onBytesLoadedChange(event:LoadEvent):void{
-					if(!playing){
-						var bytesLoaded:Number = event.bytes;
-						var totalBytes:Number = event.target.bytesTotal;
-						if(totalBytes > 0){
-							var percent:Number = Math.floor(100 * (bytesLoaded/
-																	totalBytes));
-							if (percent + SEEK_BUFFER_PADDING > 100){
-								if(_seekTarget && 100*(duration/_seekTarget) > percent){
-									seek(_seekTarget);
-									ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
-									play();
-								}
-							}
-							else if(_seekTarget && 100*(duration/_seekTarget) > (percent + SEEK_BUFFER_PADDING)){
-								seek(_seekTarget);
+			}
+		
+			protected function onBytesLoadedChange(event:LoadEvent):void{
+				if(!videoDisplay.playing){
+					var bytesLoaded:Number = event.bytes;
+					var totalBytes:Number = event.target.bytesTotal;
+					if(totalBytes > 0){
+						var percent:Number = Math.floor(100 * (bytesLoaded/
+																totalBytes));
+						if (percent + SEEK_BUFFER_PADDING > 100){
+							if(_seekTarget && 100*(duration/_seekTarget) > percent){
+								videoDisplay.seek(_seekTarget);
 								ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
-								play();
+								videoDisplay.play();
 							}
 						}
+						else if(_seekTarget && 100*(duration/_seekTarget) > (percent + SEEK_BUFFER_PADDING)){
+							videoDisplay.seek(_seekTarget);
+							ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
+							videoDisplay.play();
+						}
 					}
-					bytesLoadedJSCallbackWrapper(event);
 				}
+				bytesLoadedJSCallbackWrapper(event);
+			}
+		
+			protected function handleVideoReady():void{
+				videoDisplay.pause();
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYER_READY);
+			}
+		
+			//here you go, ExternalInterface!
+			public function setSeekTarget(value:Number):void{
+				seekTarget = value;
+			}
+		
+			public function getDuration():Number{
+				return videoDisplay.duration;
+			}
+		
+			public function getCurrentTime():Number{
+				return videoDisplay.currentTime;
+			}
+		
+			protected function onComplete(event:TimeEvent):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_ENDED);
+			}
+		
+			protected function onCurrentTimeChange(event:TimeEvent):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, videoDisplay.currentTime);
+			}
+		
+			//so containing js code can know # bytes loaded....
+			protected function bytesLoadedJSCallbackWrapper(event:LoadEvent):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, event.bytes, event.target.bytesTotal); 
+			}
+		
+			protected function handleVideoPaused():void{
+				Globals.JS_SIGNATURES.ON_PAUSED;	
+			}
 			
-				protected function handleVideoReady():void{
-					pause();
-					ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYER_READY);
+			/*videoDisplay function wrappers*/
+			
+			protected function get duration():Number{
+				return videoDisplay.duration;
+			}
+			
+			public function get source():Object{
+				return videoDisplay.source;
+			}
+			
+			public function set source(val:Object):void{
+				videoDisplay.source = val;
+			}
+			
+			public function seek(position:Number):void{
+				videoDisplay.seek(position);
+			}
+			
+			public function play():void{
+				videoDisplay.play();
+			}
+			
+			public function pause():void{
+				videoDisplay.pause();
+			}
+			
+			/*ugly UI management logic...*/
+			protected function onResize(resizeEvent:ResizeEvent):void{
+				videoDisplay.width = width;
+				videoDisplay.height = height;
+				videoDisplay.x = 0;
+				videoDisplay.y = 0;
+				positionPrevNextButtons();
+			}
+			
+			protected function positionPrevNextButtons():void{
+				prevVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
+				nextVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
+				prevVideoButton.left = 20;
+				nextVideoButton.right = 14;
+			}
+			
+			protected function onVideoButtonRollover(event:MouseEvent):void{
+				switch(event.target){
+					case prevVideoButton:
+						pbNoHoverImg.visible=false;
+						pbHoverImg.visible=true;
+						break;
+					case nextVideoButton:
+						nbNoHoverImg.visible = false;
+						nbHoverImg.visible = true;
+						break;
 				}
+			}
 			
-				//here you go, ExternalInterface!
-				public function setSeekTarget(value:Number):void{
-					seekTarget = value;
+			protected function onVideoButtonRollout(event:MouseEvent):void{
+				switch(event.target){
+					case prevVideoButton:
+						pbHoverImg.visible=false;
+						pbNoHoverImg.visible=true;
+						break;
+					case nextVideoButton:
+						nbHoverImg.visible=false;
+						nbNoHoverImg.visible=true;
+						break;
 				}
+			}
 			
-				public function getDuration():Number{
-					return duration;
-				}
+			protected function UIChromeFadeout(event:TimerEvent):void{
+				prevVideoButton.visible = false;
+				nextVideoButton.visible = false;
+			}
 			
-				public function getCurrentTime():Number{
-					return currentTime;
-				}
+			protected function UIChromeShow():void{
+				prevVideoButton.visible = true;
+				nextVideoButton.visible = true;
+			}
 			
-				protected function onComplete(event:TimeEvent):void{
-					ExternalInterface.call(Globals.JS_SIGNATURES.ON_ENDED);
-				}
-			
-				protected function onCurrentTimeChange(event:TimeEvent):void{
-					ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, currentTime);
-				}
-			
-				//so containing js code can know # bytes loaded....
-				protected function bytesLoadedJSCallbackWrapper(event:LoadEvent):void{
-					ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, event.bytes, event.target.bytesTotal); 
-				}
-			
-				protected function handleVideoPaused():void{
-					Globals.JS_SIGNATURES.ON_PAUSED;	
-				}
-			
+			protected function onMouseMove(event:MouseEvent):void{
+				UIChromeShow();
+				UIChromeFadeoutTimer.reset();	
+				UIChromeFadeoutTimer.start();
+			}
 		]]>
 	</fx:Script>
-</s:VideoPlayer>
+	<s:VideoDisplay id="videoDisplay" x="0" y="0" width="100%" height="100%" 
+					mediaPlayerStateChange="onStateChange(event)" 
+					bytesLoadedChange="onBytesLoadedChange(event)" 
+					complete="onComplete(event)" 
+					currentTimeChange="onCurrentTimeChange(event)">
+	</s:VideoDisplay>
+	<s:Rect width="100%" height="100%">
+		<s:fill><s:SolidColor color="#000000" /></s:fill>
+	</s:Rect>
+	<s:Group id="prevVideoButton" x="10" y="100" width="50" height="50" left="20" 
+			  rollOver="onVideoButtonRollover(event)" rollOut="onVideoButtonRollout(event)">
+		<mx:Image id="pbNoHoverImg" source="assets/left_arrow.png" x="0" y="0"></mx:Image>
+		<mx:Image id="pbHoverImg" source="assets/left_arrow_glow.png" x="0" y="0" visible="false"></mx:Image>
+	</s:Group>
+	<s:Group id="nextVideoButton" x="10" y="100" width="50" height="50" right="20" 
+			rollOver="onVideoButtonRollover(event)" rollOut="onVideoButtonRollout(event)">
+		<mx:Image id="nbNoHoverImg" source="assets/right_arrow.png" x="0" y="0"></mx:Image>
+		<mx:Image id="nbHoverImg" source="assets/right_arrow_glow.png" x="0" y="0" visible="false"></mx:Image>
+	</s:Group>
+</s:Group>

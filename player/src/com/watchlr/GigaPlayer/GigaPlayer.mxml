@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:watchlr="com.watchlr.*"
+			   creationComplete="init()" xmlns:GigaPlayer="com.watchlr.GigaPlayer.*" xmlns:Components="com.watchlr.GigaPlayer.Components.*">
+	<fx:Style source="assets/GigaPlayer.css"/>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import choppingblock.video.*;
+			
+			import com.watchlr.GigaPlayer.Event.GigaPlayerEvent;
+			import com.watchlr.GigaPlayer.Event.StreamURLFetchEvent;
+			import com.watchlr.GigaPlayer.Util.Util;
+			import com.watchlr.Globals;
+			
+			import flash.external.*;
+			import flash.utils.Timer;
+			
+			import mx.collections.ArrayList;
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			import org.osmf.events.LoadEvent;
+			import org.osmf.events.MediaPlayerStateChangeEvent;
+			import org.osmf.events.TimeEvent;
+			
+			import spark.components.SkinnableContainer;
+			import spark.components.supportClasses.SkinnableComponent;
+			import spark.effects.Fade;
+			
+			public var SourceType:Object = { HTML5 : 0, VIMEO : 1, YOUTUBE : 2};
+			
+			protected var currentVidSourceType:int = SourceType.HTML5;
+			protected var curVID:String;
+		
+			//point beyond seek target that we would like to buffer
+			//video before we start playback (a percentage)
+			protected var SEEK_BUFFER_PADDING:Number = 20;
+			
+			//duration of mouse inactivity after which UI
+			//chrome fades out
+			protected var UI_CHROME_TIMEOUT:Number = 4000;
+		
+			//we'll need to fetch this from the api whenever the embed's
+			//source is modified
+			[bindable]
+			protected var _seekTarget:Number = 0;
+		
+			protected var UIChromeFadeoutTimer:Timer;
+			
+			private var _youTubeLoader:YouTubeLoader;
+			private var _youTubeLoaderWrapper:UIComponent;
+			private var _youTubePlaybackPollTimer:Timer;
+			private var _youTubePlayerLastBytesLoadedCount:Number = 0;
+			private var YOUTUBE_PLAYBACK_POLL_INTERVAL:Number = 200;
+			
+			protected var fillElementComponents:ArrayList = new ArrayList();
+			
+			public function set seekTarget(value:Number):void{
+				_seekTarget = value;
+				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);
+			}
+		
+			protected function init():void{
+				
+				controlPallette.gigaPlayer = this;
+				positionPrevNextButtons();
+				UIChromeFadeoutTimer = new Timer(UI_CHROME_TIMEOUT);
+				
+				addEventListener(Event.RESIZE, this.onResize);
+				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				UIChromeFadeoutTimer.addEventListener(TimerEvent.TIMER, UIChromeFadeout);
+				
+				_youTubeLoader = new YouTubeLoader();
+				_youTubeLoaderWrapper = new UIComponent();
+				_youTubeLoader.create();
+				_youTubeLoader.addEventListener(YouTubeLoaderEvent.LOADED, onYouTubePlayerLoaded);
+				_youTubeLoader.addEventListener(YouTubeLoaderEvent.STATE_CHANGE, onYouTubePlayerStateChange);
+				_youTubeLoaderWrapper.addChild(_youTubeLoader);
+				addElement(_youTubeLoaderWrapper);
+				
+				_youTubePlaybackPollTimer = new Timer(YOUTUBE_PLAYBACK_POLL_INTERVAL);
+				_youTubePlaybackPollTimer.addEventListener(TimerEvent.TIMER, pollYouTubePlayer);
+				
+				fillElementComponents.addItem(_videoDisplay);
+				fillElementComponents.addItem(_youTubeLoaderWrapper);
+				fillElementComponents.addItem(bgRect);
+				
+				//set view stack order of elements:
+				setChildIndex(bgRect, -1);
+				setChildIndex(_videoDisplay, 0);
+				setChildIndex(_youTubeLoaderWrapper, 1);
+				setChildIndex(controlPallette, 2);
+				
+				//time change callback...
+				_videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onPlayerTimeChange);
+				
+				//finally, load the video...
+				source = FlexGlobals.topLevelApplication.parameters.src;
+				
+			}
+			
+			public function onStateChange(event:MediaPlayerStateChangeEvent):void{
+				switch(event.state){
+					case "ready":
+						handleVideoReady();
+						break;
+					case "paused":
+						handleVideoPaused();
+						break;
+				}
+			}
+		
+			protected function handleBytesLoadedChange(event:LoadEvent):void{
+				if(!_videoDisplay.playing){
+					var bytesLoaded:Number = event.bytes;
+					var totalBytes:Number = event.target.bytesTotal;
+					if(totalBytes > 0){
+						var percent:Number = Math.floor(100 * (bytesLoaded/
+																totalBytes));
+						if (percent + SEEK_BUFFER_PADDING > 100){
+							if(_seekTarget && 100*(_videoDisplay.duration/_seekTarget) > percent){
+								_videoDisplay.seek(_seekTarget);
+								ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
+								_videoDisplay.play();
+							}
+						}
+						else if(_seekTarget && 100*(_videoDisplay.duration/_seekTarget) > (percent + SEEK_BUFFER_PADDING)){
+							_videoDisplay.seek(_seekTarget);
+							ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
+							_videoDisplay.play();
+						}
+						
+						var gpEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.BYTES_LOADED_CHANGE);
+						gpEvent.bytesLoaded = bytesLoaded;
+						gpEvent.bytesTotal = totalBytes;
+						dispatchEvent(gpEvent);
+					}
+				}
+				bytesLoadedJSCallbackWrapper(event);
+			}
+			
+			protected function onBytesLoadedChange(event:GigaPlayerEvent):void{
+				var gpEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.BYTES_LOADED_CHANGE);
+			}
+		
+			protected function handleVideoReady():void{
+				_videoDisplay.pause();
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYER_READY);
+			}
+		
+			//here you go, ExternalInterface!
+			public function setSeekTarget(value:Number):void{
+				seekTarget = value;
+			}
+		
+			public function getDuration():Number{
+				return _videoDisplay.duration;
+			}
+		
+			public function getCurrentTime():Number{
+				return _videoDisplay.currentTime;
+			}
+		
+			protected function onComplete(event:TimeEvent):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_ENDED);
+			}
+		
+			protected function onCurrentTimeChange(event:TimeEvent):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, _videoDisplay.currentTime);
+			}
+		
+			//so containing js code can know # bytes loaded....
+			protected function bytesLoadedJSCallbackWrapper(event:LoadEvent):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, event.bytes, event.target.bytesTotal); 
+			}
+		
+			protected function handleVideoPaused():void{
+				Globals.JS_SIGNATURES.ON_PAUSED;	
+			}
+			
+			/*videoDisplay function wrappers*/
+			
+			public function get source():Object{
+				return _videoDisplay.source;
+			}
+			
+			public function set source(val:Object):void{
+				var util:Util = new Util();
+				var vid:String;
+				if(util.isYouTube(val.toString())){
+					vid = util.YTIframeSourceToVID(val.toString());
+					currentVidSourceType = SourceType.YOUTUBE;
+					showYTPlayer();
+				}else if (util.isVimeo(val.toString())){
+					currentVidSourceType = SourceType.VIMEO;
+					vid = util.VimeoIframeSourceToVID(val.toString());
+					util.removeEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
+					util.addEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
+					util.fetchVimeoStream(vid);
+					hideYTPlayer();
+					_videoDisplay.visible = true;
+					_youTubePlaybackPollTimer.stop();
+				}else{
+					currentVidSourceType = SourceType.HTML5;
+					_videoDisplay.source = val;
+					hideYTPlayer();
+					_videoDisplay.visible = true;
+					_youTubePlaybackPollTimer.stop();
+				}
+				curVID = vid;
+			}
+			
+			public function get videoDisplay():VideoDisplay{
+				return _videoDisplay;
+			}
+			
+			public function seek(position:Number):void{
+				if(currentVidSourceType == SourceType.YOUTUBE){
+					if(_youTubeLoader){
+						_youTubeLoader.seekTo(position);
+					}
+				}
+				else{
+					_videoDisplay.seek(position);
+				}
+			}
+			
+			public function play():void{
+				if(currentVidSourceType == SourceType.YOUTUBE){
+					showYTPlayer();
+					if(_youTubeLoader)
+						_youTubeLoader.play();
+				}
+				else{
+					hideYTPlayer();
+					_videoDisplay.play();
+				}
+			}
+			
+			public function pause():void{
+				if(currentVidSourceType == SourceType.YOUTUBE){
+					if(_youTubeLoader)
+						_youTubeLoader.pause();
+				}
+				else
+					_videoDisplay.pause();
+			}
+			
+			public function get duration():Number{
+				if(currentVidSourceType == SourceType.YOUTUBE){
+					if(_youTubeLoader){
+						return _youTubeLoader.getDuration();
+					}else{
+						return -1;
+					}
+				}else{
+					return _videoDisplay.duration;
+				}
+			}
+			
+			public function get playing():Boolean{
+				if(currentVidSourceType == SourceType.YOUTUBE){
+					if(_youTubeLoader){
+							return _youTubeLoader.getPlayerState() == '1';
+					}
+					return false;
+				}	
+				return _videoDisplay.playing;
+			}
+			
+			public function curTime():Number{
+				if(currentVidSourceType == SourceType.YOUTUBE){
+					if(_youTubeLoader){
+						return _youTubeLoader.getCurrentTime();
+					}
+					return -1;
+				}else{
+					return _videoDisplay.currentTime;
+				}
+			}
+			
+			/*ugly UI management logic...*/
+			protected function onResize(resizeEvent:ResizeEvent):void{
+				for(var i:int = 0; i < fillElementComponents.length; i++){
+					var component:UIComponent = fillElementComponents.getItemAt(i) as UIComponent;
+					fill100(component);
+				}
+				_youTubeLoader.setSize(width, height);
+				
+				positionPrevNextButtons();
+			}
+			
+			protected function fill100(component:UIComponent):void{
+				if(component){
+					component.width = width;
+					component.height = height;
+					component.x = 0;
+					component.y = 0;
+				}
+			}
+			
+			protected function positionPrevNextButtons():void{
+				prevVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
+				nextVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
+				prevVideoButton.left = 20;
+				nextVideoButton.right = 14;
+			}
+			
+			protected function onVideoButtonRollover(event:MouseEvent):void{
+				switch(event.target){
+					case prevVideoButton:
+						pbNoHoverImg.visible=false;
+						pbHoverImg.visible=true;
+						break;
+					case nextVideoButton:
+						nbNoHoverImg.visible = false;
+						nbHoverImg.visible = true;
+						break;
+				}
+			}
+			
+			protected function onVideoButtonRollout(event:MouseEvent):void{
+				switch(event.target){
+					case prevVideoButton:
+						pbHoverImg.visible=false;
+						pbNoHoverImg.visible=true;
+						break;
+					case nextVideoButton:
+						nbHoverImg.visible=false;
+						nbNoHoverImg.visible=true;
+						break;
+				}
+			}
+			
+			protected function UIChromeFadeout(event:TimerEvent):void{
+				prevVideoButton.visible = false;
+				nextVideoButton.visible = false;
+				controlPallette.visible = false;
+			}
+			
+			protected function UIChromeShow():void{
+		//		prevVideoButton.visible = true;
+		//		nextVideoButton.visible = true;
+				controlPallette.visible = true;
+			}
+			
+			protected function onMouseMove(event:MouseEvent):void{
+				UIChromeShow();
+				UIChromeFadeoutTimer.reset();	
+				UIChromeFadeoutTimer.start();
+			}
+			
+			protected function onStreamURLFetch(event:StreamURLFetchEvent):void{
+				if(event.streamURL){
+					videoDisplay.source = event.streamURL;
+					videoDisplay.visible = true;
+				}
+			}
+			
+			protected function onYouTubePlayerLoaded(event:YouTubeLoaderEvent):void{
+				showYTPlayer();
+				if(_youTubeLoader && currentVidSourceType == SourceType.YOUTUBE){
+					_youTubeLoader.loadVideoById(curVID);
+					pause();
+				}
+				_youTubeLoader.setSize(width, height);
+				_youTubePlaybackPollTimer.start();
+			}
+			
+			protected function onYouTubePlayerStateChange(event:YouTubeLoaderEvent):void{
+				trace('state change');
+			}
+			
+			protected function hideYTPlayer():void{
+				_youTubeLoaderWrapper.visible = false;
+				_youTubeLoader.visible = false;
+			}
+			
+			protected function showYTPlayer():void{
+				_youTubeLoaderWrapper.visible = true;
+				_youTubeLoader.visible = true;
+			}
+			
+			protected function onPlayerTimeChange(event:TimeEvent):void{
+				var timeUpdatedEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.TIME_UPDATED);
+				timeUpdatedEvent.time = event.time;
+				dispatchEvent(timeUpdatedEvent);
+			}
+			
+			protected function pollYouTubePlayer(event:TimerEvent):void{
+				if(_youTubeLoader){
+					//dispatch a time updated event...
+					var time:Number = _youTubeLoader.getCurrentTime();
+					var timeUpdatedEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.TIME_UPDATED);
+					timeUpdatedEvent.time = time;
+					dispatchEvent(timeUpdatedEvent); 
+					
+					//dispatch a bytes loaded event, if necessary...
+					var bytesLoaded:Number = _youTubeLoader.getBytesLoaded();
+					var bytesTotal:Number = _youTubeLoader.getBytesTotal();
+					var bytesChangeEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.BYTES_LOADED_CHANGE);
+					bytesChangeEvent.bytesLoaded = bytesLoaded;
+					bytesChangeEvent.bytesTotal = bytesTotal;
+					dispatchEvent(bytesChangeEvent);
+				}
+			}
+			
+			public function playPause():void{
+				controlPallette.playPause();
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%" height="100%" id="bgRect">
+		<s:Rect width="100%" height="100%">
+			<s:fill><s:SolidColor color="#000000" /></s:fill>
+		</s:Rect>
+	</s:Group>
+	<s:VideoDisplay id="_videoDisplay" x="0" y="0" width="100%" height="100%" 
+					mediaPlayerStateChange="onStateChange(event)" 
+					bytesLoadedChange="handleBytesLoadedChange(event)" 
+					complete="onComplete(event)" 
+					currentTimeChange="onCurrentTimeChange(event)">
+	</s:VideoDisplay>
+	<s:Group id="prevVideoButton" x="10" y="100" width="50" height="50" left="20" 
+			  rollOver="onVideoButtonRollover(event)" rollOut="onVideoButtonRollout(event)" visible="false">
+		<mx:Image id="pbNoHoverImg" source="assets/left_arrow.png" x="0" y="0"></mx:Image>
+		<mx:Image id="pbHoverImg" source="assets/left_arrow_glow.png" x="0" y="0" visible="false"></mx:Image>
+	</s:Group>
+	<s:Group id="nextVideoButton" x="10" y="100" width="50" height="50" right="20" 
+			rollOver="onVideoButtonRollover(event)" rollOut="onVideoButtonRollout(event)" visible="false">
+		<mx:Image id="nbNoHoverImg" source="assets/right_arrow.png" x="0" y="0"></mx:Image>
+		<mx:Image id="nbHoverImg" source="assets/right_arrow_glow.png" x="0" y="0" visible="false"></mx:Image>
+	</s:Group>
+	<Components:Controls id="controlPallette" width="100%" bottom="0" left="0">
+	</Components:Controls>
+</mx:Canvas>

@@ -65,7 +65,7 @@ body{
     color: #b5b5b5;
 }
 .downloadapp {
-    width:260px;
+    width:131px;
     height:37px;
     background:url(/static/images/extras/downloadapp.png) no-repeat;
 	cursor:pointer;

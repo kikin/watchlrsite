@@ -1,0 +1,8 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace gp "com.watchlr.GigaPlayer";
+
+#prevVideoButton:rollOver{
+	top:200px;
+}

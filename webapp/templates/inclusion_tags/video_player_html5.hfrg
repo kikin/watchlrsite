@@ -7,38 +7,14 @@
     <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
 
     {% autoescape off %}
-        {% if video|is_html5_capable or video|is_vimeo %}
             {% if video.html5_embed_code %}
-                <div id='video-buffering-vid-{{ video.id }}' style="position:absolute;width:640px;
-                    height:360px;font-size:22px;color:#ffffff;background-color: #000000;
-                    text-align: center;display: none;">
-                    <a class='vid-buffering-close-button' href="javascript:videoController.hideVideoBufferingOverlay()"></a>
-                        <div style="margin-top: 110px;">
-                        Restoring your previous playback position.<br>Please be patient.
-                        </div>
-                        <div style="margin-top:30px;">
-                            <span class='buffering-progress'>0%</span> complete
-                        </div>
-                        <img src="/static/images/loaders/loader_round.gif" style="margin-top:20px;"/>
-                    </div>
-                    <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}"
-                            style="width:640px;height:360px;">
-                    {{ video.html5_embed_code }}
-                    </div>
+                <div class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}"
+                            style="width:640px;height:385px;">
+                    {% watchlr_player %}
+                </div>
             {% else %}
                 {% video_no_embed video %}
             {% endif %}
-        {% else %}
-            {% if video|is_youtube or not video|is_html5_capable %}
-                {% if video.html_embed_code %}
-                    <div  class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}">
-                    {{ video.html_embed_code }}
-                    </div>
-                {% else %}
-                    {% video_no_embed video %}
-                {% endif %}
-            {% endif %}
-        {% endif %}
     {% endautoescape %}
     </div>
 </div>

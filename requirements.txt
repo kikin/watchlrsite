@@ -4,6 +4,7 @@ MySQL-python==1.2.3
 django-celery==2.2.4
 django-kombu==0.9.2
 lxml==2.3
+BeautifulSoup==3.2.0
 gdata==2.0.14
 South==0.7.3
 -e git+https://github.com/mikexstudios/django-auth-longer-email#egg=django-auth-longer-email

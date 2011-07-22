@@ -49,18 +49,26 @@
 
 
 
-        <a href="javascript:home.handleLike({{ video.id }})">
         {% if video in user.liked_videos %}
-            <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}" title="unlike"></div>
+            <a href="javascript:home.handleLike({{ video.id }})">
+                <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}" title="unlike"></div>
+            </a>
         {% else %}
-            <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}" title="like"></div>
+            {% if not user.is_anonymous %}
+            <a href="javascript:home.handleLike({{ video.id }})">
+                <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}" title="like"></div>
+            </a>
+             {% else %}
+             <a href="javascript:alert('You must sign in to like this video')">
+                <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}" title="like"></div>
+             </a>
+             {% endif %}
         {% endif %}
-        </a>
 
     {% if video.total_likes != 0 %}
 
         {% if display_mode != 'detail' %}
-        <a class="liked-info-link" href="javascript:home.showVidLikedBy({{ video.id }})">
+        <a class="liked-info-link" href="javascript:home.showVidLikedBy({{ video.id }})" title="See who liked this video">
         {% endif %}
 
         {% if video in user.liked_videos %}
