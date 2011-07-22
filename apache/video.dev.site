@@ -4,6 +4,7 @@
     Alias /static/ /opt/video_env/kikinvideo/static/
     Alias /robots.txt /opt/video_env/kikinvideo/static/robots.txt
     Alias /favicon.ico /opt/video_env/kikinvideo/static/images/favicon.ico
+    Alias /crossdomain.xml /opt/video_env/kikinvideo/static/crossdomain.xml
 
     <Directory /opt/video_env/kikinvideo/static/>
     Order deny,allow

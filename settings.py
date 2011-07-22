@@ -4,7 +4,7 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local_sqlite')
+VIDEO_ENV = os.environ.get('VIDEO_ENV', 'local')
 
 # Turn DEBUG on only if running locally
 DEBUG = VIDEO_ENV.startswith('local')
@@ -38,7 +38,8 @@ database_configurations = {
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
+#        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
+        'HOST': '',
         'PORT': '',
         },
     'local_sqlite':{
