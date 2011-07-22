@@ -1,4 +1,6 @@
 //project namesapce...
+var _WATCHLR_JS_VERSION_ = '1.9';
+
 var kikinvideo = {'util':{}};
 
 var SAVED_QUEUE_PATH = '/saved_queue';
@@ -204,4 +206,12 @@ function registerPageview(){
         var tracker = _gat._getTracker('UA-4788978-3');
         tracker._trackPageview(window.location.hash);
     }catch(excp){}
+}
+
+function trackAction(action, id, success){
+    $.ajax({
+        url: '/track/action',
+        data: ({'action': action, 'id': id, 'agent': 'webapp', 'version': _WATCHLR_JS_VERSION_}),
+        success: success
+    })
 }

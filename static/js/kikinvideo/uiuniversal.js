@@ -74,6 +74,8 @@ kikinvideo.UIUniversal =
 
             function loadPlayer(vid) {
                 if(activeView != VIEWS.detail){
+                    trackAction('view', current_vid);
+
                     if(current_vid){
                         $(VIDEO_PLAYER_ID_PREFIX + current_vid).hide();
                         if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){

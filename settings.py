@@ -38,7 +38,6 @@ database_configurations = {
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-#        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
         'HOST': '',
         'PORT': '',
         },
@@ -167,6 +166,7 @@ INSTALLED_APPS = (
     'djkombu',
     'south',
     'django_ses',
+    'analytics',
 )
 
 # A sample logging configuration. The only tangible logging

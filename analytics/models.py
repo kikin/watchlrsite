@@ -1,10 +1,9 @@
 from django.db import models
-from api.models import User
 
 UNAUTHORIZED_USER = 'ANONYMOUS'
 
 class Activity(models.Model):
-    user = models.ForeignKey(User)
+    user_id = models.CharField(max_length=20, db_index=True)
     action = models.CharField(max_length=50, db_index=True)
     secondary_id = models.PositiveIntegerField(null=True, db_index=True)
     agent = models.CharField(max_length=10, null=True, db_index=True)

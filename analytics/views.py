@@ -1,27 +1,26 @@
 from analytics.models import Activity, Event, UNAUTHORIZED_USER
 from api.views import jsonp_view
-from api.exception import BadRequest, Unauthorized
+from api.exception import BadRequest
 
 @jsonp_view
 def action(request):
-    if request.user.is_authenticated():
-        try:
-            action = request.REQUEST['action']
-        except KeyError:
-            raise BadRequest('Missing required parameter: action')
+    user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
 
-        secondary_id = request.REQUEST.get('id')
-        agent = request.REQUEST.get('agent')
-        version = request.REQUEST.get('version')
+    try:
+        action = request.REQUEST['action']
+    except KeyError:
+        raise BadRequest('Missing required parameter: action')
 
-        activity = Activity.objects.create(user=request.user,
-                                           action=action,
-                                           secondary_id=secondary_id,
-                                           agent=agent,
-                                           agent_version=version)
-        return { 'id': activity.id }
-    else:
-        raise Unauthorized()
+    secondary_id = request.REQUEST.get('id')
+    agent = request.REQUEST.get('agent')
+    version = request.REQUEST.get('version')
+
+    activity = Activity.objects.create(user_id=user_id,
+                                       action=action,
+                                       secondary_id=secondary_id,
+                                       agent=agent,
+                                       agent_version=version)
+    return { 'id': activity.id }
 
 @jsonp_view
 def event(request):

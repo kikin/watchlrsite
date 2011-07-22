@@ -317,6 +317,7 @@ kikinvideo.HomeViewController = function() {
                 }
                 trackEvent('Video', 'Remove');
             });
+            trackAction('remove', vid);
         });
     }
 
@@ -376,6 +377,9 @@ kikinvideo.HomeViewController = function() {
                                 }
                             }
                         }
+                    }
+                    if (!$(LIKED_ICON_ID_PREFIX+vid).hasClass("like-tracked")) {
+                        trackAction('like', vid, function(msg) { $(LIKED_ICON_ID_PREFIX+vid).addClass("like-tracked"); });
                     }
                 }
             });
@@ -440,6 +444,9 @@ kikinvideo.HomeViewController = function() {
                         }
                     }
                 }
+                if (!$(LIKED_ICON_ID_PREFIX+vid).hasClass("unlike-tracked")) {
+                    trackAction('unlike', vid, function(msg) { $(LIKED_ICON_ID_PREFIX+vid).addClass("unlike-tracked"); });
+                }
             });
         }
     }
@@ -470,8 +477,8 @@ kikinvideo.HomeViewController = function() {
                         }
                     //analytics...
                     trackEvent('Video', 'Save');
+                    trackAction('save', vid);
                     }
-
                 },
                 failure : showErrorDialog()
         });
