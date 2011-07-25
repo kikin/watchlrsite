@@ -2,8 +2,35 @@ from analytics.models import Activity, Event, UNAUTHORIZED_USER
 from api.views import jsonp_view
 from api.exception import BadRequest
 
+import pygeoip
+from settings import GEOIP_DATABASE_PATH
+GEOIP = pygeoip.GeoIP(GEOIP_DATABASE_PATH)
+
+def geolocate(f):
+    def wrap(request, *args, **kwargs):
+        agent = request.REQUEST.get('agent')
+        version = request.REQUEST.get('version')
+
+        location = GEOIP.record_by_addr(request.META['REMOTE_ADDR'])
+        country = location.get('country_code') if location else None
+        city = location.get('city') if location else None
+
+        context = request.META.get('HTTP_REFERER')
+
+        kwargs.update({ 'agent': agent,
+                        'version': version,
+                        'context': context,
+                        'country': country,
+                        'city': city })
+
+        return f(request, *args, **kwargs)
+
+    return wrap
+
+
 @jsonp_view
-def action(request):
+@geolocate
+def action(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
 
     try:
@@ -12,18 +39,21 @@ def action(request):
         raise BadRequest('Missing required parameter: action')
 
     secondary_id = request.REQUEST.get('id')
-    agent = request.REQUEST.get('agent')
-    version = request.REQUEST.get('version')
 
     activity = Activity.objects.create(user_id=user_id,
                                        action=action,
                                        secondary_id=secondary_id,
-                                       agent=agent,
-                                       agent_version=version)
+                                       context=kwargs.get('context'),
+                                       agent=kwargs.get('agent'),
+                                       agent_version=kwargs.get('version'),
+                                       country=kwargs.get('country'),
+                                       city=kwargs.get('city'))
     return { 'id': activity.id }
 
+
 @jsonp_view
-def event(request):
+@geolocate
+def event(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
 
     try:
@@ -32,15 +62,14 @@ def event(request):
         raise BadRequest('Missing required parameter: name')
 
     value = request.REQUEST.get('value')
-    context = request.META.get('HTTP_REFERER')
-    agent = request.REQUEST.get('agent')
-    version = request.REQUEST.get('version')
 
     event = Event.objects.create(user_id=user_id,
                                  name=name,
                                  value=value,
-                                 context=context,
-                                 agent=agent,
-                                 version=version)
+                                 context=kwargs.get('context'),
+                                 agent=kwargs.get('agent'),
+                                 agent_version=kwargs.get('version'),
+                                 country=kwargs.get('country'),
+                                 city=kwargs.get('city'))
 
     return { 'id': event.id }

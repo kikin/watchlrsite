@@ -141,6 +141,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'kikinvideo.middleware.MultipleProxyMiddleware',
 )
 
 ROOT_URLCONF = 'kikinvideo.urls'
@@ -278,3 +279,6 @@ SENDER_EMAIL_ADDRESS = 'Watchlr <noreply@watchlr.com>'
 # IE cross-domain cookie fix
 P3P_COMPACT = 'policyref="http://www.example.com/p3p.xml", CP="NON DSP COR CURa TIA"'
 MIDDLEWARE_CLASSES += ('kikinvideo.middleware.P3PHeaderMiddleware',)
+
+# Analytics: IP-based geolocation
+GEOIP_DATABASE_PATH = os.environ.get('GEOIP_DATABASE_PATH', '/opt/video_env/GeoIP.dat')
