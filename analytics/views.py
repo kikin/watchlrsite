@@ -1,4 +1,4 @@
-from analytics.models import Activity, Event, UNAUTHORIZED_USER
+from analytics.models import Activity, Event, Error, UNAUTHORIZED_USER
 from api.views import jsonp_view
 from api.exception import BadRequest
 
@@ -73,3 +73,25 @@ def event(request, *args, **kwargs):
                                  city=kwargs.get('city'))
 
     return { 'id': event.id }
+
+
+@jsonp_view
+@geolocate
+def error(request, *args, **kwargs):
+    user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
+
+    location = request.REQUEST.get('location')
+    message = request.REQUEST.get('message')
+    exception = request.REQUEST.get('exception')
+
+    error = Error.objects.create(user_id=user_id,
+                                 location=location,
+                                 message=message,
+                                 exception=exception,
+                                 context=kwargs.get('context'),
+                                 agent=kwargs.get('agent'),
+                                 agent_version=kwargs.get('version'),
+                                 country=kwargs.get('country'),
+                                 city=kwargs.get('city'))
+
+    return { 'id': error.id }

@@ -4,4 +4,5 @@ urlpatterns = patterns(
     'analytics',
     (r'^action', 'views.action'),
     (r'^event', 'views.event'),
+    (r'^error', 'views.error'),
 )

@@ -23,4 +23,11 @@ class Activity(Base):
 class Event(Base):
     user_id = models.CharField(max_length=20, db_index=True)
     name = models.CharField(max_length=100, db_index=True)
-    value = models.IntegerField(null=True, db_index=True)
+    value = models.CharField(max_length=250, null=True, db_index=True)
+
+
+class Error(Base):
+    user_id = models.CharField(max_length=20, db_index=True)
+    location = models.CharField(max_length=100, db_index=True)
+    message = models.CharField(max_length=200, null=True, db_index=True)
+    exception = models.CharField(max_length=500, null=True)
