@@ -30,4 +30,4 @@ class Error(Base):
     user_id = models.CharField(max_length=20, db_index=True)
     location = models.CharField(max_length=100, db_index=True)
     message = models.CharField(max_length=200, null=True, db_index=True)
-    exception = models.CharField(max_length=500, null=True)
+    exception = models.TextField(null=True)
