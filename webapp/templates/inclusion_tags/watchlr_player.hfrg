@@ -1,33 +1,16 @@
 {% load kikinvideo_tags %}
-<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="640" height="380" id="WatchlrPlayer">
-    <param name="movie" value="WatchlrPlayer.swf" />
-    <param name="quality" value="high" />
-    <param name="bgcolor" value="#ffffff" />
-    <param name="allowScriptAccess" value="sameDomain" />
-    <param name="allowFullScreen" value="true" />
-    <!--[if !IE]>-->
-    <object type="application/x-shockwave-flash" data="/static/video_player/WatchlrPlayer.swf" width="640" height="385">
-        <param name="quality" value="high" />
-        <param name="bgcolor" value="#000000" />
-        <param name="allowScriptAccess" value="sameDomain" />
-        <param name="allowFullScreen" value="true" />
-
-        {% if video|is_vimeo or video|is_youtube %}
-            <param name="flashvars" value="src={{video.html5_embed_code|iframe_source }}"
-        {% else %}
-            <param name="flashvars" value="src={{video.html5_embed_code|raw_source }}"
-        {% endif %}
-    <!--<![endif]-->
-    <!--[if gte IE 6]>-->
-        <p>
-            Either scripts and active content are not permitted to run or Adobe Flash Player version
-            10.0.0 or greater is not installed.
-        </p>
-    <!--<![endif]-->
-        <a href="http://www.adobe.com/go/getflashplayer">
-            <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash Player" />
-        </a>
-    <!--[if !IE]>-->
-    </object>
-    <!--<![endif]-->
+<script type="text/javascript" src="/static/video_player/swfobject.js"></script>
+<script type="text/javascript" src="/static/video_player/_assets/js/youTubeLoader.js"></script>
+<object type="application/x-shockwave-flash" id="WatchlrPlayer" name="WatchlrPlayer" align="middle" data="/static/video_player/WatchlrPlayer.swf" width="100%" height="100%">
+    <param name="quality" value="high"><param name="bgcolor" value="#ffffff">
+    <param name="allowscriptaccess" value="always">
+    <param name="allowfullscreen" value="true">
+    {% if video|is_vimeo or video|is_youtube %}
+        <param name="flashvars" value="src=http://www.youtube.com/embed/oY59wZdCDo0">
+    {% else %}
+        <param name="flashvars" value="src={{video.html5_embed_code|raw_source }}">
+    {% endif %}
 </object>
+<script type="text/javascript">
+    SWFID="WatchlrPlayer";
+</script>

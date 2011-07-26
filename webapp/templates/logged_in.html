@@ -16,17 +16,15 @@
 {% endblock style_refs %}
 
 {% block script_refs %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/swfobject.js"></script>
+    {{ block.super }}
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.swfobject.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/froogaloop.js"></script>
     <script type="text/javascript" src="http://www.youtube.com/player_api"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
+
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/downloadpitch.js"></script>
+
 
     <script type="text/javascript">
     $(document).ready(function(){
