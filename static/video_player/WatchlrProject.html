@@ -35,30 +35,28 @@
         <!-- END Browser History required section -->  
             
         <script type="text/javascript" src="swfobject.js"></script>
-        <script type="text/javascript" src="_assets/js/youTubeLoader.js"></script>
         <script type="text/javascript">
             // For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. 
             var swfVersionStr = "10.2.0";
             // To use express install, set to playerProductInstall.swf, otherwise the empty string. 
             var xiSwfUrlStr = "playerProductInstall.swf";
-            var flashvars = {'src':'http://www.youtube.com/embed/oY59wZdCDo0'};
+            var flashvars = {'src':'http://brsseavideo-ak.espn.go.com/motion/2011/0706/dm_110706_nfl_funnyordie_fieldofdreams.mp4'};
             var params = {};
             params.quality = "high";
             params.bgcolor = "#ffffff";
-            params.allowscriptaccess = "always";
+            params.allowscriptaccess = "sameDomain";
             params.allowfullscreen = "true";
             var attributes = {};
-            attributes.id = "WatchlrPlayer";
-            attributes.name = "WatchlrPlayer";
+            attributes.id = "WatchlrProject";
+            attributes.name = "WatchlrProject";
             attributes.align = "middle";
             swfobject.embedSWF(
-                "WatchlrPlayer.swf", "flashContent", 
+                "WatchlrProject.swf", "flashContent", 
                 "100%", "100%", 
                 swfVersionStr, xiSwfUrlStr, 
                 flashvars, params, attributes);
             // JavaScript enabled so display the flashContent div in case it is not replaced with a swf object.
             swfobject.createCSS("#flashContent", "display:block;text-align:left;");
-            SWFID="WatchlrPlayer";
         </script>
     </head>
     <body>
@@ -79,18 +77,18 @@
         </div>
         
         <noscript>
-            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="100%" id="WatchlrPlayer">
-                <param name="movie" value="WatchlrPlayer.swf" />
+            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="100%" id="WatchlrProject">
+                <param name="movie" value="WatchlrProject.swf" />
                 <param name="quality" value="high" />
                 <param name="bgcolor" value="#ffffff" />
                 <param name="allowScriptAccess" value="sameDomain" />
                 <param name="allowFullScreen" value="true" />
-                <param name="flashvars" value="src=http://www.youtube.com/embed/oY59wZdCDo0"
+                <param name="flashvars" value="src=http://brsseavideo-ak.espn.go.com/motion/2011/0706/dm_110706_nfl_funnyordie_fieldofdreams.mp4"
                 <!--[if !IE]>-->
-                <object type="application/x-shockwave-flash" data="WatchlrPlayer.swf" width="100%" height="100%">
+                <object type="application/x-shockwave-flash" data="WatchlrProject.swf" width="100%" height="100%">
                     <param name="quality" value="high" />
                     <param name="bgcolor" value="#ffffff" />
-                    <param name="allowScriptAccess" value="always" />
+                    <param name="allowScriptAccess" value="sameDomain" />
                     <param name="allowFullScreen" value="true" />
                 <!--<![endif]-->
                 <!--[if gte IE 6]>-->
