@@ -6,7 +6,7 @@
     <param name="allowscriptaccess" value="always">
     <param name="allowfullscreen" value="true">
     {% if video|is_vimeo or video|is_youtube %}
-        <param name="flashvars" value="src=http://www.youtube.com/embed/oY59wZdCDo0">
+        <param name="flashvars" value="src={{video.html5_embed_code|iframe_source }}">
     {% else %}
         <param name="flashvars" value="src={{video.html5_embed_code|raw_source }}">
     {% endif %}
