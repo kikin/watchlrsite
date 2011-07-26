@@ -15,8 +15,7 @@ package com.watchlr.GigaPlayer.Util
 
 		//for YouTube...	
 		protected static var YOUTUBE_DOMAIN:String = "http://www.youtube.com";
-		protected static var YOUTUBE_VID_START_DELIM:String = "/embed/";
-		protected static var YOUTUBE_VID_END_DELIM:String = "?";
+		protected static var YOUTUBE_VID_PATTERN:RegExp = /(embed\/|v=)(?P<vid>[^\?&]+)/i;
 		protected static var YOUTUBE_VIDEO_INFO_URL:String = "http://www.youtube.com/get_video_info?video_id=";
 		protected static var YOUTUBE_VIDEO_INFO_PARAMS:String = "html5=1&eurl=unknown&el=embedded";
 		protected static var YOUTUBE_RAW_STREAM_PARAM_NAME:String = "fmt_stream_map";
@@ -72,13 +71,9 @@ package com.watchlr.GigaPlayer.Util
 		
 		public function YTIframeSourceToVID(source:String):String{
 			var substr:String;
-			//look ma, no regexes!
-			if(source.indexOf(YOUTUBE_VID_START_DELIM) > -1){
-				substr = source.substr(source.indexOf(YOUTUBE_VID_START_DELIM) +
-					YOUTUBE_VID_START_DELIM.length, source.length-1);
-				if(substr.indexOf(YOUTUBE_VID_END_DELIM) > -1){
-					return substr.substr(0, substr.indexOf(YOUTUBE_VID_END_DELIM)); 
-				}
+			if(YOUTUBE_VID_PATTERN.test(source)) {
+				var result:Array = YOUTUBE_VID_PATTERN.exec(source);
+				return result.vid;
 			}
 			return null;
 		}

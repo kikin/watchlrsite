@@ -68,7 +68,7 @@
 			}
 		
 			protected function init():void{
-				
+				trace('Gigaplayer init');
 				controlPallette.gigaPlayer = this;
 				positionPrevNextButtons();
 				UIChromeFadeoutTimer = new Timer(UI_CHROME_TIMEOUT);
@@ -77,11 +77,19 @@
 				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				UIChromeFadeoutTimer.addEventListener(TimerEvent.TIMER, UIChromeFadeout);
 				
+//				_youTubeLoader = new YouTubeLoader();
+//				_youTubeLoader.addEventListener(YouTubeLoaderEvent.LOADED, onYouTubePlayerLoaded, false, 0, true);
+//				_youTubeLoader.addEventListener(YouTubeLoaderEvent.STATE_CHANGE, onYouTubePlayerStateChange, false, 0, true);
+//				_youTubeLoader.create(); //Creates actual Loader object
+//				_youTubeLoader.x = 290;
+//				_youTubeLoader.y = 27;
+//				addChild(_youTubeLoader);
+				
 				_youTubeLoader = new YouTubeLoader();
 				_youTubeLoaderWrapper = new UIComponent();
-				_youTubeLoader.create();
 				_youTubeLoader.addEventListener(YouTubeLoaderEvent.LOADED, onYouTubePlayerLoaded);
 				_youTubeLoader.addEventListener(YouTubeLoaderEvent.STATE_CHANGE, onYouTubePlayerStateChange);
+				_youTubeLoader.create();
 				_youTubeLoaderWrapper.addChild(_youTubeLoader);
 				addElement(_youTubeLoaderWrapper);
 				
@@ -365,6 +373,7 @@
 			}
 			
 			protected function onYouTubePlayerLoaded(event:YouTubeLoaderEvent):void{
+				trace('YT load: ' + curVID);
 				showYTPlayer();
 				if(_youTubeLoader && currentVidSourceType == SourceType.YOUTUBE){
 					_youTubeLoader.loadVideoById(curVID);
