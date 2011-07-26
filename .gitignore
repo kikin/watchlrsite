@@ -15,3 +15,4 @@ Thumbs.db
 plugin/Builds/
 *.iml
 bin-debug/
+/src/
