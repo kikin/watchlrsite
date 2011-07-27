@@ -90,8 +90,8 @@
 				_youTubeLoader.addEventListener(YouTubeLoaderEvent.LOADED, onYouTubePlayerLoaded);
 				_youTubeLoader.addEventListener(YouTubeLoaderEvent.STATE_CHANGE, onYouTubePlayerStateChange);
 				_youTubeLoader.create();
-				_youTubeLoaderWrapper.addChild(_youTubeLoader);
 				addElement(_youTubeLoaderWrapper);
+				_youTubeLoaderWrapper.addChild(_youTubeLoader);
 				
 				_youTubePlaybackPollTimer = new Timer(YOUTUBE_PLAYBACK_POLL_INTERVAL);
 				_youTubePlaybackPollTimer.addEventListener(TimerEvent.TIMER, pollYouTubePlayer);
@@ -115,6 +115,7 @@
 			}
 			
 			public function onStateChange(event:MediaPlayerStateChangeEvent):void{
+				trace("on state change: " + event.state);
 				switch(event.state){
 					case "ready":
 						handleVideoReady();
@@ -159,7 +160,7 @@
 			}
 		
 			protected function handleVideoReady():void{
-				_videoDisplay.pause();
+				// _videoDisplay.pause();
 				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYER_READY);
 			}
 		
@@ -374,13 +375,13 @@
 			
 			protected function onYouTubePlayerLoaded(event:YouTubeLoaderEvent):void{
 				trace('YT load: ' + curVID);
-				showYTPlayer();
 				if(_youTubeLoader && currentVidSourceType == SourceType.YOUTUBE){
+					showYTPlayer();
 					_youTubeLoader.loadVideoById(curVID);
-					pause();
+					_youTubeLoader.setSize(width, height);
+					_youTubePlaybackPollTimer.start();
+					// pause();
 				}
-				_youTubeLoader.setSize(width, height);
-				_youTubePlaybackPollTimer.start();
 			}
 			
 			protected function onYouTubePlayerStateChange(event:YouTubeLoaderEvent):void{
