@@ -145,6 +145,6 @@ def index(request):
     data_table = DataTable(description)
     data_table.LoadData(data.values())
 
-    json = data_table.ToJSon()
+    json = data_table.ToJSon(order_by='date')
 
     return render_to_response('analytics_index.html', { 'json': json }, context_instance=RequestContext(request))
