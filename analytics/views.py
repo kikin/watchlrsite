@@ -5,8 +5,15 @@ from analytics.models import Activity, Event, Error, UNAUTHORIZED_USER
 from api.views import jsonp_view
 from api.exception import BadRequest
 
+import logging
+logger = logging.getLogger('kikinvideo')
+
 import pygeoip
-GEOIP = pygeoip.GeoIP(settings.GEOIP_DATABASE_PATH)
+try:
+    GEOIP = pygeoip.GeoIP(settings.GEOIP_DATABASE_PATH)
+except IOError:
+    GEOIP = None
+    logger.warn('GeoIP database not found. Please check GEOIP_DATABASE_PATH environment variable.')
 
 
 def internal(view):
@@ -24,7 +31,7 @@ def geolocate(view):
         agent = request.REQUEST.get('agent')
         version = request.REQUEST.get('version')
 
-        location = GEOIP.record_by_addr(request.META['REMOTE_ADDR'])
+        location = GEOIP.record_by_addr(request.META['REMOTE_ADDR']) if GEOIP else None
         country = location.get('country_code') if location else None
         city = location.get('city') if location else None
 
