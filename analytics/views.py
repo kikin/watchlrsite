@@ -2,6 +2,7 @@ from django.conf import settings
 from django.http import HttpResponseForbidden
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.db.models.aggregates import Count
 
 from analytics.models import Activity, Event, Error, UNAUTHORIZED_USER
 from api.views import jsonp_view
@@ -121,19 +122,28 @@ def error(request, *args, **kwargs):
 
 @internal
 def index(request):
-    import gviz_api
-    from datetime import date
+    from gviz_api import DataTable
 
     description = { 'date': ('date', 'Date'),
                     'saves': ('number', 'Videos Saved'),
-                    'likes': ('number', 'Videos Liked') }
+                    'likes': ('number', 'Videos Liked'),
+                    'follows': ('number', 'Follow relations'), }
 
-    data = [{ 'date': date(2011, 7, 21), 'saves': 10, 'likes': 5 },
-            { 'date': date(2011, 7, 22), 'saves': 5, 'likes': 2 },
-            { 'date': date(2011, 7, 23), 'saves': 14, 'likes': 10 },]
+    data = dict()
 
-    data_table = gviz_api.DataTable(description)
-    data_table.LoadData(data)
+    select_date = { 'date': 'date(timestamp)' }
+    result = Activity.objects.extra(select=select_date).values('action', 'date').annotate(Count('action'))
+    for row in result:
+        key = data.setdefault(row['date'], { 'saves': 0, 'likes': 0, 'follows': 0 })
+        if row['action'] == 'save':
+            key['saves'] = row['action__count']
+        elif row['action'] == 'like':
+            key['likes'] = row['action__count']
+        elif row['action'] == 'follow':
+            key['follows'] = row['action__count']
+
+    data_table = DataTable(description)
+    data_table.LoadData(data.values())
 
     json = data_table.ToJSon()
 

@@ -7,7 +7,7 @@
     function drawTable() {
       var data = new google.visualization.DataTable({{ json|safe }});
       var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-      chart.draw(data, {width: 400, height: 240, title: 'Activity'});
+      chart.draw(data, {width: 900, height: 400, title: 'Activity'});
     }
   </script>
 {% endblock script_refs %}
