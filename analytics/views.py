@@ -1,12 +1,25 @@
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseForbidden
+
 from analytics.models import Activity, Event, Error, UNAUTHORIZED_USER
 from api.views import jsonp_view
 from api.exception import BadRequest
 
 import pygeoip
-from settings import GEOIP_DATABASE_PATH
-GEOIP = pygeoip.GeoIP(GEOIP_DATABASE_PATH)
+GEOIP = pygeoip.GeoIP(settings.GEOIP_DATABASE_PATH)
 
-def geolocate(f):
+
+def internal(view):
+    # Decorates a view as accessible from INTERNAL_IPS only.
+    def wrapper_view(request, *args, **kwargs):
+        remote_addr = request.META.get('HTTP_X_REAL_IP', request.META.get('REMOTE_ADDR', None))
+        if not (settings.DEBUG or remote_addr in settings.INTERNAL_IPS):
+            return HttpResponseForbidden()
+        return view(request, *args, **kwargs)
+    return wrapper_view
+
+
+def geolocate(view):
     def wrap(request, *args, **kwargs):
         agent = request.REQUEST.get('agent')
         version = request.REQUEST.get('version')
@@ -23,7 +36,7 @@ def geolocate(f):
                         'country': country,
                         'city': city })
 
-        return f(request, *args, **kwargs)
+        return view(request, *args, **kwargs)
 
     return wrap
 
@@ -95,3 +108,8 @@ def error(request, *args, **kwargs):
                                  city=kwargs.get('city'))
 
     return { 'id': error.id }
+
+
+@internal
+def index(request):
+    return HttpResponse('Hello World!')

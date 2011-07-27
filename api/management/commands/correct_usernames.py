@@ -3,8 +3,6 @@ from django.core.management.base import BaseCommand
 from api.models import User
 from api.tasks import slugify
 
-from re import sub
-
 class Command(BaseCommand):
     help = 'Assign a valid username for users whose names are non-ascii'
 

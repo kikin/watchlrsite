@@ -8,8 +8,9 @@ urlpatterns = patterns('',
                        url(r'', include('social_auth.urls')),
                        (r'^api/', include('kikinvideo.api.urls')),
                        url(r'^task/', include('djcelery.urls')),
+                       (r'track/', include('kikinvideo.analytics.urls.track')),
+                       (r'analytics', include('kikinvideo.analytics.urls.dashboard')),
                        (r'^', include('kikinvideo.webapp.urls')),
-                       (r'track/', include('kikinvideo.analytics.urls'))
                        )
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
