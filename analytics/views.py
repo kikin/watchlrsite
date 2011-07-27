@@ -134,7 +134,7 @@ def index(request):
     select_date = { 'date': 'date(timestamp)' }
     result = Activity.objects.extra(select=select_date).values('action', 'date').annotate(Count('action'))
     for row in result:
-        key = data.setdefault(row['date'], { 'saves': 0, 'likes': 0, 'follows': 0 })
+        key = data.setdefault(row['date'], { 'date': row['date'], 'saves': 0, 'likes': 0, 'follows': 0 })
         if row['action'] == 'save':
             key['saves'] = row['action__count']
         elif row['action'] == 'like':
