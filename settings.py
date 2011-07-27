@@ -282,3 +282,6 @@ MIDDLEWARE_CLASSES += ('kikinvideo.middleware.P3PHeaderMiddleware',)
 
 # Analytics: IP-based geolocation
 GEOIP_DATABASE_PATH = os.environ.get('GEOIP_DATABASE_PATH', '/opt/video_env/GeoIP.dat')
+
+# Analytics dashboard is restricted to these IPs
+INTERNAL_IPS = ('69.193.216.26',)
