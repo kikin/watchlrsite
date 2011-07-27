@@ -1,0 +1,17 @@
+{% extends "analytics_base.html" %}
+
+{% block script_refs %}
+  <script>
+    google.load('visualization', '1', {packages:['corechart']});
+    google.setOnLoadCallback(drawTable);
+    function drawTable() {
+      var data = new google.visualization.DataTable({{ json|safe }});
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      chart.draw(data, {width: 400, height: 240, title: 'Activity'});
+    }
+  </script>
+{% endblock script_refs %}
+
+{% block content %}
+    <div id="chart_div"></div>
+{% endblock content %}

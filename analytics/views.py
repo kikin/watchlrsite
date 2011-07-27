@@ -1,5 +1,7 @@
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponseForbidden
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 from analytics.models import Activity, Event, Error, UNAUTHORIZED_USER
 from api.views import jsonp_view
@@ -119,4 +121,20 @@ def error(request, *args, **kwargs):
 
 @internal
 def index(request):
-    return HttpResponse('Hello World!')
+    import gviz_api
+    from datetime import date
+
+    description = { 'date': ('date', 'Date'),
+                    'saves': ('number', 'Videos Saved'),
+                    'likes': ('number', 'Videos Liked') }
+
+    data = [{ 'date': date(2011, 7, 21), 'saves': 10, 'likes': 5 },
+            { 'date': date(2011, 7, 22), 'saves': 5, 'likes': 2 },
+            { 'date': date(2011, 7, 23), 'saves': 14, 'likes': 10 },]
+
+    data_table = gviz_api.DataTable(description)
+    data_table.LoadData(data)
+
+    json = data_table.ToJSon()
+
+    return render_to_response('analytics_index.html', { 'json': json }, context_instance=RequestContext(request))
