@@ -265,11 +265,9 @@ kikinvideo.HomeViewController = function() {
 
         $.get(contentSource, requestParams, function(data) {
             $(VIDEO_PANEL_SELECTOR).html(data);
-
             _bindVideoPanelEvents();
 
             var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
-
             if(activeView == VIEWS.likedQueue){
                 if(queueItemCount >= likedVideosPaginationThreshold){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
