@@ -256,3 +256,34 @@ def likes(request):
 
     jsonp, mimetype = to_jsonp(json, request)
     return HttpResponse(jsonp, mimetype=mimetype)
+
+
+@internal
+def follows(request):
+    description = [ ('Date', 'date'), ('Follows', 'number'), ]
+
+    today = date.today()
+    start = today - timedelta(days=14)
+
+    data = dict()
+
+    current = start
+    while current < today:
+        data[current] = [current, 0]
+        current += timedelta(days=1)
+
+    result = Activity.objects.filter(action='follow', timestamp__gte=start, timestamp__lte=today)\
+                             .extra(select={ 'date': 'date(timestamp)' })\
+                             .values('id', 'date')\
+                             .annotate(Count('id'))
+
+    for row in result:
+        data[row['date']][1] += row['id__count']
+
+    data_table = DataTable(description)
+    data_table.LoadData(data.values())
+
+    json = data_table.ToJSon(order_by='Date')
+
+    jsonp, mimetype = to_jsonp(json, request)
+    return HttpResponse(jsonp, mimetype=mimetype)

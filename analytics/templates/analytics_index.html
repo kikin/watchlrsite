@@ -1,4 +1,4 @@
-{% extends "analytics_base.html" %}
+{% extends 'analytics_base.html' %}
 
 {% block script_refs %}
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -14,11 +14,11 @@
           var data = new google.visualization.DataTable(jsonData);
           var comboChart = new google.visualization.ComboChart(document.getElementById('views_chart_div'));
           comboChart.draw(data, {
-           title : 'Videos Watched',
-            vAxes: [{title: "Views", minValue: 1}, {title: "Total Views", minValue: 1}],
-            hAxis: {title: "Date"},
-            seriesType: "bars",
-            series: {0: {type: "line", targetAxisIndex: 1}},
+            title : 'Videos Watched',
+            vAxes: [{title: 'Views', minValue: 1}, {title: 'Total Views', minValue: 1}],
+            hAxis: {title: 'Date'},
+            seriesType: 'bars',
+            series: {0: {type: 'line', targetAxisIndex: 1}},
             legend: 'bottom'
           });
         }
@@ -30,11 +30,11 @@
           var data = new google.visualization.DataTable(jsonData);
           var comboChart = new google.visualization.ComboChart(document.getElementById('saves_chart_div'));
           comboChart.draw(data, {
-           title : 'Videos Saved',
-            vAxes: [{title: "Saves", minValue: 1}, {title: "Total Saves", minValue: 1}],
-            hAxis: {title: "Date"},
-            seriesType: "bars",
-            series: {0: {type: "line", targetAxisIndex: 1}},
+            title : 'Videos Saved',
+            vAxes: [{title: 'Saves', minValue: 1}, {title: 'Total Saves', minValue: 1}],
+            hAxis: {title: 'Date'},
+            seriesType: 'bars',
+            series: {0: {type: 'line', targetAxisIndex: 1}},
             legend: 'bottom'
           });
         }
@@ -46,12 +46,25 @@
           var data = new google.visualization.DataTable(jsonData);
           var comboChart = new google.visualization.ComboChart(document.getElementById('likes_chart_div'));
           comboChart.draw(data, {
-           title : 'Videos Liked',
-            vAxes: [{title: "Likes", minValue: 1}, {title: "Total Saves", minValue: 1}],
-            hAxis: {title: "Date"},
-            seriesType: "bars",
-            series: {0: {type: "line", targetAxisIndex: 1}},
+            title : 'Videos Liked',
+            vAxes: [{title: 'Likes', minValue: 1}, {title: 'Total Saves', minValue: 1}],
+            hAxis: {title: 'Date'},
+            seriesType: 'bars',
+            series: {0: {type: 'line', targetAxisIndex: 1}},
             legend: 'bottom'
+          });
+        }
+      });
+      $.ajax({
+        url: '/analytics/follows',
+        dataType: 'jsonp',
+        success: function(jsonData) {
+          var data = new google.visualization.DataTable(jsonData);
+          var lineChart = new google.visualization.LineChart(document.getElementById('follows_chart_div'));
+          lineChart.draw(data, {
+            title: 'Follow Relations',
+            vAxis: {title: 'Relations', minValue: 1},
+            hAxis: {title: 'Date'}
           });
         }
       });
@@ -63,4 +76,5 @@
     <div id="views_chart_div" style="width: 900px; height: 500px;"></div>
     <div id="saves_chart_div" style="width: 900px; height: 500px;"></div>
     <div id="likes_chart_div" style="width: 900px; height: 500px;"></div>
+    <div id="follows_chart_div" style="width: 900px; height: 500px;"></div>
 {% endblock content %}
