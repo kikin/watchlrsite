@@ -1,11 +1,3 @@
 {% load kikinvideo_tags %}
-{% if not settings.ENABLE_HTML5_VIDEO %}
-    {% video_player_flash video %}
-{% else %}
-    {% if request|user_agent_class == 'safari' or request|user_agent_class == 'chrome' %}
-        {% video_player_html5 video %}
-    {% else %}
-        {% video_player_flash video %}
-    {% endif %}
-{% endif %}
+{% video_player_html5 %}
 

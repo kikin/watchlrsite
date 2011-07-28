@@ -25,11 +25,11 @@ kikinvideo.UIUniversal =
 
             var VIDEO_PLAYER_BG_SELECTOR = '.video-player-bg';
 
-            var VIDEO_PLAYER_ID_PREFIX = "#video-player-";
+            var VIDEO_PLAYER_ID_PREFIX = "#video-player";
 
             var VIDEO_CONTAINER_ID_PREFIX = "#video-";
 
-            var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
+            var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container";
 
             var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper-";
 
@@ -77,7 +77,7 @@ kikinvideo.UIUniversal =
                     trackAction('view', current_vid);
 
                     if(current_vid){
-                        $(VIDEO_PLAYER_ID_PREFIX + current_vid).hide();
+                        $(VIDEO_PLAYER_ID_PREFIX).hide();
                         if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
                             $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
                         }
@@ -86,7 +86,7 @@ kikinvideo.UIUniversal =
                     //necessary hack -- center fixed-width embeds (the embeds often have
                     // fixed width+height but no margin-properties)!
                     try{
-                        var wrapper = $('#video-embed-container-'+vid + ' .video-embed-wrapper');
+                        var wrapper = $('#video-embed-container' + ' .video-embed-wrapper');
                         var embed = wrapper.children('embed:first-child');
                         embed.css({marginRight:'auto', marginLeft:'auto'});
                     }catch(excp){}
@@ -95,9 +95,9 @@ kikinvideo.UIUniversal =
                     if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
                         $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
                     }
-                    var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
-                    var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
-
+                    var video_player_div = $(VIDEO_PLAYER_ID_PREFIX);
+                    var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX);
+                    
 
                     var video_player_target_width = video_player_div.width();
                     var video_player_target_height = video_player_div.height();
@@ -136,7 +136,7 @@ kikinvideo.UIUniversal =
             }
 
             function closePlayer(vid){
-                var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
+                var video_player_div = $(VIDEO_PLAYER_ID_PREFIX);
 
                 $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
                     $(VIDEO_PLAYER_BG_SELECTOR).remove();

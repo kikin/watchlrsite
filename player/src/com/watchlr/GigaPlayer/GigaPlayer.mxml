@@ -20,6 +20,8 @@
 			import flash.external.*;
 			import flash.utils.Timer;
 			
+			import flashx.textLayout.formats.Float;
+			
 			import mx.collections.ArrayList;
 			import mx.core.FlexGlobals;
 			import mx.core.UIComponent;
@@ -57,14 +59,16 @@
 			private var _youTubeLoader:YouTubeLoader;
 			private var _youTubeLoaderWrapper:UIComponent;
 			private var _youTubePlaybackPollTimer:Timer;
+			private var _youTubePlayerLoaded:Boolean = false;
 			private var _youTubePlayerLastBytesLoadedCount:Number = 0;
 			private var YOUTUBE_PLAYBACK_POLL_INTERVAL:Number = 200;
+			 
 			
 			protected var fillElementComponents:ArrayList = new ArrayList();
 			
 			public function set seekTarget(value:Number):void{
 				_seekTarget = value;
-				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);
+				handleVideoSeekStart();
 			}
 		
 			protected function init():void{
@@ -77,18 +81,13 @@
 				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				UIChromeFadeoutTimer.addEventListener(TimerEvent.TIMER, UIChromeFadeout);
 				
-//				_youTubeLoader = new YouTubeLoader();
-//				_youTubeLoader.addEventListener(YouTubeLoaderEvent.LOADED, onYouTubePlayerLoaded, false, 0, true);
-//				_youTubeLoader.addEventListener(YouTubeLoaderEvent.STATE_CHANGE, onYouTubePlayerStateChange, false, 0, true);
-//				_youTubeLoader.create(); //Creates actual Loader object
-//				_youTubeLoader.x = 290;
-//				_youTubeLoader.y = 27;
-//				addChild(_youTubeLoader);
-				
+				// Initialize youtube player
 				_youTubeLoader = new YouTubeLoader();
 				_youTubeLoaderWrapper = new UIComponent();
+				_youTubePlayerLoaded = false;
 				_youTubeLoader.addEventListener(YouTubeLoaderEvent.LOADED, onYouTubePlayerLoaded);
 				_youTubeLoader.addEventListener(YouTubeLoaderEvent.STATE_CHANGE, onYouTubePlayerStateChange);
+				_youTubeLoader.addEventListener(YouTubeLoaderEvent.ERROR, onYouTubePlayerError);
 				_youTubeLoader.create();
 				addElement(_youTubeLoaderWrapper);
 				_youTubeLoaderWrapper.addChild(_youTubeLoader);
@@ -119,9 +118,14 @@
 				switch(event.state){
 					case "ready":
 						handleVideoReady();
+						controlPallette.playButton.pauseButton.visible = true;
+						controlPallette.playButton.playButton.visible = false;
 						break;
 					case "paused":
 						handleVideoPaused();
+						break;
+					case "playbackError":
+						handleVideoPlaybackError(150);
 						break;
 				}
 			}
@@ -136,13 +140,13 @@
 						if (percent + SEEK_BUFFER_PADDING > 100){
 							if(_seekTarget && 100*(_videoDisplay.duration/_seekTarget) > percent){
 								_videoDisplay.seek(_seekTarget);
-								ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
+								handleVideoSeekEnd();
 								_videoDisplay.play();
 							}
 						}
 						else if(_seekTarget && 100*(_videoDisplay.duration/_seekTarget) > (percent + SEEK_BUFFER_PADDING)){
 							_videoDisplay.seek(_seekTarget);
-							ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
+							handleVideoSeekEnd();
 							_videoDisplay.play();
 						}
 						
@@ -159,39 +163,81 @@
 				var gpEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.BYTES_LOADED_CHANGE);
 			}
 		
-			protected function handleVideoReady():void{
-				// _videoDisplay.pause();
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYER_READY);
-			}
-		
 			//here you go, ExternalInterface!
 			public function setSeekTarget(value:Number):void{
-				seekTarget = value;
+				if (currentVidSourceType == SourceType.YOUTUBE) {
+					// _youTubeLoader.seekTo(value);
+				} else {
+					seekTarget = value;	
+				}
 			}
 		
 			public function getDuration():Number{
-				return _videoDisplay.duration;
+				if (currentVidSourceType == SourceType.YOUTUBE) {
+					if (_youTubeLoader)
+						return _youTubeLoader.getDuration();
+				} else {
+					return _videoDisplay.duration;
+				}
+				
+				return 0;
 			}
 		
 			public function getCurrentTime():Number{
-				return _videoDisplay.currentTime;
+				if (currentVidSourceType == SourceType.YOUTUBE) {
+					if (_youTubeLoader)
+						return _youTubeLoader.getCurrentTime();
+				} else {
+					return _videoDisplay.currentTime;	
+				}
+				
+				return 0;
 			}
 		
 			protected function onComplete(event:TimeEvent):void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_ENDED);
+				handleVideoFinished();
 			}
 		
 			protected function onCurrentTimeChange(event:TimeEvent):void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, _videoDisplay.currentTime);
+				handleVideoTimeChanged();
 			}
-		
+			
 			//so containing js code can know # bytes loaded....
 			protected function bytesLoadedJSCallbackWrapper(event:LoadEvent):void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, event.bytes, event.target.bytesTotal); 
+				handleVideoLoadProgress(event.bytes, event.target.bytesTotal); 
+			}
+			
+			/* Firing events to JS. */
+			protected function handleVideoReady():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYER_READY);
 			}
 		
 			protected function handleVideoPaused():void{
-				Globals.JS_SIGNATURES.ON_PAUSED;	
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PAUSED, getCurrentTime());	
+			}
+			
+			protected function handleVideoFinished():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_FINISHED);	
+			}
+			
+			protected function handleVideoTimeChanged():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, getCurrentTime());	
+			}
+			
+			protected function handleVideoLoadProgress(bytes:Number, bytesTotal:Number):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, bytes, bytesTotal);	
+			}
+			
+			protected function handleVideoSeekStart():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);	
+			}
+			
+			protected function handleVideoSeekEnd():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);	
+			}
+			
+			protected function handleVideoPlaybackError(errorCode:Number):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.PLAYBACK_ERROR, errorCode);	
 			}
 			
 			/*videoDisplay function wrappers*/
@@ -203,27 +249,26 @@
 			public function set source(val:Object):void{
 				var util:Util = new Util();
 				var vid:String;
-				if(util.isYouTube(val.toString())){
-					vid = util.YTIframeSourceToVID(val.toString());
-					currentVidSourceType = SourceType.YOUTUBE;
-					showYTPlayer();
-				}else if (util.isVimeo(val.toString())){
-					currentVidSourceType = SourceType.VIMEO;
-					vid = util.VimeoIframeSourceToVID(val.toString());
-					util.removeEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
-					util.addEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
-					util.fetchVimeoStream(vid);
-					hideYTPlayer();
-					_videoDisplay.visible = true;
-					_youTubePlaybackPollTimer.stop();
-				}else{
-					currentVidSourceType = SourceType.HTML5;
-					_videoDisplay.source = val;
-					hideYTPlayer();
-					_videoDisplay.visible = true;
-					_youTubePlaybackPollTimer.stop();
+				if (val) {
+					trace('Source:' + val.toString());
+					if(util.isYouTube(val.toString())){
+						vid = util.YTIframeSourceToVID(val.toString());
+						currentVidSourceType = SourceType.YOUTUBE;
+						playYTVideo(vid);
+					}else if (util.isVimeo(val.toString())){
+						hideYTPlayer();
+						vid = util.VimeoIframeSourceToVID(val.toString());
+						util.removeEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
+						currentVidSourceType = SourceType.VIMEO;
+						util.addEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
+						util.fetchVimeoStream(vid);
+					}else{
+						hideYTPlayer();
+						currentVidSourceType = SourceType.HTML5;
+						_videoDisplay.source = val;
+					}
+					curVID = vid;	
 				}
-				curVID = vid;
 			}
 			
 			public function get videoDisplay():VideoDisplay{
@@ -243,12 +288,10 @@
 			
 			public function play():void{
 				if(currentVidSourceType == SourceType.YOUTUBE){
-					showYTPlayer();
 					if(_youTubeLoader)
 						_youTubeLoader.play();
 				}
 				else{
-					hideYTPlayer();
 					_videoDisplay.play();
 				}
 			}
@@ -369,31 +412,79 @@
 			protected function onStreamURLFetch(event:StreamURLFetchEvent):void{
 				if(event.streamURL){
 					videoDisplay.source = event.streamURL;
-					videoDisplay.visible = true;
 				}
 			}
 			
 			protected function onYouTubePlayerLoaded(event:YouTubeLoaderEvent):void{
 				trace('YT load: ' + curVID);
-				if(_youTubeLoader && currentVidSourceType == SourceType.YOUTUBE){
-					showYTPlayer();
-					_youTubeLoader.loadVideoById(curVID);
+				if(_youTubeLoader){
 					_youTubeLoader.setSize(width, height);
-					_youTubePlaybackPollTimer.start();
-					// pause();
+					_youTubePlayerLoaded = true;
+					if (currentVidSourceType == SourceType.YOUTUBE) {
+						playYTVideo(curVID);	
+					}
 				}
 			}
 			
 			protected function onYouTubePlayerStateChange(event:YouTubeLoaderEvent):void{
-				trace('state change');
+				trace('state change: ' + event.state);		
+				switch (event.state) {
+					case "playing": {
+						handleVideoReady();
+						break;
+					}
+						
+					case "paused": {
+						handleVideoPaused();
+						break;
+					}
+						
+					case "ended": {
+						handleVideoFinished();
+						break;
+					}
+				}
+			}
+			
+			protected function onYouTubePlayerError(event:YouTubeLoaderEvent): void {
+				trace('On youtube error: ' + event.errorCode);
+				handleVideoPlaybackError(event.errorCode);
+			}
+			
+			protected function playYTVideo(vid:String):void {
+				
+				// stop playing existing video if the current source type is not youtube
+				if (_youTubeLoader && currentVidSourceType != SourceType.YOUTUBE) {
+					_videoDisplay.pause();
+				}
+				
+				// show the youtube chromeless player and play the video.
+				if (_youTubeLoader && _youTubePlayerLoaded) {
+					showYTPlayer();
+					trace("Playing youtube video with id: " + vid);
+					_youTubeLoader.loadVideoById(vid);
+					_youTubePlaybackPollTimer.start();
+					
+					controlPallette.playButton.pauseButton.visible = true;
+					controlPallette.playButton.playButton.visible = false;
+				}
 			}
 			
 			protected function hideYTPlayer():void{
+				// pause the video if any video is playing in youtube chromeless player
+				if (_youTubeLoader && currentVidSourceType == SourceType.YOUTUBE) {
+					_youTubeLoader.pause();
+					_youTubePlaybackPollTimer.stop();		
+				}
+				
+				// hide the youtube chromeless player
 				_youTubeLoaderWrapper.visible = false;
 				_youTubeLoader.visible = false;
+				_videoDisplay.visible = true;
 			}
 			
 			protected function showYTPlayer():void{
+				_videoDisplay.visible = false;
 				_youTubeLoaderWrapper.visible = true;
 				_youTubeLoader.visible = true;
 			}

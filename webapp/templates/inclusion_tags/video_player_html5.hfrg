@@ -1,20 +1,16 @@
 {% load kikinvideo_tags %}
 
-<div class="video-player" id="video-player-{{ video.id }}">
-    <a href="javascript: UI.closePlayer({{ video.id }})">
+<div class="video-player" id="video-player">
+    <a href="javascript: UI.closePlayer()">
         <div class="close-button-fancy"></div>
     </a>
-    <div class='video-embed-container' id="video-embed-container-{{ video.id }}">
+    <div class='video-embed-container' id="video-embed-container">
 
     {% autoescape off %}
-            {% if video.html5_embed_code %}
-                <div class="video-embed-wrapper html5" id="video-embed-wrapper-{{ video.id }}"
-                            style="width:640px;height:385px;">
-                    {% watchlr_player %}
-                </div>
-            {% else %}
-                {% video_no_embed video %}
-            {% endif %}
+            <div class="video-embed-wrapper html5" id="video-embed-wrapper"
+                        style="width:640px;height:385px;">
+                {% watchlr_player %}
+            </div>
     {% endautoescape %}
     </div>
 </div>

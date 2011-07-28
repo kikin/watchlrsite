@@ -5,11 +5,7 @@
     <param name="quality" value="high"><param name="bgcolor" value="#ffffff">
     <param name="allowscriptaccess" value="always">
     <param name="allowfullscreen" value="true">
-    {% if video|is_vimeo or video|is_youtube %}
-        <param name="flashvars" value="src={{video.html5_embed_code|iframe_source }}">
-    {% else %}
-        <param name="flashvars" value="src={{video.html5_embed_code|raw_source }}">
-    {% endif %}
+    <param name="flashvars" value="">
 </object>
 <script type="text/javascript">
     SWFID="WatchlrPlayer";

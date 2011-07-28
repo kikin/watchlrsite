@@ -45,11 +45,11 @@ package choppingblock.video{
 	*/
 
 	import flash.display.*;
-	import flash.utils.*;
-	import flash.net.*;
-	import flash.system.*;
 	import flash.events.*;
 	import flash.external.ExternalInterface;
+	import flash.net.*;
+	import flash.system.*;
+	import flash.utils.*;
 
 	public class YouTubeLoader extends Sprite {
 
@@ -69,7 +69,8 @@ package choppingblock.video{
 		public function YouTubeLoader () {
 			//trace("YouTubeLoader");
 			
-			ExternalInterface.addCallback( "playerStateUpdateHandler", playerStateUpdateHandler)
+			ExternalInterface.addCallback( "playerStateUpdateHandler", playerStateUpdateHandler);
+			ExternalInterface.addCallback( "playerErrorHandler", playerErrorHandler);
 		}
 
 		// ------------------------------------
@@ -145,6 +146,14 @@ package choppingblock.video{
 			
 			// otherwise we can call a 
 			var f:YouTubeLoaderEvent = new YouTubeLoaderEvent(YouTubeLoaderEvent.STATE_CHANGE, true, false, _state);
+			dispatchEvent(f);
+		}
+		
+		/**
+		 Called from External Interface when player is ready
+		 */
+		private function playerErrorHandler (errorCode:Number):void{
+			var f:YouTubeLoaderEvent = new YouTubeLoaderEvent(YouTubeLoaderEvent.ERROR, true, false, undefined, errorCode);
 			dispatchEvent(f);
 		}
 		
