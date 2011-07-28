@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models.aggregates import Count
@@ -7,6 +7,10 @@ from django.db.models.aggregates import Count
 from analytics.models import Activity, Event, Error, UNAUTHORIZED_USER
 from api.views import jsonp_view
 from api.exception import BadRequest
+from api.utils import to_jsonp
+
+from datetime import date, timedelta
+from gviz_api import DataTable
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -122,29 +126,90 @@ def error(request, *args, **kwargs):
 
 @internal
 def index(request):
-    from gviz_api import DataTable
+    return render_to_response('analytics_index.html', context_instance=RequestContext(request))
 
-    description = { 'date': ('date', 'Date'),
-                    'saves': ('number', 'Videos Saved'),
-                    'likes': ('number', 'Videos Liked'),
-                    'follows': ('number', 'Follow relations'), }
+
+@internal
+def views(request):
+    description = [ ('Date', 'date'),
+                    ('Total Views', 'number'),
+                    ('Watchlr', 'number'),
+                    ('InSitu', 'number'),
+                    ('Leanback', 'number'), ]
+
+    today = date.today()
+    start = today - timedelta(days=14)
 
     data = dict()
 
-    select_date = { 'date': 'date(timestamp)' }
-    result = Activity.objects.extra(select=select_date).values('action', 'date').annotate(Count('action'))
+    current = start
+    while current < today:
+        data[current] = [current, 0, 0, 0, 0]
+        current += timedelta(days=1)
+
+    result = Activity.objects.filter(action__endswith='view', timestamp__gte=start, timestamp__lte=today)\
+                             .extra(select={ 'date': 'date(timestamp)' })\
+                             .values('action', 'date')\
+                             .annotate(Count('action'))
+
     for row in result:
-        key = data.setdefault(row['date'], { 'date': row['date'], 'saves': 0, 'likes': 0, 'follows': 0 })
-        if row['action'] == 'save':
-            key['saves'] = row['action__count']
-        elif row['action'] == 'like':
-            key['likes'] = row['action__count']
-        elif row['action'] == 'follow':
-            key['follows'] = row['action__count']
+        if row['action'] == 'view':
+            data[row['date']][2] = row['action__count']
+        elif row['action'] == 'insitu-view':
+            data[row['date']][3] = row['action__count']
+        elif row['action'] == 'leanback-view':
+            data[row['date']][4] = row['action__count']
+        else:
+            continue
+        data[row['date']][1] += row['action__count']
+        
+    data_table = DataTable(description)
+    data_table.LoadData(data.values())
+
+    json = data_table.ToJSon(order_by='Date')
+
+    jsonp, mimetype = to_jsonp(json, request)
+    return HttpResponse(jsonp, mimetype=mimetype)
+
+
+@internal
+def saves(request):
+    description = [ ('Date', 'date'),
+                    ('Total Saves', 'number'),
+                    ('Plugin', 'number'),
+                    ('Bookmarklet', 'number'),
+                    ('Watchlr', 'number'), ]
+
+    today = date.today()
+    start = today - timedelta(days=14)
+
+    data = dict()
+
+    current = start
+    while current < today:
+        data[current] = [current, 0, 0, 0, 0]
+        current += timedelta(days=1)
+
+    result = Activity.objects.filter(action='save', timestamp__gte=start, timestamp__lte=today)\
+                             .extra(select={ 'date': 'date(timestamp)' })\
+                             .values('agent', 'date')\
+                             .annotate(Count('agent'))
+
+    for row in result:
+        if row['agent'] == 'webapp':
+            data[row['date']][4] = row['agent__count']
+        elif row['action'] == 'plugin':
+            data[row['date']][2] = row['agent__count']
+        elif row['action'] == 'bookmarklet':
+            data[row['date']][3] = row['agent__count']
+        else:
+            continue
+        data[row['date']][1] += row['agent__count']
 
     data_table = DataTable(description)
     data_table.LoadData(data.values())
 
-    json = data_table.ToJSon(order_by='date')
+    json = data_table.ToJSon(order_by='Date')
 
-    return render_to_response('analytics_index.html', { 'json': json }, context_instance=RequestContext(request))
+    jsonp, mimetype = to_jsonp(json, request)
+    return HttpResponse(jsonp, mimetype=mimetype)
