@@ -39,6 +39,22 @@
           });
         }
       });
+      $.ajax({
+        url: '/analytics/likes',
+        dataType: 'jsonp',
+        success: function(jsonData) {
+          var data = new google.visualization.DataTable(jsonData);
+          var comboChart = new google.visualization.ComboChart(document.getElementById('likes_chart_div'));
+          comboChart.draw(data, {
+           title : 'Videos Liked',
+            vAxes: [{title: "Likes", minValue: 1}, {title: "Total Saves", minValue: 1}],
+            hAxis: {title: "Date"},
+            seriesType: "bars",
+            series: {0: {type: "line", targetAxisIndex: 1}},
+            legend: 'bottom'
+          });
+        }
+      });
     }
   </script>
 {% endblock script_refs %}
@@ -46,4 +62,5 @@
 {% block content %}
     <div id="views_chart_div" style="width: 900px; height: 500px;"></div>
     <div id="saves_chart_div" style="width: 900px; height: 500px;"></div>
+    <div id="likes_chart_div" style="width: 900px; height: 500px;"></div>
 {% endblock content %}

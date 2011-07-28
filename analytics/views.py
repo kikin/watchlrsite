@@ -213,3 +213,46 @@ def saves(request):
 
     jsonp, mimetype = to_jsonp(json, request)
     return HttpResponse(jsonp, mimetype=mimetype)
+
+
+@internal
+def likes(request):
+    description = [ ('Date', 'date'),
+                    ('Total Likes', 'number'),
+                    ('Plugin', 'number'),
+                    ('Bookmarklet', 'number'),
+                    ('Watchlr', 'number'), ]
+
+    today = date.today()
+    start = today - timedelta(days=14)
+
+    data = dict()
+
+    current = start
+    while current < today:
+        data[current] = [current, 0, 0, 0, 0]
+        current += timedelta(days=1)
+
+    result = Activity.objects.filter(action='like', timestamp__gte=start, timestamp__lte=today)\
+                             .extra(select={ 'date': 'date(timestamp)' })\
+                             .values('agent', 'date')\
+                             .annotate(Count('agent'))
+
+    for row in result:
+        if row['agent'] == 'webapp':
+            data[row['date']][4] = row['agent__count']
+        elif row['action'] == 'plugin':
+            data[row['date']][2] = row['agent__count']
+        elif row['action'] == 'bookmarklet':
+            data[row['date']][3] = row['agent__count']
+        else:
+            continue
+        data[row['date']][1] += row['agent__count']
+
+    data_table = DataTable(description)
+    data_table.LoadData(data.values())
+
+    json = data_table.ToJSon(order_by='Date')
+
+    jsonp, mimetype = to_jsonp(json, request)
+    return HttpResponse(jsonp, mimetype=mimetype)
