@@ -111,6 +111,7 @@
 				//finally, load the video...
 				source = FlexGlobals.topLevelApplication.parameters.src;
 				
+				handlePlayerLoad();	
 			}
 			
 			public function onStateChange(event:MediaPlayerStateChangeEvent):void{
@@ -208,8 +209,12 @@
 			}
 			
 			/* Firing events to JS. */
+			protected function handlePlayerLoad():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_LOAD);
+			}
+			
 			protected function handleVideoReady():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYER_READY);
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYING);
 			}
 		
 			protected function handleVideoPaused():void{

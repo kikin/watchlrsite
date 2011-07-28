@@ -12,15 +12,10 @@
      }
      </style>
     {% endif %}
-
 {% endblock style_refs %}
 
 {% block script_refs %}
     {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.swfobject.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/froogaloop.js"></script>
-    <script type="text/javascript" src="http://www.youtube.com/player_api"></script>
-
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/downloadpitch.js"></script>

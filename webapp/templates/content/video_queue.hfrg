@@ -22,14 +22,13 @@
 {% endif %}
 
 <script type="text/javascript">
-    var videoListTa = [];
+    var videoList = [];
     {% for video in videos %}
         {% if video|is_vimeo or video|is_youtube %}
-            videoListTa.push({ id: {{ video.id }}, embed: '{{ video.html5_embed_code|iframe_source|safe }}' });
+            videoList.push({ id: {{ video.id }}, embed: '{{ video.html5_embed_code|iframe_source|safe }}' });
         {% else %}
-            videoListTa.push({ id: {{ video.id }}, embed: '{{ video.html5_embed_code|raw_source|safe }}' });
+            videoList.push({ id: {{ video.id }}, embed: '{{ video.html5_embed_code|raw_source|safe }}' });
         {% endif %}
-
     {% endfor %}
 </script>
 
