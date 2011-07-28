@@ -1,5 +1,8 @@
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponseForbidden
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.db.models.aggregates import Count
 
 from analytics.models import Activity, Event, Error, UNAUTHORIZED_USER
 from api.views import jsonp_view
@@ -119,4 +122,29 @@ def error(request, *args, **kwargs):
 
 @internal
 def index(request):
-    return HttpResponse('Hello World!')
+    from gviz_api import DataTable
+
+    description = { 'date': ('date', 'Date'),
+                    'saves': ('number', 'Videos Saved'),
+                    'likes': ('number', 'Videos Liked'),
+                    'follows': ('number', 'Follow relations'), }
+
+    data = dict()
+
+    select_date = { 'date': 'date(timestamp)' }
+    result = Activity.objects.extra(select=select_date).values('action', 'date').annotate(Count('action'))
+    for row in result:
+        key = data.setdefault(row['date'], { 'date': row['date'], 'saves': 0, 'likes': 0, 'follows': 0 })
+        if row['action'] == 'save':
+            key['saves'] = row['action__count']
+        elif row['action'] == 'like':
+            key['likes'] = row['action__count']
+        elif row['action'] == 'follow':
+            key['follows'] = row['action__count']
+
+    data_table = DataTable(description)
+    data_table.LoadData(data.values())
+
+    json = data_table.ToJSon(order_by='date')
+
+    return render_to_response('analytics_index.html', { 'json': json }, context_instance=RequestContext(request))

@@ -11,3 +11,4 @@ South==0.7.3
 -e git+https://github.com/boto/boto.git@2.0b4#egg=boto
 -e git+https://github.com/hmarr/django-ses.git#egg=django-ses
 pygeoip==0.2.1
+http://google-visualization-python.googlecode.com/files/gviz_api_py-1.7.0.tar.gz

@@ -146,7 +146,8 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'kikinvideo.urls'
 
-TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates',)
+TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates',
+                  os.path.abspath('.') + '/analytics/templates', )
 
 INSTALLED_APPS = (
     'django_auth_longer_email',
