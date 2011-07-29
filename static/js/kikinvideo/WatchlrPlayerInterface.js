@@ -147,11 +147,20 @@ window.WatchlrPlayerInterface = function(){
         }
 
 
-        if (typeof priv._currentVideoItemIndex == "number" && priv._watchlrPlayer && priv._watchlrPlayer.setSource) {
-            priv._watchlrPlayer.setSource(videoList[priv._currentVideoItemIndex].embed);
+        if (typeof priv._currentVideoItemIndex == "number") {
+            $('#video-player-title').html(videoList[priv._currentVideoItemIndex].title);
+
+            if (priv._watchlrPlayer && priv._watchlrPlayer.setSource) {
+                priv._watchlrPlayer.setSource(videoList[priv._currentVideoItemIndex].embed);
+            }
         }
+
+
     };
 
+    /**
+     * plays the previous video in the list
+     */
     pub.playPrev = function() {
         if (priv._currentVideoItemIndex - 1 > -1) {
             priv._currentVideoItemIndex--;
@@ -160,6 +169,9 @@ window.WatchlrPlayerInterface = function(){
         }
     };
 
+    /**
+     * plays the next video in the list.
+     */
     pub.playNext = function() {
         if (priv._currentVideoItemIndex + 1 < videoList.length) {
             priv._currentVideoItemIndex++;
@@ -168,8 +180,10 @@ window.WatchlrPlayerInterface = function(){
         }
     };
 
+    /**
+     * returns the videos host URL.
+     */
     pub.getVideoHostUrl = function() {
-        alert(videoList[priv._currentVideoItemIndex].host);
         return videoList[priv._currentVideoItemIndex].host;
     };
 
