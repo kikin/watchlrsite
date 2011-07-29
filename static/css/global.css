@@ -701,6 +701,13 @@ ul>span.cufon-canvas {
     font-size:13px;
 }
 
+.player-video-description {
+    float: right;
+    color: #FFFFFF;
+    width: 95%;
+    text-align: left;
+}
+
 .win .video-description {
     line-height: 16px;
 }
@@ -1163,8 +1170,12 @@ box-shadow: 10px 10px 5px #888;
 }
 
 .close-button-fancy-player {
-    margin-top:0px;
-    margin-right: 0px;
+    float:right;
+    margin-top:3px;
+    margin-right: -3px;
+    width:32px;
+    height:32px;
+    background:url(/static/images/player/closeX.png) no-repeat 0px 0px;
 }
 
 .prev-button-fancy{
@@ -1201,6 +1212,7 @@ box-shadow: 10px 10px 5px #888;
 
 .video-player-bottom {
     height: 40px;
+    margin-top: 10px;
 }
 
 .video-player-title {
@@ -1219,6 +1231,11 @@ box-shadow: 10px 10px 5px #888;
 .video-source-image{
     width:16px;
     height:16px;
+}
+
+.player-video-source-image {
+    margin-top: 8px;
+    float: left;
 }
 
 .rounded-corners-5{

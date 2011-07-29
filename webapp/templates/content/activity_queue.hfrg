@@ -118,7 +118,9 @@
                 {% else %}
                     embed: '{{ activity_item.video.html5_embed_code|raw_source|safe }}',
                 {% endif %}
-                host: '{{ activity_item.video.url|safe }}'
+                host: '{{ activity_item.video.url|safe }}',
+                description: '{{ video.description|truncate_chars:175|urlize }}',
+                faviconURl: '{{ video|source_icon }}'
             });
         {% endif %}
     {% endfor %}

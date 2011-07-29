@@ -33,7 +33,9 @@
                     embed: '{{ video.html5_embed_code|raw_source|safe }}',
                 {% endif %}
                 host: '{{ video.url|safe }}',
-                title: '{{ video.title|truncate_text:45 }}'
+                title: '{{ video.title|truncate_text:45 }}',
+                description: '{{ video.description|truncate_chars:175|urlize }}',
+                faviconURl: '{{ video|source_icon }}'
             });
         {% endif %}
     {% endfor %}
