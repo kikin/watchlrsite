@@ -40,12 +40,19 @@ package choppingblock.video{
 		public static const LOADED:String = "YouTubeLoaderEvent: Loaded";
 		public static const STATE_CHANGE:String = "YouTubeLoaderEvent: State Change";
 		public static const IO_ERROR:String = "YouTubeLoaderEvent: IO Error";
+		public static const ERROR:String = "YouTubeLoaderEvent: Error";
 		
 		/**
 		 * A text message that can be passed to an event handler
 		 * with this event object.
 		 */
 		public var state:String;
+		
+		/**
+		 * An error code that can be passed to an event handler
+		 * with this event object.
+		 */
+		public var errorCode:Number;
 
 		// ------------------------------------
 		// CONSTRUCTOR
@@ -55,11 +62,12 @@ package choppingblock.video{
 	 	 *  Constructor.
 		 *  @param message The message of the event.
 		 */
-		public function YouTubeLoaderEvent (type:String, bubbles:Boolean = false, cancelable:Boolean = false, state:String = undefined) {
+		public function YouTubeLoaderEvent (type:String, bubbles:Boolean = false, cancelable:Boolean = false, state:String = undefined, errorCode:Number = 0) {
 			// Pass constructor parameters to the superclass constructor
 			super(type, bubbles, cancelable);
 			
-			this.state = state;		
+			this.state = state;
+			this.errorCode = errorCode;
 		}
 
 		// ------------------------------------
@@ -83,7 +91,7 @@ package choppingblock.video{
 		* @return A copy of the current instance.
 		*/
 		public override function clone():Event {
-			return new YouTubeLoaderEvent(type, bubbles, cancelable, state);
+			return new YouTubeLoaderEvent(type, bubbles, cancelable, state, errorCode);
 		}
 
 		/**

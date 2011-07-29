@@ -42,6 +42,9 @@
 				ExternalInterface.addCallback("enterFullScreen", enterFullScreen);
 				ExternalInterface.addCallback("exitFullScreen", exitFullScreen);
 				ExternalInterface.addCallback("setSource", setSource);
+				// http://www.youtube.com/embed/BpsrThXh_gM?autoplay=1
+				// http://player.vimeo.com/video/26860013?title=0&byline=0&portrait=0&autoplay=1
+				// http://www.youtube.com/embed/GuJQSAiODqI?autoplay=1
 				
 				gigaPlayer.width = width;
 				gigaPlayer.height = height;

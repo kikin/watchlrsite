@@ -149,7 +149,7 @@ def video_player(request, video_id):
         if len(video_query_set) == 0:
             return HttpResponseNotFound()
         else:               
-            return render_to_response('inclusion_tags/video_player.hfrg', {'video': video_query_set[0]})
+            return render_to_response('inclusion_tags/video_player_html5.hfrg', {'video': video_query_set[0]})
 
 
 def video_detail(request, video_id):

@@ -5,7 +5,7 @@
 error.log
 scripts/
 build/
-kikinvideo
+/kikinvideo
 .DS_Store
 kikin_video_env
 celerybeat-schedule.db

@@ -1162,6 +1162,34 @@ box-shadow: 10px 10px 5px #888;
     background:url(/static/images/fancybox.png) no-repeat -40px 0px;
 }
 
+.prev-button-fancy{
+    width: 27px;
+    height: 53px;
+    background-color: #333;
+    position: fixed;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    padding: 5px;
+    display: none;
+    z-index: 9999;
+}
+
+.next-button-fancy{
+    width: 27px;
+    height: 53px;
+    background-color: #333;
+    position: fixed;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    -moz-border-radius-topright: 5px;
+    -moz-border-radius-bottomright: 5px;
+    padding: 5px;
+    display: none;
+    z-index: 9999;
+}
+
 .video-source-image{
     width:16px;
     height:16px;

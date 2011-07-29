@@ -98,7 +98,7 @@
             </div>
         </div>
         <div id="video-player-container" style="margin-top:40px;margin-left: 15px;">
-                {% video_player activity_item.video request %}
+                {% video_player_html5 %}
         </div>
     </div>
         <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
@@ -106,3 +106,20 @@
     {% endif %}
     {% endfor %}
 {% endif %}
+
+<script type="text/javascript">
+    var videoList = [];
+    {% for activity_item in activity_items %}
+        {% if not activity_item.video|fetching_data %}
+            videoList.push({
+                id: {{ activity_item.video.id }},
+                {% if activity_item.video|is_vimeo or activity_item.video|is_youtube %}
+                    embed: '{{ activity_item.video.html5_embed_code|iframe_source|safe }}',
+                {% else %}
+                    embed: '{{ activity_item.video.html5_embed_code|raw_source|safe }}',
+                {% endif %}
+                host: '{{ activity_item.video.url|safe }}'
+            });
+        {% endif %}
+    {% endfor %}
+</script>

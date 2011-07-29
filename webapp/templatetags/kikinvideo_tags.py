@@ -414,18 +414,9 @@ def user_agent_os(request):
     if u_a.find('windows') != -1:
         return 'windows'
 
-
-@register.inclusion_tag('inclusion_tags/video_player_flash.hfrg')
-def video_player_flash(video):
-    return { 'video' : video }
-
 @register.inclusion_tag('inclusion_tags/video_player_html5.hfrg')
-def video_player_html5(video):
-    return { 'video' : video, 'settings' : app_settings }
-
-@register.inclusion_tag('inclusion_tags/video_player.hfrg')
-def video_player(video, request):
-    return { 'video' : video, 'request':request, 'settings':app_settings }
+def video_player_html5():
+    return { 'settings' : app_settings }
 
 @register.inclusion_tag('inclusion_tags/fetching_data.hfrg')
 def fetching_data_message(video):
@@ -446,10 +437,6 @@ def video_queue_item(context):
 @register.inclusion_tag('content/user_dropdown.hfrg')
 def liked_by_panel(video):
     return {'video':video, 'users':video.all_likers()}
-
-@register.inclusion_tag('inclusion_tags/video_no_embed.hfrg')
-def video_no_embed(video):
-    return {'video': video }
 
 @register.filter
 def user_profile_link(user):
@@ -502,7 +489,8 @@ def raw_source(video_tag):
 def iframe_source(youtube_html5_embed_code):
     return VideoHelper.iframe_source(youtube_html5_embed_code)
 
-@register.inclusion_tag('inclusion_tags/watchlr_player.hfrg', takes_context=True)
-def watchlr_player(context):
-    return {'video':context['video']}
+@register.inclusion_tag('inclusion_tags/watchlr_player.hfrg')
+def watchlr_player():
+    return
+
 

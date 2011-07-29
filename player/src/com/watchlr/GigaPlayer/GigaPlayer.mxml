@@ -18,13 +18,18 @@
 			import com.watchlr.Globals;
 			
 			import flash.external.*;
+			import flash.system.Security;
 			import flash.utils.Timer;
+			import flash.utils.setTimeout;
+			
+			import flashx.textLayout.formats.Float;
 			
 			import mx.collections.ArrayList;
 			import mx.core.FlexGlobals;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
 			import mx.events.ResizeEvent;
+			import mx.managers.CursorManager;
 			
 			import org.osmf.events.LoadEvent;
 			import org.osmf.events.MediaPlayerStateChangeEvent;
@@ -54,17 +59,22 @@
 		
 			protected var UIChromeFadeoutTimer:Timer;
 			
-			private var _youTubeLoader:YouTubeLoader;
+			// private var _youTubeLoader:YouTubeLoader;
+			private var _youTubeLoader:Loader;
+			private var _youtubePlayer:Object;
 			private var _youTubeLoaderWrapper:UIComponent;
 			private var _youTubePlaybackPollTimer:Timer;
+			private var _youTubePlayerLoaded:Boolean = false;
 			private var _youTubePlayerLastBytesLoadedCount:Number = 0;
 			private var YOUTUBE_PLAYBACK_POLL_INTERVAL:Number = 200;
+			
+			private var _stopCountdown:Boolean = false;
 			
 			protected var fillElementComponents:ArrayList = new ArrayList();
 			
 			public function set seekTarget(value:Number):void{
 				_seekTarget = value;
-				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);
+				handleVideoSeekStart();
 			}
 		
 			protected function init():void{
@@ -77,21 +87,23 @@
 				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				UIChromeFadeoutTimer.addEventListener(TimerEvent.TIMER, UIChromeFadeout);
 				
-//				_youTubeLoader = new YouTubeLoader();
-//				_youTubeLoader.addEventListener(YouTubeLoaderEvent.LOADED, onYouTubePlayerLoaded, false, 0, true);
-//				_youTubeLoader.addEventListener(YouTubeLoaderEvent.STATE_CHANGE, onYouTubePlayerStateChange, false, 0, true);
-//				_youTubeLoader.create(); //Creates actual Loader object
-//				_youTubeLoader.x = 290;
-//				_youTubeLoader.y = 27;
-//				addChild(_youTubeLoader);
-				
+				// Initialize youtube player
+				Security.allowDomain("www.youtube.com");
+				_youTubeLoader = new Loader();
+				_youTubeLoader.contentLoaderInfo.addEventListener(Event.INIT, onYouTubeLoaderInit);
+				_youTubeLoader.load(new URLRequest("http://www.youtube.com/apiplayer?version=3"));
+				/*_youTubeLoaderWrapper = new UIComponent();
+				_youTubePlayerLoaded = false;
 				_youTubeLoader = new YouTubeLoader();
-				_youTubeLoaderWrapper = new UIComponent();
 				_youTubeLoader.addEventListener(YouTubeLoaderEvent.LOADED, onYouTubePlayerLoaded);
 				_youTubeLoader.addEventListener(YouTubeLoaderEvent.STATE_CHANGE, onYouTubePlayerStateChange);
+				_youTubeLoader.addEventListener(YouTubeLoaderEvent.ERROR, onYouTubePlayerError);
 				_youTubeLoader.create();
 				addElement(_youTubeLoaderWrapper);
-				_youTubeLoaderWrapper.addChild(_youTubeLoader);
+				_youTubeLoaderWrapper.addChild(_youTubeLoader);*/
+				
+				_youTubeLoaderWrapper = new UIComponent();
+				addElement(_youTubeLoaderWrapper);
 				
 				_youTubePlaybackPollTimer = new Timer(YOUTUBE_PLAYBACK_POLL_INTERVAL);
 				_youTubePlaybackPollTimer.addEventListener(TimerEvent.TIMER, pollYouTubePlayer);
@@ -105,6 +117,10 @@
 				setChildIndex(_videoDisplay, 0);
 				setChildIndex(_youTubeLoaderWrapper, 1);
 				setChildIndex(controlPallette, 2);
+				setChildIndex(loadingIndicatorCountdown, 3);
+				setChildIndex(loadingErrorMessage, 4);
+				setChildIndex(viewSourceLink, 5);
+				setChildIndex(loadingIndiccatorMessage, 6);
 				
 				//time change callback...
 				_videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onPlayerTimeChange);
@@ -112,16 +128,37 @@
 				//finally, load the video...
 				source = FlexGlobals.topLevelApplication.parameters.src;
 				
+				handlePlayerLoad();	
+			}
+			
+			public function onYouTubeLoaderInit(event:Event): void {
+				_youTubePlayerLoaded = false;
+				_youTubeLoaderWrapper.addChild(_youTubeLoader);
+				
+				_youTubeLoader.content.addEventListener("onReady", onYouTubePlayerLoaded);
+				_youTubeLoader.content.addEventListener("onError", onYouTubePlayerError);
+				_youTubeLoader.content.addEventListener("onStateChange", onYouTubePlayerStateChange);
+				
+				_youtubePlayer = _youTubeLoader.content;
 			}
 			
 			public function onStateChange(event:MediaPlayerStateChangeEvent):void{
 				trace("on state change: " + event.state);
 				switch(event.state){
-					case "ready":
+					case "ready": 
+						break;
+					case "playing":
 						handleVideoReady();
+						controlPallette.playButton.pauseButton.visible = true;
+						controlPallette.playButton.playButton.visible = false;
 						break;
 					case "paused":
 						handleVideoPaused();
+						break;
+					case "playbackError":
+						handleVideoPlaybackError(150);
+						break;
+					case "buffering":
 						break;
 				}
 			}
@@ -136,13 +173,13 @@
 						if (percent + SEEK_BUFFER_PADDING > 100){
 							if(_seekTarget && 100*(_videoDisplay.duration/_seekTarget) > percent){
 								_videoDisplay.seek(_seekTarget);
-								ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
+								handleVideoSeekEnd();
 								_videoDisplay.play();
 							}
 						}
 						else if(_seekTarget && 100*(_videoDisplay.duration/_seekTarget) > (percent + SEEK_BUFFER_PADDING)){
 							_videoDisplay.seek(_seekTarget);
-							ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
+							handleVideoSeekEnd();
 							_videoDisplay.play();
 						}
 						
@@ -159,39 +196,125 @@
 				var gpEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.BYTES_LOADED_CHANGE);
 			}
 		
-			protected function handleVideoReady():void{
-				// _videoDisplay.pause();
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYER_READY);
-			}
-		
 			//here you go, ExternalInterface!
 			public function setSeekTarget(value:Number):void{
-				seekTarget = value;
+				if (currentVidSourceType == SourceType.YOUTUBE) {
+					// _youTubePlayer.seekTo(value);
+				} else {
+					seekTarget = value;	
+				}
 			}
 		
 			public function getDuration():Number{
-				return _videoDisplay.duration;
+				if (currentVidSourceType == SourceType.YOUTUBE) {
+					if (_youtubePlayer)
+						return _youtubePlayer.getDuration();
+				} else {
+					return _videoDisplay.duration;
+				}
+				
+				return 0;
 			}
 		
 			public function getCurrentTime():Number{
-				return _videoDisplay.currentTime;
+				if (currentVidSourceType == SourceType.YOUTUBE) {
+					if (_youtubePlayer)
+						return _youtubePlayer.getCurrentTime();
+				} else {
+					return _videoDisplay.currentTime;	
+				}
+				
+				return 0;
 			}
 		
 			protected function onComplete(event:TimeEvent):void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_ENDED);
+				handleVideoFinished();
 			}
 		
 			protected function onCurrentTimeChange(event:TimeEvent):void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, _videoDisplay.currentTime);
+				handleVideoTimeChanged();
 			}
-		
+			
 			//so containing js code can know # bytes loaded....
 			protected function bytesLoadedJSCallbackWrapper(event:LoadEvent):void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, event.bytes, event.target.bytesTotal); 
+				handleVideoLoadProgress(event.bytes, event.target.bytesTotal); 
+			}
+			
+			/* Firing events to JS. */
+			protected function handlePlayerLoad():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_LOAD);
+			}
+			
+			protected function handleVideoReady():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYING);
 			}
 		
 			protected function handleVideoPaused():void{
-				Globals.JS_SIGNATURES.ON_PAUSED;	
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PAUSED, getCurrentTime());	
+			}
+			
+			protected function handleVideoFinished():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_FINISHED);	
+			}
+			
+			protected function handleVideoTimeChanged():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, getCurrentTime());	
+			}
+			
+			protected function handleVideoLoadProgress(bytes:Number, bytesTotal:Number):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, bytes, bytesTotal);	
+			}
+			
+			protected function handleVideoSeekStart():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);	
+			}
+			
+			protected function handleVideoSeekEnd():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);	
+			}
+			
+			protected function handleVideoPlaybackError(errorCode:Number):void{
+				showCountdown();
+				updateCountdownTimer(5, errorCode);
+			}
+			
+			private function updateCountdownTimer(countDowntime:Number, errorCode:Number):void {
+				if (!_stopCountdown) {
+					if (countDowntime == 0) {
+						hideCountdown();
+						ExternalInterface.call(Globals.JS_SIGNATURES.PLAYBACK_ERROR, errorCode);
+					} else {
+						loadingIndicatorCountdown.text = countDowntime + '';
+						setTimeout(updateCountdownTimer, 1000, --countDowntime, errorCode);
+					}	
+				}
+			}
+			
+			private function showCountdown(): void {
+				_stopCountdown = false;
+				var loadingIndicatorCountdownTop:Number = (_videoDisplay.height - controlPallette.height) / 2;
+				loadingIndicatorCountdown.top = loadingIndicatorCountdownTop;
+				loadingErrorMessage.top = loadingIndicatorCountdownTop - 110;
+				viewSourceLink.top = loadingIndicatorCountdownTop - 80;
+				loadingIndiccatorMessage.top = loadingIndicatorCountdownTop - 30;
+				
+				loadingErrorMessage.visible = true;
+				viewSourceLink.visible = true;
+				loadingIndiccatorMessage.visible = true;
+				loadingIndicatorCountdown.visible = true;
+			}
+			
+			private function hideCountdown(): void {
+				loadingErrorMessage.visible = false;
+				viewSourceLink.visible = false;
+				loadingIndiccatorMessage.visible = false;
+				loadingIndicatorCountdown.visible = false;	
+			}
+			
+			protected function onViewSourceLinkClicked(event:Event):void {
+				_stopCountdown = true;
+				var targetURL:URLRequest = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
+				navigateToURL(targetURL, "_blank");
 			}
 			
 			/*videoDisplay function wrappers*/
@@ -203,27 +326,27 @@
 			public function set source(val:Object):void{
 				var util:Util = new Util();
 				var vid:String;
-				if(util.isYouTube(val.toString())){
-					vid = util.YTIframeSourceToVID(val.toString());
-					currentVidSourceType = SourceType.YOUTUBE;
-					showYTPlayer();
-				}else if (util.isVimeo(val.toString())){
-					currentVidSourceType = SourceType.VIMEO;
-					vid = util.VimeoIframeSourceToVID(val.toString());
-					util.removeEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
-					util.addEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
-					util.fetchVimeoStream(vid);
-					hideYTPlayer();
-					_videoDisplay.visible = true;
-					_youTubePlaybackPollTimer.stop();
-				}else{
-					currentVidSourceType = SourceType.HTML5;
-					_videoDisplay.source = val;
-					hideYTPlayer();
-					_videoDisplay.visible = true;
-					_youTubePlaybackPollTimer.stop();
+				if (val) {
+					trace('Source:' + val.toString());
+					hideCountdown();
+					if(util.isYouTube(val.toString())){
+						vid = util.YTIframeSourceToVID(val.toString());
+						currentVidSourceType = SourceType.YOUTUBE;
+						playYTVideo(vid);
+					}else if (util.isVimeo(val.toString())){
+						hideYTPlayer();
+						vid = util.VimeoIframeSourceToVID(val.toString());
+						util.removeEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
+						currentVidSourceType = SourceType.VIMEO;
+						util.addEventListener(StreamURLFetchEvent.STREAM_FETCH, onStreamURLFetch);
+						util.fetchVimeoStream(vid);
+					}else{
+						hideYTPlayer();
+						currentVidSourceType = SourceType.HTML5;
+						_videoDisplay.source = val;
+					}
+					curVID = vid;	
 				}
-				curVID = vid;
 			}
 			
 			public function get videoDisplay():VideoDisplay{
@@ -232,8 +355,8 @@
 			
 			public function seek(position:Number):void{
 				if(currentVidSourceType == SourceType.YOUTUBE){
-					if(_youTubeLoader){
-						_youTubeLoader.seekTo(position);
+					if(_youtubePlayer){
+						_youtubePlayer.seekTo(position);
 					}
 				}
 				else{
@@ -243,20 +366,18 @@
 			
 			public function play():void{
 				if(currentVidSourceType == SourceType.YOUTUBE){
-					showYTPlayer();
-					if(_youTubeLoader)
-						_youTubeLoader.play();
+					if(_youtubePlayer)
+						_youtubePlayer.playVideo();
 				}
 				else{
-					hideYTPlayer();
 					_videoDisplay.play();
 				}
 			}
 			
 			public function pause():void{
 				if(currentVidSourceType == SourceType.YOUTUBE){
-					if(_youTubeLoader)
-						_youTubeLoader.pause();
+					if(_youtubePlayer)
+						_youtubePlayer.pauseVideo();
 				}
 				else
 					_videoDisplay.pause();
@@ -264,8 +385,8 @@
 			
 			public function get duration():Number{
 				if(currentVidSourceType == SourceType.YOUTUBE){
-					if(_youTubeLoader){
-						return _youTubeLoader.getDuration();
+					if(_youtubePlayer){
+						return _youtubePlayer.getDuration();
 					}else{
 						return -1;
 					}
@@ -276,8 +397,8 @@
 			
 			public function get playing():Boolean{
 				if(currentVidSourceType == SourceType.YOUTUBE){
-					if(_youTubeLoader){
-							return _youTubeLoader.getPlayerState() == '1';
+					if(_youtubePlayer){
+							return _youtubePlayer.getPlayerState() == '1';
 					}
 					return false;
 				}	
@@ -286,8 +407,8 @@
 			
 			public function curTime():Number{
 				if(currentVidSourceType == SourceType.YOUTUBE){
-					if(_youTubeLoader){
-						return _youTubeLoader.getCurrentTime();
+					if(_youtubePlayer){
+						return _youtubePlayer.getCurrentTime();
 					}
 					return -1;
 				}else{
@@ -301,7 +422,8 @@
 					var component:UIComponent = fillElementComponents.getItemAt(i) as UIComponent;
 					fill100(component);
 				}
-				_youTubeLoader.setSize(width, height);
+				if (_youtubePlayer)
+					_youtubePlayer.setSize(width, height);
 				
 				positionPrevNextButtons();
 			}
@@ -369,31 +491,91 @@
 			protected function onStreamURLFetch(event:StreamURLFetchEvent):void{
 				if(event.streamURL){
 					videoDisplay.source = event.streamURL;
-					videoDisplay.visible = true;
 				}
 			}
 			
-			protected function onYouTubePlayerLoaded(event:YouTubeLoaderEvent):void{
+			protected function onYouTubePlayerLoaded(event:Event):void{
 				trace('YT load: ' + curVID);
-				if(_youTubeLoader && currentVidSourceType == SourceType.YOUTUBE){
-					showYTPlayer();
-					_youTubeLoader.loadVideoById(curVID);
-					_youTubeLoader.setSize(width, height);
-					_youTubePlaybackPollTimer.start();
-					// pause();
+				if(_youtubePlayer){
+					_youtubePlayer.setSize(width, height);
+					_youTubePlayerLoaded = true;
+					if (currentVidSourceType == SourceType.YOUTUBE) {
+						playYTVideo(curVID);	
+					}
 				}
 			}
 			
-			protected function onYouTubePlayerStateChange(event:YouTubeLoaderEvent):void{
-				trace('state change');
+			protected function onYouTubePlayerStateChange(event:Event):void{
+				trace('state change: ' + Object(event).data);		
+				switch (Object(event).data) {
+					case -1: { // unstarted
+						break;
+					}
+						
+					case 0: { // ended
+						handleVideoFinished();
+						break;
+					}
+						
+					case 1: { // playing
+						handleVideoReady();
+						_youTubePlaybackPollTimer.start();
+						break;
+					}
+						
+					case 2: { // paused
+						handleVideoPaused();
+						break;
+					}
+						
+					case 3: { // buffering
+						break;
+					}
+						
+					case 5: { // video cueued 
+						break;
+					}
+				}
+			}
+			
+			protected function onYouTubePlayerError(event:Event): void {
+				trace('On youtube error: ' + Object(event).data);
+				handleVideoPlaybackError(Object(event).data);
+			}
+			
+			protected function playYTVideo(vid:String):void {
+				
+				// stop playing existing video if the current source type is not youtube
+				if (_youtubePlayer && currentVidSourceType != SourceType.YOUTUBE) {
+					_videoDisplay.pause();
+				}
+				
+				// show the youtube chromeless player and play the video.
+				if (_youtubePlayer && _youTubePlayerLoaded) {
+					showYTPlayer();
+					trace("Playing youtube video with id: " + vid);
+					_youtubePlayer.loadVideoById(vid);
+					
+					controlPallette.playButton.pauseButton.visible = true;
+					controlPallette.playButton.playButton.visible = false;
+				}
 			}
 			
 			protected function hideYTPlayer():void{
+				// pause the video if any video is playing in youtube chromeless player
+				if (_youtubePlayer && currentVidSourceType == SourceType.YOUTUBE) {
+					_youtubePlayer.pauseVideo();
+					_youTubePlaybackPollTimer.stop();		
+				}
+				
+				// hide the youtube chromeless player
 				_youTubeLoaderWrapper.visible = false;
 				_youTubeLoader.visible = false;
+				_videoDisplay.visible = true;
 			}
 			
 			protected function showYTPlayer():void{
+				_videoDisplay.visible = false;
 				_youTubeLoaderWrapper.visible = true;
 				_youTubeLoader.visible = true;
 			}
@@ -405,16 +587,16 @@
 			}
 			
 			protected function pollYouTubePlayer(event:TimerEvent):void{
-				if(_youTubeLoader){
+				if(_youtubePlayer){
 					//dispatch a time updated event...
-					var time:Number = _youTubeLoader.getCurrentTime();
+					var time:Number = _youtubePlayer.getCurrentTime();
 					var timeUpdatedEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.TIME_UPDATED);
 					timeUpdatedEvent.time = time;
 					dispatchEvent(timeUpdatedEvent); 
 					
 					//dispatch a bytes loaded event, if necessary...
-					var bytesLoaded:Number = _youTubeLoader.getBytesLoaded();
-					var bytesTotal:Number = _youTubeLoader.getBytesTotal();
+					var bytesLoaded:Number = _youtubePlayer.getVideoBytesLoaded();
+					var bytesTotal:Number = _youtubePlayer.getVideoBytesTotal();
 					var bytesChangeEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.BYTES_LOADED_CHANGE);
 					bytesChangeEvent.bytesLoaded = bytesLoaded;
 					bytesChangeEvent.bytesTotal = bytesTotal;
@@ -448,6 +630,15 @@
 		<mx:Image id="nbNoHoverImg" source="assets/right_arrow.png" x="0" y="0"></mx:Image>
 		<mx:Image id="nbHoverImg" source="assets/right_arrow_glow.png" x="0" y="0" visible="false"></mx:Image>
 	</s:Group>
+	<mx:Label id="loadingErrorMessage" text="We could not play this video" fontSize="25" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
+	<mx:Label id="viewSourceLink" selectable="true" link="onViewSourceLinkClicked(event);" fontSize="20" color="0xFFFFFF" visible="false" textAlign="center" width="100%" textDecoration="underline"
+			  useHandCursor="true" buttonMode="true">
+		<mx:htmlText>
+			<![CDATA[<a href='event:http://www.youtube.com' target='_blank'>Watch here</a>]]>
+		</mx:htmlText>
+	</mx:Label>
+	<mx:Label id="loadingIndiccatorMessage" text="Your next video will play in" fontSize="20" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
+	<mx:Label id="loadingIndicatorCountdown" text="5" fontSize="50" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
 	<Components:Controls id="controlPallette" width="100%" bottom="0" left="0">
 	</Components:Controls>
 </mx:Canvas>

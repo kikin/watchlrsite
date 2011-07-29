@@ -61,6 +61,7 @@ function onYouTubePlayerReady(playerId) {
 	
 	if (checkObj()) {	
 		obj.addEventListener("onStateChange", "onytplayerStateChange");
+		obj.addEventListener("onError", onytplayerError, false);
 	}
 	
 	// PLEASE NOTE: For the purpose of this demo:
@@ -77,6 +78,16 @@ function onytplayerStateChange(newState) {
 	// This calls a secondary method located in the index.html file allowing the html display to update.
 	// You will most likely not need this, it's gross, remove this when you implement this code.
 	//secondaryOnytplayerStateChange(newState)
+}
+
+function onytplayerError(errorCode) {
+	alert("Player's error: " + errorCode);
+	// obj.playerErrorHandler(errorCode);
+	
+	// PLEASE NOTE: For the purpose of this demo:
+	// This calls a secondary method located in the index.html file allowing the html display to update.
+	// You will most likely not need this, it's gross, remove this when you implement this code.
+	//secondaryOnytplayerStateChange(errorCode)
 }
 
 //------------------------------------

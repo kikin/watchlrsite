@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load kikinvideo_tags %}
 {% block style_refs %}
     <link rel="stylesheet" href="{{ STATIC_URL }}video_player/video-js.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
     <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
@@ -7,6 +7,7 @@
 
 {% block script_refs %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/WatchlrPlayerInterface.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
@@ -84,6 +85,9 @@
                 {% endblock videolist %}
             </div>
             <a id="lnk-page-next" href="javascript:home.loadMoreVideos()" style="display: none;">load more</a>
+            <div id="video-player-container" style="">
+                {% video_player_html5 %}
+            </div>
         </div>
     </div>
 {% endblock content %}
