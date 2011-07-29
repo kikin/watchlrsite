@@ -1,16 +1,27 @@
 {% load kikinvideo_tags %}
 
-<div class="video-player" id="video-player">
-    <a href="javascript: UI.closePlayer()">
-        <div class="close-button-fancy"></div>
-    </a>
-    <div class='video-embed-container' id="video-embed-container">
+<div class="video-player-wrapper" id="video-player-wrapper">
 
-    {% autoescape off %}
-            <div class="video-embed-wrapper html5" id="video-embed-wrapper"
-                        style="width:640px;height:385px;">
-                {% watchlr_player %}
-            </div>
-    {% endautoescape %}
+    <a href="javascript: WatchlrPlayerInterface.playPrev()" class="prev-button-fancy">
+        <img src="/static/images/player/back_arrow.png">
+    </a>
+
+    <div class="video-player" id="video-player">
+        <a href="javascript: UI.closePlayer()">
+            <div class="close-button-fancy"></div>
+        </a>
+        <div class='video-embed-container' id="video-embed-container">
+
+        {% autoescape off %}
+                <div class="video-embed-wrapper html5" id="video-embed-wrapper"
+                            style="width:640px;height:385px;">
+                    {% watchlr_player %}
+                </div>
+        {% endautoescape %}
+        </div>
     </div>
+
+    <a href="javascript: WatchlrPlayerInterface.playNext()" class="next-button-fancy">
+        <img src="/static/images/player/fwd_arrow.png" >
+    </a>
 </div>

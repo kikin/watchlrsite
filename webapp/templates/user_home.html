@@ -85,8 +85,8 @@
                 {% endblock videolist %}
             </div>
             <a id="lnk-page-next" href="javascript:home.loadMoreVideos()" style="display: none;">load more</a>
-            <div id="video-player-container" style="margin-top:40px;">
-                {% video_player request %}
+            <div id="video-player-container" style="">
+                {% video_player_html5 %}
             </div>
         </div>
     </div>

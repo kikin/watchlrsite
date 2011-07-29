@@ -24,10 +24,12 @@
 <script type="text/javascript">
     var videoList = [];
     {% for video in videos %}
-        {% if video|is_vimeo or video|is_youtube %}
-            videoList.push({ id: {{ video.id }}, embed: '{{ video.html5_embed_code|iframe_source|safe }}' });
-        {% else %}
-            videoList.push({ id: {{ video.id }}, embed: '{{ video.html5_embed_code|raw_source|safe }}' });
+        {% if not video|fetching_data %}
+            {% if video|is_vimeo or video|is_youtube %}
+                videoList.push({ id: {{ video.id }}, embed: '{{ video.html5_embed_code|iframe_source|safe }}' });
+            {% else %}
+                videoList.push({ id: {{ video.id }}, embed: '{{ video.html5_embed_code|raw_source|safe }}' });
+            {% endif %}
         {% endif %}
     {% endfor %}
 </script>

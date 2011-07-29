@@ -74,7 +74,6 @@ window.WatchlrPlayerInterface = function(){
      * @param pauseTime - time at which video paused
      */
     pub.onVideoPaused = function(pauseTime) {
-        // TODO: update pause time.
         $.get('/api/seek/' + videoList[priv._currentVideoItemIndex].id + '/' + pauseTime);
     };
 
@@ -124,18 +123,14 @@ window.WatchlrPlayerInterface = function(){
      * function get called when current playing video finishes playing
      */
     pub.onVideoFinished = function() {
-        if (priv._currentVideoItemIndex + 1 < videoList.length) {
-            priv._currentVideoItemIndex++;
-            pub.play();
-            trackAction('leanback-view', videoList[priv._currentVideoItemIndex].id);
-        }
+        pub.playNext();
     };
 
     /**
      * function get called when watchlr player cannot play the video.
      */
     pub.onPlaybackError = function() {
-        pub.onVideoFinished();
+        pub.playNext();
     };
 
     /**
@@ -154,6 +149,22 @@ window.WatchlrPlayerInterface = function(){
 
         if (typeof priv._currentVideoItemIndex == "number" && priv._watchlrPlayer && priv._watchlrPlayer.setSource) {
             priv._watchlrPlayer.setSource(videoList[priv._currentVideoItemIndex].embed);
+        }
+    };
+
+    pub.playPrev = function() {
+        if (priv._currentVideoItemIndex - 1 > -1) {
+            priv._currentVideoItemIndex--;
+            pub.play();
+            trackAction('leanback-view', videoList[priv._currentVideoItemIndex].id);
+        }
+    };
+
+    pub.playNext = function() {
+        if (priv._currentVideoItemIndex + 1 < videoList.length) {
+            priv._currentVideoItemIndex++;
+            pub.play();
+            trackAction('leanback-view', videoList[priv._currentVideoItemIndex].id);
         }
     };
 

@@ -121,6 +121,10 @@ kikinvideo.UIUniversal =
 
                     video_player_div.fadeIn(500, function(){
                         video_embed_div.show();
+
+                        $('.prev-button-fancy').show();
+                        $('.next-button-fancy').show();
+
                         /*close video player on click outside its container....*/
                         $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
                             closePlayer(vid);
@@ -145,6 +149,8 @@ kikinvideo.UIUniversal =
             function closePlayer(vid){
                 var video_player_div = $(VIDEO_PLAYER_ID_PREFIX);
 
+                $('.prev-button-fancy').hide();
+                $('.next-button-fancy').hide();
                 $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
                     $(VIDEO_PLAYER_BG_SELECTOR).remove();
                 });

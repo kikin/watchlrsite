@@ -414,18 +414,9 @@ def user_agent_os(request):
     if u_a.find('windows') != -1:
         return 'windows'
 
-
-@register.inclusion_tag('inclusion_tags/video_player_flash.hfrg')
-def video_player_flash(video):
-    return { 'video' : video }
-
 @register.inclusion_tag('inclusion_tags/video_player_html5.hfrg')
 def video_player_html5():
     return { 'settings' : app_settings }
-
-@register.inclusion_tag('inclusion_tags/video_player.hfrg')
-def video_player(request):
-    return { 'request':request, 'settings':app_settings }
 
 @register.inclusion_tag('inclusion_tags/fetching_data.hfrg')
 def fetching_data_message(video):

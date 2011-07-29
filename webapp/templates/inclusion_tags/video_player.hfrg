@@ -1,3 +1,0 @@
-{% load kikinvideo_tags %}
-{% video_player_html5 %}
-
