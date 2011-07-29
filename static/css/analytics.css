@@ -1,0 +1,30 @@
+h3 {
+    color: #424242;
+    font-family: 'PT Sans','Helvetica', 'Arial', sans-serif;
+    font-size: 15px;
+    text-align: center;
+}
+
+.daterange {
+    padding: 10px;
+}
+
+.chart-table {
+    float: left;
+    min-width: 375px;
+    clear: left;
+}
+
+.chart {
+    float: right;
+    min-width: 600px;
+    min-height: 350px;
+    clear: right;
+}
+
+.chart-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    position: relative;
+    float: left;
+}

@@ -1,10 +1,16 @@
 {% extends 'analytics_base.html' %}
 
+{% block style_refs %}
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.css" media="all"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/analytics.css"/>
+{% endblock style_refs %}
+
 {% block script_refs %}
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript" src="/static/js/jquery-1.6.1.js"></script>
+  <script type="text/javascript" src="/static/js/jquery-ui-1.8.js"></script>
   <script>
-    google.load('visualization', '1', {packages:['corechart']});
+    google.load('visualization', '1', {packages:['corechart', 'table']});
     google.setOnLoadCallback(drawCharts);
     function drawCharts() {
       $.ajax({
@@ -12,11 +18,18 @@
         dataType: 'jsonp',
         success: function(jsonData) {
           var data = new google.visualization.DataTable(jsonData);
+
+          var formatter_short = new google.visualization.DateFormat({formatType: 'short'});
+          formatter_short.format(data, 0);
+
+          var table = new google.visualization.Table(document.getElementById('views_table_div'));
+          table.draw(data, {showRowNumber: true});
+
           var comboChart = new google.visualization.ComboChart(document.getElementById('views_chart_div'));
           comboChart.draw(data, {
             title : 'Videos Watched',
             vAxes: [{title: 'Views', minValue: 1}, {title: 'Total Views', minValue: 1}],
-            hAxis: {title: 'Date'},
+            hAxis: {title: 'Date', slantedText: true},
             seriesType: 'bars',
             series: {0: {type: 'line', targetAxisIndex: 1}},
             legend: 'bottom'
@@ -28,53 +41,115 @@
         dataType: 'jsonp',
         success: function(jsonData) {
           var data = new google.visualization.DataTable(jsonData);
+
+          var formatter_short = new google.visualization.DateFormat({formatType: 'short'});
+          formatter_short.format(data, 0);
+
+          var table = new google.visualization.Table(document.getElementById('saves_table_div'));
+          table.draw(data, {showRowNumber: true});
+
           var comboChart = new google.visualization.ComboChart(document.getElementById('saves_chart_div'));
           comboChart.draw(data, {
             title : 'Videos Saved',
             vAxes: [{title: 'Saves', minValue: 1}, {title: 'Total Saves', minValue: 1}],
-            hAxis: {title: 'Date'},
+            hAxis: {title: 'Date', slantedText: true},
             seriesType: 'bars',
             series: {0: {type: 'line', targetAxisIndex: 1}},
             legend: 'bottom'
           });
         }
       });
+
       $.ajax({
         url: '/analytics/likes',
         dataType: 'jsonp',
         success: function(jsonData) {
           var data = new google.visualization.DataTable(jsonData);
+
+          var formatter_short = new google.visualization.DateFormat({formatType: 'short'});
+          formatter_short.format(data, 0);
+
+          var table = new google.visualization.Table(document.getElementById('likes_table_div'));
+          table.draw(data, {showRowNumber: true});
+
           var comboChart = new google.visualization.ComboChart(document.getElementById('likes_chart_div'));
           comboChart.draw(data, {
             title : 'Videos Liked',
             vAxes: [{title: 'Likes', minValue: 1}, {title: 'Total Saves', minValue: 1}],
-            hAxis: {title: 'Date'},
+            hAxis: {title: 'Date', slantedText: true},
             seriesType: 'bars',
             series: {0: {type: 'line', targetAxisIndex: 1}},
             legend: 'bottom'
           });
         }
       });
+
       $.ajax({
         url: '/analytics/follows',
         dataType: 'jsonp',
         success: function(jsonData) {
           var data = new google.visualization.DataTable(jsonData);
-          var lineChart = new google.visualization.LineChart(document.getElementById('follows_chart_div'));
+
+          var formatter_short = new google.visualization.DateFormat({formatType: 'short'});
+          formatter_short.format(data, 0);
+
+          var table = new google.visualization.Table(document.getElementById('follow_table_div'));
+          table.draw(data, {showRowNumber: true});
+
+          var lineChart = new google.visualization.LineChart(document.getElementById('follow_chart_div'));
           lineChart.draw(data, {
-            title: 'Follow Relations',
+            title: 'Relations Forged',
             vAxis: {title: 'Relations', minValue: 1},
-            hAxis: {title: 'Date'}
+            hAxis: {title: 'Date', slantedText: true},
+            legend: 'none'
           });
         }
       });
     }
+    $(function() {
+        var dates = $("#from, #to").datepicker({
+            numberOfMonths: 1,
+            beforeShow: function() {
+                var other = this.id == "from" ? "#to" : "#from";
+                var option = this.id == "from" ? "maxDate" : "minDate";
+                var selectedDate = $(other).datepicker('getDate');
+
+                $(this).datepicker( "option", option, selectedDate );
+            }
+        }).change(function(){
+            var other = this.id == "from" ? "#to" : "#from";
+
+            if ( $('#from').datepicker('getDate') > $('#to').datepicker('getDate') )
+                $(other).datepicker('setDate', $(this).datepicker('getDate') );
+        });
+        $("#from").datepicker("setDate", '-2w');
+        $("#to").datepicker("setDate", new Date());
+    });
   </script>
 {% endblock script_refs %}
 
 {% block content %}
-    <div id="views_chart_div" style="width: 900px; height: 500px;"></div>
-    <div id="saves_chart_div" style="width: 900px; height: 500px;"></div>
-    <div id="likes_chart_div" style="width: 900px; height: 500px;"></div>
-    <div id="follows_chart_div" style="width: 900px; height: 500px;"></div>
+    <div class="daterange">
+      <h3>Selected date range:</h3>
+      <label for="from">From</label>
+      <input type="text" id="from" name="from"/>
+      <label for="to">to</label>
+      <input type="text" id="to" name="to"/>
+    </div>
+    <div id="views_chart_container" class="chart-container">
+        <div class="chart-table" id="views_table_div"></div>
+        <div class="chart" id="views_chart_div"></div>
+    </div>
+    <div id="saves_chart_container" class="chart-container">
+        <div class="chart-table" id="saves_table_div"></div>
+        <div class="chart" id="saves_chart_div"></div>
+    </div>
+    <div id="likes_chart_container" class="chart-container">
+        <div class="chart-table" id="likes_table_div"></div>
+        <div class="chart" id="likes_chart_div"></div>
+    </div>
+    <div id="follow_chart_container" class="chart-container">
+        <div class="chart-table" id="follow_table_div"></div>
+        <div class="chart" id="follow_chart_div"></div>
+    </div>
 {% endblock content %}
