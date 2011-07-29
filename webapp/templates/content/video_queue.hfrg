@@ -32,7 +32,8 @@
                 {% else %}
                     embed: '{{ video.html5_embed_code|raw_source|safe }}',
                 {% endif %}
-                host: '{{ video.url|safe }}'
+                host: '{{ video.url|safe }}',
+                title: '{{ video.title|truncate_text:45 }}'
             });
         {% endif %}
     {% endfor %}
