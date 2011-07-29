@@ -22,6 +22,42 @@
       var endDate = $.datepicker.formatDate('yy-mm-dd', $('#to').datepicker('getDate'));
 
       $.ajax({
+        url: '/analytics/userbase?start='+startDate+'&end='+endDate,
+        dataType: 'jsonp',
+        success: function(jsonData) {
+          var data = new google.visualization.DataTable(jsonData);
+
+          var formatter_short = new google.visualization.DateFormat({formatType: 'short'});
+          formatter_short.format(data, 0);
+
+          var view = new google.visualization.DataView(data);
+          view.setColumns([0, 2, 3, 4])
+
+          var table = new google.visualization.Table(document.getElementById('userbase_table_div'));
+          table.draw(data, {width: 355, page: 'enable', pageSize: 14});
+
+          var comboChart = new google.visualization.ComboChart(document.getElementById('userbase_chart_div'));
+          comboChart.draw(view, {
+            width: 645,
+            height: 350,
+            vAxes: [{title: 'Users', minValue: 1}, {title: 'New Users', minValue: 1}],
+            hAxis: {title: 'Date', slantedText: true},
+            seriesType: 'area',
+            series: {1: {type: 'line', targetAxisIndex: 1}},
+            legend: 'bottom'
+          });
+
+          var components = [
+            {type: 'html', datasource: '/analytics/userbase?type=html&start='+startDate+'&end='+endDate},
+            {type: 'csv', datasource: '/analytics/userbase?type=csv&start='+startDate+'&end='+endDate}
+          ];
+
+          var container = document.getElementById('userbase_toolbar_div');
+          google.visualization.drawToolbar(container, components);
+        }
+      });
+        
+      $.ajax({
         url: '/analytics/views?start='+startDate+'&end='+endDate,
         dataType: 'jsonp',
         success: function(jsonData) {
@@ -31,7 +67,7 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('views_table_div'));
-          table.draw(data, {width: 355, page:'enable', pageSize: 14});
+          table.draw(data, {width: 355, page: 'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('views_chart_div'));
           comboChart.draw(data, {
@@ -64,7 +100,7 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('saves_table_div'));
-          table.draw(data, {width: 355, page:'enable', pageSize: 14});
+          table.draw(data, {width: 355, page: 'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('saves_chart_div'));
           comboChart.draw(data, {
@@ -97,7 +133,7 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('likes_table_div'));
-          table.draw(data, {width: 355, page:'enable', pageSize: 14});
+          table.draw(data, {width: 355, page: 'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('likes_chart_div'));
           comboChart.draw(data, {
@@ -130,7 +166,7 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('follow_table_div'));
-          table.draw(data, {width: 355, page:'enable', pageSize: 14});
+          table.draw(data, {width: 355, page: 'enable', pageSize: 14});
 
           var lineChart = new google.visualization.LineChart(document.getElementById('follow_chart_div'));
           lineChart.draw(data, {
@@ -183,6 +219,15 @@
       <input type="text" id="from" name="from"/>
       <label for="to">to</label>
       <input type="text" id="to" name="to"/>
+    </div>
+    <div id="userbase_chart_container" class="chart-container">
+        <div class="chart-header">
+            <h2>User Base</h2>
+            <div class="chart-separator"></div>
+        </div>
+        <div class="chart-table" id="userbase_table_div"></div>
+        <div class="chart" id="userbase_chart_div"></div>
+        <div class="chart-toolbar" id="userbase_toolbar_div"></div>
     </div>
     <div id="views_chart_container" class="chart-container">
         <div class="chart-header">

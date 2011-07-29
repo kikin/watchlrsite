@@ -5,6 +5,7 @@ from django.template import RequestContext
 from django.db.models.aggregates import Count
 
 from analytics.models import Activity, Event, Error, UNAUTHORIZED_USER
+from api.models import User
 from api.views import jsonp_view
 from api.exception import BadRequest
 from api.utils import to_jsonp
@@ -144,6 +145,69 @@ def format_data(data_table, request):
 
     jsonp, mimetype = to_jsonp(json, request)
     return HttpResponse(jsonp, mimetype=mimetype)
+
+
+@internal
+def userbase(request):
+    description = [ ('Date', 'date'),
+                    ('Campaign', 'string'),
+                    ('Cuml. Users', 'number'),
+                    ('New Users', 'number'),
+                    ('Active Users', 'number'), ]
+
+    try:
+        start = datetime.strptime(request.REQUEST['start'], DATE_FORMAT).date()
+    except KeyError:
+        start = date.today() - timedelta(days=14)
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('Start date incorrectly formatted.')
+
+    try:
+        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+    except KeyError:
+        end = date.today()
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('End date incorrectly formatted.')
+
+    data = dict()
+
+    current = start
+    while current <= end:
+        data[current] = [current, 'null', 0, 0, 0]
+        current += timedelta(days=1)
+
+    cumulative_count = User.objects.filter(is_registered=True, date_joined__lt=start).count()
+
+    result = User.objects.filter(is_registered=True, date_joined__gte=start, date_joined__lte=end)\
+                         .extra(select={ 'date': 'date(date_joined)' })\
+                         .values('id', 'campaign', 'date')\
+                         .annotate(Count('id'))
+
+    for row in result:
+        key = data[row['date']]
+        key[1] = row['campaign'] or 'null'
+        key[3] = row['id__count']
+
+    current = start
+    while current <= end:
+        cumulative_count += data[current][3]
+        data[current][2] = cumulative_count
+        current += timedelta(days=1)
+
+    result = Activity.objects.exclude(user_id=UNAUTHORIZED_USER)\
+                             .exclude(timestamp__lt=start)\
+                             .exclude(timestamp__gt=end)\
+                             .extra(select={ 'date': 'date(timestamp)' })\
+                             .values('id', 'date')\
+                             .annotate(Count('id'))
+
+    for row in result:
+        data[row['date']][4] = row['id__count']
+
+    data_table = DataTable(description)
+    data_table.LoadData(data.values())
+
+    return format_data(data_table, request)
 
 
 @internal
