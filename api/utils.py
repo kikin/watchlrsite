@@ -126,3 +126,10 @@ def remove_html(html):
 
 def epoch(dt):
     return mktime(dt.timetuple())
+
+
+def to_jsonp(json, request):
+    callback = request.REQUEST.get('callback')
+    if not callback:
+        return json, "application/json"
+    return '%s(%s);' % (callback, json), "text/javascript"

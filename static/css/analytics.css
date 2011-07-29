@@ -1,0 +1,52 @@
+h3 {
+    color: #424242;
+    font-family: 'PT Sans','Helvetica', 'Arial', sans-serif;
+    font-size: 15px;
+    text-align: center;
+}
+
+h2 {
+    font-family: 'PT Sans','Helvetica', 'Arial', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.daterange {
+    padding: 10px;
+}
+
+.chart-table {
+    float: left;
+    clear: left;
+}
+
+.chart {
+    float: right;
+    clear: right;
+    margin-left: 10px;
+}
+
+.chart-container {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    position: relative;
+    float: left;
+}
+
+.chart-header {
+    width: 100%;
+    text-align: left;
+}
+
+.chart-separator {
+    margin-bottom: 15px;
+    background-color: #eeeeee;
+    height: 1px;
+}
+
+.chart-toolbar {
+    float: left;
+    clear: both;
+    margin-top: 5px;
+    margin-left: 75px;
+}

@@ -10,13 +10,10 @@
 
     <!-- Styles -->
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/global.css" media="all"/>
-    <link href='http://fonts.googleapis.com/css?family=PT+Sans&v1' rel='stylesheet' type='text/css'>{% block style_refs %}{% endblock style_refs %}
+    <link href='http://fonts.googleapis.com/css?family=PT+Sans&v1' rel='stylesheet' type='text/css'>
+    {% block style_refs %}{% endblock style_refs %}
 
-    <!-- Google Visualization API -->
-    <script src="https://www.google.com/jsapi" type="text/javascript"></script>
-
-    {% block script_refs %}
-    {% endblock script_refs %}
+    {% block script_refs %}{% endblock script_refs %}
 
 </head>
 <body>
@@ -27,8 +24,7 @@
 <!-- #header -->
 <div id="wrapper">
     <div id="content">
-        {% block content %}
-        {% endblock content %}
+        {% block content %}{% endblock content %}
     </div>
 </div>
 
