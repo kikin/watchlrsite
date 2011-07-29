@@ -11,6 +11,9 @@ from celery import states
 from kikinvideo.api.models import UserVideo
 from kikinvideo.webapp.helpers import VideoHelper
 
+import logging
+logger = logging.getLogger('kikinvideo')
+
 register = template.Library()
 
 HTML5_SOURCE_WHITELIST = ['funnyordie', 'ted']
@@ -483,11 +486,19 @@ def saved_from(video, user):
 
 @register.filter
 def raw_source(video_tag):
-    return VideoHelper.source_from_video_tag(video_tag)
+    try:
+        return VideoHelper.source_from_video_tag(video_tag)
+    except Exception:
+        logger.exception('Error extracting raw source from video tag: %s' % video_tag)
+        return ''
 
 @register.filter
 def iframe_source(youtube_html5_embed_code):
-    return VideoHelper.iframe_source(youtube_html5_embed_code)
+    try:
+        return VideoHelper.iframe_source(youtube_html5_embed_code)
+    except Exception:
+        logger.exception('Error extracting iframe video source from YouTube embed code: %s' % youtube_html5_embed_code)
+        return ''
 
 @register.inclusion_tag('inclusion_tags/watchlr_player.hfrg')
 def watchlr_player():

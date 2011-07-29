@@ -24,7 +24,7 @@
 <script type="text/javascript">
     var videoList = [];
     {% for video in videos %}
-        {% if not video|fetching_data and video.html5_embed_code %}
+        {% if not video|fetching_data %}
             videoList.push({
                 id: {{ video.id }},
                 {% if video|is_vimeo or video|is_youtube %}
