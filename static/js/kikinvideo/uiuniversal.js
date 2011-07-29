@@ -31,7 +31,7 @@ kikinvideo.UIUniversal =
 
             var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container";
 
-            var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper-";
+            var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper";
 
 
             /*initialization...*/
@@ -96,6 +96,7 @@ kikinvideo.UIUniversal =
                     // fixed width+height but no margin-properties)!
                     try{
                         var wrapper = $('#video-embed-container' + ' .video-embed-wrapper');
+                        wrapper.height('360px');
                         var embed = wrapper.children('embed:first-child');
                         embed.css({marginRight:'auto', marginLeft:'auto'});
                     }catch(excp){}
@@ -122,23 +123,6 @@ kikinvideo.UIUniversal =
                     video_player_div.fadeIn(500, function(){
                         video_embed_div.show();
 
-                        var prevButton = $('.prev-button-fancy');
-                        var nextButton = $('.next-button-fancy');
-
-                        var video_player_div_offset = video_player_div.offset();
-                        prevButton.css({
-                            'left': (video_player_div_offset.left - 37) + 'px',
-                            'top': (video_player_div_offset.top + (video_player_div.height() / 2) - 40) + 'px'
-                        });
-
-                        nextButton.css({
-                            'left': (video_player_div_offset.left + video_player_div.width() + 20) + 'px',
-                            'top': (video_player_div_offset.top + (video_player_div.height() / 2) - 40) + 'px'
-                        });
-
-                        prevButton.show();
-                        nextButton.show();
-
                         /*close video player on click outside its container....*/
                         $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
                             closePlayer(vid);
@@ -163,8 +147,6 @@ kikinvideo.UIUniversal =
             function closePlayer(vid){
                 var video_player_div = $(VIDEO_PLAYER_ID_PREFIX);
 
-                $('.prev-button-fancy').hide();
-                $('.next-button-fancy').hide();
                 $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
                     $(VIDEO_PLAYER_BG_SELECTOR).remove();
                 });

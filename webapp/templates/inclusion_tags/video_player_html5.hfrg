@@ -1,35 +1,34 @@
 {% load kikinvideo_tags %}
 
-<div class="video-player-wrapper" id="video-player-wrapper">
+<div class="video-player" id="video-player">
+    <div class="video-player-top">
+        <h3 class="video-player-title" id="video-player-title"></h3>
+        <a href="javascript: UI.closePlayer()">
+            <div class="close-button-fancy-player"></div>
+        </a>
+    </div>
+
+    <div class='video-embed-container' id="video-embed-container">
+        {% autoescape off %}
+            <div class="video-embed-wrapper html5" id="video-embed-wrapper"
+                        style="width:640px;height:385px;">
+                {% watchlr_player %}
+            </div>
+        {% endautoescape %}
+    </div>
+
+    <div class="video-player-bottom">
+        <img id="player-video-source-image" class="video-source-image player-video-source-image" src=""/>
+        <div class="player-video-description" id="player-video-description"></div>
+    </div>
 
     <a href="javascript: WatchlrPlayerInterface.playPrev()" class="prev-button-fancy">
         <img src="/static/images/player/back_arrow.png">
     </a>
 
-    <div class="video-player" id="video-player">
-        <div class="video-player-top">
-            <h3 class="video-player-title" id="video-player-title"></h3>
-            <a href="javascript: UI.closePlayer()">
-                <div class="close-button-fancy-player"></div>
-            </a>
-        </div>
-
-        <div class='video-embed-container' id="video-embed-container">
-            {% autoescape off %}
-                <div class="video-embed-wrapper html5" id="video-embed-wrapper"
-                            style="width:640px;height:385px;">
-                    {% watchlr_player %}
-                </div>
-            {% endautoescape %}
-        </div>
-
-        <div class="video-player-bottom">
-            <img id="player-video-source-image" class="video-source-image player-video-source-image" src=""/>
-            <div class="player-video-description" id="player-video-description"></div>
-        </div>
-    </div>
-
     <a href="javascript: WatchlrPlayerInterface.playNext()" class="next-button-fancy">
         <img src="/static/images/player/fwd_arrow.png" >
     </a>
 </div>
+
+
