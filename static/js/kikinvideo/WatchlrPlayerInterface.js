@@ -168,5 +168,10 @@ window.WatchlrPlayerInterface = function(){
         }
     };
 
+    pub.getVideoHostUrl = function() {
+        alert(videoList[priv._currentVideoItemIndex].host);
+        return videoList[priv._currentVideoItemIndex].host;
+    };
+
     return pub;
 }();

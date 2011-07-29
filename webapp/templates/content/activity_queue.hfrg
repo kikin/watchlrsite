@@ -111,11 +111,15 @@
     var videoList = [];
     {% for activity_item in activity_items %}
         {% if not activity_item.video|fetching_data %}
-            {% if activity_item.video|is_vimeo or activity_item.video|is_youtube %}
-                videoList.push({ id: {{ activity_item.video.id }}, embed: '{{ activity_item.video.html5_embed_code|iframe_source|safe }}' });
-            {% else %}
-                videoList.push({ id: {{ activity_item.video.id }}, embed: '{{ activity_item.video.html5_embed_code|raw_source|safe }}' });
-            {% endif %}
+            videoList.push({
+                id: {{ activity_item.video.id }},
+                {% if activity_item.video|is_vimeo or activity_item.video|is_youtube %}
+                    embed: '{{ activity_item.video.html5_embed_code|iframe_source|safe }}',
+                {% else %}
+                    embed: '{{ activity_item.video.html5_embed_code|raw_source|safe }}',
+                {% endif %}
+                host: '{{ activity_item.video.url|safe }}'
+            });
         {% endif %}
     {% endfor %}
 </script>

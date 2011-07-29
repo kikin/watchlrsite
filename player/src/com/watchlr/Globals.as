@@ -12,7 +12,8 @@ package com.watchlr
 			ON_CURRENT_TIME_CHANGE : "WatchlrPlayerInterface.onCurrentTimeChange",
 			ON_FINISHED : "WatchlrPlayerInterface.onVideoFinished",
 			PLAYBACK_ERROR: "WatchlrPlayerInterface.onPlaybackError",
-			ON_LOAD: "WatchlrPlayerInterface.onLoad"
+			ON_LOAD: "WatchlrPlayerInterface.onLoad",
+			GET_VIDEO_HOST_URL: "WatchlrPlayerInterface.getVideoHostUrl"
 		}
 	}
 }

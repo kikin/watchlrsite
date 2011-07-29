@@ -36,14 +36,16 @@
             
         <script type="text/javascript" src="swfobject.js"></script>
         <script type="text/javascript" src="_assets/js/youTubeLoader.js"></script>
-        <object type="application/x-shockwave-flash" id="${application}" name="${application}" align="middle" data="WatchlrPlayer.swf" width="100%" height="100%">
+        <object type="application/x-shockwave-flash" id="${application}" name="${application}" align="middle" data="WatchlrPlayer.swf" width="640" height="380">
 				<param name="quality" value="high"><param name="bgcolor" value="#ffffff">
 				<param name="allowscriptaccess" value="always">
 				<param name="allowfullscreen" value="true">
-				<param name="flashvars" value="src=http://player.vimeo.com/video/26860013?title=0&byline=0&portrait=0&autoplay=1">
+				<param name="flashvars" value="src=http://www.youtube.com/embed/GuJQSAiODqI?autoplay=1">
 			</object>
 	        <script type="text/javascript">
 	        	SWFID="${application}";
+	        	WatchlrPlayerInterface = {};
+	        	WatchlrPlayerInterface.getVideoHostUrl = function() { return 'http://yahoo.com'; }
 	        </script>
     </head>
     <body>

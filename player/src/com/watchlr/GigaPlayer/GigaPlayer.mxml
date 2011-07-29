@@ -18,8 +18,9 @@
 			import com.watchlr.Globals;
 			
 			import flash.external.*;
-			import flash.utils.Timer;
 			import flash.system.Security;
+			import flash.utils.Timer;
+			import flash.utils.setTimeout;
 			
 			import flashx.textLayout.formats.Float;
 			
@@ -28,6 +29,7 @@
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
 			import mx.events.ResizeEvent;
+			import mx.managers.CursorManager;
 			
 			import org.osmf.events.LoadEvent;
 			import org.osmf.events.MediaPlayerStateChangeEvent;
@@ -65,6 +67,8 @@
 			private var _youTubePlayerLoaded:Boolean = false;
 			private var _youTubePlayerLastBytesLoadedCount:Number = 0;
 			private var YOUTUBE_PLAYBACK_POLL_INTERVAL:Number = 200;
+			
+			private var _stopCountdown:Boolean = false;
 			
 			protected var fillElementComponents:ArrayList = new ArrayList();
 			
@@ -113,6 +117,10 @@
 				setChildIndex(_videoDisplay, 0);
 				setChildIndex(_youTubeLoaderWrapper, 1);
 				setChildIndex(controlPallette, 2);
+				setChildIndex(loadingIndicatorCountdown, 3);
+				setChildIndex(loadingErrorMessage, 4);
+				setChildIndex(viewSourceLink, 5);
+				setChildIndex(loadingIndiccatorMessage, 6);
 				
 				//time change callback...
 				_videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onPlayerTimeChange);
@@ -137,7 +145,9 @@
 			public function onStateChange(event:MediaPlayerStateChangeEvent):void{
 				trace("on state change: " + event.state);
 				switch(event.state){
-					case "ready":
+					case "ready": 
+						break;
+					case "playing":
 						handleVideoReady();
 						controlPallette.playButton.pauseButton.visible = true;
 						controlPallette.playButton.playButton.visible = false;
@@ -147,6 +157,8 @@
 						break;
 					case "playbackError":
 						handleVideoPlaybackError(150);
+						break;
+					case "buffering":
 						break;
 				}
 			}
@@ -230,12 +242,10 @@
 			
 			/* Firing events to JS. */
 			protected function handlePlayerLoad():void{
-				loadingIndicator.visible = true;
 				ExternalInterface.call(Globals.JS_SIGNATURES.ON_LOAD);
 			}
 			
 			protected function handleVideoReady():void{
-				loadingIndicator.visible = false;
 				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYING);
 			}
 		
@@ -244,7 +254,6 @@
 			}
 			
 			protected function handleVideoFinished():void{
-				loadingIndicator.visible = true;
 				ExternalInterface.call(Globals.JS_SIGNATURES.ON_FINISHED);	
 			}
 			
@@ -265,7 +274,47 @@
 			}
 			
 			protected function handleVideoPlaybackError(errorCode:Number):void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.PLAYBACK_ERROR, errorCode);	
+				showCountdown();
+				updateCountdownTimer(5, errorCode);
+			}
+			
+			private function updateCountdownTimer(countDowntime:Number, errorCode:Number):void {
+				if (!_stopCountdown) {
+					if (countDowntime == 0) {
+						hideCountdown();
+						ExternalInterface.call(Globals.JS_SIGNATURES.PLAYBACK_ERROR, errorCode);
+					} else {
+						loadingIndicatorCountdown.text = countDowntime + '';
+						setTimeout(updateCountdownTimer, 1000, --countDowntime, errorCode);
+					}	
+				}
+			}
+			
+			private function showCountdown(): void {
+				_stopCountdown = false;
+				var loadingIndicatorCountdownTop:Number = (_videoDisplay.height - controlPallette.height) / 2;
+				loadingIndicatorCountdown.top = loadingIndicatorCountdownTop;
+				loadingErrorMessage.top = loadingIndicatorCountdownTop - 110;
+				viewSourceLink.top = loadingIndicatorCountdownTop - 80;
+				loadingIndiccatorMessage.top = loadingIndicatorCountdownTop - 30;
+				
+				loadingErrorMessage.visible = true;
+				viewSourceLink.visible = true;
+				loadingIndiccatorMessage.visible = true;
+				loadingIndicatorCountdown.visible = true;
+			}
+			
+			private function hideCountdown(): void {
+				loadingErrorMessage.visible = false;
+				viewSourceLink.visible = false;
+				loadingIndiccatorMessage.visible = false;
+				loadingIndicatorCountdown.visible = false;	
+			}
+			
+			protected function onViewSourceLinkClicked(event:Event):void {
+				_stopCountdown = true;
+				var targetURL:URLRequest = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
+				navigateToURL(targetURL, "_blank");
 			}
 			
 			/*videoDisplay function wrappers*/
@@ -279,6 +328,7 @@
 				var vid:String;
 				if (val) {
 					trace('Source:' + val.toString());
+					hideCountdown();
 					if(util.isYouTube(val.toString())){
 						vid = util.YTIframeSourceToVID(val.toString());
 						currentVidSourceType = SourceType.YOUTUBE;
@@ -580,12 +630,15 @@
 		<mx:Image id="nbNoHoverImg" source="assets/right_arrow.png" x="0" y="0"></mx:Image>
 		<mx:Image id="nbHoverImg" source="assets/right_arrow_glow.png" x="0" y="0" visible="false"></mx:Image>
 	</s:Group>
-	<s:Group id="loadingIndicator" x="10" y="100" width="50" height="50" left="200" visible="false">
-		<mx:Image id="liHoverImg" source="assets/loader_round.gif" x="0" y="0"></mx:Image>
-	</s:Group>
-	<s:Group id="loadingIndicatorCountdown" x="10" y="100" width="50" height="50" left="200" visible="false">
-		<mx:Label id="lictHover" text=""></mx:Label>
-	</s:Group>
+	<mx:Label id="loadingErrorMessage" text="We could not play this video" fontSize="25" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
+	<mx:Label id="viewSourceLink" selectable="true" link="onViewSourceLinkClicked(event);" fontSize="20" color="0xFFFFFF" visible="false" textAlign="center" width="100%" textDecoration="underline"
+			  useHandCursor="true" buttonMode="true">
+		<mx:htmlText>
+			<![CDATA[<a href='event:http://www.youtube.com' target='_blank'>Watch here</a>]]>
+		</mx:htmlText>
+	</mx:Label>
+	<mx:Label id="loadingIndiccatorMessage" text="Your next video will play in" fontSize="20" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
+	<mx:Label id="loadingIndicatorCountdown" text="5" fontSize="50" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
 	<Components:Controls id="controlPallette" width="100%" bottom="0" left="0">
 	</Components:Controls>
 </mx:Canvas>
