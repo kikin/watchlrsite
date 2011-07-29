@@ -122,8 +122,22 @@ kikinvideo.UIUniversal =
                     video_player_div.fadeIn(500, function(){
                         video_embed_div.show();
 
-                        $('.prev-button-fancy').show();
-                        $('.next-button-fancy').show();
+                        var prevButton = $('.prev-button-fancy');
+                        var nextButton = $('.next-button-fancy');
+
+                        var video_player_div_offset = video_player_div.offset();
+                        prevButton.css({
+                            'left': (video_player_div_offset.left - 37) + 'px',
+                            'top': (video_player_div_offset.top + (video_player_div.height() / 2) - 40) + 'px'
+                        });
+
+                        nextButton.css({
+                            'left': (video_player_div_offset.left + video_player_div.width() + 20) + 'px',
+                            'top': (video_player_div_offset.top + (video_player_div.height() / 2) - 40) + 'px'
+                        });
+
+                        prevButton.show();
+                        nextButton.show();
 
                         /*close video player on click outside its container....*/
                         $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
