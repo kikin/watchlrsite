@@ -10,7 +10,7 @@
         <div class="video-player-top">
             <h3 class="video-player-title" id="video-player-title"></h3>
             <a href="javascript: UI.closePlayer()">
-                <div class="close-button-fancy-player close-button-fancy"></div>
+                <div class="close-button-fancy-player"></div>
             </a>
         </div>
 
@@ -24,6 +24,8 @@
         </div>
 
         <div class="video-player-bottom">
+            <img id="player-video-source-image" class="video-source-image player-video-source-image" src=""/>
+            <div class="player-video-description" id="player-video-description"></div>
         </div>
     </div>
 

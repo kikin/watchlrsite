@@ -149,6 +149,8 @@ window.WatchlrPlayerInterface = function(){
 
         if (typeof priv._currentVideoItemIndex == "number") {
             $('#video-player-title').html(videoList[priv._currentVideoItemIndex].title);
+            $('#player-video-description').html(videoList[priv._currentVideoItemIndex].description);
+            $('#player-video-source-image').attr('src', videoList[priv._currentVideoItemIndex].faviconURl);
 
             if (priv._watchlrPlayer && priv._watchlrPlayer.setSource) {
                 priv._watchlrPlayer.setSource(videoList[priv._currentVideoItemIndex].embed);
