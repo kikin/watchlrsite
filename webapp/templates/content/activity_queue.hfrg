@@ -110,7 +110,7 @@
 <script type="text/javascript">
     var videoList = [];
     {% for activity_item in activity_items %}
-        {% if not activity_item.video|fetching_data %}
+        {% if not activity_item.video|fetching_data and video.html5_embed_code %}
             videoList.push({
                 id: {{ activity_item.video.id }},
                 {% if activity_item.video|is_vimeo or activity_item.video|is_youtube %}
