@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models.aggregates import Count
@@ -9,7 +9,7 @@ from api.views import jsonp_view
 from api.exception import BadRequest
 from api.utils import to_jsonp
 
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta
 from gviz_api import DataTable
 
 import logging
@@ -21,6 +21,9 @@ try:
 except IOError:
     GEOIP = None
     logger.warn('GeoIP database not found. Please check GEOIP_DATABASE_PATH environment variable.')
+
+# Default date format to use when parsing input.
+DATE_FORMAT = '%Y-%m-%d'
 
 
 def internal(view):
@@ -129,6 +132,20 @@ def index(request):
     return render_to_response('analytics_index.html', context_instance=RequestContext(request))
 
 
+def format_data(data_table, request):
+    type = request.REQUEST.get('type')
+
+    if type == 'csv':
+        return HttpResponse(data_table.ToCsv(order_by='Date'), mimetype='text/csv')
+    elif type == 'html':
+        return HttpResponse(data_table.ToHtml(), mimetype='text/html')
+
+    json = data_table.ToJSon(order_by='Date')
+
+    jsonp, mimetype = to_jsonp(json, request)
+    return HttpResponse(jsonp, mimetype=mimetype)
+
+
 @internal
 def views(request):
     description = [ ('Date', 'date'),
@@ -137,17 +154,28 @@ def views(request):
                     ('InSitu', 'number'),
                     ('Leanback', 'number'), ]
 
-    today = date.today()
-    start = today - timedelta(days=14)
+    try:
+        start = datetime.strptime(request.REQUEST['start'], DATE_FORMAT).date()
+    except KeyError:
+        start = date.today() - timedelta(days=14)
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('Start date incorrectly formatted.')
+
+    try:
+        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+    except KeyError:
+        end = date.today()
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('End date incorrectly formatted.')
 
     data = dict()
 
     current = start
-    while current < today:
+    while current <= end:
         data[current] = [current, 0, 0, 0, 0]
         current += timedelta(days=1)
 
-    result = Activity.objects.filter(action__endswith='view', timestamp__gte=start, timestamp__lte=today)\
+    result = Activity.objects.filter(action__endswith='view', timestamp__gte=start, timestamp__lte=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('action', 'date')\
                              .annotate(Count('action'))
@@ -166,10 +194,7 @@ def views(request):
     data_table = DataTable(description)
     data_table.LoadData(data.values())
 
-    json = data_table.ToJSon(order_by='Date')
-
-    jsonp, mimetype = to_jsonp(json, request)
-    return HttpResponse(jsonp, mimetype=mimetype)
+    return format_data(data_table, request)
 
 
 @internal
@@ -180,17 +205,28 @@ def saves(request):
                     ('Bookmarklet', 'number'),
                     ('Watchlr', 'number'), ]
 
-    today = date.today()
-    start = today - timedelta(days=14)
+    try:
+        start = datetime.strptime(request.REQUEST['start'], DATE_FORMAT).date()
+    except KeyError:
+        start = date.today() - timedelta(days=14)
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('Start date incorrectly formatted.')
+
+    try:
+        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+    except KeyError:
+        end = date.today()
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('End date incorrectly formatted.')
 
     data = dict()
 
     current = start
-    while current < today:
+    while current <= end:
         data[current] = [current, 0, 0, 0, 0]
         current += timedelta(days=1)
 
-    result = Activity.objects.filter(action='save', timestamp__gte=start, timestamp__lte=today)\
+    result = Activity.objects.filter(action='save', timestamp__gte=start, timestamp__lte=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('agent', 'date')\
                              .annotate(Count('agent'))
@@ -209,10 +245,7 @@ def saves(request):
     data_table = DataTable(description)
     data_table.LoadData(data.values())
 
-    json = data_table.ToJSon(order_by='Date')
-
-    jsonp, mimetype = to_jsonp(json, request)
-    return HttpResponse(jsonp, mimetype=mimetype)
+    return format_data(data_table, request)
 
 
 @internal
@@ -223,17 +256,28 @@ def likes(request):
                     ('Bookmarklet', 'number'),
                     ('Watchlr', 'number'), ]
 
-    today = date.today()
-    start = today - timedelta(days=14)
+    try:
+        start = datetime.strptime(request.REQUEST['start'], DATE_FORMAT).date()
+    except KeyError:
+        start = date.today() - timedelta(days=14)
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('Start date incorrectly formatted.')
+
+    try:
+        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+    except KeyError:
+        end = date.today()
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('End date incorrectly formatted.')
 
     data = dict()
 
     current = start
-    while current < today:
+    while current <= end:
         data[current] = [current, 0, 0, 0, 0]
         current += timedelta(days=1)
 
-    result = Activity.objects.filter(action='like', timestamp__gte=start, timestamp__lte=today)\
+    result = Activity.objects.filter(action='like', timestamp__gte=start, timestamp__lte=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('agent', 'date')\
                              .annotate(Count('agent'))
@@ -252,27 +296,35 @@ def likes(request):
     data_table = DataTable(description)
     data_table.LoadData(data.values())
 
-    json = data_table.ToJSon(order_by='Date')
-
-    jsonp, mimetype = to_jsonp(json, request)
-    return HttpResponse(jsonp, mimetype=mimetype)
+    return format_data(data_table, request)
 
 
 @internal
 def follows(request):
     description = [ ('Date', 'date'), ('Follows', 'number'), ]
 
-    today = date.today()
-    start = today - timedelta(days=14)
+    try:
+        start = datetime.strptime(request.REQUEST['start'], DATE_FORMAT).date()
+    except KeyError:
+        start = date.today() - timedelta(days=14)
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('Start date incorrectly formatted.')
+
+    try:
+        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+    except KeyError:
+        end = date.today()
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest('End date incorrectly formatted.')
 
     data = dict()
 
     current = start
-    while current < today:
+    while current <= end:
         data[current] = [current, 0]
         current += timedelta(days=1)
 
-    result = Activity.objects.filter(action='follow', timestamp__gte=start, timestamp__lte=today)\
+    result = Activity.objects.filter(action='follow', timestamp__gte=start, timestamp__lte=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('id', 'date')\
                              .annotate(Count('id'))
@@ -283,7 +335,5 @@ def follows(request):
     data_table = DataTable(description)
     data_table.LoadData(data.values())
 
-    json = data_table.ToJSon(order_by='Date')
+    return format_data(data_table, request)
 
-    jsonp, mimetype = to_jsonp(json, request)
-    return HttpResponse(jsonp, mimetype=mimetype)

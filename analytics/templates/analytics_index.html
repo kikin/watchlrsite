@@ -6,15 +6,23 @@
 {% endblock style_refs %}
 
 {% block script_refs %}
+
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript" src="/static/js/jquery-1.6.1.js"></script>
   <script type="text/javascript" src="/static/js/jquery-ui-1.8.js"></script>
+
   <script>
     google.load('visualization', '1', {packages:['corechart', 'table']});
+    
     google.setOnLoadCallback(drawCharts);
+
     function drawCharts() {
+
+      var startDate = $.datepicker.formatDate('yy-mm-dd', $('#from').datepicker('getDate'));
+      var endDate = $.datepicker.formatDate('yy-mm-dd', $('#to').datepicker('getDate'));
+
       $.ajax({
-        url: '/analytics/views',
+        url: '/analytics/views?start='+startDate+'&end='+endDate,
         dataType: 'jsonp',
         success: function(jsonData) {
           var data = new google.visualization.DataTable(jsonData);
@@ -23,21 +31,31 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('views_table_div'));
-          table.draw(data, {showRowNumber: true});
+          table.draw(data, {width: 355, page:'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('views_chart_div'));
           comboChart.draw(data, {
-            title : 'Videos Watched',
+            width: 645,
+            height: 350,
             vAxes: [{title: 'Views', minValue: 1}, {title: 'Total Views', minValue: 1}],
             hAxis: {title: 'Date', slantedText: true},
             seriesType: 'bars',
             series: {0: {type: 'line', targetAxisIndex: 1}},
             legend: 'bottom'
           });
+
+          var components = [
+            {type: 'html', datasource: '/analytics/views?type=html&start='+startDate+'&end='+endDate},
+            {type: 'csv', datasource: '/analytics/views?type=csv&start='+startDate+'&end='+endDate}
+          ];
+
+          var container = document.getElementById('views_toolbar_div');
+          google.visualization.drawToolbar(container, components);
         }
       });
+
       $.ajax({
-        url: '/analytics/saves',
+        url: '/analytics/saves?start='+startDate+'&end='+endDate,
         dataType: 'jsonp',
         success: function(jsonData) {
           var data = new google.visualization.DataTable(jsonData);
@@ -46,22 +64,31 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('saves_table_div'));
-          table.draw(data, {showRowNumber: true});
+          table.draw(data, {width: 355, page:'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('saves_chart_div'));
           comboChart.draw(data, {
-            title : 'Videos Saved',
+            width: 645,
+            height: 350,
             vAxes: [{title: 'Saves', minValue: 1}, {title: 'Total Saves', minValue: 1}],
             hAxis: {title: 'Date', slantedText: true},
             seriesType: 'bars',
             series: {0: {type: 'line', targetAxisIndex: 1}},
             legend: 'bottom'
           });
+
+          var components = [
+            {type: 'html', datasource: '/analytics/saves?type=html&start='+startDate+'&end='+endDate},
+            {type: 'csv', datasource: '/analytics/saves?type=csv&start='+startDate+'&end='+endDate}
+          ];
+
+          var container = document.getElementById('saves_toolbar_div');
+          google.visualization.drawToolbar(container, components);
         }
       });
 
       $.ajax({
-        url: '/analytics/likes',
+        url: '/analytics/likes?start='+startDate+'&end='+endDate,
         dataType: 'jsonp',
         success: function(jsonData) {
           var data = new google.visualization.DataTable(jsonData);
@@ -70,22 +97,31 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('likes_table_div'));
-          table.draw(data, {showRowNumber: true});
+          table.draw(data, {width: 355, page:'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('likes_chart_div'));
           comboChart.draw(data, {
-            title : 'Videos Liked',
+            width: 645,
+            height: 350,
             vAxes: [{title: 'Likes', minValue: 1}, {title: 'Total Saves', minValue: 1}],
             hAxis: {title: 'Date', slantedText: true},
             seriesType: 'bars',
             series: {0: {type: 'line', targetAxisIndex: 1}},
             legend: 'bottom'
           });
+
+          var components = [
+            {type: 'html', datasource: '/analytics/likes?type=html&start='+startDate+'&end='+endDate},
+            {type: 'csv', datasource: '/analytics/likes?type=csv&start='+startDate+'&end='+endDate}
+          ];
+
+          var container = document.getElementById('likes_toolbar_div');
+          google.visualization.drawToolbar(container, components);
         }
       });
 
       $.ajax({
-        url: '/analytics/follows',
+        url: '/analytics/follows?start='+startDate+'&end='+endDate,
         dataType: 'jsonp',
         success: function(jsonData) {
           var data = new google.visualization.DataTable(jsonData);
@@ -94,15 +130,24 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('follow_table_div'));
-          table.draw(data, {showRowNumber: true});
+          table.draw(data, {width: 355, page:'enable', pageSize: 14});
 
           var lineChart = new google.visualization.LineChart(document.getElementById('follow_chart_div'));
           lineChart.draw(data, {
-            title: 'Relations Forged',
+            width: 645,
+            height: 350,
             vAxis: {title: 'Relations', minValue: 1},
             hAxis: {title: 'Date', slantedText: true},
             legend: 'none'
           });
+
+          var components = [
+            {type: 'html', datasource: '/analytics/follows?type=html&start='+startDate+'&end='+endDate},
+            {type: 'csv', datasource: '/analytics/follows?type=csv&start='+startDate+'&end='+endDate}
+          ];
+
+          var container = document.getElementById('follows_toolbar_div');
+          google.visualization.drawToolbar(container, components);
         }
       });
     }
@@ -115,6 +160,9 @@
                 var selectedDate = $(other).datepicker('getDate');
 
                 $(this).datepicker( "option", option, selectedDate );
+            },
+            onSelect: function(dateText, inst) {
+                drawCharts();
             }
         }).change(function(){
             var other = this.id == "from" ? "#to" : "#from";
@@ -122,7 +170,7 @@
             if ( $('#from').datepicker('getDate') > $('#to').datepicker('getDate') )
                 $(other).datepicker('setDate', $(this).datepicker('getDate') );
         });
-        $("#from").datepicker("setDate", '-2w');
+        $("#from").datepicker("setDate", '-13');
         $("#to").datepicker("setDate", new Date());
     });
   </script>
@@ -137,19 +185,39 @@
       <input type="text" id="to" name="to"/>
     </div>
     <div id="views_chart_container" class="chart-container">
+        <div class="chart-header">
+            <h2>Videos Watched</h2>
+            <div class="chart-separator"></div>
+        </div>
         <div class="chart-table" id="views_table_div"></div>
         <div class="chart" id="views_chart_div"></div>
+        <div class="chart-toolbar" id="views_toolbar_div"></div>
     </div>
     <div id="saves_chart_container" class="chart-container">
+        <div class="chart-header">
+            <h2>Videos Saved</h2>
+            <div class="chart-separator"></div>
+        </div>
         <div class="chart-table" id="saves_table_div"></div>
         <div class="chart" id="saves_chart_div"></div>
+        <div class="chart-toolbar" id="saves_toolbar_div"></div>
     </div>
     <div id="likes_chart_container" class="chart-container">
+        <div class="chart-header">
+            <h2>Videos Liked</h2>
+            <div class="chart-separator"></div>
+        </div>
         <div class="chart-table" id="likes_table_div"></div>
         <div class="chart" id="likes_chart_div"></div>
+        <div class="chart-toolbar" id="likes_toolbar_div"></div>
     </div>
     <div id="follow_chart_container" class="chart-container">
+        <div class="chart-header">
+            <h2>Follow Relations</h2>
+            <div class="chart-separator"></div>
+        </div>
         <div class="chart-table" id="follow_table_div"></div>
         <div class="chart" id="follow_chart_div"></div>
+        <div class="chart-toolbar" id="follows_toolbar_div"></div>
     </div>
 {% endblock content %}
