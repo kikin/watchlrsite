@@ -234,9 +234,9 @@ def saves(request):
     for row in result:
         if row['agent'] == 'webapp':
             data[row['date']][4] = row['agent__count']
-        elif row['action'] == 'plugin':
+        elif row['agent'] == 'plugin':
             data[row['date']][2] = row['agent__count']
-        elif row['action'] == 'bookmarklet':
+        elif row['agent'] == 'bookmarklet':
             data[row['date']][3] = row['agent__count']
         else:
             continue
@@ -285,9 +285,9 @@ def likes(request):
     for row in result:
         if row['agent'] == 'webapp':
             data[row['date']][4] = row['agent__count']
-        elif row['action'] == 'plugin':
+        elif row['agent'] == 'plugin':
             data[row['date']][2] = row['agent__count']
-        elif row['action'] == 'bookmarklet':
+        elif row['agent'] == 'bookmarklet':
             data[row['date']][3] = row['agent__count']
         else:
             continue
