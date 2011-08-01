@@ -66,3 +66,9 @@
 .activity-queue-item .video-buttons{
     margin-left:633px;
 }
+
+.activity-queue-item .facebook-inlay{
+    position: relative;
+    bottom: 0px;
+    right: 20px;
+}

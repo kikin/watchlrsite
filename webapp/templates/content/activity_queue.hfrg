@@ -21,6 +21,9 @@
               <a {{ activity_item.user_activities|fb_thumb_href:user }}>
                   <div class="fb-thumb-wrapper">
                       <img src="{{ activity_item.user_activities|fb_thumb_small:user }}"/>
+                      {% if not activity_item.user_activities|video_shared_by_watchlr_user:user %}
+                          <img class="facebook-inlay" src="static/images/facebook-icon.png" />
+                      {% endif %}
                   </div>
               </a>
               <div class="activity-item-header" id="activity-item-header-vid-{{ activity_item.video.id }}">
