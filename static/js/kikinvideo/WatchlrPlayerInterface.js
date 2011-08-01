@@ -33,6 +33,10 @@ window.WatchlrPlayerInterface = function(){
         return null;
     };
 
+    priv._removeVideo = function(idx) {
+        videoList.splice(idx, 1);
+    };
+
     /** returns the watchlr player object. */
     priv._getWatchlrPlayer = function() {
         return $('#WatchlrPlayer').get(0);
@@ -148,9 +152,9 @@ window.WatchlrPlayerInterface = function(){
 
 
         if (typeof priv._currentVideoItemIndex == "number") {
-            $('#video-player-title').html(videoList[priv._currentVideoItemIndex].title);
-            $('#player-video-description').html(videoList[priv._currentVideoItemIndex].description);
-            $('#player-video-source-image').attr('src', videoList[priv._currentVideoItemIndex].faviconURl);
+            $('#video-player-title').html(videoList[priv._currentVideoItemIndex].title).show();
+            $('#player-video-description').html(videoList[priv._currentVideoItemIndex].description).show();
+            $('#player-video-source-image').attr('src', videoList[priv._currentVideoItemIndex].faviconURl).show();
 
             if (priv._watchlrPlayer && priv._watchlrPlayer.setSource) {
                 priv._watchlrPlayer.setSource(videoList[priv._currentVideoItemIndex].embed);
@@ -187,6 +191,20 @@ window.WatchlrPlayerInterface = function(){
      */
     pub.getVideoHostUrl = function() {
         return videoList[priv._currentVideoItemIndex].host;
+    };
+
+    /**
+     * removes video from list
+     */
+    pub.removeVideo = function(vid) {
+        if (vid != undefined && vid != null && typeof vid == "number") {
+            var idx = priv._getVideoIndex(vid);
+            if (typeof idx == "number" && idx != -1) {
+                priv._removeVideo(idx);
+                return idx;
+            }
+        }
+        return null;
     };
 
     return pub;

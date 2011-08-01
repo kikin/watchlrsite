@@ -115,13 +115,15 @@ kikinvideo.UIUniversal =
                     $('body').prepend(VIDEO_PLAYER_BG_HTML);
                     $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none', 'z-index':1000});
                     //because i.e. doesn't support the opacity property...
-                        $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
+                    $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
                     video_player_div.fadeIn(100);
 
                     video_player_div.css({display:'none'});
 
                     video_player_div.fadeIn(500, function(){
                         video_embed_div.show();
+                        $('.prev-button-fancy').show();
+                        $('.next-button-fancy').show();
 
                         /*close video player on click outside its container....*/
                         $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
@@ -151,6 +153,13 @@ kikinvideo.UIUniversal =
                     $(VIDEO_PLAYER_BG_SELECTOR).remove();
                 });
                 $('.video-player').fadeOut();
+
+                $('.prev-button-fancy').hide();
+                $('.next-button-fancy').hide();
+
+                $('#video-player-title').hide();
+                $('#player-video-description').hide();
+                $('#player-video-source-image').hide();
 
                 //pause video if it is html5
                 // if($.browser.webkit){

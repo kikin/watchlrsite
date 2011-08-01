@@ -706,6 +706,7 @@ ul>span.cufon-canvas {
     color: #FFFFFF;
     width: 95%;
     text-align: left;
+    display: none;
 }
 
 .win .video-description {
@@ -1193,7 +1194,7 @@ box-shadow: 10px 10px 5px #888;
     top: -270px;
     left: -47px;
     float: left;
-    display: inline;
+    display: none;
 }
 
 .next-button-fancy{
@@ -1206,7 +1207,7 @@ box-shadow: 10px 10px 5px #888;
     -moz-border-radius-topright: 5px;
     -moz-border-radius-bottomright: 5px;
     padding: 5px;
-    display: inline;
+    display: none;
     z-index: 9999;
     top: -270px;
     left: 47px;
@@ -1233,11 +1234,13 @@ box-shadow: 10px 10px 5px #888;
     font-family: 'PT Sans', Helvetica, sans-serif;
     font-weight: 900;
     padding-bottom: 5px;
+    display: none;
 }
 
 .video-source-image{
     width:16px;
     height:16px;
+    display: none;
 }
 
 .player-video-source-image {
