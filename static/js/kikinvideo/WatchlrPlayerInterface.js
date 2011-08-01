@@ -152,9 +152,13 @@ window.WatchlrPlayerInterface = function(){
 
 
         if (typeof priv._currentVideoItemIndex == "number") {
-            $('#video-player-title').html(videoList[priv._currentVideoItemIndex].title).show();
-            $('#player-video-description').html(videoList[priv._currentVideoItemIndex].description).show();
-            $('#player-video-source-image').attr('src', videoList[priv._currentVideoItemIndex].faviconURl).show();
+            $('#video-player-title').html(videoList[priv._currentVideoItemIndex].title);
+            $('#player-video-description').html(videoList[priv._currentVideoItemIndex].description);
+            $('#player-video-source-image').attr('src', videoList[priv._currentVideoItemIndex].faviconURl);
+
+            $('#video-player-title').show();
+            $('#player-video-description').show();
+            $('#player-video-source-image').show();
 
             if (priv._watchlrPlayer && priv._watchlrPlayer.setSource) {
                 priv._watchlrPlayer.setSource(videoList[priv._currentVideoItemIndex].embed);

@@ -122,6 +122,7 @@
                     embed: '{{ activity_item.video.html5_embed_code|raw_source|safe }}',
                 {% endif %}
                 host: '{{ activity_item.video.url|safe }}',
+                title: '{{ activity_item.video.title|truncate_text:45 }}',
                 description: '{{ activity_item.video.description|truncate_chars:175|urlize|escapejs }}',
                 faviconURl: '{{ activity_item.video|source_icon }}'
             });
