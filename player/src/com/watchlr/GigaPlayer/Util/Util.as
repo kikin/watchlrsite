@@ -30,6 +30,9 @@ package com.watchlr.GigaPlayer.Util
 		//the fmt substitution tokens are, in order, clip id, signature and timestamp... 
 		protected static var VIMEO_STREAM_ROOT:String = "http://vimeo.com/moogaloop/play/clip:{0}/{1}/{2}";
 		
+		//for M3U8
+		protected static var M3U8_FILE_TYPE:String = ".m3u8";
+		
 		//the following is unfortunately necessary because the XML 
 		//returned by vimeo vid info API sometimes does not
 		//itself contain the VID
@@ -45,6 +48,10 @@ package com.watchlr.GigaPlayer.Util
 		
 		public function isVimeo(source:String):Boolean{
 			return startsWith(source, VIMEO_DOMAIN);
+		}
+		
+		public function isM3U8(source:String):Boolean{
+			return endsWith(source, M3U8_FILE_TYPE);
 		}
 		
 		public function fetchYouTubeStream(iframeSource:String):void{
@@ -120,6 +127,14 @@ package com.watchlr.GigaPlayer.Util
 			
 			return pattern == string.substr( 0, pattern.length );
 		}
+		
+		private static function endsWith(string:String, pattern:String):Boolean{
+			string  = string.toLowerCase();
+			pattern = pattern.toLowerCase();
+			
+			return pattern == string.substr((string.length - pattern.length), pattern.length);
+		}
+		
 		
 	}
 

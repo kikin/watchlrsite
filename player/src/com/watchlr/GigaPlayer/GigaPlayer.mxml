@@ -10,7 +10,7 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import choppingblock.video.*;
+			import at.matthew.httpstreaming.HTTPStreamingM3U8NetLoader;
 			
 			import com.watchlr.GigaPlayer.Event.GigaPlayerEvent;
 			import com.watchlr.GigaPlayer.Event.StreamURLFetchEvent;
@@ -31,9 +31,12 @@
 			import mx.events.ResizeEvent;
 			import mx.managers.CursorManager;
 			
+			import org.osmf.elements.VideoElement;
 			import org.osmf.events.LoadEvent;
 			import org.osmf.events.MediaPlayerStateChangeEvent;
 			import org.osmf.events.TimeEvent;
+			import org.osmf.net.httpstreaming.HTTPStreamingNetLoader;
+			import org.osmf.media.URLResource;
 			
 			import spark.components.SkinnableContainer;
 			import spark.components.supportClasses.SkinnableComponent;
@@ -59,7 +62,6 @@
 		
 			protected var UIChromeFadeoutTimer:Timer;
 			
-			// private var _youTubeLoader:YouTubeLoader;
 			private var _youTubeLoader:Loader;
 			private var _youtubePlayer:Object;
 			private var _youTubeLoaderWrapper:UIComponent;
@@ -92,15 +94,6 @@
 				_youTubeLoader = new Loader();
 				_youTubeLoader.contentLoaderInfo.addEventListener(Event.INIT, onYouTubeLoaderInit);
 				_youTubeLoader.load(new URLRequest("http://www.youtube.com/apiplayer?version=3"));
-				/*_youTubeLoaderWrapper = new UIComponent();
-				_youTubePlayerLoaded = false;
-				_youTubeLoader = new YouTubeLoader();
-				_youTubeLoader.addEventListener(YouTubeLoaderEvent.LOADED, onYouTubePlayerLoaded);
-				_youTubeLoader.addEventListener(YouTubeLoaderEvent.STATE_CHANGE, onYouTubePlayerStateChange);
-				_youTubeLoader.addEventListener(YouTubeLoaderEvent.ERROR, onYouTubePlayerError);
-				_youTubeLoader.create();
-				addElement(_youTubeLoaderWrapper);
-				_youTubeLoaderWrapper.addChild(_youTubeLoader);*/
 				
 				_youTubeLoaderWrapper = new UIComponent();
 				addElement(_youTubeLoaderWrapper);
@@ -140,6 +133,7 @@
 				_youTubeLoader.content.addEventListener("onStateChange", onYouTubePlayerStateChange);
 				
 				_youtubePlayer = _youTubeLoader.content;
+				_youtubePlayer.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			}
 			
 			public function onStateChange(event:MediaPlayerStateChangeEvent):void{
@@ -343,7 +337,12 @@
 					}else{
 						hideYTPlayer();
 						currentVidSourceType = SourceType.HTML5;
-						_videoDisplay.source = val;
+						if (util.isM3U8(val.toString())) {
+							trace('Playing m3u8 video');
+							videoDisplay.source = new VideoElement(new URLResource(val.toString()), new HTTPStreamingNetLoader());
+						} else {
+							_videoDisplay.source = val;	
+						}
 					}
 					curVID = vid;	
 				}
@@ -558,6 +557,10 @@
 					
 					controlPallette.playButton.pauseButton.visible = true;
 					controlPallette.playButton.playButton.visible = false;
+					
+					// UIChromeShow();
+					UIChromeFadeoutTimer.reset();	
+					UIChromeFadeoutTimer.start();
 				}
 			}
 			
