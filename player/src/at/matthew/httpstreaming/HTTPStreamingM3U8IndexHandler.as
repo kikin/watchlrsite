@@ -78,6 +78,11 @@
 		
 			dispatchEvent(new HTTPStreamingIndexHandlerEvent(HTTPStreamingIndexHandlerEvent.REQUEST_LOAD_INDEX, false, false, false, 0, null, null, new URLRequest(_indexString), null, false));
 		}	
+		
+		function trim( s:String ):String
+		{
+			return s.replace( /^([\s|\t|\n|\r]+)?(.*)([\s|\t|\n|\r]+)?$/gm, "$2" );
+		}
 	
 		override public function processIndexData(data:*, indexContext:Object):void
 		{
@@ -93,13 +98,14 @@
 			
 			var lines:Array = String(data).split("\n");
 			
-			if(lines[0] != "#EXTM3U")
+			if(trim(String(lines[0])) != "#EXTM3U")
 			{
 				//throw new Error("Extended M3U files must start with #EXTM3U");
 				trace("first line wasn't #EXTM3U was instead "+lines[0]); // have some files with weird data here
 			}
 			
 			var i:int;
+			var line:String;
 			for(i=1; i<lines.length; i++)
 			{
 				
@@ -127,19 +133,24 @@
 						offset += 10;
 						var bw:Number = parseFloat( String(lines[i]).substr(offset));
 						
-						++i;
-						if(i > lines.length)
-							throw new Error("processIndexData: improperly terminated M3U8 file");
+						while(true) {
+							i++;
+							if(i > lines.length)
+								throw new Error("processIndexData: improperly terminated M3U8 file");
+							line = trim(String(lines[i]));
+							if(line.length > 0)
+								break;
+						}
 							
 						var url:String;
 						
 						if(String(lines[i]).toLowerCase().indexOf("http://") == 0)
 						{
-							url = String(lines[i]);
+							url = trim(String(lines[i]));
 						}
 						else
 						{
-							url = _urlBase + String(lines[i]);
+							url = _urlBase + trim(String(lines[i]));
 						}
 						
 						rateItem = new HTTPStreamingM3U8IndexRateItem(bw, url);
@@ -156,17 +167,22 @@
 					{
 						var duration:Number = parseFloat(String(lines[i]).substr(8));	// 8 is length of "#EXTINF:"
 						
-						++i;
-						if(i > lines.length)
-							throw new Error("processIndexData: improperly terminated M3U8 file (2)");
+						while(true) {
+							i++;
+							if(i > lines.length)
+								throw new Error("processIndexData: improperly terminated M3U8 file (2)");
+							line = trim(String(lines[i]));
+							if(line.length > 0)
+								break;
+						}
 							
 						if(String(lines[i]).toLowerCase().indexOf("http://") == 0)
 						{
-							url = String(lines[i]);
+							url = trim(String(lines[i]));
 						}
 						else
 						{
-							url = (indexContext as HTTPStreamingM3U8IndexRateItem).urlBase + String(lines[i]);
+							url = (indexContext as HTTPStreamingM3U8IndexRateItem).urlBase + trim(String(lines[i]));
 						}
 						
 						var manifestItem:HTTPStreamingM3U8IndexItem = new HTTPStreamingM3U8IndexItem(duration, url);

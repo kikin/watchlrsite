@@ -51,6 +51,9 @@ package com.watchlr.GigaPlayer.Util
 		}
 		
 		public function isM3U8(source:String):Boolean{
+			if (source.indexOf("?") != -1) {
+				source = source.substring(0, source.indexOf("?"));
+			}
 			return endsWith(source, M3U8_FILE_TYPE);
 		}
 		

@@ -339,7 +339,7 @@
 						currentVidSourceType = SourceType.HTML5;
 						if (util.isM3U8(val.toString())) {
 							trace('Playing m3u8 video');
-							videoDisplay.source = new VideoElement(new URLResource(val.toString()), new HTTPStreamingNetLoader());
+							videoDisplay.source = new VideoElement(new URLResource(val.toString()), new HTTPStreamingM3U8NetLoader());
 						} else {
 							_videoDisplay.source = val;	
 						}

@@ -83,7 +83,7 @@
 				var flags:uint = (packet.readUnsignedByte() & 0xc0) >> 6;
 				if(flags != 0x02 )
 				{ 
-					throw new Error("No PTS in this audio PES packet");
+//					throw new Error("No PTS in this audio PES packet");
 				}
 
 				var length:uint = packet.readUnsignedByte();
