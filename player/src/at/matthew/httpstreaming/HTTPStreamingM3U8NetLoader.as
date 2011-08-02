@@ -33,10 +33,13 @@
 	import org.osmf.net.httpstreaming.HTTPStreamingFileHandlerBase;
 	import org.osmf.net.httpstreaming.HTTPStreamingIndexHandlerBase;
 	import org.osmf.net.httpstreaming.HTTPStreamingNetLoader;
+	import org.osmf.events.HTTPStreamingIndexHandlerEvent;
 		
 
 	public class HTTPStreamingM3U8NetLoader extends HTTPStreamingNetLoader
 	{
+		private var httpNetStream:HTTPNetStream;
+		
 		override public function canHandleResource(resource:MediaResourceBase):Boolean
 		{
 			// really should check the resource to see if it is a URL resource that ends in m3u8, then it can be tied
@@ -48,10 +51,20 @@
 		{
 			var fileHandler:HTTPStreamingFileHandlerBase = new HTTPStreamingMP2TSFileHandler();
 			var indexHandler:HTTPStreamingIndexHandlerBase = new HTTPStreamingM3U8IndexHandler();
-			var httpNetStream:HTTPNetStream = new HTTPNetStream(connection, indexHandler, fileHandler);
+			
+			httpNetStream = new HTTPNetStream(connection, indexHandler, fileHandler);
 			httpNetStream.manualSwitchMode = true; // set to false to use internal logic until we get OSMF to do it right
 			httpNetStream.indexInfo = new HTTPStreamingIndexInfoString(resource.url);
+			
+			indexHandler.addEventListener(HTTPStreamingIndexHandlerEvent.NOTIFY_RATES, ratesLoaded);
+			
 			return httpNetStream;
+		}
+		
+		public function ratesLoaded(type:HTTPStreamingIndexHandlerEvent):void
+		{
+			trace("Available rates = " + type.rates.toString());
+			httpNetStream.qualityLevel = (type.rates.length > 1) ? 1 : 0;
 		}
 		
 	}
