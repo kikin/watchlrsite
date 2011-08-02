@@ -207,6 +207,14 @@ def fb_thumb_small(user_activities, user):
     return "https://graph.facebook.com/"+user.facebook_uid()+ "/picture?type=square"
 
 @register.filter
+def video_shared_by_watchlr_user(user_activities, user):
+    shared_by = user
+    for user_activity in user_activities:
+        if user_activity.user != user:
+            shared_by = user_activity.user
+    return shared_by.is_registered
+
+@register.filter
 def fb_thumb_href(user_activities, user):
     def get_link(user):
         target = "href=%s" % user.get_absolute_url()

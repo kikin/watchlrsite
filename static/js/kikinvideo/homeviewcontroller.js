@@ -301,6 +301,7 @@ kikinvideo.HomeViewController = function() {
     }
 
     function removeVideo(vid, unlike){
+        window.WatchlrPlayerInterface.removeVideo(vid);
         method = '/api/remove/'+vid;
         if(unlike){
             method += '?unlike=true';
