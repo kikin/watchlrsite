@@ -75,7 +75,7 @@ class VideoHelper(object):
             if name == 'movie':
                 movie = param['value']
             elif name == 'flashVars':
-                flashVars = param['value']
+                flashVars = param['value'].replace('&amp;', '&')
 
         if movie is None:
             raise VideoTagParseException('Missing movie parameter')
@@ -83,4 +83,4 @@ class VideoHelper(object):
             raise VideoTagParseException('Missing flashVars parameter')
 
         sep = '&' if movie.find('?') != -1 else '?'
-        return quote('%s%c%s' % (movie, sep, flashVars))
+        return '%s%c%s' % (movie, sep, flashVars)

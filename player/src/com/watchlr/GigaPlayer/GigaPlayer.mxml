@@ -97,8 +97,9 @@
 				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				UIChromeFadeoutTimer.addEventListener(TimerEvent.TIMER, UIChromeFadeout);
 				
-				Security.allowDomain("www.twitvid.com");
-//				Security.allowInsecureDomain("*");
+				Security.allowDomain("*.youtube.com");
+				Security.allowDomain("*.vimeo.com");
+				Security.allowDomain("*.brightcove.com");
 				
 				// Initialize youtube player
 				_youTubeLoader = new Loader();
@@ -330,7 +331,6 @@
 			}
 			
 			public function set source(val:Object):void{
-				Alert.show(val.toString());
 				var util:Util = new Util();
 				var vid:String;
 				if (val) {
