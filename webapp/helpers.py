@@ -8,10 +8,12 @@ class VideoHelper(object):
         if not video_element.source:
             #no source CHILD...
             try:
-                source_attr = video_element['source']
-                return source_attr
+                return video_element['source']
             except KeyError:
-                return None
+                try:
+                    return video_element['src']
+                except KeyError:
+                    return None
         else:
             try:
                 sources = video_element.findAll('source')

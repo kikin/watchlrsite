@@ -31,12 +31,14 @@
 			import mx.events.ResizeEvent;
 			import mx.managers.CursorManager;
 			
+			import org.osmf.elements.SWFElement;
 			import org.osmf.elements.VideoElement;
 			import org.osmf.events.LoadEvent;
 			import org.osmf.events.MediaPlayerStateChangeEvent;
 			import org.osmf.events.TimeEvent;
-			import org.osmf.net.httpstreaming.HTTPStreamingNetLoader;
+			import org.osmf.media.MediaPlayer;
 			import org.osmf.media.URLResource;
+			import org.osmf.net.httpstreaming.HTTPStreamingNetLoader;
 			
 			import spark.components.SkinnableContainer;
 			import spark.components.supportClasses.SkinnableComponent;
@@ -70,6 +72,7 @@
 			private var _youTubePlayerLastBytesLoadedCount:Number = 0;
 			private var YOUTUBE_PLAYBACK_POLL_INTERVAL:Number = 200;
 			
+			private var _swfLoaderWrapper:UIComponent;
 			private var _stopCountdown:Boolean = false;
 			
 			protected var fillElementComponents:ArrayList = new ArrayList();
@@ -98,11 +101,15 @@
 				_youTubeLoaderWrapper = new UIComponent();
 				addElement(_youTubeLoaderWrapper);
 				
+				_swfLoaderWrapper = new UIComponent();
+				addElement(_swfLoaderWrapper);
+				
 				_youTubePlaybackPollTimer = new Timer(YOUTUBE_PLAYBACK_POLL_INTERVAL);
 				_youTubePlaybackPollTimer.addEventListener(TimerEvent.TIMER, pollYouTubePlayer);
 				
 				fillElementComponents.addItem(_videoDisplay);
 				fillElementComponents.addItem(_youTubeLoaderWrapper);
+				fillElementComponents.addItem(_swfLoaderWrapper);
 				fillElementComponents.addItem(bgRect);
 				
 				//set view stack order of elements:
@@ -114,6 +121,7 @@
 				setChildIndex(loadingErrorMessage, 4);
 				setChildIndex(viewSourceLink, 5);
 				setChildIndex(loadingIndiccatorMessage, 6);
+				setChildIndex(_swfLoaderWrapper, 6);
 				
 				//time change callback...
 				_videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onPlayerTimeChange);
@@ -337,16 +345,30 @@
 					}else{
 						hideYTPlayer();
 						currentVidSourceType = SourceType.HTML5;
-						if (util.isM3U8(val.toString())) {
-							trace('Playing m3u8 video');
-							videoDisplay.source = new VideoElement(new URLResource(val.toString()), new HTTPStreamingM3U8NetLoader());
-						} else {
-							_videoDisplay.source = val;	
-						}
+//						if (util.isM3U8(val.toString())) {
+//							trace('Playing m3u8 video');
+//							videoDisplay.source = new VideoElement(new URLResource(val.toString()), new HTTPStreamingM3U8NetLoader());
+//						} else {
+//							_videoDisplay.source = val;	
+//						}
+						var request:URLRequest = new URLRequest("http://www.ustream.tv/flash/viewer.swf?loc=%2F&autoplay=true&vid=16274750&locale=en_US");
+						var loader:Loader = new Loader();
+						loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadHandler);
+						loader.load(request);
+
 					}
 					curVID = vid;	
 				}
 			}
+			
+			public function loadHandler(event:Event):void
+			{
+				  var childSwf:Object = event.target.content;
+				_swfLoaderWrapper.addChild(DisplayObject(childSwf));
+				_swfLoaderWrapper.visible = true;
+				  childSwf.visible = true;
+				  _videoDisplay.visible = false;
+			}			
 			
 			public function get videoDisplay():VideoDisplay{
 				return _videoDisplay;
