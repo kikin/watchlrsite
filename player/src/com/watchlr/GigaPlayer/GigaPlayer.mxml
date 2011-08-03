@@ -43,9 +43,9 @@
 			import spark.components.supportClasses.SkinnableComponent;
 			import spark.effects.Fade;
 			
-			public var SourceType:Object = { HTML5 : 0, VIMEO : 1, YOUTUBE : 2};
+			public var SourceType:Object = { DEFAULT : 0, VIMEO : 1, YOUTUBE : 2 };
 			
-			protected var currentVidSourceType:int = SourceType.HTML5;
+			protected var currentVidSourceType:int = SourceType.DEFAULT;
 			protected var curVID:String;
 		
 			//point beyond seek target that we would like to buffer
@@ -222,7 +222,7 @@
 					case SourceType.YOUTUBE:
 					case SourceType.VIMEO:
 						break;
-					case SourceType.HTML5: {
+					case SourceType.DEFAULT: {
 						seekTarget = value;
 						break;
 					}
@@ -335,7 +335,7 @@
 						vid = util.YTIframeSourceToVID(val.toString());
 						currentVidSourceType = SourceType.YOUTUBE;
 						playYTVideo(vid);
-					}else if (util.isVimeo(val.toString())){
+					} else if (util.isVimeo(val.toString())) {
 						currentVidSourceType = SourceType.VIMEO;
 						showVimeoPlayer();
 						vid = util.VimeoIframeSourceToVID(val.toString());
@@ -344,20 +344,22 @@
 						} else {
 							_vimeoPlayer.loadVideo(parseInt(vid, 10));		
 						}
-					}else{
+					} else {
 						showDefaultPlayer();
-						currentVidSourceType = SourceType.HTML5;
-//						if (util.isM3U8(val.toString())) {
-//							trace('Playing m3u8 video');
-//							videoDisplay.source = new VideoElement(new URLResource(val.toString()), new HTTPStreamingM3U8NetLoader());
-//						} else {
-//							_videoDisplay.source = val;	
-//						}
-						var request:URLRequest = new URLRequest("http://www.ustream.tv/flash/viewer.swf?loc=%2F&autoplay=true&vid=16274750&locale=en_US");
-						var loader:Loader = new Loader();
-						loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadHandler);
-						loader.load(request);
-
+						currentVidSourceType = SourceType.DEFAULT;
+						
+						var source:String = val.toString();
+						if (util.isM3U8(source)) {
+							trace('Playing m3u8 video');
+							_videoDisplay.source = new VideoElement(new URLResource(source), new HTTPStreamingM3U8NetLoader());
+						} else if (util.isSWF(source)) {
+							var request:URLRequest = new URLRequest(source);
+							var loader:Loader = new Loader();
+							loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadHandler);
+							loader.load(request);
+						} else {
+							_videoDisplay.source = val;	
+						}
 					}
 					curVID = vid;	
 				}
@@ -389,14 +391,14 @@
 						break;
 					}
 					
-					case SourceType.YOUTUBE: {
+					case SourceType.VIMEO: {
 						if(_vimeoPlayer){
 							_vimeoPlayer.seek(position);
 						}
 						break;
 					}
 						
-					case SourceType.HTML5: {
+					case SourceType.DEFAULT: {
 						_videoDisplay.seek(position);
 						break;
 					}
@@ -412,14 +414,14 @@
 						break;
 					}
 						
-					case SourceType.YOUTUBE: {
+					case SourceType.VIMEO: {
 						if(_vimeoPlayer){
 							_vimeoPlayer.play();
 						}
 						break;
 					}
 						
-					case SourceType.HTML5: {
+					case SourceType.DEFAULT: {
 						_videoDisplay.play();
 						break;
 					}
@@ -435,14 +437,14 @@
 						break;
 					}
 						
-					case SourceType.YOUTUBE: {
+					case SourceType.VIMEO: {
 						if(_vimeoPlayer){
 							_vimeoPlayer.pause();
 						}
 						break;
 					}
 						
-					case SourceType.HTML5: {
+					case SourceType.DEFAULT: {
 						_videoDisplay.pause();
 						break;
 					}
@@ -462,14 +464,14 @@
 						break;
 					}
 						
-					case SourceType.YOUTUBE: {
+					case SourceType.VIMEO: {
 						if(_vimeoPlayer){
 							return _vimeoPlayer.getDuration();
 						}
 						break;
 					}
 						
-					case SourceType.HTML5: {
+					case SourceType.DEFAULT: {
 						return _videoDisplay.duration;
 					}
 				}	
@@ -490,14 +492,14 @@
 						break;
 					}
 						
-					case SourceType.YOUTUBE: {
+					case SourceType.VIMEO: {
 						if(_vimeoPlayer){
 							return _vimeoPlayer.isPlaying();
 						}
 						break;
 					}
 						
-					case SourceType.HTML5: {
+					case SourceType.DEFAULT: {
 						return _videoDisplay.playing;
 					}
 				}
@@ -514,14 +516,14 @@
 						break;
 					}
 						
-					case SourceType.YOUTUBE: {
+					case SourceType.VIMEO: {
 						if(_vimeoPlayer){
 							return _vimeoPlayer.curTime();
 						}
 						break;
 					}
 						
-					case SourceType.HTML5: {
+					case SourceType.DEFAULT: {
 						return _videoDisplay.currentTime;
 					}
 				}
@@ -683,7 +685,7 @@
 			}
 			
 			protected function hideDefaultPlayer(): void {
-				if (currentVidSourceType == SourceType.HTML5) {
+				if (currentVidSourceType == SourceType.DEFAULT) {
 					_videoDisplay.pause();
 				}
 				
