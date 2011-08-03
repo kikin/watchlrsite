@@ -38,7 +38,7 @@
 				ExternalInterface.addCallback("seek", gigaPlayer.seek);
 				ExternalInterface.addCallback("setSeekTarget", gigaPlayer.setSeekTarget);
 				ExternalInterface.addCallback("getDuration", gigaPlayer.getDuration);
-				ExternalInterface.addCallback("getCurrentTime", gigaPlayer.getCurrentTime);
+				ExternalInterface.addCallback("getCurrentTime", gigaPlayer.curTime);
 				ExternalInterface.addCallback("enterFullScreen", enterFullScreen);
 				ExternalInterface.addCallback("exitFullScreen", exitFullScreen);
 				ExternalInterface.addCallback("setSource", setSource);
