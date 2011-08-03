@@ -16,8 +16,6 @@ logger = logging.getLogger('kikinvideo')
 
 register = template.Library()
 
-HTML5_SOURCE_WHITELIST = ['funnyordie', 'ted']
-
 @register.filter
 def pretty_date(time=False):
     """
@@ -148,23 +146,6 @@ def source_url_root(video):
     #going to swallow this...
     except Exception:
         return ""
-    
-@register.filter
-def is_youtube(video):
-    return video.source.name == 'YouTube'
-
-@register.filter
-def is_vimeo(video):
-    return video.source.name == 'Vimeo'
-
-# NOTE: THIS IS A STOPGAP.
-# KEEP FOR TONIGHT'S DEMO ONLY, THEN
-# RESOLVE THE MATTER OF WHY CERTAIN HTML5
-# VIDS FAIL TO PLAY IN CHROME
-@register.filter
-def is_html5_capable(video):
-    url_root = source_url_root(video)
-    return True in [url_root.find(x) != -1 for x in HTML5_SOURCE_WHITELIST]
 
 @register.filter
 def truncate_text(text, letter_count):
@@ -493,20 +474,18 @@ def saved_from(video, user):
         return video.url
 
 @register.filter
-def raw_source(video_tag):
+def extract_source_for_watchlr_player(video):
     try:
-        return VideoHelper.source_from_video_tag(video_tag)
+        video_source = video.source.name
+        if video_source == 'YouTube' or video_source == 'Vimeo':
+            return VideoHelper.iframe_source(video.html5_embed_code)
+        elif video_source == 'Big Think' and video.html_embed_code:
+            return VideoHelper.swf_source_from_object_tag(video.html_embed_code)
+        elif video.html5_embed_code:
+            return VideoHelper.source_from_video_tag(video.html5_embed_code)
     except Exception:
-        logger.exception('Error extracting raw source from video tag: %s' % video_tag)
-        return ''
-
-@register.filter
-def iframe_source(youtube_html5_embed_code):
-    try:
-        return VideoHelper.iframe_source(youtube_html5_embed_code)
-    except Exception:
-        logger.exception('Error extracting iframe video source from YouTube embed code: %s' % youtube_html5_embed_code)
-        return ''
+        logger.exception('Error extracting source from video: %s' % video.id)
+    return ''
 
 @register.inclusion_tag('inclusion_tags/watchlr_player.hfrg')
 def watchlr_player():

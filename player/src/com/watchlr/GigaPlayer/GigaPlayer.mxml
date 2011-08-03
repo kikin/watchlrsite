@@ -25,11 +25,13 @@
 			import flashx.textLayout.formats.Float;
 			
 			import mx.collections.ArrayList;
+			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.core.UIComponent;
 			import mx.events.FlexEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.CursorManager;
+			import mx.utils.object_proxy;
 			
 			import org.osmf.elements.SWFElement;
 			import org.osmf.elements.VideoElement;
@@ -95,8 +97,10 @@
 				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				UIChromeFadeoutTimer.addEventListener(TimerEvent.TIMER, UIChromeFadeout);
 				
+				Security.allowDomain("www.twitvid.com");
+//				Security.allowInsecureDomain("*");
+				
 				// Initialize youtube player
-				Security.allowDomain("www.youtube.com");
 				_youTubeLoader = new Loader();
 				_youTubeLoader.contentLoaderInfo.addEventListener(Event.INIT, onYouTubeLoaderInit);
 				_youTubeLoader.load(new URLRequest("http://www.youtube.com/apiplayer?version=3"));
@@ -326,6 +330,7 @@
 			}
 			
 			public function set source(val:Object):void{
+				Alert.show(val.toString());
 				var util:Util = new Util();
 				var vid:String;
 				if (val) {
@@ -352,14 +357,14 @@
 						if (util.isM3U8(source)) {
 							trace('Playing m3u8 video');
 							_videoDisplay.source = new VideoElement(new URLResource(source), new HTTPStreamingM3U8NetLoader());
-						} else if (util.isSWF(source)) {
+						} else if (util.isMP4(source)) {
+							_videoDisplay.source = val;	
+						} else {
 							var request:URLRequest = new URLRequest(source);
 							var loader:Loader = new Loader();
-							loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadHandler);
+							loader.contentLoaderInfo.addEventListener(Event.INIT, loadHandler);
 							loader.load(request);
-						} else {
-							_videoDisplay.source = val;	
-						}
+						} 
 					}
 					curVID = vid;	
 				}
@@ -367,11 +372,11 @@
 			
 			public function loadHandler(event:Event):void
 			{
-				  var childSwf:Object = event.target.content;
-				  _swfLoaderWrapper.addChild(DisplayObject(childSwf));
-				  _swfLoaderWrapper.visible = true;
-				  childSwf.visible = true;
-				  _videoDisplay.visible = false;
+				var childSwf:Object = event.target.content;
+				_swfLoaderWrapper.addChild(DisplayObject(childSwf));
+				_swfLoaderWrapper.visible = true;
+				childSwf.visible = true;
+				_videoDisplay.visible = false;
 			}			
 
 			public function onVimeoPlayerLoaded(): void {

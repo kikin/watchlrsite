@@ -2,7 +2,7 @@
 *.swp
 *.orig
 .idea
-error.log
+error.log*
 scripts/
 build/
 /kikinvideo

@@ -34,8 +34,8 @@ package com.watchlr.GigaPlayer.Util
 			return source.indexOf(".m3u8") != -1;
 		}
 		
-		public function isSWF(source:String):Boolean{
-			return source.indexOf(".swf") != -1;
+		public function isMP4(source:String):Boolean{
+			return source.indexOf(".mp4") != -1;
 		}
 		
 		public function YTIframeSourceToVID(source:String):String{
