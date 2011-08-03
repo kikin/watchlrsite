@@ -68,6 +68,11 @@ kikinvideo.HomeViewController = function() {
     // or two to attach its dummy element to the doc body)
     var initialPluginPitch = true;
 
+    // Are we waiting for the server to respond back with the video
+    // list? This is needed to avoid the race condition between the
+    // response coming in and the timer for plugin detection expiring.
+    var waitingForVideoList = true;
+
     var pluginPitchDelay=0;
     //this is a not-pretty hack around the fact that it can take
     //several seconds for the Watchlr plugin to get around to
@@ -80,28 +85,30 @@ kikinvideo.HomeViewController = function() {
           var checkInterval = 20;
           var numTries = 0;
           var intervalObj = setInterval(function(){
-                if(numTries++ <= maxTries){
-                    if($('#watchlr_dummy_element_for_plugin_detection').length == 1 &&
-                            $('.video-wrapper').length == 0){
-                        $.ajax({url:'/content/plugin_no_videos',
-                            success:function(content){
-                                    if(activeView == VIEWS.savedQueue){
-                                        $('#videoList').html('')
-                                        $('#videoList').html(content);
-                                        $('.video-container.plugin-pitch').fadeIn(1200);
-                                    }
-                            }
-                        });
+                if(!waitingForVideoList){
+                    if(numTries++ <= maxTries){
+                        if($('#watchlr_dummy_element_for_plugin_detection').length == 1 &&
+                                $('.video-wrapper').length == 0){
+                            $.ajax({url:'/content/plugin_no_videos',
+                                success:function(content){
+                                        if(activeView == VIEWS.savedQueue){
+                                            $('#videoList').html('')
+                                            $('#videoList').html(content);
+                                            $('.video-container.plugin-pitch').fadeIn(1200);
+                                        }
+                                }
+                            });
+                            initialPluginPitch = false;
+                            clearInterval(intervalObj);
+                        }
+                    } else {
                         initialPluginPitch = false;
                         clearInterval(intervalObj);
+                        $('.loading-container').fadeOut(0, function(){
+                                onHashChange(window.location.hash);
+                        });
                     }
-                }else{
-                    initialPluginPitch = false;
-                    clearInterval(intervalObj);
-                    $('.loading-container').fadeOut(0, function(){
-                            onHashChange(window.location.hash);
-                    });
-              }
+                }
           }, checkInterval);
     });
 
@@ -136,6 +143,8 @@ kikinvideo.HomeViewController = function() {
 
     /*hashbang url routing...*/
     function onHashChange(hash_url){
+        waitingForVideoList = true;
+
         var url_content = parseHashURL(hash_url);
 
         if(url_content.path == SAVED_QUEUE_PATH){
@@ -266,6 +275,8 @@ kikinvideo.HomeViewController = function() {
         $.get(contentSource, requestParams, function(data) {
             $(VIDEO_PANEL_SELECTOR).html(data);
             _bindVideoPanelEvents();
+
+            waitingForVideoList = false;
 
             var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
             if(activeView == VIEWS.likedQueue){

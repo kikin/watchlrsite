@@ -152,7 +152,7 @@ kikinvideo.UIUniversal =
                 $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
                     $(VIDEO_PLAYER_BG_SELECTOR).remove();
                 });
-                $('.video-player').fadeOut();
+                $('.video-player').hide();
 
                 $('.prev-button-fancy').hide();
                 $('.next-button-fancy').hide();

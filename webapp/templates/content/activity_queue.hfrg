@@ -116,7 +116,7 @@
         {% if not activity_item.video|fetching_data %}
             videoList.push({
                 id: {{ activity_item.video.id }},
-                embed: '{{ video|extract_source_for_watchlr_player|safe }}',
+                embed: '{{ activity_item.video|extract_source_for_watchlr_player|safe }}',
                 host: '{{ activity_item.video.url|safe }}',
                 title: '{{ activity_item.video.title|truncate_text:45 }}',
                 description: '{{ activity_item.video.description|truncate_chars:175|urlize|escapejs }}',
