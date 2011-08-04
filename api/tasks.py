@@ -942,8 +942,7 @@ class FacebookFetcher(object):
 
                 meta['title'] = response.get('name')
 
-                meta['description'] = None
-                meta['description'] = response['description']
+                meta['description'] = response.get('description')
 
                 meta['thumbnail_url'] = response.get('picture')
                 meta['thumbnail_width'], meta['thumbnail_height'] = 160, 90

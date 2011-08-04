@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, Http404
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, Http404, HttpResponseNotModified
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import logout
@@ -6,7 +6,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
-from kikinvideo.api.models import Video, User
+from kikinvideo.api.models import Video, User, UserVideo
+
+from celery import states
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -332,6 +334,29 @@ def email_preferences(request):
                                       context_instance=RequestContext(request))
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
+
+def single_video(request, display_mode, video_id):
+    if request.user.is_authenticated():
+        try:
+            video = Video.objects.get(pk=video_id)
+            uservideo = UserVideo.objects.get(user=request.user, video=video)
+
+            status = uservideo,video.status()
+            if status == states.FAILURE:
+                return render_to_response('inclusion_tags/error_fetching_data.hfrg',
+                                          { 'video': video, 'user_video': uservideo },
+                                          context_instance=RequestContext(request))
+            
+            if uservideo.video.status() == states.SUCCESS:
+                return render_to_response('inclusion_tags/video_queue_item.hfrg',
+                                          { 'user': request.user, 'video': video, 'display_mode': display_mode },
+                                          context_instance=RequestContext(request))
+
+            # Assume PENDING.
+            return HttpResponseNotModified()
+        
+        except UserVideo.DoesNotExist:
+            return HttpResponseNotFound()
 
 def goodbye(request):
     return render_to_response('goodbye.html', context_instance=RequestContext(request))

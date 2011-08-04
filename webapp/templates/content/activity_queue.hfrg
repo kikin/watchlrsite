@@ -111,10 +111,9 @@
 {% endif %}
 
 <script type="text/javascript">
-    var videoList = [];
     {% for activity_item in activity_items %}
         {% if not activity_item.video|fetching_data %}
-            videoList.push({
+            UI.videoList.push({
                 id: {{ activity_item.video.id }},
                 embed: '{{ activity_item.video|extract_source_for_watchlr_player|safe }}',
                 host: '{{ activity_item.video.url|safe }}',

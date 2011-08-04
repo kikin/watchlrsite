@@ -23,9 +23,9 @@ window.WatchlrPlayerInterface = function(){
     priv._watchlrPlayer = null;
 
     /** get the video info using the given id. */
-    priv._getVideoIndex = function(vid) {
-        for (var i = 0; i < videoList.length; i++) {
-            if (videoList[i].id == vid) {
+    pub._getVideoIndex = function(vid) {
+        for (var i = 0; i < UI.videoList.length; i++) {
+            if (UI.videoList[i].id == vid) {
                 return i;
             }
         }
@@ -34,7 +34,7 @@ window.WatchlrPlayerInterface = function(){
     };
 
     priv._removeVideo = function(idx) {
-        videoList.splice(idx, 1);
+        UI.videoList.splice(idx, 1);
     };
 
     /** returns the watchlr player object. */
@@ -53,7 +53,7 @@ window.WatchlrPlayerInterface = function(){
         // we cannot play the video until watchlr player is
         // initialized. now we should play the video.
         if (priv._watchlrPlayer && typeof priv._currentVideoItemIndex == "number") {
-            priv._watchlrPlayer.setSource(videoList[priv._currentVideoItemIndex].embed);
+            priv._watchlrPlayer.setSource(UI.videoList[priv._currentVideoItemIndex].embed);
         }
     };
 
@@ -78,7 +78,7 @@ window.WatchlrPlayerInterface = function(){
      * @param pauseTime - time at which video paused
      */
     pub.onVideoPaused = function(pauseTime) {
-        $.get('/api/seek/' + videoList[priv._currentVideoItemIndex].id + '/' + pauseTime);
+        $.get('/api/seek/' + UI.videoList[priv._currentVideoItemIndex].id + '/' + pauseTime);
     };
 
     /**
@@ -146,22 +146,22 @@ window.WatchlrPlayerInterface = function(){
         // set the currently playing video item if vid is provided
         // JS fails the if condition if vid is 0. that's why we have to do this way.
         if (vid != undefined && vid != null && typeof vid == "number") {
-            priv._currentVideoItemIndex = priv._getVideoIndex(vid);
+            priv._currentVideoItemIndex = pub._getVideoIndex(vid);
             trackAction('view', vid);
         }
 
 
         if (typeof priv._currentVideoItemIndex == "number") {
-            $('#video-player-title').html(videoList[priv._currentVideoItemIndex].title);
-            $('#player-video-description').html(videoList[priv._currentVideoItemIndex].description);
-            $('#player-video-source-image').attr('src', videoList[priv._currentVideoItemIndex].faviconURl);
+            $('#video-player-title').html(UI.videoList[priv._currentVideoItemIndex].title);
+            $('#player-video-description').html(UI.videoList[priv._currentVideoItemIndex].description);
+            $('#player-video-source-image').attr('src', UI.videoList[priv._currentVideoItemIndex].faviconURl);
 
             $('#video-player-title').show();
             $('#player-video-description').show();
             $('#player-video-source-image').show();
 
             if (priv._watchlrPlayer && priv._watchlrPlayer.setSource) {
-                priv._watchlrPlayer.setSource(videoList[priv._currentVideoItemIndex].embed);
+                priv._watchlrPlayer.setSource(UI.videoList[priv._currentVideoItemIndex].embed);
             }
         }
 
@@ -175,7 +175,7 @@ window.WatchlrPlayerInterface = function(){
         if (priv._currentVideoItemIndex - 1 > -1) {
             priv._currentVideoItemIndex--;
             pub.play();
-            trackAction('leanback-view', videoList[priv._currentVideoItemIndex].id);
+            trackAction('leanback-view', UI.videoList[priv._currentVideoItemIndex].id);
         }
     };
 
@@ -183,10 +183,10 @@ window.WatchlrPlayerInterface = function(){
      * plays the next video in the list.
      */
     pub.playNext = function() {
-        if (priv._currentVideoItemIndex + 1 < videoList.length) {
+        if (priv._currentVideoItemIndex + 1 < UI.videoList.length) {
             priv._currentVideoItemIndex++;
             pub.play();
-            trackAction('leanback-view', videoList[priv._currentVideoItemIndex].id);
+            trackAction('leanback-view', UI.videoList[priv._currentVideoItemIndex].id);
         }
     };
 
@@ -194,7 +194,7 @@ window.WatchlrPlayerInterface = function(){
      * returns the videos host URL.
      */
     pub.getVideoHostUrl = function() {
-        return videoList[priv._currentVideoItemIndex].host;
+        return UI.videoList[priv._currentVideoItemIndex].host;
     };
 
     /**
@@ -202,7 +202,7 @@ window.WatchlrPlayerInterface = function(){
      */
     pub.removeVideo = function(vid) {
         if (vid != undefined && vid != null && typeof vid == "number") {
-            var idx = priv._getVideoIndex(vid);
+            var idx = pub._getVideoIndex(vid);
             if (typeof idx == "number" && idx != -1) {
                 priv._removeVideo(idx);
                 return idx;

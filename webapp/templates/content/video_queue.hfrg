@@ -21,22 +21,6 @@
         {% endif %}
 {% endif %}
 
-<script type="text/javascript">
-    var videoList = [];
-    {% for video in videos %}
-        {% if not video|fetching_data %}
-            videoList.push({
-                id: {{ video.id }},
-                embed: '{{ video|extract_source_for_watchlr_player|safe }}',
-                host: '{{ video.url|safe }}',
-                title: '{{ video.title|truncate_text:45 }}',
-                description: '{{ video.description|truncate_chars:175|urlize|escapejs }}',
-                faviconURl: '{{ video|source_icon }}'
-            });
-        {% endif %}
-    {% endfor %}
-</script>
-
 {% for video in videos %}
     {% video_queue_item %}
 {% endfor %}

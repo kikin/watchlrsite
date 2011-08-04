@@ -33,6 +33,8 @@ kikinvideo.UIUniversal =
 
             var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper";
 
+            var videoList = [];
+
 
             /*initialization...*/
             bindToUI();
@@ -71,10 +73,10 @@ kikinvideo.UIUniversal =
                 }
             };
 
-            function getVideoInfo(vid) {
+            function getVideoIndex(vid) {
                 for (var i = 0; i < videoList.length; i++) {
                     if (videoList[i].id == vid) {
-                        return videoList[i];
+                        return i;
                     }
                 }
 
@@ -253,12 +255,50 @@ kikinvideo.UIUniversal =
                 )
             }
 
+            function addToVideoList(vid, metadata){
+                var elementExists = false;
+                if(WatchlrPlayerInterface){
+                    var idx = WatchlrPlayerInterface._getVideoIndex(vid);
+                    if(idx != null){
+                        UI.videoList[idx] = metadata;
+                        elementExists = true;
+                    }
+                }
+                if(!elementExists){
+                    UI.videoList.push(metadata);
+                }
+            }
+
+            function checkForVideoMetadata(vid){
+                if(activeView == VIEWS.likedQueue){
+                    activeViewName = 'liked';
+                }else if(activeView == VIEWS.savedQueue){
+                    activeViewName = 'saved';
+                }
+
+                var checkVideoMetadataInterval = 500;
+                checkVideoMetadataTimer = setInterval(function(){
+                    $.ajax({
+                        url: '/content/single_video/' + activeViewName + '/' + vid,
+                        statusCode: {
+                            200: function(content){
+                                $('#video-' + vid).replaceWith(content);
+                                clearInterval(checkVideoMetadataTimer);
+                            }
+                        }
+                    });
+                }, checkVideoMetadataInterval);
+            }
+
             //expose public functions...
             return {
                 closePlayer : closePlayer,
                 loadPlayer : loadPlayer,
                 handleProfileEditPanelOpen : handleProfileEditPanelOpen,
-                handleProfileSave : handleProfileSave
+                handleProfileSave : handleProfileSave,
+                videoList: videoList,
+                addToVideoList: addToVideoList,
+                checkForVideoMetadata: checkForVideoMetadata
             }
         };
 

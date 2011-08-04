@@ -1,5 +1,16 @@
 {% load kikinvideo_tags %}
 
+<script type="text/javascript">
+    UI.addToVideoList({{ video.id }}, {
+        id: {{ video.id }},
+        embed: '{{ video|extract_source_for_watchlr_player|safe }}',
+        host: '{{ video.url|safe }}',
+        title: '{{ video.title|truncate_text:45 }}',
+        description: '{{ video.description|truncate_chars:175|urlize|escapejs }}',
+        faviconURl: '{{ video|source_icon }}'
+    });
+</script>
+
 {% if video|error_fetching_data %}
 <div id="video-{{video.id}}" class="video-wrapper">
     <div class="video-container">
@@ -138,6 +149,7 @@
     <br style="clear:both;"/>
 
 </div>
+
 {% if display_mode == 'detail' %}
     {% if not video|no_likes %}
     <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" style="display:block;border-bottom:1px solid #cccccc;margin-left:20px;border-bottom:none;margin-top:20px;">
