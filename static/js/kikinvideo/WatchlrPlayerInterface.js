@@ -187,7 +187,9 @@ window.WatchlrPlayerInterface = function(){
         if (priv._currentVideoItemIndex + 1 < UI.videoList.length) {
             priv._playNext();
         } else {
-            home.loadMoreVideos(priv._playNext);
+            if (activeView != VIEWS.profile) {
+                home.loadMoreVideos(priv._playNext);
+            }
         }
     };
 
