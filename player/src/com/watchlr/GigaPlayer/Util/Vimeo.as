@@ -6,6 +6,7 @@ package com.watchlr.GigaPlayer.Util
 	import flash.display.DisplayObject;
 	import flash.display.Loader;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
@@ -54,7 +55,8 @@ package com.watchlr.GigaPlayer.Util
 			_vimeoPlayer.addEventListener('pause', onVideoPaused, false);
 			_vimeoPlayer.addEventListener('playProgress', onVideoPlayProgressChanged, false);
 			_vimeoPlayer.addEventListener('ready', onVideoReady, false);
-			_vimeoPlayer.addEventListener('seek', onVideoSeekChanged, false);	
+			_vimeoPlayer.addEventListener('seek', onVideoSeekChanged, false);
+			_vimeoPlayer.addEventListener(MouseEvent.MOUSE_MOVE, _gigaPlayer.onMouseMove, false);
 			
 			load_timer.addEventListener(TimerEvent.TIMER, playerLoadedCheck);
 			load_timer.start();

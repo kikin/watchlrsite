@@ -138,6 +138,8 @@
 				setChildIndex(loadingErrorMessage, 6);
 				setChildIndex(viewSourceLink, 7);
 				setChildIndex(loadingIndicatorMessage, 8);
+				setChildIndex(prevVideoButton, 9);
+				setChildIndex(nextVideoButton, 10);
 				
 				//time change callback...
 				_videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onPlayerTimeChange);
@@ -615,36 +617,26 @@
 			}
 			
 			protected function positionPrevNextButtons():void{
-				prevVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
-				nextVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
-				prevVideoButton.left = 20;
-				nextVideoButton.right = 14;
-			}
-			
-			protected function onVideoButtonRollover(event:MouseEvent):void{
-				switch(event.target){
-					case prevVideoButton:
-						pbNoHoverImg.visible=false;
-						pbHoverImg.visible=true;
-						break;
-					case nextVideoButton:
-						nbNoHoverImg.visible = false;
-						nbHoverImg.visible = true;
-						break;
+				try {
+					if (stage && stage.displayState != StageDisplayState.FULL_SCREEN) {
+						prevVideoButton.visible = false;
+						nextVideoButton.visible = false;
+					}
+					prevVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
+					nextVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
+					prevVideoButton.left = 20;
+					nextVideoButton.right = 14;
+				} catch (err:Error) {
+					
 				}
 			}
 			
-			protected function onVideoButtonRollout(event:MouseEvent):void{
-				switch(event.target){
-					case prevVideoButton:
-						pbHoverImg.visible=false;
-						pbNoHoverImg.visible=true;
-						break;
-					case nextVideoButton:
-						nbHoverImg.visible=false;
-						nbNoHoverImg.visible=true;
-						break;
-				}
+			protected function onPrevButtonClicked(event:Event): void {
+				ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_PREVIOUS_VIDEO); 
+			}
+			
+			protected function onNextButtonClicked(event:Event): void {
+				ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_NEXT_VIDEO); 
 			}
 			
 			protected function UIChromeFadeout(event:TimerEvent):void{
@@ -654,12 +646,14 @@
 			}
 			
 			protected function UIChromeShow():void{
-		//		prevVideoButton.visible = true;
-		//		nextVideoButton.visible = true;
+				if (stage.displayState == StageDisplayState.FULL_SCREEN) {
+					prevVideoButton.visible = true;
+					nextVideoButton.visible = true;
+				}	
 				controlPallette.visible = true;
 			}
 			
-			protected function onMouseMove(event:MouseEvent):void{
+			public function onMouseMove(event:MouseEvent):void{
 				UIChromeShow();
 				UIChromeFadeoutTimer.reset();	
 				UIChromeFadeoutTimer.start();
@@ -842,14 +836,13 @@
 					currentTimeChange="onCurrentTimeChange(event)">
 	</s:VideoDisplay>
 	<s:Group id="prevVideoButton" x="10" y="100" width="50" height="50" left="20" 
-			  rollOver="onVideoButtonRollover(event)" rollOut="onVideoButtonRollout(event)" visible="false">
+			  click="onPrevButtonClicked(event)" visible="false">
 		<mx:Image id="pbNoHoverImg" source="assets/left_arrow.png" x="0" y="0"></mx:Image>
-		<mx:Image id="pbHoverImg" source="assets/left_arrow_glow.png" x="0" y="0" visible="false"></mx:Image>
 	</s:Group>
 	<s:Group id="nextVideoButton" x="10" y="100" width="50" height="50" right="20" 
-			rollOver="onVideoButtonRollover(event)" rollOut="onVideoButtonRollout(event)" visible="false">
+			click="onNextButtonClicked(event)" visible="false">
 		<mx:Image id="nbNoHoverImg" source="assets/right_arrow.png" x="0" y="0"></mx:Image>
-		<mx:Image id="nbHoverImg" source="assets/right_arrow_glow.png" x="0" y="0" visible="false"></mx:Image>
+		
 	</s:Group>
 	<mx:Label id="loadingErrorMessage" text="We could not play this video" fontSize="25" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
 	<mx:Label id="viewSourceLink" selectable="true" link="onViewSourceLinkClicked(event);" fontSize="20" color="0xFFFFFF" visible="false" textAlign="center" width="100%" textDecoration="underline"

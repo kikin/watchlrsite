@@ -6,6 +6,7 @@ package com.watchlr.GigaPlayer.Util
 	import flash.display.Loader;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.net.URLRequest;
 	import flash.utils.Timer;
@@ -65,6 +66,7 @@ package com.watchlr.GigaPlayer.Util
 //					_brightcoveVideoPlayer.addEventListener('playProgress', onVideoPlayProgressChanged);
 //					_brightcoveVideoPlayer.addEventListener('ready', onVideoReady);
 					_brightcoveVideoPlayer.addEventListener('mediaSeek', onVideoSeekChanged);	
+					_brightcoveVideoPlayer.addEventListener(MouseEvent.MOUSE_MOVE, _gigaPlayer.onMouseMove);
 				}
 			} catch (error:Error) {
 				
@@ -144,6 +146,10 @@ package com.watchlr.GigaPlayer.Util
 		
 		private function onVideoSeekChanged(event:Event): void {
 			
+		}
+		
+		private function onMediaRenditionChangeComplete(event:Event): void {
+			trace('type:' + (Object(event).type));
 		}
 	}
 }
