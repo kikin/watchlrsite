@@ -100,9 +100,6 @@
                     </a>
             </div>
         </div>
-        <div id="video-player-container" style="margin-top:40px;margin-left: 15px;">
-                {% video_player_html5 %}
-        </div>
     </div>
         <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
     </div>
