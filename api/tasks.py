@@ -897,6 +897,8 @@ class FacebookFetcher(object):
     FACEBOOK_URL_SCHEME = re.compile(r'https://graph\.facebook\.com/(.+)')
     EMBEDLY_FACEBOOK_URL = 'http://www.facebook.com/video/video.php?v=%s'
 
+    FACEBOOK_HTML5_EMBED_TEMPLATE = '<video width="100%%" height="100%%" poster="%s" controls="controls" src="%s"></video>'
+
     def __init__(self, fetchers):
         self.fetchers = fetchers
 
@@ -945,9 +947,14 @@ class FacebookFetcher(object):
                 meta['description'] = response.get('description')
 
                 meta['thumbnail_url'] = response.get('picture')
-                meta['thumbnail_width'], meta['thumbnail_height'] = 160, 90
+                meta['thumbnail_width'], meta['thumbnail_height'] = 160, 120
 
                 meta['html'] = response['embed_html']
+
+                try:
+                    meta['html5'] = self.FACEBOOK_HTML5_EMBED_TEMPLATE % (meta['thumbnail_url'], response['source'])
+                except KeyError:
+                    pass
 
                 meta['source'] = self.SOURCE
 

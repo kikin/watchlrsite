@@ -347,8 +347,11 @@
 						currentVidSourceType = SourceType.YOUTUBE;
 						playYTVideo(vid);
 					} else if (util.isVimeo(val.toString())) {
-						currentVidSourceType = SourceType.VIMEO;
 						showVimeoPlayer();
+						
+						// Set source type AFTER showing current player.
+						currentVidSourceType = SourceType.VIMEO;
+						
 						vid = util.VimeoIframeSourceToVID(val.toString());
 						if (!_vimeoPlayer) {
 							_vimeoPlayer = new Vimeo(parseInt(vid, 10), width, height, this);
