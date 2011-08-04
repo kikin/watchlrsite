@@ -213,5 +213,13 @@ function trackAction(action, id, success){
         url: '/track/action',
         data: ({'action': action, 'id': id, 'agent': 'webapp', 'version': _WATCHLR_JS_VERSION_}),
         success: success
-    })
+    });
+}
+
+function trackErrorEvent(name, value, success){
+    $.ajax({
+        url: '/track/event',
+        data: ({'name': name, 'value': value, 'agent': 'webapp', 'version': _WATCHLR_JS_VERSION_}),
+        success: success
+    });
 }
