@@ -195,7 +195,7 @@
                 var option = this.id == "from" ? "maxDate" : "minDate";
                 var selectedDate = $(other).datepicker('getDate');
 
-                $(this).datepicker( "option", option, selectedDate );
+                $(this).datepicker("option", option, selectedDate);
             },
             onSelect: function(dateText, inst) {
                 drawCharts();

@@ -163,22 +163,23 @@ def userbase(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
         end = date.today()
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
+    end += timedelta(days=1)
 
     data = dict()
 
     current = start
-    while current <= end:
+    while current < end:
         data[current] = [current, 'null', 0, 0, 0]
         current += timedelta(days=1)
 
     cumulative_count = User.objects.filter(is_registered=True, date_joined__lt=start).count()
 
-    result = User.objects.filter(is_registered=True, date_joined__gte=start, date_joined__lte=end)\
+    result = User.objects.filter(is_registered=True, date_joined__gte=start, date_joined__lt=end)\
                          .extra(select={ 'date': 'date(date_joined)' })\
                          .values('id', 'campaign', 'date')\
                          .annotate(Count('id'))
@@ -189,14 +190,14 @@ def userbase(request):
         key[3] = row['id__count']
 
     current = start
-    while current <= end:
+    while current < end:
         cumulative_count += data[current][3]
         data[current][2] = cumulative_count
         current += timedelta(days=1)
 
     result = Activity.objects.exclude(user_id=UNAUTHORIZED_USER)\
                              .exclude(timestamp__lt=start)\
-                             .exclude(timestamp__gt=end)\
+                             .exclude(timestamp__gte=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('id', 'date')\
                              .annotate(Count('id'))
@@ -226,20 +227,21 @@ def views(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
         end = date.today()
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
+    end += timedelta(days=1)
 
     data = dict()
 
     current = start
-    while current <= end:
+    while current < end:
         data[current] = [current, 0, 0, 0, 0]
         current += timedelta(days=1)
 
-    result = Activity.objects.filter(action__endswith='view', timestamp__gte=start, timestamp__lte=end)\
+    result = Activity.objects.filter(action__endswith='view', timestamp__gte=start, timestamp__lt=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('action', 'date')\
                              .annotate(Count('action'))
@@ -277,20 +279,21 @@ def saves(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
         end = date.today()
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
+    end += timedelta(days=1)
 
     data = dict()
 
     current = start
-    while current <= end:
+    while current < end:
         data[current] = [current, 0, 0, 0, 0]
         current += timedelta(days=1)
 
-    result = Activity.objects.filter(action='save', timestamp__gte=start, timestamp__lte=end)\
+    result = Activity.objects.filter(action='save', timestamp__gte=start, timestamp__lt=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('agent', 'date')\
                              .annotate(Count('agent'))
@@ -328,20 +331,21 @@ def likes(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
         end = date.today()
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
+    end += timedelta(days=1)
 
     data = dict()
 
     current = start
-    while current <= end:
+    while current < end:
         data[current] = [current, 0, 0, 0, 0]
         current += timedelta(days=1)
 
-    result = Activity.objects.filter(action='like', timestamp__gte=start, timestamp__lte=end)\
+    result = Activity.objects.filter(action='like', timestamp__gte=start, timestamp__lt=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('agent', 'date')\
                              .annotate(Count('agent'))
@@ -375,20 +379,21 @@ def follows(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
         end = date.today()
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
+    end += timedelta(days=1)
 
     data = dict()
 
     current = start
-    while current <= end:
+    while current < end:
         data[current] = [current, 0]
         current += timedelta(days=1)
 
-    result = Activity.objects.filter(action='follow', timestamp__gte=start, timestamp__lte=end)\
+    result = Activity.objects.filter(action='follow', timestamp__gte=start, timestamp__lt=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('id', 'date')\
                              .annotate(Count('id'))

@@ -135,6 +135,7 @@ window.WatchlrPlayerInterface = function(){
      */
     pub.onPlaybackError = function() {
         pub.playNext();
+        trackErrorEvent('VideoPlaybackError', UI.videoList[priv._currentVideoItemIndex].host)
     };
 
     /**
