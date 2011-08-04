@@ -18,7 +18,7 @@
 {% else %}
 <div id="video-{{video.id}}" class="video-wrapper">
 <div class="video-container video-queue-item">
-    <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:45 }}</a></h3>
+    <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:45|safe }}</a></h3>
 
     <div class="video-buttons">
 
@@ -49,18 +49,26 @@
 
 
 
-        <a href="javascript:home.handleLike({{ video.id }})">
         {% if video in user.liked_videos %}
-            <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}" title="unlike"></div>
+            <a href="javascript:home.handleLike({{ video.id }})">
+                <div class="heart-container liked" id="liked-icon-vid-{{ video.id }}" title="unlike"></div>
+            </a>
         {% else %}
-            <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}" title="like"></div>
+            {% if not user.is_anonymous %}
+            <a href="javascript:home.handleLike({{ video.id }})">
+                <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}" title="like"></div>
+            </a>
+             {% else %}
+             <a href="javascript:alert('You must sign in to like this video')">
+                <div class="heart-container not-liked no-hover" id="liked-icon-vid-{{ video.id }}" title="like"></div>
+             </a>
+             {% endif %}
         {% endif %}
-        </a>
 
     {% if video.total_likes != 0 %}
 
         {% if display_mode != 'detail' %}
-        <a class="liked-info-link" href="javascript:home.showVidLikedBy({{ video.id }})">
+        <a class="liked-info-link" href="javascript:home.showVidLikedBy({{ video.id }})" title="See who liked this video">
         {% endif %}
 
         {% if video in user.liked_videos %}
@@ -93,7 +101,7 @@
     </a>
 
     <div class="video-info">
-        <div class="video-description">{{ video.description|truncate_chars:175|urlize }}</div>
+        <div class="video-description">{{ video.description|truncate_chars:175|urlize|safe }}</div>
         <div class="video-saved">
             <a href="{{ video|source_url_root }}" target="_blank">
                 <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
@@ -129,17 +137,9 @@
 
     <br style="clear:both;"/>
 
-
-    {% if display_mode != 'detail' %}
-    <div id="video-player-container" style="margin-top:40px;">
-        {% video_player video request %}
-    </div>
-    {% endif %}
 </div>
+
 {% if display_mode == 'detail' %}
-    <div id="video-player-container">
-        {% video_player video request %}
-    </div>
     {% if not video|no_likes %}
     <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" style="display:block;border-bottom:1px solid #cccccc;margin-left:20px;border-bottom:none;margin-top:20px;">
         {% liked_by_panel video %}
@@ -150,3 +150,18 @@
 </div>
 {% endif %}
 {% endif %}
+
+<script type="text/javascript">
+    $(function() {
+        UI.addToVideoList({{ video.id }},
+            {
+                id: {{ video.id }},
+                embed: '{{ video|extract_source_for_watchlr_player|safe }}',
+                host: '{{ video.url|safe }}',
+                title: '{{ video.title|truncate_text:45|escapejs }}',
+                description: '{{ video.description|truncate_chars:175|urlize|escapejs }}',
+                faviconURl: '{{ video|source_icon }}'
+            }
+        );
+    });
+</script>

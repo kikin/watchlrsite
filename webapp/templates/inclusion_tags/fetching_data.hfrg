@@ -15,7 +15,7 @@
         padding-top:15px;
         padding-bottom:15px;
         color:#4c4c4c;
-        font-family: helvetica;
+        font-family: 'PT Sans', Helvetica, sans-serif;
         font-size: 16px;
     }
 
@@ -23,6 +23,10 @@
         margin-top: 20px;
     }
 </style>
+
+<script type="text/javascript">
+    UI.checkForVideoMetadata({{ video.id }});
+</script>
 
 <div class="fetching-data wrapper">
     <div class="inner">

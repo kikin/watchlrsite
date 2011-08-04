@@ -234,17 +234,17 @@ We will be using [South](http://south.aeracode.org/) to handle database migratio
 
 Initial run (make sure that your schema and models are up-to-date before you run this):
 
-    $ python manage.py migrate api 0001 --fake
+    $ python manage.py migrate <app> 0001 --fake
 
 In case you change the model:
 
-    $ python manage.py schemamigration api --auto
+    $ python manage.py schemamigration <app> --auto
 
 Remember to add the created file (api/migrations/<seq#>_auto_<change_description>.py to git.
 
 Applying migrations:
 
-    $ python manage.py migrate api
+    $ python manage.py migrate [<app>]
 
 Git Workflow
 ------------

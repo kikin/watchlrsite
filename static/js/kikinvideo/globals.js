@@ -1,4 +1,6 @@
 //project namesapce...
+var _WATCHLR_JS_VERSION_ = '1.9';
+
 var kikinvideo = {'util':{}};
 
 var SAVED_QUEUE_PATH = '/saved_queue';
@@ -118,6 +120,16 @@ function parseHashURL(hash_url) {
     }
 }
 
+function pluginAbsent(callback){
+    var plugin_check_interval = 200;
+    var interval_obj = setInterval(function(){
+        if($('#watchlr_dummy_element_for_plugin_detection').length > 0){
+            clearInterval(interval_obj);
+            callback();
+        }
+    }, plugin_check_interval);
+}
+
 /*util function to trim whitespace from beginning and end of string*/
 function trim(s) {
     s = s.replace(/(^\s*)|(\s*$)/gi,"");
@@ -125,6 +137,10 @@ function trim(s) {
     s = s.replace(/\n /,"\n");
     return s;
 }
+
+//because jQuery's $.browser doesn't yet have a repr. for Chrome...
+var userAgent = navigator.userAgent.toLowerCase();
+$.browser.chrome = /chrome/.test(navigator.userAgent.toLowerCase()); 
 
 function stylizeVideoTitles() {
     Cufon.replace('.video-title, .activity-item-video-title, .section-title, h4', {
@@ -139,6 +155,7 @@ function swapTab(selector) {
         $(activeTab).removeClass('selected');
         $(selector).addClass('selected');
         activeTab = selector;
+        registerPageview();
     }
 };
 
@@ -163,5 +180,46 @@ function hideErrorDialog(){
 }
 
 function trackEvent(category, action){
+    switch(activeView){
+        case VIEWS.activity:
+             _gaq.push(['_trackEvent', category, action + '_Activity', 'web_app']);
+        break;
+        case VIEWS.profile:
+           _gaq.push(['_trackEvent', category, action + '_Profile', 'web_app']);
+       break;
+        case VIEWS.detail:
+            _gaq.push(['_trackEvent', category, action + '_Detail', 'web_app']);
+        break;
+        case VIEWS.savedQueue:
+            _gaq.push(['_trackEvent', category, action + '_Queue', 'web_app']);
+        break;
+        case VIEWS.likedQueue:
+            _gaq.push(['_trackEvent', category, action + '_Queue', 'web_app']);
+    }
+
     _gaq.push(['_trackEvent', category, action, 'web_app']);
+}
+
+
+function registerPageview(){
+    try{
+        var tracker = _gat._getTracker('UA-4788978-3');
+        tracker._trackPageview(window.location.hash);
+    }catch(excp){}
+}
+
+function trackAction(action, id, success){
+    $.ajax({
+        url: '/track/action',
+        data: ({'action': action, 'id': id, 'agent': 'webapp', 'version': _WATCHLR_JS_VERSION_}),
+        success: success
+    });
+}
+
+function trackErrorEvent(name, value, success){
+    $.ajax({
+        url: '/track/event',
+        data: ({'name': name, 'value': value, 'agent': 'webapp', 'version': _WATCHLR_JS_VERSION_}),
+        success: success
+    });
 }

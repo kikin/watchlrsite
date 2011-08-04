@@ -36,6 +36,9 @@ kikinvideo.ProfileViewController = function(){
                         $(FOLLOW_COUNT_CONTAINER_ID_PREFIX+user_id + " .bold").html(numFollowers);
                         //analytics...
                         trackEvent('User', 'FollowUser');
+                        if (!$(FOLLOW_BUTTON_ID_PREFIX+user_id).hasClass("follow-tracked")) {
+                            trackAction('follow', user_id, function(msg) { $(FOLLOW_BUTTON_ID_PREFIX+user_id).addClass("follow-tracked"); });
+                        }
                     }
                 },
                 failure : function(err_msg){
@@ -59,6 +62,9 @@ kikinvideo.ProfileViewController = function(){
                         }
                         //analytics...
                         trackEvent('User', 'UnfollowUser');
+                        if (!$(FOLLOW_BUTTON_ID_PREFIX+user_id).hasClass("unfollow-tracked")) {
+                            trackAction('unfollow', user_id, function(msg) { $(FOLLOW_BUTTON_ID_PREFIX+user_id).addClass("unfollow-tracked"); });
+                        }
                     }
                 },
                 failure : function(err_msg){

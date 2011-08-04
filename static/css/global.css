@@ -181,6 +181,11 @@ a:hover {
     width: 0;
 }
 
+.mozilla #header-right .gbma{
+    top:3px;
+    left:11px;
+}
+
 .win.webkit534 #header-right .gbma {
     top: 10px;
 }
@@ -189,7 +194,7 @@ a:hover {
 #options {
     display: none;
     position: relative;
-    top:-2px;
+    top:-3px;
     min-width: 100%;
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
     z-index: 10000;
@@ -279,7 +284,7 @@ a:hover {
 }
 
 .loading-container.initial{
-    padding-top: 35px;
+    padding-top: 25px;
 }
 
 .loading {
@@ -306,7 +311,7 @@ a:hover {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     width:760px;
-    min-height:120px;
+    min-height:140px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;
@@ -331,6 +336,10 @@ a:hover {
     -webkit-border-top-left-radius: 0px;
     text-align:center;
     float:left;
+}
+
+.navigation a{
+    font-weight: 500;
 }
 
 ul.navigation { 
@@ -692,6 +701,14 @@ ul>span.cufon-canvas {
     font-size:13px;
 }
 
+.player-video-description {
+    float: right;
+    color: #FFFFFF;
+    width: 95%;
+    text-align: left;
+    display: none;
+}
+
 .win .video-description {
     line-height: 16px;
 }
@@ -704,7 +721,10 @@ ul>span.cufon-canvas {
     display: none;
     position:fixed;
     /*margin: 10px 0 0;*/
-    padding: 10px;
+    padding-left:10px;
+    padding-right: 10px;
+    padding-top:5px;
+    padding-bottom:4px;
     background: #333;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -715,6 +735,7 @@ ul>span.cufon-canvas {
     top:100px;
     width:640px;
     z-index: 9999;
+    height: 450px;
 }
 
 .video-player-close {
@@ -986,6 +1007,7 @@ a#lnk-page-next:hover {
     background: url(/static/images/heart_broken.png) no-repeat;
     width: 26px;
     height: 22px;
+    margin-top:1px;
 }
 
 .video-liked-info{
@@ -1106,8 +1128,8 @@ video{
     width:640px;
     margin-left:auto;
     margin-right:auto;
-    margin-top:14px;
-    margin-bottom:10px;
+    margin-top:0px;
+    margin-bottom:0px;
 }
 
 .shadow-10r{
@@ -1142,16 +1164,88 @@ box-shadow: 10px 10px 5px #888;
 
 .close-button-fancy{
     float:right;
-    margin-top:-22px;
+    margin-top:-17px;
     margin-right: -22px;
     width:30px;
     height:30px;
     background:url(/static/images/fancybox.png) no-repeat -40px 0px;
 }
 
+.close-button-fancy-player {
+    float:right;
+    margin-top:3px;
+    margin-right: -3px;
+    width:32px;
+    height:32px;
+    background:url(/static/images/player/closeX.png) no-repeat 0px 0px;
+}
+
+.prev-button-fancy{
+    width: 27px;
+    height: 53px;
+    background-color: #333;
+    position: relative;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    padding: 5px;
+    z-index: 9999;
+    top: -270px;
+    left: -47px;
+    float: left;
+    display: none;
+}
+
+.next-button-fancy{
+    width: 27px;
+    height: 53px;
+    background-color: #333;
+    position: relative;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    -moz-border-radius-topright: 5px;
+    -moz-border-radius-bottomright: 5px;
+    padding: 5px;
+    display: none;
+    z-index: 9999;
+    top: -270px;
+    left: 47px;
+    float: right;
+}
+
+.video-player-top {
+    height: 40px;
+}
+
+.video-player-bottom {
+    height: 40px;
+    margin-top: 10px;
+}
+
+.video-player-title {
+    margin-left: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    width: 89%;
+    float: left;
+    color: #FFFFFF;
+    font-size: 17px;
+    font-family: 'PT Sans', Helvetica, sans-serif;
+    font-weight: 900;
+    padding-bottom: 5px;
+    display: none;
+}
+
 .video-source-image{
     width:16px;
     height:16px;
+}
+
+.player-video-source-image {
+    margin-top: 8px;
+    float: left;
+    display: none;
 }
 
 .rounded-corners-5{
@@ -1221,4 +1315,13 @@ box-shadow: 10px 10px 5px #888;
 
 .video-embed-wrapper{
     text-align:center;
+}
+
+.vid-buffering-close-button{
+    float:right;
+    margin-right: 8px;
+    margin-top:10px;
+    width:20px;
+    height:20px;
+    background: url(/static/images/x_grey.png) no-repeat;
 }

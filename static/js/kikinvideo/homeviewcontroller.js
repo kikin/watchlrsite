@@ -60,16 +60,101 @@ kikinvideo.HomeViewController = function() {
 
     var uid = $(UID_META_SELECTOR).attr('content');
 
+    //ugly state vars...
     var initialLoad = true;
+    //how many times have we pitched the plugin...
+    //(we want to set a little delay for our check FIRST
+    // TIME AROUND, because the plugin may take a second
+    // or two to attach its dummy element to the doc body)
+    var initialPluginPitch = true;
+
+    // Are we waiting for the server to respond back with the video
+    // list? This is needed to avoid the race condition between the
+    // response coming in and the timer for plugin detection expiring.
+    var waitingForVideoList = true;
+
+    var pluginPitchDelay=0;
+    //this is a not-pretty hack around the fact that it can take
+    //several seconds for the Watchlr plugin to get around to
+    //attaching the "watchlr_dummy_element_for_plugin_detection"
+    //to the document body...
+    $(document).ready(function(){
+          //we'll try once every 20 ms for 2 seconds,
+          // then give up...
+          var maxTries = 100;
+          var checkInterval = 20;
+          var numTries = 0;
+          var intervalObj = setInterval(function(){
+                if(!waitingForVideoList){
+                    if(numTries++ <= maxTries){
+                        if($('#watchlr_dummy_element_for_plugin_detection').length == 1 &&
+                                $('.video-wrapper').length == 0){
+                            $.ajax({url:'/content/plugin_no_videos',
+                                success:function(content){
+                                        if(activeView == VIEWS.savedQueue){
+                                            $('#videoList').html('')
+                                            $('#videoList').html(content);
+                                            $('.video-container.plugin-pitch').fadeIn(1200);
+                                        }
+                                }
+                            });
+                            initialPluginPitch = false;
+                            clearInterval(intervalObj);
+                        }
+                    } else {
+                        initialPluginPitch = false;
+                        clearInterval(intervalObj);
+                        $('.loading-container').fadeOut(0, function(){
+                                onHashChange(window.location.hash);
+                        });
+                    }
+                }
+          }, checkInterval);
+    });
+
+    /*(non-initial) plugin check logic*/
+    function pluginDetect(){
+        if($('#watchlr_dummy_element_for_plugin_detection').length == 0
+            && $('.video-wrapper').length == 0){
+            $.ajax({url:'/content/no_plugin_no_videos',
+                success:function(content){
+                    if($('.video-wrapper').length == 0){
+                        setTimeout(function(){
+                            $('#videoList').html('');
+                            $('#videoList').html(content);
+                             browserSpecificPitch();
+                            $('.video-container.plugin-pitch').fadeIn(1200);
+                        }, pluginPitchDelay);
+                    }
+                }
+            });
+        }else if ($("#watchlr_dummy_element_for_plugin_detection").length == 1 &&
+            $('.video-wrapper').length == 0){
+                $.ajax({url:'/content/plugin_no_videos',
+                    success:function(content){
+                            $('#videoList').html(content);
+                            setTimeout(function(){
+                                $('.video-container.plugin-pitch').fadeIn(1200);
+                            }, pluginPitchDelay);
+                    }
+                });
+        }
+    }
 
     /*hashbang url routing...*/
     function onHashChange(hash_url){
+        waitingForVideoList = true;
+
         var url_content = parseHashURL(hash_url);
 
         if(url_content.path == SAVED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.savedQueue);
             activeView = VIEWS.savedQueue;
-            populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+
+            if(!initialPluginPitch)
+                populatePanel(pluginDetect);
+            else
+                populatePanel();
         }if(url_content.path == LIKED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.likedQueue);
             activeView = VIEWS.likedQueue;
@@ -87,7 +172,7 @@ kikinvideo.HomeViewController = function() {
         onHashChange(window.location.hash);
     });
 
-    function loadMoreVideos(){
+    function loadMoreVideos(onComplete){
         if(activeView == VIEWS.likedQueue){
             likedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
             likedVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
@@ -98,7 +183,7 @@ kikinvideo.HomeViewController = function() {
             activityItemsToLoad += INITIAL_PAGINATION_THRESHOLD;
             activityItemsPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
         }
-        populatePanel();
+        populatePanel(onComplete);
     }
 
     function _bindVideoPanelEvents(){
@@ -161,16 +246,20 @@ kikinvideo.HomeViewController = function() {
 
     }
 
-    function populatePanel() {
+    function populatePanel(onComplete) {
 
         if(!initialLoad){
         $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-        $(LOADING_ICON_BACKGROUND).css({width:780,
-            height:$(VIDEO_PANEL_SELECTOR).height(), left:$(VIDEO_PANEL_SELECTOR).offset().left,
+        $(LOADING_ICON_BACKGROUND).css({width:$(VIDEO_PANEL_SELECTOR).width(),
+            height:$(VIDEO_PANEL_SELECTOR).height()-110, left:$(VIDEO_PANEL_SELECTOR).offset().left,
             top:$(VIDEO_PANEL_SELECTOR).offset().top});
         }
         initialLoad = false;
         var contentSource, requestParams;
+
+        if(UI){
+            UI.videoList = [];
+        }
 
         if(activeView == VIEWS.likedQueue){
             contentSource = LIKED_VIDEOS_CONTENT_URL;
@@ -189,11 +278,11 @@ kikinvideo.HomeViewController = function() {
 
         $.get(contentSource, requestParams, function(data) {
             $(VIDEO_PANEL_SELECTOR).html(data);
-
             _bindVideoPanelEvents();
 
-            var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
+            waitingForVideoList = false;
 
+            var queueItemCount = parseInt($(QUEUE_ITEM_COUNT_META_SELECTOR).attr('content'));
             if(activeView == VIEWS.likedQueue){
                 if(queueItemCount >= likedVideosPaginationThreshold){
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
@@ -220,12 +309,14 @@ kikinvideo.HomeViewController = function() {
             //because HTML5 videos don't respect display:'none'
             //like swf object embeds do...
             videoController.prepareEmbeds();
-
+            if(onComplete)
+                onComplete();
         });
 
     }
 
     function removeVideo(vid, unlike){
+        window.WatchlrPlayerInterface.removeVideo(vid);
         method = '/api/remove/'+vid;
         if(unlike){
             method += '?unlike=true';
@@ -235,11 +326,12 @@ kikinvideo.HomeViewController = function() {
                 $(VIDEO_CONTAINER_ID_PREFIX+vid).remove();
                 if(activeView == VIEWS.savedQueue){
                     if($(VIDEO_CONTAINER_CLASS).length == 0){
-                        populatePanel(VIDEO_PANEL_SELECTOR, SAVED_VIDEOS_CONTENT_URL, {});
+                        onHashChange(window.location.hash);
                     }
                 }
                 trackEvent('Video', 'Remove');
             });
+            trackAction('remove', vid);
         });
     }
 
@@ -271,25 +363,37 @@ kikinvideo.HomeViewController = function() {
                                                 var like_details = trim(activity_item_header.html());
 
                                                 if(data.result.likes == 2){
-                                                    like_details = 'You and '+like_details;
+                                                    if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                        like_details = 'You and '+like_details;
+                                                    }else{
+                                                        var like_offset = like_details.indexOf('shared, ');
+                                                        like_details = like_details.substr(0, like_offset)+'shared, You and '+like_details.substr(like_offset+8, like_details.length);
+                                                    }
+                                                }else if(data.result.likes > 2){
+                                                    if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                        like_details = 'You, '+like_details;
+                                                    }else{
+                                                        var like_offset = like_details.indexOf('shared, ');
+                                                        like_details = like_details.substr(0, like_offset)+'shared, You, '+like_details.substr(like_offset+8, like_details.length);
+                                                    }
                                                 }else{
-                                                    like_details = 'You, '+like_details;
+                                                    like_details = like_details.substr(0, like_details.length-3)+', You liked...'
                                                 }
                                                 activity_item_header.fadeOut(500, function(){
                                                     activity_item_header.html(like_details);
                                                     activity_item_header.fadeIn(500);
                                                 });
-                                                trackEvent('Video', 'Like_Activity');
-                                            }else{
-                                                trackEvent('Video', 'Like_Queue');
                                             }
                                         });
-                                        //analytics....
+
                                         trackEvent('Video', 'Like');
                                     }
                                 }
                             }
                         }
+                    }
+                    if (!$(LIKED_ICON_ID_PREFIX+vid).hasClass("like-tracked")) {
+                        trackAction('like', vid, function(msg) { $(LIKED_ICON_ID_PREFIX+vid).addClass("like-tracked"); });
                     }
                 }
             });
@@ -329,15 +433,22 @@ kikinvideo.HomeViewController = function() {
                                                     activity_item_header.html(like_details);
                                                     activity_item_header.fadeIn(500);
                                                 });
-                                                trackEvent('Video', 'Unlike_Activity');
-                                            }else{
-                                                trackEvent('Video', 'Unlike_Queue');
                                             }
                                         }else if(activeView == VIEWS.activity){
-                                            //means that we are in activity queue AND had been the only
-                                            //"liker" of this video, so we may gracefully remove it
-                                            $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
-                                            trackEvent('Video', 'Unlike_Activity');
+                                            if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                //means that we are in activity queue AND had been the only
+                                                //"liker" of this video, so we may gracefully remove it
+                                                $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
+                                            } else {
+                                                // Get rid of the trailing '.., You liked...'
+                                                var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
+                                                var like_details = trim(activity_item_header.html());
+                                                like_details = like_details.substr(0, like_details.length - 14) + '...';
+                                                activity_item_header.fadeOut(500, function(){
+                                                    activity_item_header.html(like_details);
+                                                    activity_item_header.fadeIn(500);
+                                                });
+                                            }
                                         }
                                     });
                                  //analytics...
@@ -346,6 +457,9 @@ kikinvideo.HomeViewController = function() {
                             }
                         }
                     }
+                }
+                if (!$(LIKED_ICON_ID_PREFIX+vid).hasClass("unlike-tracked")) {
+                    trackAction('unlike', vid, function(msg) { $(LIKED_ICON_ID_PREFIX+vid).addClass("unlike-tracked"); });
                 }
             });
         }
@@ -375,16 +489,10 @@ kikinvideo.HomeViewController = function() {
                                 $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).addClass('not-saved');
                             }
                         }
-
-                    if(activeView == VIEWS.activity){
-                        trackEvent('Video', 'Save_Activity');
-                    }else{
-                        trackEvent('Video', 'Save_Queues');
-                    }
                     //analytics...
                     trackEvent('Video', 'Save');
+                    trackAction('save', vid);
                     }
-
                 },
                 failure : showErrorDialog()
         });

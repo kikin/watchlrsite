@@ -25,13 +25,15 @@ kikinvideo.UIUniversal =
 
             var VIDEO_PLAYER_BG_SELECTOR = '.video-player-bg';
 
-            var VIDEO_PLAYER_ID_PREFIX = "#video-player-";
+            var VIDEO_PLAYER_ID_PREFIX = "#video-player";
 
             var VIDEO_CONTAINER_ID_PREFIX = "#video-";
 
-            var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container-";
+            var VIDEO_EMBED_CONTAINER_PREFIX = "#video-embed-container";
 
-            var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper-";
+            var VIDEO_EMBED_WRAPPER_PREFIX = "#video-embed-wrapper";
+
+            var videoList = [];
 
 
             /*initialization...*/
@@ -71,11 +73,22 @@ kikinvideo.UIUniversal =
                 }
             };
 
+            function getVideoIndex(vid) {
+                for (var i = 0; i < videoList.length; i++) {
+                    if (videoList[i].id == vid) {
+                        return i;
+                    }
+                }
+
+                return null;
+            }
+
 
             function loadPlayer(vid) {
                 if(activeView != VIEWS.detail){
+
                     if(current_vid){
-                        $(VIDEO_PLAYER_ID_PREFIX + current_vid).hide();
+                        $(VIDEO_PLAYER_ID_PREFIX).hide();
                         if(!$(VIDEO_BUTTON_ID_PREFIX + current_vid).hasClass(VIDEO_BUTTON_CLASS)){
                             $(VIDEO_BUTTON_ID_PREFIX + current_vid).addClass(VIDEO_BUTTON_CLASS)
                         }
@@ -84,18 +97,15 @@ kikinvideo.UIUniversal =
                     //necessary hack -- center fixed-width embeds (the embeds often have
                     // fixed width+height but no margin-properties)!
                     try{
-                        var wrapper = $('#video-embed-container-'+vid + ' .video-embed-wrapper');
+                        var wrapper = $('#video-embed-container' + ' .video-embed-wrapper');
+                        wrapper.height('360px');
                         var embed = wrapper.children('embed:first-child');
                         embed.css({marginRight:'auto', marginLeft:'auto'});
                     }catch(excp){}
 
-                    /*remove the 'play' button from the thumb...*/
-                    if($(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
-                        $(VIDEO_BUTTON_ID_PREFIX + vid).removeClass(VIDEO_BUTTON_CLASS)
-                    }
-                    var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
-                    var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX+vid);
-
+                    var video_player_div = $(VIDEO_PLAYER_ID_PREFIX);
+                    var video_embed_div = $(VIDEO_EMBED_CONTAINER_PREFIX);
+                    
 
                     var video_player_target_width = video_player_div.width();
                     var video_player_target_height = video_player_div.height();
@@ -103,68 +113,61 @@ kikinvideo.UIUniversal =
                     video_player_div.css({top:'42%', 'margin-top':
                             (video_player_div.height()*-.5)-30});
 
-
                     video_embed_div.hide();
                     $('body').prepend(VIDEO_PLAYER_BG_HTML);
                     $(VIDEO_PLAYER_BG_SELECTOR).css({width:$(document).width(), height:$(document).height(), display:'none', 'z-index':1000});
                     //because i.e. doesn't support the opacity property...
-                        $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
+                    $(VIDEO_PLAYER_BG_SELECTOR).fadeIn(100);
                     video_player_div.fadeIn(100);
 
-                    video_player_div.css({display:'none'})
+                    video_player_div.css({display:'none'});
 
                     video_player_div.fadeIn(500, function(){
                         video_embed_div.show();
+                        $('.prev-button-fancy').show();
+                        $('.next-button-fancy').show();
+
                         /*close video player on click outside its container....*/
                         $(VIDEO_PLAYER_BG_SELECTOR).click(function(){
                             closePlayer(vid);
                         });
+
+                        // play the video
+                        window.WatchlrPlayerInterface.play(vid);
                     });
 
                     current_vid = vid;
 
                     //finally, prepare html5 videos...
-                    if($.browser.webkit){
-                        videoController.setMode(videoController.modes.NORMAL);
-                        videoController.setCurVid(vid);
-                    }
-
-                    if (activeView == VIEWS.activity){
-                        trackEvent('Video', 'OpenPlayer_Activity');
-                    }else{
-                        trackEvent('Video', 'OpenPlayer_Queue');
-                    }
+//                    if($.browser.webkit){
+//                        videoController.setMode(videoController.modes.NORMAL);
+//                        videoController.setCurVid(vid);
+//                    }
 
                     trackEvent('Video', 'OpenPlayer');
                 }
             }
 
             function closePlayer(vid){
-                var video_player_div = $(VIDEO_PLAYER_ID_PREFIX + vid);
+                var video_player_div = $(VIDEO_PLAYER_ID_PREFIX);
 
                 $(VIDEO_PLAYER_BG_SELECTOR).fadeOut(500, function(){
                     $(VIDEO_PLAYER_BG_SELECTOR).remove();
                 });
-                $('.video-player').fadeOut();
+                $('.video-player').hide();
 
-                /*restore the "play" button to the video thumb...*/
-                if(!$(VIDEO_BUTTON_ID_PREFIX + vid).hasClass(VIDEO_BUTTON_CLASS)){
-                    $(VIDEO_BUTTON_ID_PREFIX + vid).addClass(VIDEO_BUTTON_CLASS)
-                }
+                $('.prev-button-fancy').hide();
+                $('.next-button-fancy').hide();
+
+                $('#video-player-title').hide();
+                $('#player-video-description').hide();
+                $('#player-video-source-image').hide();
 
                 //pause video if it is html5
-                if($.browser.webkit){
-                        videoController.setMode(videoController.modes.NORMAL);
-                        videoController.pauseVideo();
-                        videoController.savePosition();
-                }
-
-                if (activeView == VIEWS.activity){
-                    trackEvent('Video', 'ClosePlayer_Activity');
-                }else{
-                    trackEvent('Video', 'ClosePlayer_Queue');
-                }
-
+                // if($.browser.webkit){
+                //         videoController.handleClose();
+                //}
+                
                 trackEvent('Video', 'ClosePlayer');
             }
 
@@ -202,17 +205,33 @@ kikinvideo.UIUniversal =
                     var username = $(PROFILE_EDIT_USERNAME_INPUT).val();
                     var email = $(PROFILE_EDIT_EMAIL_INPUT).val();
 
-                    $(PROFILE_EDIT_PANEL_SELECTOR).remove();
-                    $(GREYED_BACKGROUND_SELECTOR).remove();
-
                     $.post('/api/auth/profile', {'preferences':preferences, 'username':username,
                                 'email':email}, function(data){
-                                if(data && data.result){
-                                    if(data.result.username){
-                                        $(PROFILE_NAME_DISPLAY).html(data.result.username);
-                                    }
+                        if(data){
+                            if(data.code && (data.code == 406 || data.code == 409)){
+                                if(data.code == '406'){
+                                    var errMsg = 'Usernames can consist only of numbers, lowercase letters and periods, and may not contain spaces'
+                                        + ' (for example "<a href="javascript:$(\'#username-input\').val(\''+data.error+'\');">'+data.error+'</a>")';
+                                    $('#err-display').html(errMsg);
+                                }if(data.code == '409'){
+                                    $('#err-display').html('The username you have entered is already in use');
                                 }
-                            });
+                                $('#username-input').focus();
+                                $(PROFILE_EDIT_PANEL_SELECTOR).height(258);
+                                $('#err-display').show();
+                            }
+                            else if(data.result){
+                                if(data.result.username){
+                                    $(PROFILE_EDIT_PANEL_SELECTOR).height(210);
+                                    $('#err-display').html('');
+                                    $(PROFILE_EDIT_PANEL_SELECTOR).remove();
+                                    $(GREYED_BACKGROUND_SELECTOR).remove();
+                                    $(PROFILE_NAME_DISPLAY).html(data.result.username);
+                                    $('#myActualProfile').attr('href', data.result.username)
+                                }
+                            }
+                        }
+                    });
                 }
             };
 
@@ -224,16 +243,57 @@ kikinvideo.UIUniversal =
             function bindEvents() {
                 $(PROFILE_OPTIONS_BUTTON_SELECTOR).hover(
                         function() {
-                            if(!$('#header-right').hasClass('selected'))
-                                $('#header-right').addClass('selected');
+                            if(!$(this).hasClass('selected') && $('#lnkConnectFb').length == 0)
+                                $(this).addClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
                         },
                         function() {
-                            if($('#header-right').hasClass('selected'))
-                                $('#header-right').removeClass('selected');
+                            if($(this).hasClass('selected'))
+                                $(this).removeClass('selected');
                             $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
                         }
                 )
+            }
+
+            function addToVideoList(vid, metadata){
+                var elementExists = false;
+                if(WatchlrPlayerInterface){
+                    var idx = WatchlrPlayerInterface._getVideoIndex(vid);
+                    if(idx != null){
+                        UI.videoList[idx] = metadata;
+                        elementExists = true;
+                    }
+                }
+                if(!elementExists){
+                    UI.videoList.push(metadata);
+                }
+            }
+
+            function checkForVideoMetadata(vid){
+                if(activeView == VIEWS.likedQueue){
+                    activeViewName = 'liked';
+                }else if(activeView == VIEWS.savedQueue){
+                    activeViewName = 'saved';
+                }
+
+                var checkVideoMetadataInterval = 5000;
+                var maxAttempts = 12;
+                checkVideoMetadataTimer = setInterval(function(){
+                    if(maxAttempts > 0){
+                        $.ajax({
+                            url: '/content/single_video/' + activeViewName + '/' + vid,
+                            statusCode: {
+                                200: function(content){
+                                    $('#video-' + vid).replaceWith(content);
+                                    clearInterval(checkVideoMetadataTimer);
+                                }
+                            }
+                        });
+                    } else {
+                        clearInterval(checkVideoMetadataTimer);
+                    }
+                    maxAttempts--;
+                }, checkVideoMetadataInterval);
             }
 
             //expose public functions...
@@ -241,7 +301,10 @@ kikinvideo.UIUniversal =
                 closePlayer : closePlayer,
                 loadPlayer : loadPlayer,
                 handleProfileEditPanelOpen : handleProfileEditPanelOpen,
-                handleProfileSave : handleProfileSave
+                handleProfileSave : handleProfileSave,
+                videoList: videoList,
+                addToVideoList: addToVideoList,
+                checkForVideoMetadata: checkForVideoMetadata
             }
         };
 

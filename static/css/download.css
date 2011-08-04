@@ -2,6 +2,9 @@
 html {
 
 }
+body{
+    text-align: center;
+}
 
 .firefox_mac {
 	width:221px;
@@ -35,8 +38,9 @@ html {
 .block {
     padding-top:10px;
     border-top: 2px solid #dedede;
-    width: 740px;
-    margin-left:10px;
+    width: 730px;
+    margin-left:auto;
+    margin-right: auto;
 }
 .block img {
     float:right;
@@ -61,7 +65,7 @@ html {
     color: #b5b5b5;
 }
 .downloadapp {
-    width:260px;
+    width:131px;
     height:37px;
     background:url(/static/images/extras/downloadapp.png) no-repeat;
 	cursor:pointer;

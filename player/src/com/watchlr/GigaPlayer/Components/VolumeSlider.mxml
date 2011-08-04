@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="22" height="90"
+		 mouseUp="onSliderHandleUp(event)" mouseDown="onSliderHandleDown(event)"
+		 click="volumeHandlePosUpdate(event)"
+		 creationComplete="init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.watchlr.GigaPlayer.GigaPlayer;
+			
+			import flash.geom.Rectangle;
+			
+			protected var dragging:Boolean = false;
+			protected var _gigaPlayer:GigaPlayer;
+			
+			protected var storedVolume:Number;
+			protected var muted:Boolean = false;
+			
+			//vertical offset to use when mapping cursor pos
+			//to target pos for elements...
+			protected var CURSOR_V_OFFSET:Number = -6;
+			
+			protected function init():void{
+				addEventListener(MouseEvent.MOUSE_MOVE, volumeHandlePosUpdate);
+			}
+			
+			protected function onSliderHandleUp(event:MouseEvent):void{
+				dragging=false;
+			}
+			
+			protected function onSliderHandleDown(event:MouseEvent):void{
+				dragging = true;
+			}
+			
+			public function set gigaPlayer(value:GigaPlayer):void{
+				_gigaPlayer = value;
+				setSliderForVol(_gigaPlayer.videoDisplay.volume);
+			}
+			
+			protected function volumeHandlePosUpdate(event:MouseEvent):void{
+				if(_gigaPlayer && dragging){
+						var targetY:Number = event.localY + CURSOR_V_OFFSET;
+						if(targetY >= 0 && 
+							targetY <= (sliderBackground.height as Number) - 0.8*(sliderHandle.height as Number)){
+							sliderHandle.top = targetY;
+							volumeIndication.height = ((sliderBackground.height as Number)
+							- targetY) - 0.5*(sliderHandle.height as Number);
+							//_gigaPlayer.videoDisplay.volume 
+							var targetVol:Number = ((sliderBackground.height - 0.8*sliderHandle.height)- 
+								(sliderBackground.top as Number) - targetY)
+								/(sliderBackground.height - 0.8*sliderHandle.height);
+							//snap to 0 if close...
+							if(targetVol < 0.05)
+								targetVol = 0;
+							//snap to 1 if close...
+							if(targetVol > 0.95)
+								targetVol = 1;
+							_gigaPlayer.videoDisplay.volume = targetVol;
+							storedVolume = targetVol;
+						}
+				}
+			}
+			
+			protected function setSliderForVol(vol:Number):void{
+				sliderHandle.top = (sliderBackground.height - 0.8*sliderHandle.height) -
+					vol*(sliderBackground.height -  0.8*sliderHandle.height);
+				volumeIndication.height = sliderBackground.height - (sliderHandle.top as Number);
+			}
+			
+			public function mute():void{
+				if(!muted){
+					muted=true;
+					storedVolume = _gigaPlayer.videoDisplay.volume;
+					_gigaPlayer.videoDisplay.volume = 0;
+					setSliderForVol(0);
+				}else{
+					muted=false;
+					_gigaPlayer.videoDisplay.volume = storedVolume;
+					setSliderForVol(storedVolume);
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Rect width="100%" height="100%" radiusX="4">
+		<s:fill><s:SolidColor color="#3f3f3f" /></s:fill>
+	</s:Rect>
+	<s:Group id="sliderWrapper" height="70" width="6" left="8" top="10">
+		<s:Rect id="sliderBackground" width="6" height="100%" radiusX="4" radiusY="4">
+			<s:fill>
+				<s:SolidColor color="#212121">
+				</s:SolidColor>
+			</s:fill>
+		</s:Rect>
+		<s:Rect id="volumeIndication"  width="100%" height="0" bottom="0" radiusX="4" radiusY="4">
+			<s:fill>
+				<s:SolidColor color="#fdfdfd">
+				</s:SolidColor>
+			</s:fill>
+		</s:Rect>
+	<s:Ellipse id="sliderHandle" height="10" width="10" left="-2" top="60">
+		<s:fill>
+			<s:SolidColor color="#9b9b9b">
+			</s:SolidColor>
+		</s:fill>
+	</s:Ellipse>
+	</s:Group>
+</s:Group>

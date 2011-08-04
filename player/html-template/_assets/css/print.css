@@ -1,0 +1,28 @@
+/* 
+ * The Chopping Block print.css
+ *
+ */
+
+a {
+	color: #000;
+}
+
+body {
+	font-family: serif;
+	font-size: 12pt;
+}
+
+#maincontent {
+	margin: 0px;
+	padding: 0px;
+	width: auto;
+}
+
+#header, h3, h4 {
+	border: none;
+	font-weight: bold;
+	margin: 0px;
+	padding: 0px;
+	width: auto;
+}
+

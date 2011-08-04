@@ -1,0 +1,862 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:watchlr="com.watchlr.*"
+			   creationComplete="init()" xmlns:GigaPlayer="com.watchlr.GigaPlayer.*" xmlns:Components="com.watchlr.GigaPlayer.Components.*">
+	<fx:Style source="assets/GigaPlayer.css"/>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import at.matthew.httpstreaming.HTTPStreamingM3U8NetLoader;
+			
+			import com.watchlr.GigaPlayer.Event.GigaPlayerEvent;
+			import com.watchlr.GigaPlayer.Util.BrightCove;
+			import com.watchlr.GigaPlayer.Util.Util;
+			import com.watchlr.GigaPlayer.Util.Vimeo;
+			import com.watchlr.Globals;
+			
+			import flash.external.*;
+			import flash.system.Security;
+			import flash.utils.Timer;
+			import flash.utils.setTimeout;
+			
+			import flashx.textLayout.formats.Float;
+			
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			import mx.managers.CursorManager;
+			import mx.utils.object_proxy;
+			
+			import org.osmf.elements.SWFElement;
+			import org.osmf.elements.VideoElement;
+			import org.osmf.events.LoadEvent;
+			import org.osmf.events.MediaPlayerStateChangeEvent;
+			import org.osmf.events.TimeEvent;
+			import org.osmf.media.URLResource;
+			import org.osmf.net.httpstreaming.HTTPStreamingNetLoader;
+			
+			import spark.components.SkinnableContainer;
+			import spark.components.supportClasses.SkinnableComponent;
+			import spark.effects.Fade;
+			
+			public var SourceType:Object = { DEFAULT : 0, VIMEO : 1, YOUTUBE : 2, BRIGHTCOVE : 3 };
+			
+			protected var currentVidSourceType:int = SourceType.DEFAULT;
+			protected var curVID:String;
+		
+			//point beyond seek target that we would like to buffer
+			//video before we start playback (a percentage)
+			protected var SEEK_BUFFER_PADDING:Number = 20;
+			
+			//duration of mouse inactivity after which UI
+			//chrome fades out
+			protected var UI_CHROME_TIMEOUT:Number = 4000;
+		
+			//we'll need to fetch this from the api whenever the embed's
+			//source is modified
+			[bindable]
+			protected var _seekTarget:Number = 0;
+		
+			protected var UIChromeFadeoutTimer:Timer;
+			
+			private var _youTubeLoader:Loader;
+			private var _youtubePlayer:Object;
+			private var _youTubeLoaderWrapper:UIComponent;
+			private var _youTubePlaybackPollTimer:Timer;
+			private var _youTubePlayerLoaded:Boolean = false;
+			private var _youTubePlayerLastBytesLoadedCount:Number = 0;
+			private var YOUTUBE_PLAYBACK_POLL_INTERVAL:Number = 200;
+			
+			private var _vimeoLoaderWrapper:UIComponent;
+			private var _vimeoPlayer: Vimeo;
+			
+			private var _brightcoveLoaderWrapper:UIComponent;
+			private var _brightcovePlayer: BrightCove;
+			
+			private var _stopCountdown:Boolean = false;
+			
+			protected var fillElementComponents:ArrayList = new ArrayList();
+			
+			public function set seekTarget(value:Number):void{
+				_seekTarget = value;
+				handleVideoSeekStart();
+			}
+		
+			protected function init():void{
+				trace('Gigaplayer init');
+				controlPallette.gigaPlayer = this;
+				positionPrevNextButtons();
+				UIChromeFadeoutTimer = new Timer(UI_CHROME_TIMEOUT);
+				
+				addEventListener(Event.RESIZE, this.onResize);
+				addEventListener(Event.UNLOAD, onUnload);
+				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				UIChromeFadeoutTimer.addEventListener(TimerEvent.TIMER, UIChromeFadeout);
+				
+				Security.allowDomain("*.youtube.com");
+				Security.allowDomain("*.vimeo.com");
+				Security.allowDomain("*.brightcove.com");
+				
+				// Initialize youtube player
+				_youTubeLoader = new Loader();
+				_youTubeLoader.contentLoaderInfo.addEventListener(Event.INIT, onYouTubeLoaderInit);
+				_youTubeLoader.load(new URLRequest("http://www.youtube.com/apiplayer?version=3"));
+				
+				_youTubeLoaderWrapper = new UIComponent();
+				addElement(_youTubeLoaderWrapper);
+				
+				_brightcoveLoaderWrapper = new UIComponent();
+				addElement(_brightcoveLoaderWrapper);
+
+				_vimeoLoaderWrapper = new UIComponent();
+				addElement(_vimeoLoaderWrapper);
+				
+				_youTubePlaybackPollTimer = new Timer(YOUTUBE_PLAYBACK_POLL_INTERVAL);
+				_youTubePlaybackPollTimer.addEventListener(TimerEvent.TIMER, pollYouTubePlayer);
+				
+				fillElementComponents.addItem(_videoDisplay);
+				fillElementComponents.addItem(_youTubeLoaderWrapper);
+				fillElementComponents.addItem(_brightcoveLoaderWrapper);
+				fillElementComponents.addItem(_vimeoLoaderWrapper);
+				fillElementComponents.addItem(bgRect);
+				
+				//set view stack order of elements:
+				setChildIndex(bgRect, -1);
+				setChildIndex(_videoDisplay, 0);
+				setChildIndex(_youTubeLoaderWrapper, 1);
+				setChildIndex(controlPallette, 2);
+				setChildIndex(_vimeoLoaderWrapper, 3);
+				setChildIndex(_brightcoveLoaderWrapper, 4);
+				setChildIndex(loadingIndicatorCountdown, 5);
+				setChildIndex(loadingErrorMessage, 6);
+				setChildIndex(viewSourceLink, 7);
+				setChildIndex(loadingIndicatorMessage, 8);
+				setChildIndex(prevVideoButton, 9);
+				setChildIndex(nextVideoButton, 10);
+				
+				//time change callback...
+				_videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onPlayerTimeChange);
+				
+				//finally, load the video...
+//				source = FlexGlobals.topLevelApplication.parameters.src;
+				
+				handlePlayerLoad();	
+			}
+			
+			public function onUnload(event:Event): void {
+				removeEventListener(Event.RESIZE, this.onResize);
+				removeEventListener(Event.UNLOAD, onUnload);
+				removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				UIChromeFadeoutTimer.removeEventListener(TimerEvent.TIMER, UIChromeFadeout);
+				
+				_youTubePlaybackPollTimer.removeEventListener(TimerEvent.TIMER, pollYouTubePlayer);
+				_youtubePlayer.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			}
+			
+			public function onYouTubeLoaderInit(event:Event): void {
+				_youTubePlayerLoaded = false;
+				_youTubeLoaderWrapper.addChild(_youTubeLoader);
+				
+				_youTubeLoader.content.addEventListener("onReady", onYouTubePlayerLoaded);
+				_youTubeLoader.content.addEventListener("onError", onYouTubePlayerError);
+				_youTubeLoader.content.addEventListener("onStateChange", onYouTubePlayerStateChange);
+				
+				_youtubePlayer = _youTubeLoader.content;
+				_youtubePlayer.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			}
+			
+			public function onStateChange(event:MediaPlayerStateChangeEvent):void{
+				trace("on state change: " + event.state);
+				switch(event.state){
+					case "ready": 
+						break;
+					case "playing":
+						handleVideoReady();
+						controlPallette.playButton.pauseButton.visible = true;
+						controlPallette.playButton.playButton.visible = false;
+						break;
+					case "paused":
+						handleVideoPaused();
+						break;
+					case "playbackError":
+						handleVideoPlaybackError(150);
+						break;
+					case "buffering":
+						break;
+				}
+			}
+		
+			protected function handleBytesLoadedChange(event:LoadEvent):void{
+				if(!_videoDisplay.playing){
+					var bytesLoaded:Number = event.bytes;
+					var totalBytes:Number = event.target.bytesTotal;
+					if(totalBytes > 0){
+						var percent:Number = Math.floor(100 * (bytesLoaded/
+																totalBytes));
+						if (percent + SEEK_BUFFER_PADDING > 100){
+							if(_seekTarget && 100*(_videoDisplay.duration/_seekTarget) > percent){
+								_videoDisplay.seek(_seekTarget);
+								handleVideoSeekEnd();
+								_videoDisplay.play();
+							}
+						}
+						else if(_seekTarget && 100*(_videoDisplay.duration/_seekTarget) > (percent + SEEK_BUFFER_PADDING)){
+							_videoDisplay.seek(_seekTarget);
+							handleVideoSeekEnd();
+							_videoDisplay.play();
+						}
+						
+						var gpEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.BYTES_LOADED_CHANGE);
+						gpEvent.bytesLoaded = bytesLoaded;
+						gpEvent.bytesTotal = totalBytes;
+						dispatchEvent(gpEvent);
+					}
+				}
+				bytesLoadedJSCallbackWrapper(event);
+			}
+			
+			protected function onBytesLoadedChange(event:GigaPlayerEvent):void{
+				var gpEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.BYTES_LOADED_CHANGE);
+			}
+		
+			//here you go, ExternalInterface!
+			public function setSeekTarget(value:Number):void{
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE:
+					case SourceType.VIMEO:
+					case SourceType.BRIGHTCOVE:
+						break;
+					case SourceType.DEFAULT: {
+						seekTarget = value;
+						break;
+					}
+				}	
+			}
+		
+			protected function onComplete(event:TimeEvent):void{
+				handleVideoFinished();
+			}
+		
+			protected function onCurrentTimeChange(event:TimeEvent):void{
+				handleVideoTimeChanged();
+			}
+			
+			//so containing js code can know # bytes loaded....
+			protected function bytesLoadedJSCallbackWrapper(event:LoadEvent):void{
+				handleVideoLoadProgress(event.bytes, event.target.bytesTotal); 
+			}
+			
+			/* Firing events to JS. */
+			public function handlePlayerLoad():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_LOAD);
+			}
+			
+			public function handleVideoReady():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYING);
+			}
+		
+			public function handleVideoPaused():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PAUSED, curTime());	
+			}
+			
+			public function handleVideoFinished():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_FINISHED);	
+			}
+			
+			public function handleVideoTimeChanged():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, curTime());	
+			}
+			
+			public function handleVideoLoadProgress(bytes:Number, bytesTotal:Number):void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, bytes, bytesTotal);	
+			}
+			
+			public function handleVideoSeekStart():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);	
+			}
+			
+			public function handleVideoSeekEnd():void{
+				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);	
+			}
+			
+			public function handleVideoPlaybackError(errorCode:Number):void{
+				showCountdown();
+				updateCountdownTimer(5, errorCode);
+			}
+			
+			private function updateCountdownTimer(countDowntime:Number, errorCode:Number):void {
+				if (!_stopCountdown) {
+					if (countDowntime == 0) {
+						hideCountdown();
+						ExternalInterface.call(Globals.JS_SIGNATURES.PLAYBACK_ERROR, errorCode);
+					} else {
+						loadingIndicatorCountdown.text = countDowntime + '';
+						setTimeout(updateCountdownTimer, 1000, --countDowntime, errorCode);
+					}	
+				}
+			}
+			
+			private function showCountdown(): void {
+				_stopCountdown = false;
+				var loadingIndicatorCountdownTop:Number = (_videoDisplay.height - controlPallette.height) / 2;
+				loadingIndicatorCountdown.top = loadingIndicatorCountdownTop;
+				loadingErrorMessage.top = loadingIndicatorCountdownTop - 110;
+				viewSourceLink.top = loadingIndicatorCountdownTop - 80;
+				loadingIndicatorMessage.top = loadingIndicatorCountdownTop - 30;
+				
+				loadingErrorMessage.visible = true;
+				viewSourceLink.visible = true;
+				loadingIndicatorMessage.visible = true;
+				loadingIndicatorCountdown.visible = true;
+			}
+			
+			private function hideCountdown(): void {
+				_stopCountdown = true;
+				loadingErrorMessage.visible = false;
+				viewSourceLink.visible = false;
+				loadingIndicatorMessage.visible = false;
+				loadingIndicatorCountdown.visible = false;	
+			}
+			
+			protected function onViewSourceLinkClicked(event:Event):void {
+				_stopCountdown = true;
+				var targetURL:URLRequest = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
+				navigateToURL(targetURL, "_blank");
+			}
+			
+			/*videoDisplay function wrappers*/
+			
+			public function get source():Object{
+				return _videoDisplay.source;
+			}
+			
+			public function set source(val:Object):void{
+				var util:Util = new Util();
+				var vid:String;
+				if (val) {
+					trace('Source:' + val.toString());
+					hideCountdown();
+					if(util.isYouTube(val.toString())){
+						vid = util.YTIframeSourceToVID(val.toString());
+						playYTVideo(vid);
+						currentVidSourceType = SourceType.YOUTUBE;
+					} else if (util.isVimeo(val.toString())) {
+						showVimeoPlayer();
+						
+						// Set source type AFTER showing current player.
+						currentVidSourceType = SourceType.VIMEO;
+						
+						vid = util.VimeoIframeSourceToVID(val.toString());
+						if (!_vimeoPlayer) {
+							_vimeoPlayer = new Vimeo(parseInt(vid, 10), width, height, this);
+						} else {
+							_vimeoPlayer.loadVideo(parseInt(vid, 10));		
+						}
+					} else if (util.isBrightcove(val.toString())) {
+						showBrightcovePlayer();
+						currentVidSourceType = SourceType.BRIGHTCOVE;
+						if (!_brightcovePlayer) {
+							_brightcovePlayer = new BrightCove(val.toString(), this);
+						} else {
+							vid = util.BrightcoveIframeSourceToVID(val.toString());
+							_brightcovePlayer.loadVideo(vid);		
+						}
+					} else {
+						showDefaultPlayer();
+						currentVidSourceType = SourceType.DEFAULT;
+						
+						var source:String = val.toString();
+						if (util.isM3U8(source)) {
+							trace('Playing m3u8 video');
+							_videoDisplay.source = new VideoElement(new URLResource(source), new HTTPStreamingM3U8NetLoader());
+						} else {
+							_videoDisplay.source = val;	
+						} 
+					}
+					curVID = vid;	
+				} else {
+					showDefaultPlayer();
+					currentVidSourceType = SourceType.DEFAULT;
+					_videoDisplay.source = "default";
+				}
+			}
+			
+			public function onBrightcovePlayerLoaded():void
+			{
+				_brightcoveLoaderWrapper.addChild(_brightcovePlayer.getBrightcovePlayer());
+			}
+			
+			public function onVimeoPlayerLoaded(): void {
+			    _vimeoLoaderWrapper.addChild(_vimeoPlayer.getVimeoPlayer());
+			}
+			
+			public function get videoDisplay():VideoDisplay{
+				return _videoDisplay;
+			}
+			
+			public function seek(position:Number):void{
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE: {
+						if(_youtubePlayer){
+							_youtubePlayer.seekTo(position);
+						}
+						break;
+					}
+					
+					case SourceType.VIMEO: {
+						if(_vimeoPlayer){
+							_vimeoPlayer.seek(position);
+						}
+						break;
+					}
+						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							_brightcovePlayer.seek(position);
+						}
+						break;
+					}
+						
+					case SourceType.DEFAULT: {
+						_videoDisplay.seek(position);
+						break;
+					}
+				}
+			}
+			
+			public function play():void{
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE: {
+						if(_youtubePlayer){
+							_youtubePlayer.playVideo();
+						}
+						break;
+					}
+						
+					case SourceType.VIMEO: {
+						if(_vimeoPlayer){
+							_vimeoPlayer.play();
+						}
+						break;
+					}
+						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							_brightcovePlayer.play();
+						}
+						break;
+					}
+						
+					case SourceType.DEFAULT: {
+						_videoDisplay.play();
+						break;
+					}
+				}
+			}
+			
+			public function pause():void{
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE: {
+						if(_youtubePlayer){
+							_youtubePlayer.pauseVideo();
+						}
+						break;
+					}
+						
+					case SourceType.VIMEO: {
+						if(_vimeoPlayer){
+							_vimeoPlayer.pause();
+						}
+						break;
+					}
+					
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							_brightcovePlayer.pause();
+						}
+						break;
+					}
+						
+					case SourceType.DEFAULT: {
+						_videoDisplay.pause();
+						break;
+					}
+				}	
+			}
+			
+			public function get duration():Number{
+				return getDuration();
+			}
+			
+			public function getDuration():Number{
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE: {
+						if(_youtubePlayer){
+							return _youtubePlayer.getDuration();
+						}
+						break;
+					}
+						
+					case SourceType.VIMEO: {
+						if(_vimeoPlayer){
+							return _vimeoPlayer.getDuration();
+						}
+						break;
+					}
+						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							return _brightcovePlayer.getDuration();
+						}
+						break;
+					}
+						
+					case SourceType.DEFAULT: {
+						return _videoDisplay.duration;
+					}
+				}	
+				
+				return -1;
+			}
+			
+			public function get playing():Boolean {
+				return isPlaying();
+			}
+			
+			public function isPlaying():Boolean{
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE: {
+						if(_youtubePlayer){
+							return _youtubePlayer.getPlayerState() == '1';
+						}
+						break;
+					}
+						
+					case SourceType.VIMEO: {
+						if(_vimeoPlayer){
+							return _vimeoPlayer.isPlaying();
+						}
+						break;
+					}
+						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							return _brightcovePlayer.isPlaying();
+						}
+						break;
+					}
+						
+					case SourceType.DEFAULT: {
+						return _videoDisplay.playing;
+					}
+				}
+				
+				return false;
+			}
+			
+			public function curTime():Number{
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE: {
+						if(_youtubePlayer){
+							return _youtubePlayer.getCurrentTime();
+						}
+						break;
+					}
+						
+					case SourceType.VIMEO: {
+						if(_vimeoPlayer){
+							return _vimeoPlayer.curTime();
+						}
+						break;
+					}
+						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							return _brightcovePlayer.curTime();
+						}
+						break;
+					}
+						
+					case SourceType.DEFAULT: {
+						return _videoDisplay.currentTime;
+					}
+				}
+				
+				return -1;
+			}
+			
+			/*ugly UI management logic...*/
+			protected function onResize(resizeEvent:ResizeEvent):void{
+				for(var i:int = 0; i < fillElementComponents.length; i++){
+					var component:UIComponent = fillElementComponents.getItemAt(i) as UIComponent;
+					fill100(component);
+				}
+				
+				if (_youtubePlayer)
+					_youtubePlayer.setSize(width, height);
+				
+				if (_vimeoPlayer)
+					_vimeoPlayer.setSize(width, height);
+				
+				if (_brightcovePlayer) 
+					_brightcovePlayer.setSize(width, height);
+				
+				positionPrevNextButtons();
+			}
+			
+			protected function fill100(component:UIComponent):void{
+				if(component){
+					component.width = width;
+					component.height = height;
+					component.x = 0;
+					component.y = 0;
+				}
+			}
+			
+			protected function positionPrevNextButtons():void{
+				try {
+					if (stage && stage.displayState != StageDisplayState.FULL_SCREEN) {
+						prevVideoButton.visible = false;
+						nextVideoButton.visible = false;
+					}
+					prevVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
+					nextVideoButton.y = 0.5*height - 0.5*prevVideoButton.height;
+					prevVideoButton.left = 20;
+					nextVideoButton.right = 14;
+				} catch (err:Error) {
+					
+				}
+			}
+			
+			protected function onPrevButtonClicked(event:Event): void {
+				ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_PREVIOUS_VIDEO); 
+			}
+			
+			protected function onNextButtonClicked(event:Event): void {
+				ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_NEXT_VIDEO); 
+			}
+			
+			protected function UIChromeFadeout(event:TimerEvent):void{
+				prevVideoButton.visible = false;
+				nextVideoButton.visible = false;
+				controlPallette.visible = false;
+			}
+			
+			protected function UIChromeShow():void{
+				if (stage.displayState == StageDisplayState.FULL_SCREEN) {
+					prevVideoButton.visible = true;
+					nextVideoButton.visible = true;
+				}	
+				controlPallette.visible = true;
+			}
+			
+			public function onMouseMove(event:MouseEvent):void{
+				UIChromeShow();
+				UIChromeFadeoutTimer.reset();	
+				UIChromeFadeoutTimer.start();
+			}
+			
+			protected function onYouTubePlayerLoaded(event:Event):void{
+				trace('YT load: ' + curVID);
+				if(_youtubePlayer){
+					_youtubePlayer.setSize(width, height);
+					_youTubePlayerLoaded = true;
+					if (currentVidSourceType == SourceType.YOUTUBE) {
+						playYTVideo(curVID);	
+					}
+				}
+			}
+			
+			protected function onYouTubePlayerStateChange(event:Event):void{
+				trace('state change: ' + Object(event).data);		
+				switch (Object(event).data) {
+					case -1: { // unstarted
+						break;
+					}
+						
+					case 0: { // ended
+						handleVideoFinished();
+						break;
+					}
+						
+					case 1: { // playing
+						handleVideoReady();
+						_youTubePlaybackPollTimer.start();
+						break;
+					}
+						
+					case 2: { // paused
+						handleVideoPaused();
+						break;
+					}
+						
+					case 3: { // buffering
+						break;
+					}
+						
+					case 5: { // video cueued 
+						break;
+					}
+				}
+			}
+			
+			protected function onYouTubePlayerError(event:Event): void {
+				trace('On youtube error: ' + Object(event).data);
+				handleVideoPlaybackError(Object(event).data);
+			}
+			
+			protected function playYTVideo(vid:String):void {
+				
+				// stop playing existing video if the current source type is not youtube
+				if (_youtubePlayer && currentVidSourceType != SourceType.YOUTUBE) {
+					_videoDisplay.pause();
+				}
+				
+				// show the youtube chromeless player and play the video.
+				if (_youtubePlayer && _youTubePlayerLoaded) {
+					showYTPlayer();
+					trace("Playing youtube video with id: " + vid);
+					_youtubePlayer.loadVideoById(vid);
+					
+					controlPallette.playButton.pauseButton.visible = true;
+					controlPallette.playButton.playButton.visible = false;
+					
+					// UIChromeShow();
+					UIChromeFadeoutTimer.reset();	
+					UIChromeFadeoutTimer.start();
+				}
+			}
+			
+			protected function showDefaultPlayer(): void {
+				hideVimeoPlayer();
+				hideYTPlayer();
+				hideBrightcovePlayer();
+				_videoDisplay.visible = true;
+			}
+			
+			protected function hideDefaultPlayer(): void {
+				if (_videoDisplay.playing) {
+					_videoDisplay.pause();
+				}
+				
+				_videoDisplay.visible = false;
+			}
+			
+			protected function showVimeoPlayer(): void {
+				hideYTPlayer();
+				hideDefaultPlayer();
+				hideBrightcovePlayer();
+				_vimeoLoaderWrapper.visible = true;
+			}
+			
+			protected function hideVimeoPlayer(): void {
+				if (_vimeoPlayer && _vimeoPlayer.isPlaying()) {
+					_vimeoPlayer.pause();
+				}
+				
+				_vimeoLoaderWrapper.visible = false;
+			}
+			
+			protected function showBrightcovePlayer(): void {
+				hideYTPlayer();
+				hideDefaultPlayer();
+				hideVimeoPlayer();
+				_brightcoveLoaderWrapper.visible = true;
+			}
+			
+			protected function hideBrightcovePlayer(): void {
+				if (_brightcovePlayer && _brightcovePlayer.isPlaying()) {
+					_brightcovePlayer.pause();
+				}
+				
+				_brightcoveLoaderWrapper.visible = false;
+			}
+			
+			protected function hideYTPlayer():void{
+				// pause the video if any video is playing in youtube chromeless player
+				if (_youtubePlayer && _youtubePlayer.getPlayerState() == '1') {
+					_youtubePlayer.pauseVideo();
+					_youTubePlaybackPollTimer.stop();		
+				}
+				
+				// hide the youtube chromeless player
+				_youTubeLoaderWrapper.visible = false;
+				_youTubeLoader.visible = false;
+			}
+			
+			protected function showYTPlayer():void{
+				hideDefaultPlayer();
+				hideVimeoPlayer();
+				hideBrightcovePlayer();
+				_youTubeLoaderWrapper.visible = true;
+				_youTubeLoader.visible = true;
+			}
+			
+			protected function onPlayerTimeChange(event:TimeEvent):void{
+				var timeUpdatedEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.TIME_UPDATED);
+				timeUpdatedEvent.time = event.time;
+				dispatchEvent(timeUpdatedEvent);
+			}
+			
+			protected function pollYouTubePlayer(event:TimerEvent):void{
+				if(_youtubePlayer){
+					//dispatch a time updated event...
+					var time:Number = _youtubePlayer.getCurrentTime();
+					var timeUpdatedEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.TIME_UPDATED);
+					timeUpdatedEvent.time = time;
+					dispatchEvent(timeUpdatedEvent); 
+					
+					//dispatch a bytes loaded event, if necessary...
+					var bytesLoaded:Number = _youtubePlayer.getVideoBytesLoaded();
+					var bytesTotal:Number = _youtubePlayer.getVideoBytesTotal();
+					var bytesChangeEvent:GigaPlayerEvent = new GigaPlayerEvent(GigaPlayerEvent.BYTES_LOADED_CHANGE);
+					bytesChangeEvent.bytesLoaded = bytesLoaded;
+					bytesChangeEvent.bytesTotal = bytesTotal;
+					dispatchEvent(bytesChangeEvent);
+				}
+			}
+			
+			public function playPause():void{
+				controlPallette.playPause();
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%" height="100%" id="bgRect">
+		<s:Rect width="100%" height="100%">
+			<s:fill><s:SolidColor color="#000000" /></s:fill>
+		</s:Rect>
+	</s:Group>
+	<s:VideoDisplay id="_videoDisplay" x="0" y="0" width="100%" height="100%" 
+					mediaPlayerStateChange="onStateChange(event)" 
+					bytesLoadedChange="handleBytesLoadedChange(event)" 
+					complete="onComplete(event)" 
+					currentTimeChange="onCurrentTimeChange(event)">
+	</s:VideoDisplay>
+	<s:Group id="prevVideoButton" x="10" y="100" width="50" height="50" left="20" 
+			  click="onPrevButtonClicked(event)" visible="false">
+		<mx:Image id="pbNoHoverImg" source="assets/left_arrow.png" x="0" y="0"></mx:Image>
+	</s:Group>
+	<s:Group id="nextVideoButton" x="10" y="100" width="50" height="50" right="20" 
+			click="onNextButtonClicked(event)" visible="false">
+		<mx:Image id="nbNoHoverImg" source="assets/right_arrow.png" x="0" y="0"></mx:Image>
+		
+	</s:Group>
+	<mx:Label id="loadingErrorMessage" text="We could not play this video" fontSize="25" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
+	<mx:Label id="viewSourceLink" selectable="true" link="onViewSourceLinkClicked(event);" fontSize="20" color="0xFFFFFF" visible="false" textAlign="center" width="100%" textDecoration="underline"
+			  useHandCursor="true" buttonMode="true">
+		<mx:htmlText>
+			<![CDATA[<a href='event:http://www.youtube.com' target='_blank'>Watch here</a>]]>
+		</mx:htmlText>
+	</mx:Label>
+	<mx:Label id="loadingIndicatorMessage" text="Your next video will play in" fontSize="20" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
+	<mx:Label id="loadingIndicatorCountdown" text="5" fontSize="50" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
+	<Components:Controls id="controlPallette" width="100%" bottom="0" left="0">
+	</Components:Controls>
+</mx:Canvas>

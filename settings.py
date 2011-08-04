@@ -38,7 +38,7 @@ database_configurations = {
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '/opt/local/var/run/mysql5/mysqld.sock',
+        'HOST': '',
         'PORT': '',
         },
     'local_sqlite':{
@@ -57,7 +57,7 @@ DATABASES = { 'default': database_configurations[VIDEO_ENV] }
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = None
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -141,11 +141,13 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'kikinvideo.middleware.MultipleProxyMiddleware',
 )
 
 ROOT_URLCONF = 'kikinvideo.urls'
 
-TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates',)
+TEMPLATE_DIRS = ( os.path.abspath('.') + '/webapp/templates',
+                  os.path.abspath('.') + '/analytics/templates', )
 
 INSTALLED_APPS = (
     'django_auth_longer_email',
@@ -166,6 +168,7 @@ INSTALLED_APPS = (
     'djkombu',
     'south',
     'django_ses',
+    'analytics',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -218,15 +221,22 @@ BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 # Periodic task definitions go here
 from datetime import timedelta
 CELERYBEAT_SCHEDULE = {
-    "refresh-friend-list-every-15-mins": {
+    "refresh-friend-list-every-10-mins": {
         "task": "api.tasks.refresh_friends_list",
         "schedule": timedelta(minutes=10)
     },
+#    "fetch-news-feed-every-5-mins": {
+#        "task": "api.tasks.fetch_news_feed",
+#        "schedule": timedelta(minutes=5)
+#    },
 }
 
 # For the facebook friends list fetcher, number of users to schedule every time
 # the task gets fired.
 FACEBOOK_FRIENDS_FETCHER_SCHEDULE = 5
+
+# Number of users to schedule for news feed fetch every time
+FACEBOOK_NEWS_FEED_FETCH_SCHEDULE = 5
 
 # Set up logging
 import logconfig
@@ -266,3 +276,13 @@ AWS_ACCESS_KEY_ID = 'AKIAIZDME4VOHZPYNXSQ'
 AWS_SECRET_ACCESS_KEY = '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'
 
 SENDER_EMAIL_ADDRESS = 'Watchlr <noreply@watchlr.com>'
+
+# IE cross-domain cookie fix
+P3P_COMPACT = 'policyref="http://www.example.com/p3p.xml", CP="NON DSP COR CURa TIA"'
+MIDDLEWARE_CLASSES += ('kikinvideo.middleware.P3PHeaderMiddleware',)
+
+# Analytics: IP-based geolocation
+GEOIP_DATABASE_PATH = os.environ.get('GEOIP_DATABASE_PATH', '/opt/video_env/GeoIP.dat')
+
+# Analytics dashboard is restricted to these IPs
+INTERNAL_IPS = ('69.193.216.26',)

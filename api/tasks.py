@@ -3,7 +3,6 @@ import urllib
 import urllib2
 import json
 
-from re import sub
 from unicodedata import normalize
 from time import time
 from datetime import datetime, timedelta
@@ -11,6 +10,7 @@ from traceback import format_exc
 from lxml import etree
 from urllib import urlencode
 from smtplib import SMTPException
+from urlparse import urlparse, urlunparse, parse_qsl
 
 import gdata.youtube
 import gdata.youtube.service
@@ -26,8 +26,9 @@ from django.template.defaultfilters import stringfilter
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 
-from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend
-from kikinvideo.settings import SENDER_EMAIL_ADDRESS, FACEBOOK_FRIENDS_FETCHER_SCHEDULE
+from api.utils import url_fix, MalformedURLException
+from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend, UserVideo
+from kikinvideo.settings import SENDER_EMAIL_ADDRESS, FACEBOOK_FRIENDS_FETCHER_SCHEDULE, FACEBOOK_NEWS_FEED_FETCH_SCHEDULE
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -35,6 +36,9 @@ logger = logging.getLogger('kikinvideo')
 USERNAME_MAX_LENGTH = 28
 
 IPAD_USER_AGENT = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
+
+FACEBOOK_DATETIME_FMT = '%Y-%m-%dT%H:%M:%S+0000'
+
 
 class Source(dict):
     FAVICON_FETCHER = 'http://fav.us.kikin.com/favicon/s?%s'
@@ -61,51 +65,48 @@ class UrlNotSupported(Exception):
         return str(self.url)
 
 
+def update_video_metadata(video, meta, logger):
+    video.title = meta.get('title')
+
+    try:
+        video.description = strip_tags(meta['description'])
+    except KeyError:
+        pass
+    except Exception:
+        logger.warning('Error cleaning HTML markup from description:%s\n%s' %\
+                    (meta['description'], format_exc()))
+
+    video.html_embed_code = meta.get('html')
+    video.html5_embed_code = meta.get('html5')
+
+    video.fetched = datetime.utcnow()
+
+    if meta.get('thumbnail_url'):
+        video.set_thumbnail(meta['thumbnail_url'],
+                            meta['thumbnail_width'],
+                            meta['thumbnail_height'])
+
+    if meta.get('mobile_thumbnail_url'):
+        video.set_thumbnail(meta['mobile_thumbnail_url'],
+                            meta['mobile_thumbnail_width'],
+                            meta['mobile_thumbnail_height'],
+                            type='mobile')
+
+    try:
+        source = VideoSource.objects.get(name=meta['source'].name)
+    except VideoSource.DoesNotExist:
+        source = VideoSource.objects.create(name=meta['source'].name,
+                                            url=meta['source'].url,
+                                            favicon=meta['source'].favicon)
+
+    video.source = source
+    video.result = states.SUCCESS
+    video.save()
+
+
 class OEmbed(object):
     def __init__(self, fetchers):
         self.fetchers = fetchers
-
-    def update(self, url, meta, logger):
-        video = Video.objects.get(url__exact=url)
-
-        video.title = meta.get('title')
-
-        try:
-            video.description = strip_tags(meta['description'])
-        except KeyError:
-            pass
-        except Exception:
-            logger.warning('Error cleaning HTML markup from description:%s\n%s' %\
-                        (meta['description'], format_exc()))
-
-        video.html_embed_code = meta.get('html')
-        video.html5_embed_code = meta.get('html5')
-
-        video.fetched = datetime.utcnow()
-
-        if meta.get('thumbnail_url'):
-            video.set_thumbnail(meta['thumbnail_url'],
-                                meta['thumbnail_width'],
-                                meta['thumbnail_height'])
-
-        if meta.get('mobile_thumbnail_url'):
-            video.set_thumbnail(meta['mobile_thumbnail_url'],
-                                meta['mobile_thumbnail_width'],
-                                meta['mobile_thumbnail_height'],
-                                type='mobile')
-
-        try:
-            source = VideoSource.objects.get(name=meta['source'].name)
-        except VideoSource.DoesNotExist:
-            source = VideoSource.objects.create(name=meta['source'].name,
-                                                url=meta['source'].url,
-                                                favicon=meta['source'].favicon)
-
-        video.source = source
-        video.result = states.SUCCESS
-
-        video.save()
-        return video
 
     def fetch(self, user_id, url, host, logger):
         logger.info('Fetching metadata for url:%s' % url)
@@ -126,7 +127,8 @@ class OEmbed(object):
                              (url, str(fetcher), str(meta)))
 
                 # First matched fetcher wins!
-                return self.update(url, meta, logger)
+                update_video_metadata(video, meta, logger)
+                return video
 
             except UrlNotSupported:
                 logger.debug('Url:%s not supported by fetcher:%s' % (url, str(fetcher)))
@@ -895,6 +897,8 @@ class FacebookFetcher(object):
     FACEBOOK_URL_SCHEME = re.compile(r'https://graph\.facebook\.com/(.+)')
     EMBEDLY_FACEBOOK_URL = 'http://www.facebook.com/video/video.php?v=%s'
 
+    FACEBOOK_HTML5_EMBED_TEMPLATE = '<video width="100%%" height="100%%" poster="%s" controls="controls" src="%s"></video>'
+
     def __init__(self, fetchers):
         self.fetchers = fetchers
 
@@ -940,13 +944,17 @@ class FacebookFetcher(object):
 
                 meta['title'] = response.get('name')
 
-                meta['description'] = None
-                meta['description'] = response['description']
+                meta['description'] = response.get('description')
 
                 meta['thumbnail_url'] = response.get('picture')
-                meta['thumbnail_width'], meta['thumbnail_height'] = 160, 90
+                meta['thumbnail_width'], meta['thumbnail_height'] = 160, 120
 
                 meta['html'] = response['embed_html']
+
+                try:
+                    meta['html5'] = self.FACEBOOK_HTML5_EMBED_TEMPLATE % (meta['thumbnail_url'], response['source'])
+                except KeyError:
+                    pass
 
                 meta['source'] = self.SOURCE
 
@@ -1123,27 +1131,13 @@ class ESPNFetcher(object):
 
     ESPN_URL_SCHEME = re.compile(r'http://espn\.go\.com/video/clip\?id=([0-9]+)')
 
-    IMAGE_SCHEME = re.compile(r'(http://assets\.espn\.go\.com/media/motion/)(.+)_thumbnail_wsmall(\.jpg)', re.IGNORECASE)
+    IMAGE_SCHEME = re.compile(r'(.+?espncdn\.com/media/motion/)(.+)_thumbnail_wsmall(\.jpg)', re.IGNORECASE)
 
-    ESPN_EMBED_TEMPLATE = '''<object width="576" height="324" type="application/x-shockwave-flash"
-    data="http://assets.espn.go.com/espnvideo/mpf32/prod/r_3_2_0_15/ESPN_Player.swf?id=%s">
-        <param name="flashVars" value="SWID=ECF783CB-BE64-4821-994E-5172301DE983&amp;adminOver=3805638&amp;player=videoHub09&amp;height=324&amp;width=576&amp;autostart=true&amp;localSite=undefined&amp;pageName=undefined">
-        <param name="bgcolor" value="#000000">
-        <param name="wmode" value="transparent">
-        <param name="allowscriptaccess" value="always">
-        <param name="quality" value="autohigh">
-        <param name="align" value="t">
-        <param name="swliveconnect" value="true">
-        <param name="menu" value="false">
-        <param name="play" value="true">
-        <param name="allowfullscreen" value="true">
-        <param name="seamlesstabbing" value="true">
-    </object>'''
+    ESPN_EMBED_TEMPLATE = '''<script src="http://player.espn.com/player.js?pcode=1kNG061cgaoolOncv54OAO1ceO-I&width=576&height=324&externalId=espn:%s&thruParam_espn-ui[autoPlay]=true&thruParam_espn-ui[playRelatedExternally]=false"></script>'''
 
-    ESPN_HTML5_EMBED_TEMPLATE = '''<video width="100%%" height="100%%" preload="none" style="z-index:inherit; position: relative;"
-    data-track-start="true" data-track-mid="true" data-track-end="true" tabindex="0" controls
-    src="http://brsseavideo-ak.espn.go.com/motion/%(id)s.mp4" poster="http://assests.espn.go.com/media/motion/%(id)s.jpg">
-    </video>'''
+    ESPN_HTML5_EMBED_TEMPLATE = '''<video width="768" height="432" controls="controls" poster="">
+    <source type="video/mp4" src="http://vod.espn.go.com/motion/%s.m3u8?js=1"></source>
+</video>'''
 
     def sources(self):
         return (self.SOURCE,)
@@ -1155,9 +1149,6 @@ class ESPNFetcher(object):
         if not match:
             raise UrlNotSupported(url)
         id = match.group(1)
-
-        opener = urllib2.build_opener()
-        opener.addheaders = [('User-agent', IPAD_USER_AGENT)]
 
         tree = etree.parse(urllib2.urlopen(url), etree.HTMLParser())
 
@@ -1191,7 +1182,7 @@ class ESPNFetcher(object):
             meta['thumbnail_url'] = ''.join(image_match.groups())
             meta['thumbnail_width'], meta['thumbnail_height'] = 576, 324
 
-            meta['html5'] = self.ESPN_HTML5_EMBED_TEMPLATE % {'id': image_match.group(2)}
+            meta['html5'] = self.ESPN_HTML5_EMBED_TEMPLATE % image_match.group(2)
 
         if 'thumbnail_url' not in meta:
             raise Exception('Meta tag "og:image" missing')
@@ -1202,6 +1193,124 @@ class ESPNFetcher(object):
         return meta
 
 
+class NBCFetcher(object):
+    SOURCE = Source('NBC',
+                    'http://www.nbc.com',
+                    'http://c2548752.cdn.cloudfiles.rackspacecloud.com/msnbc.ico')
+
+    NBC_URL_SCHEME = re.compile(r'^http://(www\.)?nbc\.com/.+?/(\d+)/?$')
+
+    NBC_HTM5_EMBED_FETCH_URL = 'http://www.nbc.com/app/esp/modules/feed/getMobileVideo/index.xhml?videoId=%s'
+
+    NBC_EMBED_TEMPLATE = '''<iframe id="NBC Video Widget" width="512" height="347"
+    src="http://www.nbc.com/assets/video/widget/widget.html?vid=%s" frameborder="0"></iframe>'''
+
+    def sources(self):
+        return (self.SOURCE,)
+
+    def fetch(self, url, logger, **kwargs):
+        logger.debug('NBC fetcher received url:%s' % url)
+
+        match = self.NBC_URL_SCHEME.match(url)
+        if not match:
+            raise UrlNotSupported(url)
+        id = match.group(2)
+
+        tree = etree.parse(urllib2.urlopen(url), etree.HTMLParser())
+
+        meta = dict()
+
+        for tag in tree.findall('/head/meta'):
+            try:
+                property = tag.attrib['property']
+            except KeyError:
+                continue
+
+            if property == 'og:title':
+                meta['title'] = tag.attrib['content']
+
+            elif property == 'og:description':
+                meta['description'] = tag.attrib['content']
+
+            elif property == 'og:image':
+                parsed = urlparse(tag.attrib['content'])
+                query = dict(parse_qsl(parsed.query))
+
+                meta['thumbnail_width'], meta['thumbnail_height'] = 350, 196
+                query['w'], query['h'] = meta['thumbnail_width'], meta['thumbnail_height']
+                query_str = urllib.urlencode(query)
+                meta['thumbnail_url'] = urlunparse([parsed.scheme, parsed.netloc, parsed.path, '', query_str, ''])
+
+                meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 129, 72
+                query['w'], query['h'] = meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height']
+                query_str = urllib.urlencode(query)
+                meta['mobile_thumbnail_url'] = urlunparse([parsed.scheme, parsed.netloc, parsed.path, '', query_str, ''])
+
+        meta['html'] = self.NBC_EMBED_TEMPLATE % id
+
+        opener = urllib2.build_opener()
+        opener.addheaders = [('User-agent', IPAD_USER_AGENT)]
+
+        meta['html5'] = opener.open(self.NBC_HTM5_EMBED_FETCH_URL % id).read()
+        meta['html5'] = re.sub(r'poster=".+?"', 'poster="%s"' % meta['thumbnail_url'], meta['html5'])
+
+        meta['source'] = self.SOURCE
+        return meta
+
+
+class BlipFetcher(object):
+    SOURCE = Source('blip.tv',
+                    'http://blip.tv',
+                    'http://c2548752.cdn.cloudfiles.rackspacecloud.com/bliptv.ico')
+
+    BLIP_URL_SCHEME = re.compile(r'^http://blip\.tv/.*-(\d+)$')
+
+    BLIP_HTML5_EMED_TEMPLATE = '<video width="100%%" height="100%%" poster="%s" controls="controls" src="%s"></video>'
+
+    NSMAP = { 'blip': 'http://blip.tv/dtd/blip/1.0',
+              'media': 'http://search.yahoo.com/mrss/',
+              'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd' }
+
+    def sources(self):
+        return (self.SOURCE,)
+
+    def fetch(self, url, logger, **kwargs):
+        logger.debug('Blip.tv fetcher received url:%s' % url)
+
+        match = self.BLIP_URL_SCHEME.match(url)
+        if not match:
+            raise UrlNotSupported(url)
+        id = match.group(1)
+
+        xml = urllib2.urlopen('http://blip.tv/rss/flash/%s' % id).read()
+
+        root = etree.fromstring(xml)
+        item = root.find('channel/item')
+
+        meta = dict()
+        meta['title'] = item.findtext('title')
+        meta['description'] = item.findtext('blip:puredescription', namespaces=self.NSMAP)
+
+        meta['thumbnail_url'] = item.findtext('itunes:image', namespaces=self.NSMAP)
+        meta['thumbnail_width'], meta['thumbnail_height'] = 427, 240
+
+        meta['mobile_thumbnail_url'] = item.findtext('blip:smallThumbnail', namespaces=self.NSMAP)
+        meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 120, 67
+
+        meta['html'] = item.findtext('media:player', namespaces=self.NSMAP)
+
+        media = item.find('media:group', namespaces=self.NSMAP)
+        for content in media.findall('media:content', namespaces=self.NSMAP):
+            if content.get('{%s}role' % self.NSMAP['blip']) == 'Blip SD':
+                meta['html5'] = self.BLIP_HTML5_EMED_TEMPLATE % (meta['thumbnail_url'], content.get('url'))
+                break
+        else:
+            raise Exception('No content with Source role')
+
+        meta['source'] = self.SOURCE
+        return meta
+    
+
 _fetchers = [
         YoutubeFetcher(),
         VimeoFetcher(),
@@ -1210,6 +1319,7 @@ _fetchers = [
         CBSNewsFetcher(),
         FoxFetcher(),
         ESPNFetcher(),
+        BlipFetcher(),
         EmbedlyFetcher(),
         ]
 
@@ -1276,11 +1386,15 @@ def slugify(username, id):
     u'user01'
     """
     username = normalize('NFKD', username).encode('ascii', 'ignore')[:USERNAME_MAX_LENGTH]
-    username = basename = unicode(sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
+    username = unicode(re.sub('[^0-9a-zA-Z\.]+', '', username).strip().lower())
 
-    if username.lower() in user_blacklist:
+    if not username or re.match(r'^\.+$', username):
+        username = u'user'
+    elif username.lower() in user_blacklist:
         logger.info('User:%s tried to use a blocked username:%s' % (id, username))
-        username = basename = u'user0'
+        username = u'user'
+
+    username = basename = re.sub(r'\.+', '.', username)
 
     counter = 1
     while True:
@@ -1340,11 +1454,41 @@ def push_like_to_fb(video_id, user):
     except Exception:
         logger.exception('Could not post to Facebook')
 
+def get_or_create_fb_identity(friend, user, logger):
+    from social_auth.models import UserSocialAuth
 
-@task(max_retries=3)
+    try:
+        fb_identity = UserSocialAuth.objects.get(uid=friend['id'], provider='facebook')
+    except UserSocialAuth.DoesNotExist:
+        fb_identity = UserSocialAuth(uid=friend['id'], provider='facebook')
+
+    try:
+        fb_friend = fb_identity.user
+    except User.DoesNotExist:
+        logger.info('Creating new facebook identity: (%s, %s)' % (friend['id'], friend['name']))
+
+        parts = friend['name'].split(None, 1)
+        if len(parts) >= 2:
+            first, last = parts[0], parts[1]
+            username = slugify('.'.join([first, last]), -1)
+        else:
+            first, last = parts[0], ''
+            username = slugify(first, -1)
+
+        fb_friend = User.objects.create(first_name=first,
+                                        last_name=last,
+                                        username=username,
+                                        is_registered=False)
+
+        fb_identity.user = fb_friend
+        fb_identity.save()
+
+    return fb_friend
+
+
+@task(max_retries=3, default_retry_delay=90)
 def fetch_facebook_friends(user):
     from social_auth.backends.facebook import FACEBOOK_SERVER
-    from social_auth.models import UserSocialAuth
 
     logger = fetch_facebook_friends.get_logger()
     logger.info('Fetching facebook friends for user:%s' % user.username)
@@ -1369,45 +1513,16 @@ def fetch_facebook_friends(user):
             raise Exception('Facebook friends response not valid JSON:\n%s' % content)
 
         for friend in friends:
-            try:
-                fb_identity = UserSocialAuth.objects.get(uid=friend['id'])
-            except UserSocialAuth.DoesNotExist:
-                fb_identity = UserSocialAuth(uid=friend['id'], provider='facebook')
+            fb_friend = get_or_create_fb_identity(friend, user, logger)
+            FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
 
-            try:
-                fb_friend = fb_identity.user
-            except User.DoesNotExist:
-                parts = friend['name'].split(None, 1)
-                if len(parts) == 2:
-                    first, last = parts
-                    username = slugify('.'.join([first, last]), -1)
-                else:
-                    first, last = parts[0], ''
-                    username = slugify(first, -1)
-
-                fb_friend = User.objects.create(first_name=first,
-                                                last_name=last,
-                                                username=username,
-                                                is_registered=False)
-
-                fb_identity.user = fb_friend
-                fb_identity.save()
-
-            try:
-                FacebookFriend.objects.get(user=user, fb_friend=fb_friend)
-            except FacebookFriend.DoesNotExist:
-                FacebookFriend.objects.create(user=user, fb_friend=fb_friend)
-
-        user.fb_friends_fetched = datetime.utcnow()
-        user.save()
-
+        User.objects.filter(id=user.id).update(fb_friends_fetched=datetime.utcnow())
         logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
 
     except urllib2.URLError, exc:
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
             logger.info('User:%s revoked access from facebook...disabling' % user.username)
-            user.is_registered = False
-            user.save()
+            User.objects.filter(id=user.id).update(is_registered=False)
         else:
             logger.error('Error opening facebook friends resource: %s' % url, exc_info=True)
             return fetch_facebook_friends.retry(exc=exc)
@@ -1423,9 +1538,9 @@ def refresh_friends_list():
         if queued >= FACEBOOK_FRIENDS_FETCHER_SCHEDULE:
             break
 
-        # Skip over users who have been refreshed in the 6 hours
+        # Skip over users who have been refreshed in the last 6 hours
         if user.fb_friends_fetched and datetime.utcnow() - user.fb_friends_fetched < timedelta(hours=6):
-            logger.debug('Skipping over user:%s, last refresh:%s' % (user.username, user.fb_friends_fetched))
+            logger.debug('Skipping over user:%s, last friend refresh:%s' % (user.username, user.fb_friends_fetched))
             continue
 
         fetch_facebook_friends.delay(user)
@@ -1468,6 +1583,112 @@ If you'd rather not receive follow notification emails, you can manage your sett
         send_follow_email_notification.retry(exc=exc)
 
 
+@task(max_retries=3, default_retry_delay=60)
+def fetch_user_news_feed(user, until=None, since=None, page=1):
+    from social_auth.backends.facebook import FACEBOOK_SERVER
+
+    logger = fetch_news_feed.get_logger()
+    logger.info('Fetching facebook news feed for user:%s' % user.username)
+
+    if user.social_auth.get().extra_data is None:
+        logger.info('Facebook credentials unavailable...sleeping')
+        return fetch_facebook_friends.retry()
+
+    news_feed_url = 'https://%s/me/home?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
+    if until is not None:
+        news_feed_url += '&until=%s' % until.strftime('%s')
+    elif since is not None:
+        news_feed_url += '&since=%s' % since.strftime('%s')
+
+    try:
+        response = urllib2.urlopen(news_feed_url)
+
+        code = response.getcode()
+        if not code == 200:
+            logger.error('Facebook server responded with code=%s when fetching news feed' % code)
+            return fetch_news_feed.retry()
+
+        content = response.read()
+        try:
+            items = json.loads(content)['data']
+        except (TypeError, ValueError, KeyError):
+            raise Exception('Facebook news feed response not valid JSON:\n%s' % content)
+
+        for index, item in enumerate(items):
+            # Is news feed item a shared link?
+            if item.get('type') not in ('link', 'video'):
+                continue
+
+            try:
+                url = url_fix(item['link'])
+            except KeyError:
+                logger.info('Skipping over item with missing required fields:\n%s' % json.dumps(item))
+                continue
+            except MalformedURLException:
+                logger.info('Skipping over malformed url:%s' % item['link'])
+                continue
+
+            try:
+                video = Video.objects.get(url=url)
+            except Video.DoesNotExist:
+                logger.info('Candidate video url:%s' % url)
+
+                video = None
+                for fetcher in _fetcher.fetchers:
+                    try:
+                        meta = fetcher.fetch(url, logger)
+                        video, created = Video.objects.get_or_create(url=url)
+                        update_video_metadata(video, meta, logger)
+                    except UrlNotSupported:
+                        continue
+                    except Exception:
+                        logger.exception('Error fetching link:%s' % item['link'])
+                        break
+
+                if not video:
+                    logger.info('Shared link:%s not supported' % item['link'])
+                    continue
+
+            fb_friend = get_or_create_fb_identity(item['from'], user, logger)
+            FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+
+            user_video, created = UserVideo.objects.get_or_create(user=fb_friend, video=video)
+            user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
+            user_video.save()
+
+        if items:
+            oldest = datetime.strptime(items[-1]['created_time'], FACEBOOK_DATETIME_FMT)
+            fetch_user_news_feed.delay(user, until=oldest, page=page+1)
+            if page == 1:
+                newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
+                User.objects.filter(id=user.id).update(fb_news_feed_fetched=newest)
+
+    except urllib2.URLError, exc:
+        if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
+            logger.info('User:%s revoked access from facebook...disabling' % user.username)
+            User.objects.filter(id=user.id).update(is_registered=False)
+        else:
+            logger.error('Error fetching facebook news feed: %s' % news_feed_url, exc_info=True)
+            return fetch_news_feed.retry(exc=exc)
+        raise
+
+
 @task
-def fetch_news_feed():
-    pass
+def fetch_news_feed(*args, **kwargs):
+    logger = fetch_news_feed.get_logger()
+
+    queued = 0
+    for user in User.objects.filter(is_registered=True).order_by('fb_news_feed_fetched'):
+
+        if queued >= FACEBOOK_NEWS_FEED_FETCH_SCHEDULE:
+            break
+
+        # Update user's news feed every hour
+        if user.fb_news_feed_fetched and datetime.utcnow() - user.fb_news_feed_fetched < timedelta(minutes=15):
+            logger.debug('Skipping over user:%s, last feed refresh:%s' % (user.username, user.fb_news_feed_fetched))
+            continue
+
+        fetch_user_news_feed.delay(user, since=user.fb_news_feed_fetched)
+        queued += 1
+
+    logger.info('Refreshing %d user news feeds' % queued)

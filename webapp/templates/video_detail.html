@@ -78,7 +78,7 @@
         home.bindVideoPanelEvents();
         videoController.prepareEmbeds();
         videoController.setCurVid({{ video.id }});
-        
+        trackAction('view', {{ video.id }});
     });
     </script>
 {% endblock script_refs %}
@@ -103,3 +103,7 @@
         </div>
     </div>
 {% endblock %}
+
+{% block body_end %}
+    {% include "includes/analytics.html" %}
+{% endblock body_end %}

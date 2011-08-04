@@ -68,7 +68,13 @@
     <div id="footer-copyright">&copy; 2008-2011 kikin Inc.</div>
     <ul id="footer-nav" class="nav">
         <li>
-            <a href="http://watchlr.tumblr.com/" title="Blog">Blog</a>
+            <a href="http://webux.wufoo.com/forms/contact-team-watchlr/" title="Contact">Contact</a>
+        </li>
+        <li>
+            <span class="footer-nav-separator">|</span><a href="http://getsatisfaction.com/watchlr" title="FAQ">FAQ</a>
+        </li>
+        <li>
+            <span class="footer-nav-separator">|</span><a href="http://watchlr.tumblr.com/" title="Blog">Blog</a>
         </li>
         <li>
             <span class="footer-nav-separator">|</span><a href="/privacy" title="Privacy">Privacy</a>
@@ -84,7 +90,7 @@
 <br/>
 
 <div class="greyed-background"></div>
-
-{% include "includes/analytics.html" %}
+{% block body_end %}
+{% endblock body_end %}
 </body>
 </html>

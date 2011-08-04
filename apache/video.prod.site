@@ -5,6 +5,7 @@
     Alias /static/ /opt/video_env/kikinvideo/static/
     Alias /robots.txt /opt/video_env/kikinvideo/static/robots.txt
     Alias /favicon.ico /opt/video_env/kikinvideo/static/images/favicon.ico
+    Alias /crossdomain.xml /opt/video_env/kikinvideo/static/crossdomain.xml
 
     <Directory /opt/video_env/kikinvideo/static/>
     Order deny,allow
@@ -12,7 +13,7 @@
     Options -Indexes
     </Directory>
 
-    WSGIDaemonProcess video processes=2 threads=25 stack-size=524288
+    WSGIDaemonProcess video processes=1 threads=25 stack-size=524288
     WSGIProcessGroup video
 
     SetEnv VIDEO_ENV prod

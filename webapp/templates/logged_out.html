@@ -1,3 +1,4 @@
+{% load logged_out_tags %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -30,7 +31,7 @@
             <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
             <div id="header-right" class="right">
                 <div id="myConnectionsNot">
-                    <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?campaign=hp2"></a>
+                    <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?campaign={{ request|get_campaign:'hp2' }}&next={{ request.path }}"></a>
                 </div>
             </div>
 
@@ -71,7 +72,7 @@
             <div style="font-family: Helvetica, Arial, sans-serif; font-size: 19px; padding-top:51px; padding-left: 8px; font-style: italic;">
                 New Users
             </div>
-            <a href="/login/facebook?campaign=hp1"><div title="Sign up" class="facebook_signup"></div></a>
+            <a href="/login/facebook?campaign={{ request|get_campaign:'hp2' }}&next={{ request.path }}"><div title="Sign up" class="facebook_signup"></div></a>
         </div>
         <div id="wrapper" style="width:980px; margin-top:45px;">
             <div style="width:300px; color:white; border-right: 1px solid white; float:left;">
@@ -109,7 +110,13 @@
             <div id="footer-copyright">&copy; 2008-2011 kikin Inc.</div>
             <ul id="footer-nav" class="nav">
                 <li>
-                    <a href="http://watchlr.tumblr.com/" title="Blog">Blog</a>
+                    <a href="http://webux.wufoo.com/forms/contact-team-watchlr/" title="Contact">Contact</a>
+                </li>
+                <li>
+                    <span class="footer-nav-separator">|</span><a href="http://getsatisfaction.com/watchlr" title="FAQ">FAQ</a>
+                </li>
+                <li>
+                    <span class="footer-nav-separator">|</span><a href="http://watchlr.tumblr.com/" title="Blog">Blog</a>
                 </li>
                 <li>
                     <span class="footer-nav-separator">|</span><a href="/privacy" title="Privacy">Privacy</a>
@@ -124,5 +131,13 @@
         <!-- #footer -->
 		<br/>
 		{% include "includes/analytics.html" %}
+        <script type="text/javascript">
+            $(window).load(function(){
+                try{
+                    var tracker = _gat._getTracker('UA-4788978-3');
+                    tracker._trackPageview('landing_page');
+                }catch(excp){}
+            });
+        </script>
     </body>
 </html>
