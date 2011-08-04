@@ -75,7 +75,9 @@ class VideoHelper(object):
             if name == 'movie':
                 movie = param['value']
             elif name == 'flashVars':
-                flashVars = param['value'].replace('&amp;', '&')
+                flashVars = param['value']
+                flashVars = flashVars.replace('&amp;', '&')
+                flashVars = flashVars.replace('autoStart=false', 'autoStart=true')
 
         if movie is None:
             raise VideoTagParseException('Missing movie parameter')
