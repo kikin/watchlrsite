@@ -163,9 +163,9 @@ def userbase(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
-        end = date.today()
+        end = date.today() + timedelta(days=1)
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
 
@@ -226,9 +226,9 @@ def views(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
-        end = date.today()
+        end = date.today() + timedelta(days=1)
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
 
@@ -277,9 +277,9 @@ def saves(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
-        end = date.today()
+        end = date.today() + timedelta(days=1)
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
 
@@ -328,9 +328,9 @@ def likes(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
-        end = date.today()
+        end = date.today() + timedelta(days=1)
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
 
@@ -375,9 +375,9 @@ def follows(request):
         return HttpResponseBadRequest('Start date incorrectly formatted.')
 
     try:
-        end = min(date.today(), datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date())
+        end = datetime.strptime(request.REQUEST['end'], DATE_FORMAT).date()
     except KeyError:
-        end = date.today()
+        end = date.today() + timedelta(days=1)
     except (TypeError, ValueError):
         return HttpResponseBadRequest('End date incorrectly formatted.')
 
