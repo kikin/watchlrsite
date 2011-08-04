@@ -190,14 +190,14 @@ def userbase(request):
         key[3] = row['id__count']
 
     current = start
-    while current <= end:
+    while current < end:
         cumulative_count += data[current][3]
         data[current][2] = cumulative_count
         current += timedelta(days=1)
 
     result = Activity.objects.exclude(user_id=UNAUTHORIZED_USER)\
                              .exclude(timestamp__lt=start)\
-                             .exclude(timestamp__gt=end)\
+                             .exclude(timestamp__gte=end)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('id', 'date')\
                              .annotate(Count('id'))
