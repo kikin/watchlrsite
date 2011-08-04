@@ -13,6 +13,7 @@
 			import at.matthew.httpstreaming.HTTPStreamingM3U8NetLoader;
 			
 			import com.watchlr.GigaPlayer.Event.GigaPlayerEvent;
+			import com.watchlr.GigaPlayer.Util.BrightCove;
 			import com.watchlr.GigaPlayer.Util.Util;
 			import com.watchlr.GigaPlayer.Util.Vimeo;
 			import com.watchlr.Globals;
@@ -45,7 +46,7 @@
 			import spark.components.supportClasses.SkinnableComponent;
 			import spark.effects.Fade;
 			
-			public var SourceType:Object = { DEFAULT : 0, VIMEO : 1, YOUTUBE : 2 };
+			public var SourceType:Object = { DEFAULT : 0, VIMEO : 1, YOUTUBE : 2, BRIGHTCOVE : 3 };
 			
 			protected var currentVidSourceType:int = SourceType.DEFAULT;
 			protected var curVID:String;
@@ -73,9 +74,11 @@
 			private var _youTubePlayerLastBytesLoadedCount:Number = 0;
 			private var YOUTUBE_PLAYBACK_POLL_INTERVAL:Number = 200;
 			
-			private var _swfLoaderWrapper:UIComponent;
 			private var _vimeoLoaderWrapper:UIComponent;
 			private var _vimeoPlayer: Vimeo;
+			
+			private var _brightcoveLoaderWrapper:UIComponent;
+			private var _brightcovePlayer: BrightCove;
 			
 			private var _stopCountdown:Boolean = false;
 			
@@ -109,8 +112,8 @@
 				_youTubeLoaderWrapper = new UIComponent();
 				addElement(_youTubeLoaderWrapper);
 				
-				_swfLoaderWrapper = new UIComponent();
-				addElement(_swfLoaderWrapper);
+				_brightcoveLoaderWrapper = new UIComponent();
+				addElement(_brightcoveLoaderWrapper);
 
 				_vimeoLoaderWrapper = new UIComponent();
 				addElement(_vimeoLoaderWrapper);
@@ -120,7 +123,7 @@
 				
 				fillElementComponents.addItem(_videoDisplay);
 				fillElementComponents.addItem(_youTubeLoaderWrapper);
-				fillElementComponents.addItem(_swfLoaderWrapper);
+				fillElementComponents.addItem(_brightcoveLoaderWrapper);
 				fillElementComponents.addItem(_vimeoLoaderWrapper);
 				fillElementComponents.addItem(bgRect);
 				
@@ -130,7 +133,7 @@
 				setChildIndex(_youTubeLoaderWrapper, 1);
 				setChildIndex(controlPallette, 2);
 				setChildIndex(_vimeoLoaderWrapper, 3);
-				setChildIndex(_swfLoaderWrapper, 4);
+				setChildIndex(_brightcoveLoaderWrapper, 4);
 				setChildIndex(loadingIndicatorCountdown, 5);
 				setChildIndex(loadingErrorMessage, 6);
 				setChildIndex(viewSourceLink, 7);
@@ -140,7 +143,7 @@
 				_videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onPlayerTimeChange);
 				
 				//finally, load the video...
-				source = FlexGlobals.topLevelApplication.parameters.src;
+//				source = FlexGlobals.topLevelApplication.parameters.src;
 				
 				handlePlayerLoad();	
 			}
@@ -226,6 +229,7 @@
 				switch (currentVidSourceType) {
 					case SourceType.YOUTUBE:
 					case SourceType.VIMEO:
+					case SourceType.BRIGHTCOVE:
 						break;
 					case SourceType.DEFAULT: {
 						seekTarget = value;
@@ -349,6 +353,15 @@
 						} else {
 							_vimeoPlayer.loadVideo(parseInt(vid, 10));		
 						}
+					} else if (util.isBrightcove(val.toString())) {
+						showBrightcovePlayer();
+						currentVidSourceType = SourceType.BRIGHTCOVE;
+						if (!_brightcovePlayer) {
+							_brightcovePlayer = new BrightCove(val.toString(), this);
+						} else {
+							vid = util.BrightcoveIframeSourceToVID(val.toString());
+							_brightcovePlayer.loadVideo(vid);		
+						}
 					} else {
 						showDefaultPlayer();
 						currentVidSourceType = SourceType.DEFAULT;
@@ -357,11 +370,6 @@
 						if (util.isM3U8(source)) {
 							trace('Playing m3u8 video');
 							_videoDisplay.source = new VideoElement(new URLResource(source), new HTTPStreamingM3U8NetLoader());
-						} else if(util.isSWF(source) || util.isBigThink(source)) {
-							var request:URLRequest = new URLRequest(source);
-							var loader:Loader = new Loader();
-							loader.contentLoaderInfo.addEventListener(Event.INIT, loadHandler);
-							loader.load(request);
 						} else {
 							_videoDisplay.source = val;	
 						} 
@@ -374,15 +382,11 @@
 				}
 			}
 			
-			public function loadHandler(event:Event):void
+			public function onBrightcovePlayerLoaded():void
 			{
-				var childSwf:Object = event.target.content;
-				_swfLoaderWrapper.addChild(DisplayObject(childSwf));
-				_swfLoaderWrapper.visible = true;
-				childSwf.visible = true;
-				_videoDisplay.visible = false;
-			}			
-
+				_brightcoveLoaderWrapper.addChild(_brightcovePlayer.getBrightcovePlayer());
+			}
+			
 			public function onVimeoPlayerLoaded(): void {
 			    _vimeoLoaderWrapper.addChild(_vimeoPlayer.getVimeoPlayer());
 			}
@@ -403,6 +407,13 @@
 					case SourceType.VIMEO: {
 						if(_vimeoPlayer){
 							_vimeoPlayer.seek(position);
+						}
+						break;
+					}
+						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							_brightcovePlayer.seek(position);
 						}
 						break;
 					}
@@ -430,6 +441,13 @@
 						break;
 					}
 						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							_brightcovePlayer.play();
+						}
+						break;
+					}
+						
 					case SourceType.DEFAULT: {
 						_videoDisplay.play();
 						break;
@@ -449,6 +467,13 @@
 					case SourceType.VIMEO: {
 						if(_vimeoPlayer){
 							_vimeoPlayer.pause();
+						}
+						break;
+					}
+					
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							_brightcovePlayer.pause();
 						}
 						break;
 					}
@@ -476,6 +501,13 @@
 					case SourceType.VIMEO: {
 						if(_vimeoPlayer){
 							return _vimeoPlayer.getDuration();
+						}
+						break;
+					}
+						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							return _brightcovePlayer.getDuration();
 						}
 						break;
 					}
@@ -508,6 +540,13 @@
 						break;
 					}
 						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							return _brightcovePlayer.isPlaying();
+						}
+						break;
+					}
+						
 					case SourceType.DEFAULT: {
 						return _videoDisplay.playing;
 					}
@@ -532,6 +571,13 @@
 						break;
 					}
 						
+					case SourceType.BRIGHTCOVE: {
+						if (_brightcovePlayer) {
+							return _brightcovePlayer.curTime();
+						}
+						break;
+					}
+						
 					case SourceType.DEFAULT: {
 						return _videoDisplay.currentTime;
 					}
@@ -552,6 +598,9 @@
 				
 				if (_vimeoPlayer)
 					_vimeoPlayer.setSize(width, height);
+				
+				if (_brightcovePlayer) 
+					_brightcovePlayer.setSize(width, height);
 				
 				positionPrevNextButtons();
 			}
@@ -690,6 +739,7 @@
 			protected function showDefaultPlayer(): void {
 				hideVimeoPlayer();
 				hideYTPlayer();
+				hideBrightcovePlayer();
 				_videoDisplay.visible = true;
 			}
 			
@@ -704,6 +754,7 @@
 			protected function showVimeoPlayer(): void {
 				hideYTPlayer();
 				hideDefaultPlayer();
+				hideBrightcovePlayer();
 				_vimeoLoaderWrapper.visible = true;
 			}
 			
@@ -713,6 +764,21 @@
 				}
 				
 				_vimeoLoaderWrapper.visible = false;
+			}
+			
+			protected function showBrightcovePlayer(): void {
+				hideYTPlayer();
+				hideDefaultPlayer();
+				hideVimeoPlayer();
+				_brightcoveLoaderWrapper.visible = true;
+			}
+			
+			protected function hideBrightcovePlayer(): void {
+				if (currentVidSourceType == SourceType.BRIGHTCOVE) {
+					_brightcovePlayer.pause();
+				}
+				
+				_brightcoveLoaderWrapper.visible = false;
 			}
 			
 			protected function hideYTPlayer():void{
@@ -730,6 +796,7 @@
 			protected function showYTPlayer():void{
 				hideDefaultPlayer();
 				hideVimeoPlayer();
+				hideBrightcovePlayer();
 				_youTubeLoaderWrapper.visible = true;
 				_youTubeLoader.visible = true;
 			}

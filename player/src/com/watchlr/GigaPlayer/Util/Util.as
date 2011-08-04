@@ -20,7 +20,10 @@ package com.watchlr.GigaPlayer.Util
 		//for M3U8
 		protected static var M3U8_FILE_TYPE:String = ".m3u8";
 		
+		// for Brightcove...
 		protected static var BRIGHTCOVE_DOMAIN:String = "brightcove.com";
+		protected static var BRIGHTCOVE_VID_START_DELIM:String = "@videoPlayer=";
+		protected static var BRIGHTCOVE_VID_END_DELIM:String = "&";
 		
 		public function Util(){
 		}
@@ -33,7 +36,7 @@ package com.watchlr.GigaPlayer.Util
 			return startsWith(source, VIMEO_DOMAIN);
 		}
 		
-		public function isBigThink(source:String):Boolean{
+		public function isBrightcove(source:String):Boolean{
 			return source.indexOf(BRIGHTCOVE_DOMAIN) != -1;
 		}		
 		
@@ -62,6 +65,19 @@ package com.watchlr.GigaPlayer.Util
 					VIMEO_VID_START_DELIM.length, source.length-1);
 				if(substr.indexOf(VIMEO_VID_END_DELIM) > -1){
 					return substr.substr(0, substr.indexOf(VIMEO_VID_END_DELIM)); 
+				}
+			}
+			return null;
+		}
+		
+		public function BrightcoveIframeSourceToVID(source:String):String{
+			var substr:String;
+			//look ma, no regexes!
+			if(source.indexOf(BRIGHTCOVE_VID_START_DELIM) > -1){
+				substr = source.substr(source.indexOf(BRIGHTCOVE_VID_START_DELIM) +
+					BRIGHTCOVE_VID_START_DELIM.length, source.length-1);
+				if(substr.indexOf(BRIGHTCOVE_VID_END_DELIM) > -1){
+					return substr.substr(0, substr.indexOf(BRIGHTCOVE_VID_END_DELIM)); 
 				}
 			}
 			return null;
