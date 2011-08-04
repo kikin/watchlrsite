@@ -1203,7 +1203,7 @@ class NBCFetcher(object):
         return (self.SOURCE,)
 
     def fetch(self, url, logger, **kwargs):
-        logger.debug('ESPN fetcher received url:%s' % url)
+        logger.debug('NBC fetcher received url:%s' % url)
 
         match = self.NBC_URL_SCHEME.match(url)
         if not match:
@@ -1252,6 +1252,59 @@ class NBCFetcher(object):
         return meta
 
 
+class BlipFetcher(object):
+    SOURCE = Source('blip.tv',
+                    'http://blip.tv',
+                    'http://c2548752.cdn.cloudfiles.rackspacecloud.com/bliptv.ico')
+
+    BLIP_URL_SCHEME = re.compile(r'^http://blip\.tv/.*-(\d+)$')
+
+    BLIP_HTML5_EMED_TEMPLATE = '<video width="100%%" height="100%%" poster="%s" controls="controls" src="%s"></video>'
+
+    NSMAP = { 'blip': 'http://blip.tv/dtd/blip/1.0',
+              'media': 'http://search.yahoo.com/mrss/',
+              'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd' }
+
+    def sources(self):
+        return (self.SOURCE,)
+
+    def fetch(self, url, logger, **kwargs):
+        logger.debug('Blip.tv fetcher received url:%s' % url)
+
+        match = self.BLIP_URL_SCHEME.match(url)
+        if not match:
+            raise UrlNotSupported(url)
+        id = match.group(1)
+
+        xml = urllib2.urlopen('http://blip.tv/rss/flash/%s' % id).read()
+
+        root = etree.fromstring(xml)
+        item = root.find('channel/item')
+
+        meta = dict()
+        meta['title'] = item.findtext('title')
+        meta['description'] = item.findtext('blip:puredescription', namespaces=self.NSMAP)
+
+        meta['thumbnail_url'] = item.findtext('itunes:image', namespaces=self.NSMAP)
+        meta['thumbnail_width'], meta['thumbnail_height'] = 427, 240
+
+        meta['mobile_thumbnail_url'] = item.findtext('blip:smallThumbnail', namespaces=self.NSMAP)
+        meta['mobile_thumbnail_width'], meta['mobile_thumbnail_height'] = 120, 67
+
+        meta['html'] = item.findtext('media:player', namespaces=self.NSMAP)
+
+        media = item.find('media:group', namespaces=self.NSMAP)
+        for content in media.findall('media:content', namespaces=self.NSMAP):
+            if content.get('{%s}role' % self.NSMAP['blip']) == 'Source':
+                meta['html5'] = self.BLIP_HTML5_EMED_TEMPLATE % (meta['thumbnail_url'], content.get('url'))
+                break
+        else:
+            raise Exception('No content with Source role')
+
+        meta['source'] = self.SOURCE
+        return meta
+    
+
 _fetchers = [
         YoutubeFetcher(),
         VimeoFetcher(),
@@ -1260,6 +1313,7 @@ _fetchers = [
         CBSNewsFetcher(),
         FoxFetcher(),
         ESPNFetcher(),
+        BlipFetcher(),
         EmbedlyFetcher(),
         ]
 

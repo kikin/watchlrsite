@@ -225,10 +225,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "api.tasks.refresh_friends_list",
         "schedule": timedelta(minutes=10)
     },
-    "fetch-news-feed-every-5-mins": {
-        "task": "api.tasks.fetch_news_feed",
-        "schedule": timedelta(minutes=5)
-    },
+#    "fetch-news-feed-every-5-mins": {
+#        "task": "api.tasks.fetch_news_feed",
+#        "schedule": timedelta(minutes=5)
+#    },
 }
 
 # For the facebook friends list fetcher, number of users to schedule every time

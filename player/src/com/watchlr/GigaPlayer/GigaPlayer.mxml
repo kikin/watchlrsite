@@ -357,13 +357,13 @@
 						if (util.isM3U8(source)) {
 							trace('Playing m3u8 video');
 							_videoDisplay.source = new VideoElement(new URLResource(source), new HTTPStreamingM3U8NetLoader());
-						} else if (util.isMP4(source)) {
-							_videoDisplay.source = val;	
-						} else {
+						} else if(util.isSWF(source) || util.isBigThink(source)) {
 							var request:URLRequest = new URLRequest(source);
 							var loader:Loader = new Loader();
 							loader.contentLoaderInfo.addEventListener(Event.INIT, loadHandler);
 							loader.load(request);
+						} else {
+							_videoDisplay.source = val;	
 						} 
 					}
 					curVID = vid;	
