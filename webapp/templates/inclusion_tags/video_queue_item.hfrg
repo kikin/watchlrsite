@@ -18,7 +18,7 @@
 {% else %}
 <div id="video-{{video.id}}" class="video-wrapper">
 <div class="video-container video-queue-item">
-    <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:45 }}</a></h3>
+    <h3 class="video-title"><a href="/video/{{video.id}}" title="{{ video.title }}">{{ video.title|truncate_text:45|safe }}</a></h3>
 
     <div class="video-buttons">
 
@@ -101,7 +101,7 @@
     </a>
 
     <div class="video-info">
-        <div class="video-description">{{ video.description|truncate_chars:175|urlize }}</div>
+        <div class="video-description">{{ video.description|truncate_chars:175|urlize|safe }}</div>
         <div class="video-saved">
             <a href="{{ video|source_url_root }}" target="_blank">
                 <img class="video-source-image" src="{{ video|source_icon }}" target="_blank"/>
@@ -158,7 +158,7 @@
                 id: {{ video.id }},
                 embed: '{{ video|extract_source_for_watchlr_player|safe }}',
                 host: '{{ video.url|safe }}',
-                title: '{{ video.title|truncate_text:45 }}',
+                title: '{{ video.title|truncate_text:45|escapejs }}',
                 description: '{{ video.description|truncate_chars:175|urlize|escapejs }}',
                 faviconURl: '{{ video|source_icon }}'
             }

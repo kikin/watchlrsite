@@ -172,7 +172,7 @@ kikinvideo.HomeViewController = function() {
         onHashChange(window.location.hash);
     });
 
-    function loadMoreVideos(){
+    function loadMoreVideos(onComplete){
         if(activeView == VIEWS.likedQueue){
             likedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
             likedVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
@@ -183,7 +183,7 @@ kikinvideo.HomeViewController = function() {
             activityItemsToLoad += INITIAL_PAGINATION_THRESHOLD;
             activityItemsPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
         }
-        populatePanel();
+        populatePanel(onComplete);
     }
 
     function _bindVideoPanelEvents(){

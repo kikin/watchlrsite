@@ -185,6 +185,14 @@ window.WatchlrPlayerInterface = function(){
      */
     pub.playNext = function() {
         if (priv._currentVideoItemIndex + 1 < UI.videoList.length) {
+            priv._playNext();
+        } else {
+            home.loadMoreVideos(priv._playNext);
+        }
+    };
+
+    priv._playNext = function() {
+        if (priv._currentVideoItemIndex + 1 < UI.videoList.length) {
             priv._currentVideoItemIndex++;
             pub.play();
             trackAction('leanback-view', UI.videoList[priv._currentVideoItemIndex].id);
