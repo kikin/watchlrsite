@@ -1295,7 +1295,7 @@ class BlipFetcher(object):
 
         media = item.find('media:group', namespaces=self.NSMAP)
         for content in media.findall('media:content', namespaces=self.NSMAP):
-            if content.get('{%s}role' % self.NSMAP['blip']) == 'Source':
+            if content.get('{%s}role' % self.NSMAP['blip']) == 'Blip SD':
                 meta['html5'] = self.BLIP_HTML5_EMED_TEMPLATE % (meta['thumbnail_url'], content.get('url'))
                 break
         else:
