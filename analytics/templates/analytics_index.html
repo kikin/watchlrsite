@@ -207,7 +207,7 @@
                 $(other).datepicker('setDate', $(this).datepicker('getDate') );
         });
         $("#from").datepicker("setDate", '-13');
-        $("#to").datepicker("setDate", '+1');
+        $("#to").datepicker("setDate", new Date());
     });
   </script>
 {% endblock script_refs %}
