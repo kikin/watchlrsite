@@ -367,6 +367,10 @@
 						} 
 					}
 					curVID = vid;	
+				} else {
+					showDefaultPlayer();
+					currentVidSourceType = SourceType.DEFAULT;
+					_videoDisplay.source = "default";
 				}
 			}
 			

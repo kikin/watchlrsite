@@ -85,19 +85,19 @@ package com.watchlr.GigaPlayer.Util
 		}
 		
 		public function seek(position:Number):void {
-			_vimeoPlayer.seek(position);
+			if (_vimeoPlayer) _vimeoPlayer.seek(position);
 		}
 		
 		public function play():void{
-			_vimeoPlayer.play();
+			if (_vimeoPlayer) _vimeoPlayer.play();
 		}
 		
 		public function pause():void{
-			_vimeoPlayer.pause();
+			if (_vimeoPlayer) _vimeoPlayer.pause();
 		}
 		
 		public function getDuration():Number {
-			return _vimeoPlayer.duration;
+			return _vimeoPlayer ? _vimeoPlayer.duration : 0;
 		}
 		
 		public function isPlaying():Boolean{
@@ -109,13 +109,13 @@ package com.watchlr.GigaPlayer.Util
 		}
 		
 		public function setSize(width:Number, height:Number):void{
-			_vimeoPlayer.setSize(width, height);
+			if (_vimeoPlayer) _vimeoPlayer.setSize(width, height);
 		} 
 		
 		public function loadVideo(clip_id:int): void {
 			_state.state = VideoState.UNKNOWN;
 			_currentTime = 0;
-			_vimeoPlayer.loadVideo(clip_id);
+			if (_vimeoPlayer) _vimeoPlayer.loadVideo(clip_id);
 		}
 		
 		private function onVideoPlaying(event:Event): void {
@@ -130,7 +130,7 @@ package com.watchlr.GigaPlayer.Util
 		
 		private function onVideoReady(event:Event): void {
 			_state.state = VideoState.READY;
-			_gigaPlayer.handlePlayerLoad();
+			// _gigaPlayer.handlePlayerLoad();
 			// _vimeoPlayer.play();
 		}
 		
