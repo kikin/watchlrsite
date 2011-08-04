@@ -13,7 +13,9 @@ package com.watchlr
 			ON_FINISHED : "WatchlrPlayerInterface.onVideoFinished",
 			PLAYBACK_ERROR: "WatchlrPlayerInterface.onPlaybackError",
 			ON_LOAD: "WatchlrPlayerInterface.onLoad",
-			GET_VIDEO_HOST_URL: "WatchlrPlayerInterface.getVideoHostUrl"
+			GET_VIDEO_HOST_URL: "WatchlrPlayerInterface.getVideoHostUrl",
+			PLAY_NEXT_VIDEO: "WatchlrPlayerInterface.playNext",
+			PLAY_PREVIOUS_VIDEO: "WatchlrPlayerInterface.playPrev"
 		}
 	}
 }
