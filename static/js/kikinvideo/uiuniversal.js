@@ -276,17 +276,23 @@ kikinvideo.UIUniversal =
                     activeViewName = 'saved';
                 }
 
-                var checkVideoMetadataInterval = 500;
+                var checkVideoMetadataInterval = 5000;
+                var maxAttempts = 12;
                 checkVideoMetadataTimer = setInterval(function(){
-                    $.ajax({
-                        url: '/content/single_video/' + activeViewName + '/' + vid,
-                        statusCode: {
-                            200: function(content){
-                                $('#video-' + vid).replaceWith(content);
-                                clearInterval(checkVideoMetadataTimer);
+                    if(maxAttempts > 0){
+                        $.ajax({
+                            url: '/content/single_video/' + activeViewName + '/' + vid,
+                            statusCode: {
+                                200: function(content){
+                                    $('#video-' + vid).replaceWith(content);
+                                    clearInterval(checkVideoMetadataTimer);
+                                }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        clearInterval(checkVideoMetadataTimer);
+                    }
+                    maxAttempts--;
                 }, checkVideoMetadataInterval);
             }
 
