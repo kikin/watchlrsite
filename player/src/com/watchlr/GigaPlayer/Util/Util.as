@@ -2,6 +2,7 @@ package com.watchlr.GigaPlayer.Util
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	
 	import mx.utils.StringUtil;
 	
 	public class Util
@@ -19,6 +20,8 @@ package com.watchlr.GigaPlayer.Util
 		//for M3U8
 		protected static var M3U8_FILE_TYPE:String = ".m3u8";
 		
+		protected static var BRIGHTCOVE_DOMAIN:String = "brightcove.com";
+		
 		public function Util(){
 		}
 		
@@ -30,12 +33,16 @@ package com.watchlr.GigaPlayer.Util
 			return startsWith(source, VIMEO_DOMAIN);
 		}
 		
+		public function isBigThink(source:String):Boolean{
+			return source.indexOf(BRIGHTCOVE_DOMAIN) != -1;
+		}		
+		
 		public function isM3U8(source:String):Boolean{
-			return source.indexOf(".m3u8") != -1;
+			return source.indexOf(M3U8_FILE_TYPE) != -1;
 		}
 		
-		public function isMP4(source:String):Boolean{
-			return source.indexOf(".mp4") != -1;
+		public function isSWF(source:String):Boolean{
+			return source.indexOf(".swf") != -1;
 		}
 		
 		public function YTIframeSourceToVID(source:String):String{
