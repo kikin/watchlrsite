@@ -345,8 +345,8 @@
 					hideCountdown();
 					if(util.isYouTube(val.toString())){
 						vid = util.YTIframeSourceToVID(val.toString());
-						currentVidSourceType = SourceType.YOUTUBE;
 						playYTVideo(vid);
+						currentVidSourceType = SourceType.YOUTUBE;
 					} else if (util.isVimeo(val.toString())) {
 						showVimeoPlayer();
 						
@@ -742,7 +742,7 @@
 			}
 			
 			protected function hideDefaultPlayer(): void {
-				if (currentVidSourceType == SourceType.DEFAULT) {
+				if (_videoDisplay.playing) {
 					_videoDisplay.pause();
 				}
 				
@@ -757,7 +757,7 @@
 			}
 			
 			protected function hideVimeoPlayer(): void {
-				if (currentVidSourceType == SourceType.VIMEO) {
+				if (_vimeoPlayer && _vimeoPlayer.isPlaying()) {
 					_vimeoPlayer.pause();
 				}
 				
@@ -772,7 +772,7 @@
 			}
 			
 			protected function hideBrightcovePlayer(): void {
-				if (currentVidSourceType == SourceType.BRIGHTCOVE) {
+				if (_brightcovePlayer && _brightcovePlayer.isPlaying()) {
 					_brightcovePlayer.pause();
 				}
 				
@@ -781,7 +781,7 @@
 			
 			protected function hideYTPlayer():void{
 				// pause the video if any video is playing in youtube chromeless player
-				if (_youtubePlayer && currentVidSourceType == SourceType.YOUTUBE) {
+				if (_youtubePlayer && _youtubePlayer.getPlayerState() == '1') {
 					_youtubePlayer.pauseVideo();
 					_youTubePlaybackPollTimer.stop();		
 				}
