@@ -244,7 +244,7 @@ kikinvideo.VideoController =
         }
 
         function vimeoPlayerProgressHandler(loadInfo){
-            console.log(loadInfo.percent*loadInfo.duration);
+//            console.log(loadInfo.percent*loadInfo.duration);
             var secondsLoaded = loadInfo.percent*loadInfo.duration;
             if(vimeoSeekTarget){
                 var progress = Math.ceil((loadInfo.percent*loadInfo.duration/vimeoSeekTarget)*100);
