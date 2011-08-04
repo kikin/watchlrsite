@@ -257,7 +257,9 @@ kikinvideo.HomeViewController = function() {
         initialLoad = false;
         var contentSource, requestParams;
 
-        UI.videoList = [];
+        if(UI){
+            UI.videoList = [];
+        }
 
         if(activeView == VIEWS.likedQueue){
             contentSource = LIKED_VIDEOS_CONTENT_URL;
