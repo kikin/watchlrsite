@@ -318,6 +318,7 @@
 			}
 			
 			private function hideCountdown(): void {
+				_stopCountdown = true;
 				loadingErrorMessage.visible = false;
 				viewSourceLink.visible = false;
 				loadingIndicatorMessage.visible = false;
