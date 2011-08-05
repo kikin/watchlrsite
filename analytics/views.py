@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequ
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models.aggregates import Count
+from django.contrib.sessions.models import Session
 
 from analytics.models import Activity, Event, Error, UNAUTHORIZED_USER
 from api.models import User
@@ -59,8 +60,31 @@ def geolocate(view):
     return wrap
 
 
+def user_context(f):
+    def wrap(request, *args, **kwargs):
+        user = request.user
+
+        if not user.is_authenticated():
+            try:
+                # Clients can send session key as a request parameter
+                session_key = request.REQUEST['session_id']
+                session = Session.objects.get(pk=session_key)
+
+                if not session.expire_date <= datetime.now():
+                    uid = session.get_decoded().get('_auth_user_id')
+                    request.user = User.objects.get(pk=uid)
+
+            except (KeyError, Session.DoesNotExist):
+                pass
+
+        return f(request, *args, **kwargs)
+
+    return wrap
+
+
 @jsonp_view
 @geolocate
+@user_context
 def action(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
 
@@ -84,6 +108,7 @@ def action(request, *args, **kwargs):
 
 @jsonp_view
 @geolocate
+@user_context
 def event(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
 
@@ -108,6 +133,7 @@ def event(request, *args, **kwargs):
 
 @jsonp_view
 @geolocate
+@user_context
 def error(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
 
