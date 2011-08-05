@@ -4,16 +4,25 @@ from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator, EmptyPage
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
+from django.contrib.sites.models import Site
+from django.contrib.auth import authenticate
 
-from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, UserNotConnected
+from kikinvideo.settings import AUTHENTICATION_SWAP_SECRET
+
+from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, BadGateway
 from api.models import Video, User, UserVideo, Notification, Preference
 from api.utils import epoch, url_fix, MalformedURLException
 from api.tasks import fetch, push_like_to_fb, slugify
 
+import hashlib
 from re import split
 from json import loads, dumps
 from datetime import datetime
 from decimal import InvalidOperation
+from urllib2 import urlopen, URLError
+from urllib import urlencode
+from array import array
+from base64 import b64decode
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -532,17 +541,88 @@ def seek(request, video_id, position=None):
 
 
 @jsonp_view
-def swap(request, facebook_id):
-    user = request.user
-    for current in User.objects.all():
+def swap(request):
+    from social_auth.models import UserSocialAuth
+    from social_auth.backends.facebook import FacebookBackend, FACEBOOK_CHECK_AUTH
+
+    def get_required_parameter(name):
         try:
-            if facebook_id == current.facebook_uid():
-                user = current
-                break
-        except AttributeError:
-            pass
-    else:
-        raise UserNotConnected()
+            return request.REQUEST[name]
+        except KeyError:
+            raise BadRequest('Missing required parameter: %s' % name)
+
+    def decode(token):
+        tb = array('B', token)
+        kb = array('B', AUTHENTICATION_SWAP_SECRET)
+        j = 0
+        for i in range(len(tb)):
+            if j == len(kb):
+                j = 0
+            tb[i] = tb[i] ^ kb[j]
+            j += 1
+        return tb.tostring()
+
+    facebook_id = get_required_parameter('id')
+    access_token = get_required_parameter('token')
+    checksum = get_required_parameter('checksum')
+
+    # Ensure that this request is from a trusted client.
+
+    params = { 'id': facebook_id, 'token': access_token, 'secret': AUTHENTICATION_SWAP_SECRET }
+
+    server_name = 'http://www.watchlr.com'
+#    server_name = Site.objects.get_current().domain
+
+    full_path = '%s%s?id=%s&token=%s&secret=%s' % (server_name,
+                                                   request.path_info,
+                                                   params['id'],
+                                                   params['token'],
+                                                   params['secret'])
+
+    md5 = hashlib.md5()
+    md5.update(full_path)
+
+    if not checksum == md5.hexdigest():
+        raise BadRequest('Invalid checksum')
+
+    try:
+        # Check if user is already registered.
+        user = UserSocialAuth.objects.get(uid=facebook_id).user
+        if not user.is_registered:
+            raise UserSocialAuth.DoesNotExist()
+
+    except UserSocialAuth.DoesNotExist:
+
+        # New user!
+
+        # Add padding, if necessary
+        if not access_token.endswith('=='):
+            access_token += '=='
+
+        url = FACEBOOK_CHECK_AUTH + '?' + urlencode({ 'access_token': decode(b64decode(access_token)) })
+
+        json_response = None
+        try:
+            json_response = urlopen(url).read()
+            data = loads(json_response)
+        except URLError:
+            logger.exception('Error verifying Facebook credentials')
+            raise BadGateway('Could not verify Facebook credentials')
+        except (TypeError, ValueError):
+            logger.exception('Invalid JSON response for Facebook verify credentials: %s' % json_response)
+            raise BadGateway('Could not verify Facebook credentials')
+
+        if data is not None:
+            if 'error' in data:
+                error = self.data.get('error') or 'unknown error'
+                raise Unauthorized('Authentication error: %s' % error)
+            data['access_token'] = access_token
+
+            kwargs = {'response': data, FacebookBackend.name: True}
+            user = authenticate(**kwargs)
+        else:
+            error = data.get('error') or 'unknown error'
+            raise Unauthorized('Authentication error: %s' % error)
 
     if not user.is_authenticated():
         raise Unauthorized()
