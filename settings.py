@@ -212,6 +212,8 @@ SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/login_complete'
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
 FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']
 
+AUTHENTICATION_SWAP_SECRET = '1020Amsterdam'
+
 import djcelery
 djcelery.setup_loader()
 

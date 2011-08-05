@@ -14,7 +14,7 @@ urlpatterns = patterns(
     (r'^info', 'views.info'),
     (r'^list', 'views.list'),
     (r'^seek/(?P<video_id>[0-9]+)(/(?P<position>[0-9]+(\.[0-9]+)?))?$', 'views.seek'),
-    (r'^auth/swap/(?P<facebook_id>[0-9]+)$', 'views.swap'),
+    (r'^auth/swap', 'views.swap'),
     (r'^follow/(?P<other>[a-zA-Z0-9]+)$', 'views.follow'),
     (r'^unfollow/(?P<other>[a-zA-Z0-9]+)$', 'views.unfollow'),
     (r'^activity', 'views.activity'),
