@@ -570,7 +570,7 @@ def swap(request):
 
     params = { 'id': facebook_id, 'token': access_token, 'secret': AUTHENTICATION_SWAP_SECRET }
 
-    server_name = Site.objects.get_current().domain
+    server_name = 'http://%s' % Site.objects.get_current().domain
 
     full_path = '%s%s?id=%s&token=%s&secret=%s' % (server_name,
                                                    request.path_info,
