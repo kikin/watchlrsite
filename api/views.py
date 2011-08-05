@@ -620,10 +620,6 @@ def swap(request):
             kwargs = {'response': data, FacebookBackend.name: True}
             user = authenticate(**kwargs)
 
-            # Only iPad clients in wild as of yet.
-            user.campaign = 'iPad'
-            user.save()
-
         else:
             error = data.get('error') or 'unknown error'
             raise Unauthorized('Authentication error: %s' % error)
@@ -634,6 +630,11 @@ def swap(request):
     session = SessionStore()
     session['_auth_user_id'] = user.id
     session.save()
+
+    # Only iPad clients in wild as of yet.
+    user.campaign = 'iPad'
+    user.is_registerd = True
+    user.save()
 
     return { 'session_id': session.session_key }
 
