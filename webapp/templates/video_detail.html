@@ -29,9 +29,14 @@
         margin-left: auto;
         margin-right: auto;
         display:block;
+        height:390px;
     }
 
-    .close-button-fancy{
+    .video-player-top{
+        display: none;
+    }
+
+    .video-player-bottom{
         display: none;
     }
 
@@ -68,10 +73,10 @@
 {% endblock style_refs%}
 
 {% block script_refs %}
-    <script src="{{ STATIC_URL }}video_player/video.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/WatchlrPlayerInterface.js"></script>
     <script type="text/javascript">
     activeView = VIEWS.detail;
     $(window).load(function(){
@@ -100,8 +105,16 @@
             <div id="videoList">
                 {% video_queue_item %}
             </div>
+            <div id="video-player-container">
+                {% video_player_html5 %}
+            </div>
         </div>
     </div>
+
+<script type="text/javascript">
+    $(function() { WatchlrPlayerInterface.play({{ video.id }}); });
+</script>
+
 {% endblock %}
 
 {% block body_end %}
