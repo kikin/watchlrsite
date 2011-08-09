@@ -1538,8 +1538,8 @@ def refresh_friends_list():
         if queued >= FACEBOOK_FRIENDS_FETCHER_SCHEDULE:
             break
 
-        # Skip over users who have been refreshed in the last 6 hours
-        if user.fb_friends_fetched and datetime.utcnow() - user.fb_friends_fetched < timedelta(hours=6):
+        # Skip over users who have been refreshed in the last 3 hours
+        if user.fb_friends_fetched and datetime.utcnow() - user.fb_friends_fetched < timedelta(hours=3):
             logger.debug('Skipping over user:%s, last friend refresh:%s' % (user.username, user.fb_friends_fetched))
             continue
 

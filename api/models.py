@@ -74,7 +74,7 @@ class Video(models.Model):
     u'http://i2.ytimg.com/vi/kh29_SERH0Y/0.jpg'
     """
 
-    url = models.URLField(max_length=750, verify_exists=False, unique=True)
+    url = models.URLField(max_length=750, verify_exists=False, db_index=True)
     title = models.CharField(max_length=500, db_index=True, null=True)
     description = models.TextField(max_length=3000, null=True)
     html_embed_code = models.TextField(max_length=3000, null=True)
