@@ -1661,7 +1661,7 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
             fetch_user_news_feed.delay(user, until=oldest, page=page+1)
             if page == 1:
                 newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
-                User.objects.filter(id=user.id).update(fb_news_feed_fetched=newest)
+                User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
 
     except urllib2.URLError, exc:
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
@@ -1683,12 +1683,14 @@ def fetch_news_feed(*args, **kwargs):
         if queued >= FACEBOOK_NEWS_FEED_FETCH_SCHEDULE:
             break
 
-        # Update user's news feed every hour
+        # Update user's news feed every 15 minutes
         if user.fb_news_feed_fetched and datetime.utcnow() - user.fb_news_feed_fetched < timedelta(minutes=15):
             logger.debug('Skipping over user:%s, last feed refresh:%s' % (user.username, user.fb_news_feed_fetched))
             continue
 
-        fetch_user_news_feed.delay(user, since=user.fb_news_feed_fetched)
+        fetch_user_news_feed.delay(user, since=user.fb_news_last_shared_item_timestamp)
         queued += 1
+
+        User.objects.filter(id=user.id).update(fb_news_feed_fetched=datetime.utcnow())
 
     logger.info('Refreshing %d user news feeds' % queued)

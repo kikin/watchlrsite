@@ -14,6 +14,8 @@ from api.models import Video, User, UserVideo, Notification, Preference
 from api.utils import epoch, url_fix, MalformedURLException
 from api.tasks import fetch, push_like_to_fb, slugify
 
+from celery import states
+
 import hashlib
 from re import split
 from json import loads, dumps
@@ -231,16 +233,14 @@ def add(request):
             raise BadRequest('Video:%s already saved with id:%s' % (user_video.video.url, user_video.video.id))
 
     except UserVideo.DoesNotExist:
-        try:
-            video = Video.objects.get(url=url)
-        except Video.DoesNotExist:
-            video = Video(url=url)
+        video, created = Video.objects.get_or_create(url=url)
 
-            # Fetch video metadata in background
+        # Fetch video metadata in background
+        if created or video.status() == states.FAILURE:
             task = fetch.delay(request.user.id, url, request.META.get('HTTP_REFERER'))
             video.task_id = task.task_id
 
-            video.save()
+        video.save()
 
         user_video = UserVideo(user=request.user, video=video)
 
@@ -473,7 +473,7 @@ def list(request):
     user = request.user
 
     try:
-        count = int(request.GET['count'])
+        count = min(10, int(request.GET['count']))
     except (KeyError, ValueError):
         count = 10
 
