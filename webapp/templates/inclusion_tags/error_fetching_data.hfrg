@@ -26,11 +26,11 @@
 
 <div class="fetching-data wrapper">
     <div class="video-buttons">
-        <a href="javascript:home.removeVideo({{ video.id }}, true)" title="remove video">
+        <a href="javascript:home.removeVideo({{ id }}, true)" title="remove video">
             <div class="video-delete-button no-hover"></div>
         </a>
     </div>
     <div class="fetching-data inner">
-        We were unable to fetch video data.<br>Please click <a href="{{ user_video.host }}" target="_blank">here</a> to visit the original page.<br>
+        We were unable to fetch video data.<br>Please click <a href="{{ host }}" target="_blank">here</a> to visit the original page.<br>
     </div>
 </div>
