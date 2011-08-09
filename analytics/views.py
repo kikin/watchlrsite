@@ -175,11 +175,12 @@ def format_data(data_table, request):
 
 @internal
 def userbase(request):
-    description = [ ('Date', 'date'),
+    description = [ ('RowType', 'number'),
+                    ('Date', 'date'),
                     ('Campaign', 'string'),
-                    ('Cuml. Users', 'number'),
                     ('New Users', 'number'),
-                    ('Active Users', 'number'), ]
+                    ('Active Users', 'number'),
+                    ('Cuml. Users', 'number'), ]
 
     try:
         start = datetime.strptime(request.REQUEST['start'], DATE_FORMAT).date()
@@ -196,40 +197,92 @@ def userbase(request):
         return HttpResponseBadRequest('End date incorrectly formatted.')
     end += timedelta(days=1)
 
+    result = User.objects.filter(is_registered=True)\
+                         .exclude(date_joined__gte=start, date_joined__lt=end)\
+                         .values('campaign')\
+                         .annotate(Count('id', distinct=True))
+
+    cumulative_counts = dict()
+    campaigns = set()
+
+    for row in result:
+        campaign = row['campaign'] or 'null'
+        cumulative_counts[campaign] = row['id__count']
+
+        campaigns.add(campaign)
+
     data = dict()
 
-    current = start
-    while current < end:
-        data[current] = [current, 'null', 0, 0, 0]
-        current += timedelta(days=1)
-
-    cumulative_count = User.objects.filter(is_registered=True, date_joined__lt=start).count()
+    # New users.
 
     result = User.objects.filter(is_registered=True, date_joined__gte=start, date_joined__lt=end)\
                          .extra(select={ 'date': 'date(date_joined)' })\
-                         .values('id', 'campaign', 'date')\
-                         .annotate(Count('id'))
+                         .values('campaign', 'date')\
+                         .annotate(Count('id', distinct=True))
 
     for row in result:
-        key = data[row['date']]
-        key[1] = row['campaign'] or 'null'
-        key[3] = row['id__count']
+        key = row['date']
+        campaign = row['campaign'] or 'null'
+
+        # RowType = 1 indicates table data - counts grouped by campaign.
+        data[(key, campaign)] = [1, key, campaign, row['id__count']]
+
+        campaigns.add(campaign)
+
+    # Active users.
+
+    from django.db import connection
+    cursor = connection.cursor()
+
+    cursor.execute('SELECT date(timestamp) AS date, campaign, COUNT(DISTINCT(user_id)) AS count ' + \
+                   'FROM analytics_activity a, api_user u WHERE a.user_id = u.user_ptr_id '
+                   'AND timestamp >= %s AND timestamp < %s ' + \
+                   'GROUP BY date, campaign', [str(start), str(end)])
+
+    while True:
+        row = cursor.fetchone()
+        if not row:
+            break
+
+        key = row[0]
+        campaign = row[1] or 'null'
+        try:
+            data[(key, campaign)].append(row[2])
+        except KeyError:
+            # No new users for current date and campaign.
+            data[(key, campaign)] = [1, key, campaign, 0, row[2]]
+
+        campaigns.add(campaign)
+
+    # Cumulative users.
 
     current = start
     while current < end:
-        cumulative_count += data[current][3]
-        data[current][2] = cumulative_count
+        new = active = cumulative = 0
+
+        for campaign in campaigns:
+            try:
+                cumulative_counts[campaign] = cumulative_counts.get(campaign, 0) + data[(current, campaign)][3]
+
+                # No active users for date, campaign - only new users!
+                if len(data[(current, campaign)]) < 5:
+                    data[(current, campaign)].append(0)
+
+                data[(current, campaign)].append(cumulative_counts[campaign])
+
+                new += data[(current, campaign)][3]
+                active += data[(current, campaign)][4]
+                
+            except KeyError:
+                # No new/active users for current date and campaign.
+                data[(current, campaign)] = [1, current, campaign, 0, 0, cumulative_counts.setdefault(campaign, 0)]
+
+            cumulative += cumulative_counts[campaign]
+
+        # RowType = 0 indicates chart data - aggregate counts by date.
+        data[(current, 'ALL')] = [0, current, 'ALL', new, active, cumulative]
+
         current += timedelta(days=1)
-
-    result = Activity.objects.exclude(user_id=UNAUTHORIZED_USER)\
-                             .exclude(timestamp__lt=start)\
-                             .exclude(timestamp__gte=end)\
-                             .extra(select={ 'date': 'date(timestamp)' })\
-                             .values('id', 'date')\
-                             .annotate(Count('id'))
-
-    for row in result:
-        data[row['date']][4] = row['id__count']
 
     data_table = DataTable(description)
     data_table.LoadData(data.values())
