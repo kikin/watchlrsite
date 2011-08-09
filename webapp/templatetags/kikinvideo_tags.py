@@ -100,12 +100,20 @@ def pretty_earliest_date(video, user):
                             .get()
             earliest = user_video['liked_timestamp']
         except UserVideo.DoesNotExist:
-            user_video = UserVideo.objects\
-                            .filter(video=video, saved_timestamp__isnull=False)\
-                            .values('saved_timestamp')\
-                            .order_by('saved_timestamp')[0:1]\
-                            .get()
-            earliest = user_video['saved_timestamp']
+            try:
+                user_video = UserVideo.objects\
+                                .filter(video=video, saved_timestamp__isnull=False)\
+                                .values('saved_timestamp')\
+                                .order_by('saved_timestamp')[0:1]\
+                                .get()
+                earliest = user_video['saved_timestamp']
+            except UserVideo.DoesNotExist:
+                user_video = UserVideo.objects\
+                                .filter(video=video, shared_timestamp__isnull=False)\
+                                .values('shared_timestamp')\
+                                .order_by('shared_timestamp')[0:1]\
+                                .get()
+                earliest = user_video['shared_timestamp']
     return pretty_date(earliest)
 
 @register.filter
@@ -500,4 +508,9 @@ def extract_source_for_watchlr_player(video):
 def watchlr_player():
     return
 
-
+@register.filter
+def thumbnail_target_for_device(request, id):
+    if user_agent_os(request) == 'ios':
+        return '/video/%s' % id
+    else:
+        return "javascript:UI.loadPlayer(%s)" % id
