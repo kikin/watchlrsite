@@ -388,6 +388,10 @@ def full_name(user):
 @register.filter
 def user_agent_class(request):
     u_a = request.META['HTTP_USER_AGENT'].lower()
+    if u_a.find('ipad') != -1:
+        return 'ipad'
+    if u_a.find('iphone') != -1:
+        return 'iphone'
     if u_a.find('chrome') != -1:
         return 'chrome'
     if u_a.find('safari') != -1:
@@ -401,6 +405,8 @@ def user_agent_class(request):
 @register.filter
 def user_agent_os(request):
     u_a = request.META['HTTP_USER_AGENT'].lower()
+    if user_agent_class(request) in ('ipad', 'iphone'):
+        return 'ios'
     if u_a.find('mac') != -1:
         return 'mac'
     if u_a.find('windows') != -1:
@@ -416,8 +422,11 @@ def fetching_data_message(video):
 
 @register.inclusion_tag('inclusion_tags/error_fetching_data.hfrg')
 def error_fetching_data_message(user, video):
-    user_video = UserVideo.objects.get(user=user, video=video)
-    return {'video':video, 'user_video': user_video}
+    if user.is_authenticated():
+        user_video = UserVideo.objects.get(user=user, video=video)
+        return {'id': video.id, 'host': user_video.host}
+    else:
+        return {'id': video.id, 'host': video.url}
 
 @register.inclusion_tag('inclusion_tags/video_queue_item.hfrg', takes_context=True)
 def video_queue_item(context):

@@ -106,7 +106,15 @@
                 {% video_queue_item %}
             </div>
             <div id="video-player-container">
-                {% video_player_html5 %}
+                {% if request|user_agent_os == "ios" %}
+                    <div class="video-player" id="video-player">
+                        <div class="video-embed-wrapper html5" id="video-embed-wrapper" style="width:100%; height: 100%">
+                            {{ video.html5_embed_code|safe }}
+                        </div>
+                    </div>
+                {% else %}
+                    {% video_player_html5 %}
+                {% endif %}
             </div>
         </div>
     </div>
