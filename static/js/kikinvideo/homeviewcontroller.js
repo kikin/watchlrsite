@@ -273,7 +273,7 @@ kikinvideo.HomeViewController = function() {
             requestParams = {'start':0, 'count':savedVideosToLoad};
         }else if (activeView == VIEWS.activity){
             contentSource = ACTIVITY_CONTENT_URL;
-            requestParams = {'start':0, 'count':activityItemsToLoad, 'type': activityItemsType};
+            requestParams = {'start':0, 'count':activityItemsToLoad, 'type': this.activityItemsType};
         }
 
         if(uid)
@@ -558,10 +558,6 @@ kikinvideo.HomeViewController = function() {
         }
     }
 
-    function setActivityItemsType(type){
-        activityItemsType = type;
-    }
-
     /*expose public functions...*/
     return {
 
@@ -583,7 +579,7 @@ kikinvideo.HomeViewController = function() {
 
         hideVidLikedBy : hideVidLikedBy,
 
-        setActivityItemsType: setActivityItemsType
+        activityItemsType: activityItemsType
     };
 
 };

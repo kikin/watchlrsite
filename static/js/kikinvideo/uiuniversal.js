@@ -36,7 +36,11 @@ kikinvideo.UIUniversal =
             var videoList = [];
 
             // Activity filter selection
-            var activityFilterType = "#activity-option-all";
+            var activityFilterTypeMap = {
+                all: "#activity-option-all",
+                facebook: "#activity-option-facebook",
+                watchlr: "#activity-option-watchlr"
+            };
 
             /*initialization...*/
             bindToUI();
@@ -257,8 +261,9 @@ kikinvideo.UIUniversal =
                 );
                 $('#activity-filter-menu').hover(
                     function() {
-                        if (!$(activityFilterType).hasClass('selected'))
-                            $(activityFilterType).addClass('selected');
+                        var activityFilterItem = activityFilterTypeMap[home.activityItemsType];
+                        if (!$(activityFilterItem).hasClass('selected'))
+                            $(activityFilterItem).addClass('selected');
                         $('#activity-options').show();
                     },
                     function() {
@@ -267,13 +272,14 @@ kikinvideo.UIUniversal =
                 )
             }
 
-            function switchActivityType(type, typeId){
+            function switchActivityType(type){
                 $('#activity-options').hide();
 
-                $(activityFilterType).removeClass('selected');
-                activityFilterType = typeId;
+                var activityFilterItem = activityFilterTypeMap[home.activityItemsType];
+                if ($(activityFilterItem).hasClass('selected'))
+                    $(activityFilterItem).removeClass('selected');
 
-                home.setActivityItemsType(type);
+                home.activityItemsType = type;
                 home.populatePanel();
             }
 
