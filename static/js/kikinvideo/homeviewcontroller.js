@@ -251,8 +251,11 @@ kikinvideo.HomeViewController = function() {
     function populatePanel(onComplete) {
 
         if(!initialLoad){
-            $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-            $(LOADING_ICON_BACKGROUND).css({width:$(VIDEO_PANEL_SELECTOR).width()});
+
+       $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
+            $(LOADING_ICON_BACKGROUND).css({width:$(VIDEO_PANEL_SELECTOR).width(),
+                height:$(VIDEO_PANEL_SELECTOR).height()-110, left:$(VIDEO_PANEL_SELECTOR).offset().left,
+                top:$(VIDEO_PANEL_SELECTOR).offset().top});
         }
         initialLoad = false;
         var contentSource, requestParams;

@@ -334,10 +334,10 @@ a:hover {
     border-top-left-radius: 0px;
     -moz-border-radius-topleft: 0px;
     -webkit-border-top-left-radius: 0px;
+    -moz-border-radius-topright: 0px;
+    -webkit-border-top-right-radius: 0px;
     text-align:center;
     float:left;
-    position: relative;
-    z-index: 10;
 }
 
 .navigation a{
@@ -1332,7 +1332,7 @@ box-shadow: 10px 10px 5px #888;
     background-color: #0C536F;
     border-radius: 5px 5px 0 0;
     display: none;
-    height: 32px;
+    height: 22px;
     margin-left: 719px;
     margin-top: 13px;
     position: absolute;
