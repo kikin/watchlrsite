@@ -276,7 +276,7 @@ class User(auth_models.User):
     fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_fb_friends', symmetrical=False)
     fb_friends_fetched = models.DateTimeField(null=True, db_index=True)
     fb_news_feed_fetched = models.DateTimeField(null=True, db_index=True)
-    fb_news_last_shared_item_timestamp = models.DateField(null=True)
+    fb_news_last_shared_item_timestamp = models.DateTimeField(null=True)
     dismissed_user_suggestions = models.ManyToManyField('self', through='DismissedUserSuggestions',
                                                         related_name='r_dismissed_user_suggestions', symmetrical=False)
     karma = models.PositiveIntegerField(default=0, db_index=True)
