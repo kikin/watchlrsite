@@ -257,6 +257,8 @@ kikinvideo.UIUniversal =
                 );
                 $('#activity-filter-menu').hover(
                     function() {
+                        if (!$(activityFilterType).hasClass('selected'))
+                            $(activityFilterType).addClass('selected');
                         $('#activity-options').show();
                     },
                     function() {
@@ -270,7 +272,6 @@ kikinvideo.UIUniversal =
 
                 $(activityFilterType).removeClass('selected');
                 activityFilterType = typeId;
-                $(activityFilterType).addClass('selected');
 
                 home.setActivityItemsType(type);
                 home.populatePanel();
