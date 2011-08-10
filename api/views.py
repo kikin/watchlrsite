@@ -474,7 +474,7 @@ def list(request):
     user = request.user
 
     try:
-        count = min(10, int(request.GET['count']))
+        count = int(request.GET['count'])
     except (KeyError, ValueError):
         count = 10
 
@@ -684,7 +684,7 @@ def activity(request):
     user = request.user
 
     try:
-        count = min(10, int(request.GET['count']))
+        count = int(request.GET['count'])
     except (KeyError, ValueError):
         count = 10
 
@@ -709,11 +709,29 @@ def activity(request):
         # If page is out of range, deliver last page of results.
         items = paginator.page(paginator.num_pages).object_list
 
+    try:
+        embed = request.GET['embed']
+        if not embed in ('html', 'html5'):
+            raise ValueError
+    except (KeyError, ValueError):
+        embed = 'html5'
+
     activity_list = []
 
     for item in items:
         item_json = item.json()
         item_json.update({ 'activity_heading': activity_item_heading(item, user) })
+
+        try:
+            user_video = UserVideo.objects.get(user=user, video=item.video)
+            item_json['video']['saved'] = user_video.saved
+            item_json['video']['liked'] = user_video.liked
+            item_json['video']['seek'] = float(user_video.position or 0)
+        except UserVideo.DoesNotExist:
+            item_json['video']['saved'] = item_json['video']['liked'] = False
+            item_json['video']['seek'] = 0
+
+        item_json['video']['html'] = getattr(item.video, '%s_embed_code' % embed)
 
         activity_list.append(item_json)
 
