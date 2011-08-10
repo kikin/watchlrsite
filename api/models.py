@@ -262,8 +262,9 @@ class User(auth_models.User):
     follows = models.ManyToManyField('self', through='UserFollowsUser', related_name='r_follows', symmetrical=False)
     is_registered = models.BooleanField(default=True)
     fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_fb_friends', symmetrical=False)
-    fb_friends_fetched = models.DateTimeField(null=True)
-    fb_news_feed_fetched = models.DateTimeField(null=True)
+    fb_friends_fetched = models.DateTimeField(null=True, db_index=True)
+    fb_news_feed_fetched = models.DateTimeField(null=True, db_index=True)
+    fb_news_last_shared_item_timestamp = models.DateField(null=True)
     dismissed_user_suggestions = models.ManyToManyField('self', through='DismissedUserSuggestions',
                                                         related_name='r_dismissed_user_suggestions', symmetrical=False)
     karma = models.PositiveIntegerField(default=0, db_index=True)
@@ -452,7 +453,7 @@ class User(auth_models.User):
             p.value = int(value)
             p.save()
 
-    def activity(self, since=None):
+    def activity(self, type=None, since=None):
         """
         Activity stream for user.
 
@@ -488,42 +489,45 @@ class User(auth_models.User):
             since = datetime(1970, 1, 1)
 
         by_video = dict()
-        for user in chain(self.following(), [self,]):
 
-            for video in user.liked_videos():
+        if not type == 'facebook':
+            for user in chain(self.following(), [self,]):
 
-                if not video.status() == states.SUCCESS:
-                    continue
+                for video in user.liked_videos():
 
-                user_video = UserVideo.objects.get(user=user, video=video)
-                if since is not None and user_video.liked_timestamp < since:
-                    continue
+                    if not video.status() == states.SUCCESS:
+                        continue
 
-                user_activity = UserActivity(user, user_video.liked_timestamp, 'like')
-                try:
-                    by_video[video].user_activities.append(user_activity)
-                except KeyError:
-                    by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
+                    user_video = UserVideo.objects.get(user=user, video=video)
+                    if since is not None and user_video.liked_timestamp < since:
+                        continue
 
-                if not by_video[video].timestamp or user_video.liked_timestamp > by_video[video].timestamp:
-                    by_video[video].timestamp = user_video.liked_timestamp
+                    user_activity = UserActivity(user, user_video.liked_timestamp, 'like')
+                    try:
+                        by_video[video].user_activities.append(user_activity)
+                    except KeyError:
+                        by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
 
-        for user in self.fb_friends.all():
-            
-            for video in filter(lambda v: v.status() == states.SUCCESS, user.shared_videos()):
+                    if not by_video[video].timestamp or user_video.liked_timestamp > by_video[video].timestamp:
+                        by_video[video].timestamp = user_video.liked_timestamp
 
-                user_video = UserVideo.objects.get(user=user, video=video)
-                if since is not None and user_video.shared_timestamp < since:
-                    continue
+        if not type == 'watchlr':
+            for user in self.fb_friends.all():
 
-                user_activity = UserActivity(user, user_video.shared_timestamp, 'share')
-                try:
-                    by_video[video].user_activities.append(user_activity)
-                except KeyError:
-                    by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
+                for video in filter(lambda v: v.status() == states.SUCCESS, user.shared_videos()):
 
-                if not by_video[video].timestamp or user_video.shared_timestamp > by_video[video].timestamp:
-                    by_video[video].timestamp = user_video.shared_timestamp
+                    user_video = UserVideo.objects.get(user=user, video=video)
+                    if since is not None and user_video.shared_timestamp < since:
+                        continue
+
+                    user_activity = UserActivity(user, user_video.shared_timestamp, 'share')
+                    try:
+                        by_video[video].user_activities.append(user_activity)
+                    except KeyError:
+                        by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
+
+                    if not by_video[video].timestamp or user_video.shared_timestamp > by_video[video].timestamp:
+                        by_video[video].timestamp = user_video.shared_timestamp
 
         items = sorted(by_video.values(), reverse=True)
         for item in items:
