@@ -13,6 +13,7 @@ from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, Bad
 from api.models import Video, User, UserVideo, Notification, Preference
 from api.utils import epoch, url_fix, MalformedURLException
 from api.tasks import fetch, push_like_to_fb, slugify
+from webapp.templatetags.kikinvideo_tags import activity_item_heading
 
 from celery import states
 
@@ -58,7 +59,7 @@ def jsonp_view(f):
         response = None
         try:
             result = f(request, *args, **kwargs)
-            assert isinstance(result, dict)
+            assert isinstance(result, dict) or type(result) == type([])
             response = {'success': True,
                         'result': result}
 
@@ -682,16 +683,41 @@ def unfollow(request, other):
 def activity(request):
     user = request.user
 
-    items = []
-    for item in user.activity():
+    try:
+        count = min(10, int(request.GET['count']))
+    except (KeyError, ValueError):
+        count = 10
 
-        users = []
-        for user_like_tuple in item.users:
-            users.append({'timestamp': user_like_tuple[1],
-                          'user': user_like_tuple[0]})
+    try:
+        type = request.GET['type']
+        if not type in ('facebook', 'watchlr'):
+            raise ValueError
+    except (KeyError, ValueError):
+        type = None
 
-        items.append({ 'type': 'like',
-                       'video': item.video.json(),
-                       'users': users })
+    paginator = Paginator(user.activity(type=type), count)
 
-    return items
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
+    activity_list = []
+
+    for item in items:
+        item_json = item.json()
+        item_json.update({ 'activity_heading': activity_item_heading(item, user) })
+
+        activity_list.append(item_json)
+
+    return { 'page': page,
+             'count': len(activity_list),
+             'total': paginator.count,
+             'activity_list': activity_list }

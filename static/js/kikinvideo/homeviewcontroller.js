@@ -49,6 +49,8 @@ kikinvideo.HomeViewController = function() {
 
     var activityItemsToLoad = 10;
 
+    var activityItemsType = "all";
+
     var active_vid_liked_by_dropdown;
 
     var active_vid_liked_by_liker_count;
@@ -249,10 +251,8 @@ kikinvideo.HomeViewController = function() {
     function populatePanel(onComplete) {
 
         if(!initialLoad){
-        $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
-        $(LOADING_ICON_BACKGROUND).css({width:$(VIDEO_PANEL_SELECTOR).width(),
-            height:$(VIDEO_PANEL_SELECTOR).height()-110, left:$(VIDEO_PANEL_SELECTOR).offset().left,
-            top:$(VIDEO_PANEL_SELECTOR).offset().top});
+            $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
+            $(LOADING_ICON_BACKGROUND).css({width:$(VIDEO_PANEL_SELECTOR).width()});
         }
         initialLoad = false;
         var contentSource, requestParams;
@@ -261,6 +261,7 @@ kikinvideo.HomeViewController = function() {
             UI.videoList = [];
         }
 
+        $('#activity-filter-menu').hide();
         if(activeView == VIEWS.likedQueue){
             contentSource = LIKED_VIDEOS_CONTENT_URL;
             requestParams = {'start':0, 'count':likedVideosToLoad};
@@ -269,12 +270,11 @@ kikinvideo.HomeViewController = function() {
             requestParams = {'start':0, 'count':savedVideosToLoad};
         }else if (activeView == VIEWS.activity){
             contentSource = ACTIVITY_CONTENT_URL;
-            requestParams = {'start':0, 'count':activityItemsToLoad};
+            requestParams = {'start':0, 'count':activityItemsToLoad, 'type': activityItemsType};
         }
 
         if(uid)
             requestParams.user_id = uid;
-
 
         $.get(contentSource, requestParams, function(data) {
             $(VIDEO_PANEL_SELECTOR).html(data);
@@ -304,6 +304,7 @@ kikinvideo.HomeViewController = function() {
                     $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
                 }
                 $('.activity-queue-item:last').css({'border-bottom': 'none'});
+                $('#activity-filter-menu').show();
             }
 
             //because HTML5 videos don't respect display:'none'
@@ -540,7 +541,6 @@ kikinvideo.HomeViewController = function() {
         });
     }
 
-
     function hideVidLikedBy(){
         if(active_vid_liked_by_dropdown){
 
@@ -553,6 +553,10 @@ kikinvideo.HomeViewController = function() {
                     active_vid_liked_by_dropdown.height(active_vid_liked_by_dropdown_orig_height);
             });
         }
+    }
+
+    function setActivityItemsType(type){
+        activityItemsType = type;
     }
 
     /*expose public functions...*/
@@ -574,7 +578,9 @@ kikinvideo.HomeViewController = function() {
 
         showVidLikedBy : showVidLikedBy,
 
-        hideVidLikedBy : hideVidLikedBy
+        hideVidLikedBy : hideVidLikedBy,
+
+        setActivityItemsType: setActivityItemsType
     };
 
 };

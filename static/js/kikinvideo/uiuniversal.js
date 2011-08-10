@@ -35,6 +35,8 @@ kikinvideo.UIUniversal =
 
             var videoList = [];
 
+            // Activity filter selection
+            var activityFilterType = "#activity-option-all";
 
             /*initialization...*/
             bindToUI();
@@ -242,17 +244,36 @@ kikinvideo.UIUniversal =
 
             function bindEvents() {
                 $(PROFILE_OPTIONS_BUTTON_SELECTOR).hover(
-                        function() {
-                            if(!$(this).hasClass('selected') && $('#lnkConnectFb').length == 0)
-                                $(this).addClass('selected');
-                            $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
-                        },
-                        function() {
-                            if($(this).hasClass('selected'))
-                                $(this).removeClass('selected');
-                            $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
-                        }
+                    function() {
+                        if(!$(this).hasClass('selected') && $('#lnkConnectFb').length == 0)
+                            $(this).addClass('selected');
+                        $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
+                    },
+                    function() {
+                        if($(this).hasClass('selected'))
+                            $(this).removeClass('selected');
+                        $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
+                    }
+                );
+                $('#activity-filter-menu').hover(
+                    function() {
+                        $('#activity-options').show();
+                    },
+                    function() {
+                        $('#activity-options').hide();
+                    }
                 )
+            }
+
+            function switchActivityType(type, typeId){
+                $('#activity-options').hide();
+
+                $(activityFilterType).removeClass('selected');
+                activityFilterType = typeId;
+                $(activityFilterType).addClass('selected');
+
+                home.setActivityItemsType(type);
+                home.populatePanel();
             }
 
             function addToVideoList(vid, metadata){
@@ -304,7 +325,8 @@ kikinvideo.UIUniversal =
                 handleProfileSave : handleProfileSave,
                 videoList: videoList,
                 addToVideoList: addToVideoList,
-                checkForVideoMetadata: checkForVideoMetadata
+                checkForVideoMetadata: checkForVideoMetadata,
+                switchActivityType: switchActivityType
             }
         };
 

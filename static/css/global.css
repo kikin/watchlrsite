@@ -273,7 +273,7 @@ a:hover {
     border-radius: 8px;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
-    padding-top: 70px;
+    padding-top: 40px;
     top:0px;
     left:0px;
     z-index:9999;
@@ -336,6 +336,8 @@ a:hover {
     -webkit-border-top-left-radius: 0px;
     text-align:center;
     float:left;
+    position: relative;
+    z-index: 10;
 }
 
 .navigation a{
@@ -1324,4 +1326,81 @@ box-shadow: 10px 10px 5px #888;
     width:20px;
     height:20px;
     background: url(/static/images/x_grey.png) no-repeat;
+}
+
+#activity-filter-menu{
+    background-color: #0C536F;
+    border-radius: 5px 5px 0 0;
+    display: none;
+    height: 32px;
+    margin-left: 719px;
+    margin-top: 13px;
+    position: absolute;
+    width: 61px;
+}
+
+#activity-filter-menu a{
+    color: #FFFFFF;
+    float: left;
+    margin-left: 11px;
+    margin-top: 3px;
+}
+
+#activity-filter-menu a:hover{
+    text-decoration: none;
+}
+
+#activity-options{
+    clear: both;
+    display: none;
+    padding-top: 7px;
+    padding-bottom: 6px;
+    text-align: left;
+    position: relative;
+    background: #0C536F;
+    color: white;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
+    width: 120px;
+    z-index: 20;
+    top: 2px;
+    right: 59px;
+}
+
+#activity-options li.selected{
+    background-image: url('/static/images/small_check.png');
+    background-repeat: no-repeat;
+    background-position: 8%;
+}
+
+#activity-options li{
+    padding-left: 30px;
+}
+
+#activity-options li a{
+    clear: both;
+    float: none;
+    margin: 0 0 0 0;
+}
+
+#activity-filter-menu .gbma{
+    border-color: #FFFFFF transparent transparent;
+    border-style: solid dashed dashed;
+    border-width: 5px 5px 0;
+    display: inline-block;
+    font-size: 0;
+    height: 0;
+    left: 45px;
+    line-height: 0;
+    padding-top: 1px;
+    position: absolute;
+    top: 9px;
+    width: 0;
 }

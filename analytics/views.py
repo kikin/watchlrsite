@@ -328,7 +328,7 @@ def views(request):
     for row in result:
         if row['action'] == 'view':
             data[row['date']][2] = row['action__count']
-        elif row['action'] == 'insitu-view':
+        elif row['action'] == 'insitu-view' or row['action'] == 'instu-view':
             data[row['date']][3] = row['action__count']
         elif row['action'] == 'leanback-view':
             data[row['date']][4] = row['action__count']
@@ -373,6 +373,7 @@ def saves(request):
         current += timedelta(days=1)
 
     result = Activity.objects.filter(action='save', timestamp__gte=start, timestamp__lt=end)\
+                             .exclude(user_id=UNAUTHORIZED_USER)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('agent', 'date')\
                              .annotate(Count('agent'))
@@ -425,6 +426,7 @@ def likes(request):
         current += timedelta(days=1)
 
     result = Activity.objects.filter(action='like', timestamp__gte=start, timestamp__lt=end)\
+                             .exclude(user_id=UNAUTHORIZED_USER)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('agent', 'date')\
                              .annotate(Count('agent'))
@@ -473,6 +475,7 @@ def follows(request):
         current += timedelta(days=1)
 
     result = Activity.objects.filter(action='follow', timestamp__gte=start, timestamp__lt=end)\
+                             .exclude(user_id=UNAUTHORIZED_USER)\
                              .extra(select={ 'date': 'date(timestamp)' })\
                              .values('id', 'date')\
                              .annotate(Count('id'))

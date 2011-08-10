@@ -245,27 +245,27 @@ def activity_item_heading(activity_item, user):
             content += ' liked...'
 
         elif len(user_activities) == 1 and len(all_likers) == 2:
-            if user_activity.type == 'like':
+            if user_activity.action == 'like':
                 content += ' and 1 other liked...'
-            elif user_activity.type == 'share':
+            elif user_activity.action == 'share':
                 content += ' shared and 1 other liked...'
 
         elif len(user_activities) == 1 and len(all_likers) > 2:
-            if user_activity.type == 'like':
+            if user_activity.action == 'like':
                 content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
-            elif user_activity.type == 'share':
+            elif user_activity.action == 'share':
                 content += ' shared and ' + str(len(all_likers)) + ' others liked...'
 
         elif len(user_activities) == 2 and len(all_likers) == 2:
-            if not 'share' in map(attrgetter('type'), user_activities):
+            if not 'share' in map(attrgetter('action'), user_activities):
                 other = user_activities[0].user if not user == user_activities[0].user else user_activities[1].user
-                content += ' and <a href="/'+other.username+'">'+other.first_name+'</a> liked...'
+                content += ' and <a '+user_profile_link(other)+'>'+other.first_name+'</a> liked...'
             else:
-                sharer = map(attrgetter('user'), filter(lambda a: a.type == 'share', user_activities))[0]
+                sharer = map(attrgetter('user'), filter(lambda a: a.action == 'share', user_activities))[0]
                 content = '<a '+user_profile_link(sharer)+'>'+sharer.first_name+'</a> shared, You and 1 other liked...'
 
         elif len(user_activities) >= 2:
-            sharers = map(attrgetter('user'), filter(lambda a: a.type == 'share', user_activities))
+            sharers = map(attrgetter('user'), filter(lambda a: a.action == 'share', user_activities))
             if sharers:
                 if sharers == [user]:
                     content += ' shared'
@@ -276,7 +276,7 @@ def activity_item_heading(activity_item, user):
                     else:
                         content = '<a '+user_profile_link(other)+'>'+other.first_name+'</a> shared'
 
-            likers = map(attrgetter('user'), filter(lambda a: a.type == 'like', user_activities))
+            likers = map(attrgetter('user'), filter(lambda a: a.action == 'like', user_activities))
             if len(sharers):
                 if len(likers) >= 1:
                     if user in likers:
@@ -295,7 +295,7 @@ def activity_item_heading(activity_item, user):
                     content += ', ' + str(len(all_likers)) + ' others liked...'
             else:
                 other = likers[0] if not user == likers[0] else likers[1]
-                content += ', <a href="/'+other.username+'">'+other.first_name+'</a> '
+                content += ', <a '+user_profile_link(other)+'>'+other.first_name+'</a> '
                 if len(all_likers) - 2 == 1:
                     content += ' and 1 other liked...'
                 else:
@@ -308,47 +308,47 @@ def activity_item_heading(activity_item, user):
             content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a> shared...'
 
         if len(user_activities) == 1 and len(all_likers) == 1:
-            if user_activities[0].type == 'like':
-                content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a> liked...'
+            if user_activities[0].action == 'like':
+                content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a> liked...'
             else:
                 content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a> shared, 1 other liked...'
 
         elif len(user_activities) == 1 and len(all_likers) == 2:
-            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>'
+            content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a>'
             content += ' and 1 other liked...'
 
         elif len(user_activities) == 1 and len(all_likers) > 2:
-            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>'
+            content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a>'
             content += ' and ' + str(len(all_likers) - 1) + ' others liked...'
 
         elif len(user_activities) == 2 and len(all_likers) == 1:
-            sharer = user_activities[0].user if user_activities[0].type == 'share' else user_activities[1].user
+            sharer = user_activities[0].user if user_activities[0].action == 'share' else user_activities[1].user
             content += '<a '+user_profile_link(sharer)+'>'+sharer.first_name+'</a> shared, '
             other = user_activities[0].user if not user_activities[0].user == sharer else user_activities[1].user
             content += '<a '+user_profile_link(other)+'>'+other.first_name+'</a> liked...'
 
         elif len(user_activities) == 2 and len(all_likers) == 2:
-            if 'share' in map(attrgetter('type'), user_activities):
-                sharer = user_activities[0].user if user_activities[0].type == 'share' else user_activities[1].user
+            if 'share' in map(attrgetter('action'), user_activities):
+                sharer = user_activities[0].user if user_activities[0].action == 'share' else user_activities[1].user
                 content += '<a '+user_profile_link(sharer)+'>'+sharer.first_name+'</a> shared, '
                 other = user_activities[0].user if not user_activities[0].user == sharer else user_activities[1].user
                 content += '<a '+user_profile_link(other)+'>'+other.first_name+'</a> and 1 other liked...'
             else:
-                content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>, '
-                content += ' and <a href="/'+user_activities[1].user.username+'">'+user_activities[1].user.first_name+'</a> liked...'
+                content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a>, '
+                content += ' and <a '+user_profile_link(user_activities[1].user)+'>'+user_activities[1].user.first_name+'</a> liked...'
 
         elif len(user_activities) == 2 and len(all_likers) == 3:
-            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>, '
-            content += '<a href="/'+user_activities[1].user.username+'">'+user_activities[1].user.first_name+'</a>'
+            content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a>, '
+            content += '<a '+user_profile_link(user_activities[1].user)+'>'+user_activities[1].user.first_name+'</a>'
             content += ' and 1 other liked...'
 
         elif len(user_activities) == 2 and len(all_likers) > 3:
-            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>, '
-            content += '<a href="/'+user_activities[1].user.username+'">'+user_activities[1].user.first_name+'</a>'
+            content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a>, '
+            content += '<a '+user_profile_link(user_activities[1].user)+'>'+user_activities[1].user.first_name+'</a>'
             content += ' and '+ str(len(all_likers)-2) + ' others liked...'
 
         elif len(user_activities) > 2:
-            content += '<a href="/'+user_activities[0].user.username+'">'+user_activities[0].user.first_name+'</a>, '
+            content += '<a '+user_profile_link(user_activities[0].user)+'>'+user_activities[0].user.first_name+'</a>, '
             if len(all_likers) - 2 == 1:
                 content += ' and 1 other liked...'
             else:
@@ -358,7 +358,7 @@ def activity_item_heading(activity_item, user):
 
 @register.filter
 def is_shared_activity_item(activity_item):
-    return 'share' in map(attrgetter('type'), activity_item.user_activities)
+    return 'share' in map(attrgetter('action'), activity_item.user_activities)
 
 @register.filter
 def last_element(list):
