@@ -133,10 +133,12 @@ class Video(models.Model):
 
                 user_video = UserVideo.objects\
                                       .filter(video=self)\
-                                      .values('saved_timestamp', 'liked_timestamp')\
-                                      .order_by('-saved_timestamp', '-liked_timestamp')[0:1].get()
+                                      .values('saved_timestamp', 'liked_timestamp', 'shared_timestamp')\
+                                      .order_by('-saved_timestamp', '-liked_timestamp', '-shared_timestamp')[0:1].get()
 
-                added = user_video.get('saved_timestamp') or user_video.get('liked_timestamp')
+                added = user_video.get('saved_timestamp') or \
+                        user_video.get('liked_timestamp') or \
+                        user_video.get('shared_timestamp')
 
                 if (datetime.utcnow() - added).seconds > 900 and (not self.title or not self.html_embed_code):
                     state = states.FAILURE
