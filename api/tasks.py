@@ -1520,12 +1520,20 @@ def fetch_facebook_friends(user):
         logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
 
     except urllib2.URLError, exc:
+        logger.error('Error fetching Facebook friends. url=%s, code=%s' % (news_feed_url, exc.code))
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
-            logger.info('User:%s revoked access from facebook...disabling' % user.username)
-            User.objects.filter(id=user.id).update(is_registered=False)
+            try:
+                error = exc.fp.read()
+                logger.info('Facebook API error fetching Facebook friends for user:%s\n%s' % (user.username, error))
+                error_obj = json.loads(error)
+                if error_obj['error']['type'] == 'OAuthException':
+                    logger.info('User:%s revoked access from facebook...disabling' % user.username)
+                    User.objects.filter(id=user.id).update(is_registered=False)
+            except KeyError:
+                return fetch_facebook_friends.retry(exc=exc)
         else:
-            logger.error('Error opening facebook friends resource: %s' % url, exc_info=True)
             return fetch_facebook_friends.retry(exc=exc)
+        raise
 
 
 @task
@@ -1666,11 +1674,18 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
                 User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
 
     except urllib2.URLError, exc:
+        logger.error('Error fetching facebook news feed. url=%s, code=%s' % (news_feed_url, exc.code))
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
-            logger.info('User:%s revoked access from facebook...disabling' % user.username)
-            User.objects.filter(id=user.id).update(is_registered=False)
+            try:
+                error = exc.fp.read()
+                logger.info('Facebook API error fetching news feed for user:%s\n%s' % (user.username, error))
+                error_obj = json.loads(error)
+                if error_obj['error']['type'] == 'OAuthException':
+                    logger.info('User:%s revoked access from facebook...disabling' % user.username)
+                    User.objects.filter(id=user.id).update(is_registered=False)
+            except KeyError:
+                return fetch_news_feed.retry(exc=exc)
         else:
-            logger.error('Error fetching facebook news feed: %s' % news_feed_url, exc_info=True)
             return fetch_news_feed.retry(exc=exc)
         raise
 
