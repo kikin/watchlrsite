@@ -707,10 +707,11 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
     if not registered or is_new:
 
         # Fetch new user's facebook friends
-        if not getattr(user, 'is_friend_fetch_scheduled', False):
-            from api.tasks import fetch_facebook_friends
+        if not getattr(user, 'first_time_facebook_fetch_scheduled', False):
+            from api.tasks import fetch_facebook_friends, fetch_user_news_feed
             fetch_facebook_friends.delay(user)
-            setattr(user, 'is_friend_fetch_scheduled', True)
+            fetch_user_news_feed(user)
+            setattr(user, 'first_time_facebook_fetch_scheduled', True)
 
         # Override `is_new` property
         # This will ensure that the welcome experience gets triggered for this user

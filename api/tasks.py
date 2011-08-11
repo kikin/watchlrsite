@@ -1588,7 +1588,8 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
     from social_auth.backends.facebook import FACEBOOK_SERVER
 
     logger = fetch_news_feed.get_logger()
-    logger.info('Fetching facebook news feed for user:%s' % user.username)
+    logger.info('Fetching facebook news feed for user:%s, until=%s, since=%s, page=%s' % \
+                (user.username, until, since, page))
 
     if user.social_auth.get().extra_data is None:
         logger.info('Facebook credentials unavailable...sleeping')
@@ -1658,7 +1659,8 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
 
         if items:
             oldest = datetime.strptime(items[-1]['created_time'], FACEBOOK_DATETIME_FMT)
-            fetch_user_news_feed.delay(user, until=oldest, page=page+1)
+            if not oldest == until:
+                fetch_user_news_feed.delay(user, until=oldest, page=page+1)
             if page == 1:
                 newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
                 User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
