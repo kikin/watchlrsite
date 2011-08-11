@@ -36,3 +36,9 @@ class VideoNotFound(BadRequest):
 
     def __init__(self, id):
         super(VideoNotFound, self).__init__('Video:%s not found' % id)
+
+class UserNotFound(BadRequest):
+    code = 404
+
+    def __init__(self, id):
+        super(UserNotFound, self).__init__('User:%s not found' % id)

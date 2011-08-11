@@ -51,7 +51,9 @@ def home(request):
             if user not in suggested_followees:
                 suggested_followees.append(user)
 
-        invite_list = request.user.invite_friends_list(INVITE_LIST_SIZE)
+#        invite_list = request.user.invite_friends_list(INVITE_LIST_SIZE)
+        invite_list = []
+
         return render_to_response('logged_in.html',
                                   {'suggested_followees': suggested_followees, 'invite_list': invite_list},
                                   context_instance=RequestContext(request))

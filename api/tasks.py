@@ -1520,7 +1520,7 @@ def fetch_facebook_friends(user):
         logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
 
     except urllib2.URLError, exc:
-        logger.error('Error fetching Facebook friends. url=%s, code=%s' % (news_feed_url, exc.code))
+        logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
             try:
                 error = exc.fp.read()
@@ -1674,7 +1674,7 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
                 User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
 
     except urllib2.URLError, exc:
-        logger.error('Error fetching facebook news feed. url=%s, code=%s' % (news_feed_url, exc.code))
+        logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
             try:
                 error = exc.fp.read()

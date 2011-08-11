@@ -589,18 +589,34 @@ class User(auth_models.User):
 
         return invite_list
     
-    def json(self):
-        return { 'name': ' '.join([self.first_name, self.last_name]),
-                 'username': self.username,
-                 'picture': self.picture(),
-                 'email': self.email,
-                 'notifications': self.notifications(),
-                 'preferences': self.preferences(),
-                 'saves': self.saved_videos().count(),
-                 'watches': self.watched_videos().count(),
-                 'likes': self.liked_videos().count(),
-                 'following': self.following_count(),
-                 'followers': self.follower_count() }
+    def json(self, excludes=None):
+        serialized = { 'id': self.id,
+                       'name': ' '.join([self.first_name, self.last_name]),
+                       'username': self.username,
+                       'picture': self.picture(),
+                       'email': self.email,
+                       'notifications': self.notifications(),
+                       'preferences': self.preferences(),
+                       'saves': self.saved_videos().count(),
+                       'watches': self.watched_videos().count(),
+                       'likes': self.liked_videos().count(),
+                       'following': self.following_count(),
+                       'followers': self.follower_count() }
+
+        if excludes is not None:
+            try:
+                for property in excludes:
+                    try:
+                        del serialized[property]
+                    except KeyError:
+                        pass
+            except TypeError:
+                try:
+                    del serialized[excludes]
+                except KeyError:
+                    pass
+
+        return serialized
 
 
 class UserFollowsUser(models.Model):

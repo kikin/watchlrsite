@@ -25,11 +25,9 @@
     $(document).ready(function(){
         if(!window.location.hash)
             window.location = "/#!/activity";
-        {% if suggested_followees|length_is:0 and invite_list|length_is:0 %}
-        {% endif %}
     });
     </script>
-
+    
 {% endblock script_refs %}
 
 {% block right_panel %}
