@@ -52,7 +52,10 @@ def url_fix(url, charset='utf-8'):
     elif netloc in ['facebook.com', 'www.facebook.com']:
         params = parse_qs(query + fragment)
         try:
-            video_id = params['video_id'][0]
+            try:
+                video_id = params['video_id'][0]
+            except KeyError:
+                video_id = params['v'][0]
             scheme = 'https'
             netloc = 'graph.facebook.com'
             path = '/%s' % video_id

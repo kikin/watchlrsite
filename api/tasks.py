@@ -594,6 +594,7 @@ class YoutubeFetcher(object):
     YOUTUBE_URL_PATTERNS = [
             re.compile(r'http://.*youtube\.com/watch.*(\?|&)v=(?P<id>[_\-a-zA-Z0-9]+)'),
             re.compile(r'http://.*youtube\.com/v/(?P<id>[_\-a-zA-Z0-9]+)'),
+            re.compile(r'http://youtu\.be/(?P<id>[_\-a-zA-Z0-9]+)')
             ]
 
     YOUTUBE_EMBED_TAG = '''<object width="640" height="360">
@@ -932,7 +933,8 @@ class FacebookFetcher(object):
         # Facebook sometimes does this for facebook-videos!
         if not response:
             fb_url = self.EMBEDLY_FACEBOOK_URL % match.group(1)
-            meta = self.forward(fb_url, logger, **kwargs)
+            norm_fb_url = url_fix(fb_url)
+            meta = self.forward(norm_fb_url, logger, **kwargs)
 
         else:
             # Link to original video?
