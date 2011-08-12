@@ -9,8 +9,8 @@ from django.contrib.auth import authenticate
 
 from kikinvideo.settings import AUTHENTICATION_SWAP_SECRET
 
-from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, BadGateway, UserNotFound
-from api.models import Video, User, UserVideo, Notification, Preference
+from api.exception import ApiError, Unauthorized, NotFound, BadRequest, BadGateway
+from api.models import Video, User, UserVideo, Notification, Preference, UserTask
 from api.utils import epoch, url_fix, MalformedURLException
 from api.tasks import fetch, push_like_to_fb, slugify
 from webapp.templatetags.kikinvideo_tags import activity_item_heading
@@ -99,7 +99,7 @@ def do_request(request, video_id, method):
         user_video = getattr(request.user, method)(Video.objects.get(pk=video_id))
         return user_video.json()
     except Video.DoesNotExist:
-        raise VideoNotFound(video_id)
+        raise NotFound(video_id)
 
 
 @jsonp_view
@@ -108,7 +108,7 @@ def like(request, video_id):
     try:
         video = Video.objects.get(pk=video_id)
     except Video.DoesNotExist:
-        raise VideoNotFound(video_id)
+        raise NotFound(video_id)
 
     user = request.user
     try:
@@ -201,7 +201,7 @@ def unlike_by_url(request):
         user_video = request.user.unlike_video(Video.objects.get(url=normalized_url))
         return user_video.json()
     except Video.DoesNotExist:
-        raise VideoNotFound(normalized_url)
+        raise NotFound(normalized_url)
 
 
 @jsonp_view
@@ -299,7 +299,7 @@ def get(request, video_id):
         return {'videos': [ video ] }
 
     except Video.DoesNotExist:
-        raise VideoNotFound(video_id)
+        raise NotFound(video_id)
 
 
 # See note on `profile()` method about CSRF exemption
@@ -752,7 +752,7 @@ def get_user(request):
     except ValueError:
         raise BadRequest('Malformed parameter: %s' % request.GET['user_id'])
     except User.DoesNotExist:
-        raise UserNotFound(request.GET['user_id'])
+        raise NotFound(request.GET['user_id'])
 
     if user is None:
         try:
@@ -761,7 +761,7 @@ def get_user(request):
         except KeyError:
             raise BadRequest('Should supply either "user_id" or "username" parameter')
         except User.DoesNotExist:
-            raise UserNotFound(request.GET['username'])
+            raise NotFound(request.GET['username'])
 
     return user
 
@@ -839,3 +839,24 @@ def liked_videos(request):
 
     return { 'count': len(videos),
              'videos': videos }
+
+
+@jsonp_view
+@require_authentication
+def user_tasks(request, category=None):
+    if category is not None:
+        try:
+            task = UserTask.objects.get(user=request.user, category=category)
+            tasks = [task.json(excludes=['email'])]
+        except UserTask.DoesNotExist:
+            raise NotFound(category)
+
+    else:
+        tasks = []
+        try:
+            for task in UserTask.objects.filter(user=request.user):
+                tasks.append(task.json(excludes=['email']))
+        except UserTask.DoesNotExist:
+            pass
+
+    return tasks

@@ -324,6 +324,38 @@ kikinvideo.UIUniversal =
                 }, checkVideoMetadataInterval);
             }
 
+            function checkFacebookImportStatus(){
+                var interval = 30000;
+                var maxAttempts = 10;
+                intervalTimer = setInterval(function(){
+                    if(maxAttempts > 0){
+                        $.get('/api/user_tasks/news', function(data){
+                            if (data && data.success && data.result) {
+                                result = data.result[0]
+                                if (result.status == 'SUCCESS'){
+                                    clearInterval(intervalTimer);
+                                    home.populatePanel();
+                                } else if(result.status == 'FAILURE'){
+                                    clearInterval(intervalTimer);
+                                    $('#fetching-data-spinner').hide();
+                                    $('#fetching-facebook-news-failure').fadeIn('fast');
+                                }
+                            }
+                        });
+                    } else {
+                        clearInterval(intervalTimer);
+                        $('#fetching-data-spinner').hide();
+                        $('#fetching-facebook-news-failure').show();
+                    }
+                    maxAttempts--;
+                }, interval);
+            }
+
+            function closeFacebookImportFailureMsg(){
+                $('#fetching-facebook-news-failure').hide();
+                home.populatePanel();
+            }
+
             //expose public functions...
             return {
                 closePlayer : closePlayer,
@@ -333,7 +365,9 @@ kikinvideo.UIUniversal =
                 videoList: videoList,
                 addToVideoList: addToVideoList,
                 checkForVideoMetadata: checkForVideoMetadata,
-                switchActivityType: switchActivityType
+                switchActivityType: switchActivityType,
+                checkFacebookImportStatus: checkFacebookImportStatus,
+                closeFacebookImportFailureMsg: closeFacebookImportFailureMsg
             }
         };
 

@@ -27,7 +27,7 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 
 from api.utils import url_fix, MalformedURLException
-from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend, UserVideo
+from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend, UserVideo, UserTask
 from kikinvideo.settings import SENDER_EMAIL_ADDRESS, FACEBOOK_FRIENDS_FETCHER_SCHEDULE, FACEBOOK_NEWS_FEED_FETCH_SCHEDULE
 
 import logging
@@ -1519,6 +1519,8 @@ def fetch_facebook_friends(user):
         User.objects.filter(id=user.id).update(fb_friends_fetched=datetime.utcnow())
         logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
 
+        UserTask.update_result(fetch_facebook_friends.request.id, states.SUCCESS)
+
     except urllib2.URLError, exc:
         logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
@@ -1665,13 +1667,21 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
             user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
             user_video.save()
 
+        # Fetch next page?
         if items:
             oldest = datetime.strptime(items[-1]['created_time'], FACEBOOK_DATETIME_FMT)
             if not oldest == until:
                 fetch_user_news_feed.delay(user, until=oldest, page=page+1)
+            else:
+                UserTask.update_result(fetch_user_news_feed.request.id, states.SUCCESS)
+
+            # Update to reflect the most recent news item seen
             if page == 1:
                 newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
                 User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
+
+        else:
+            UserTask.update_result(fetch_user_news_feed.request.id, states.SUCCESS)
 
     except urllib2.URLError, exc:
         logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))

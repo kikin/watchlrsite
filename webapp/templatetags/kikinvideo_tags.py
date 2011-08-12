@@ -8,7 +8,7 @@ from django.utils.encoding import force_unicode
 
 from celery import states
 
-from kikinvideo.api.models import UserVideo
+from kikinvideo.api.models import UserVideo, UserTask
 from kikinvideo.webapp.helpers import VideoHelper
 
 import logging
@@ -514,3 +514,13 @@ def thumbnail_target_for_device(request, id):
         return '/video/%s' % id
     else:
         return "javascript:UI.loadPlayer(%s)" % id
+
+@register.filter
+def importing_new_user_fb_videos(user):
+    try:
+        task = UserTask.objects.get(user=user, category='news')
+        if task._status() not in states.READY_STATES:
+            return True
+    except UserTask.DoesNotExist:
+        pass
+    return False

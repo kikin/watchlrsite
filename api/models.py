@@ -702,11 +702,57 @@ class Preference(models.Model):
     changed = models.DateTimeField(auto_now=True)
 
 
+class UserTask(models.Model):
+    user = models.ForeignKey(User)
+    category = models.CharField(max_length=50, db_index=True)
+    task_id = models.CharField(max_length=255, null=True, db_index=True)
+    result = models.CharField(max_length=10, null=True, db_index=True)
+    added = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def _status(self):
+        if self.result is not None:
+            state = self.result
+        else:
+            if (datetime.utcnow() - self.added).seconds > 900:
+                state = states.FAILURE
+            else:
+                state = default_app.backend.get_status(self.task_id)
+        return state
+
+    def json(self, excludes=None):
+        return { 'user': self.user.json(excludes=excludes),
+                 'category': self.category,
+                 'task_id': self.task_id,
+                 'status': self.status(self.task_id) }
+
+    @staticmethod
+    def update_result(task_id, result):
+        try:
+            task = UserTask.objects.get(task_id=task_id)
+            task.result = result
+            task.save()
+            return task
+        except UserTask.DoesNotExist:
+            return None
+
+    @staticmethod
+    def status(task_id):
+        task = UserTask.objects.get(task_id=task_id)
+        return task._status()
+
+
 # Note that since we are defining a custom User model, import and handler
 # registration MUST be done after model definition to avoid circular import issues.
 from social_auth.signals import pre_update
 
 def social_auth_pre_update(sender, user, response, details, **kwargs):
+    def add_user_task(user, category, task):
+        user_task, created = UserTask.objects.get_or_create(user=user, category=category)
+        task_info = task.delay(user)
+        user_task.task_id = task_info.task_id
+        user_task.added = datetime.utcnow()
+        user_task.save()
+
     saved = user.username
 
     # New user?
@@ -725,11 +771,11 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
     if not registered or is_new:
 
         # Fetch new user's facebook friends
-        if not getattr(user, 'first_time_facebook_fetch_scheduled', False):
+        if not getattr(user, 'sign_up_fetch_scheduled', False):
             from api.tasks import fetch_facebook_friends, fetch_user_news_feed
-            fetch_facebook_friends.delay(user)
-            fetch_user_news_feed(user)
-            setattr(user, 'first_time_facebook_fetch_scheduled', True)
+            add_user_task(user, 'friends', fetch_facebook_friends)
+            add_user_task(user, 'news', fetch_user_news_feed)
+            setattr(user, 'sign_up_fetch_scheduled', True)
 
         # Override `is_new` property
         # This will ensure that the welcome experience gets triggered for this user
