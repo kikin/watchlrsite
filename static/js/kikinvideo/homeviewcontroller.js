@@ -273,7 +273,7 @@ kikinvideo.HomeViewController = function() {
             requestParams = {'start':0, 'count':savedVideosToLoad};
         }else if (activeView == VIEWS.activity){
             contentSource = ACTIVITY_CONTENT_URL;
-            requestParams = {'start':0, 'count':activityItemsToLoad, 'type': $(this).activityItemsType};
+            requestParams = {'start':0, 'count':activityItemsToLoad, 'activityType': home.activityItemsType};
         }
 
         if(uid)

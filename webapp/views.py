@@ -216,7 +216,7 @@ def activity(request):
         user = request.user
         if 'start' in request.GET and 'count' in request.GET:
             try:
-                all_activity_items = user.activity(request.GET.get('type'))
+                all_activity_items = user.activity(request.GET.get('activityType'))
                 start_index = int(request.GET['start'])
                 end_index = start_index + int(request.GET['count'])
                 if len(all_activity_items) >= end_index:
