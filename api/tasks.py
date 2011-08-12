@@ -1649,7 +1649,7 @@ def fetch_user_news_feed(user, until=None, since=None, page=1):
                 video = None
                 for fetcher in _fetcher.fetchers:
                     try:
-                        meta = fetcher.fetch(url, logger)
+                        meta = fetcher.fetch(url, logger, user_id=user.id, host='http://www.facebook.com')
                         video, created = Video.objects.get_or_create(url=url)
                         update_video_metadata(video, meta, logger)
                         break
