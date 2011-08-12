@@ -325,8 +325,8 @@ kikinvideo.UIUniversal =
             }
 
             function checkFacebookImportStatus(){
-                var interval = 30000;
-                var maxAttempts = 10;
+                var interval = 6000;
+                var maxAttempts = 20;
                 intervalTimer = setInterval(function(){
                     if(maxAttempts > 0){
                         $.get('/api/user_tasks/news', function(data){
