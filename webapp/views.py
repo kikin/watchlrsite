@@ -219,18 +219,21 @@ def activity(request):
 
         if 'start' in request.GET and 'count' in request.GET:
 
-            try:
-                task = UserTask.objects.get(user=user, category='news')
-                task_status = task.status()
-                if task_status not in [states.SUCCESS, states.FAILURE]:
-                    facebook_import_pending = True
-                else:
-                    fetch_task_failed = task_status == states.FAILURE
-            except UserTask.DoesNotExist:
-                pass
+            activityType = request.GET.get('activityType')
+
+            if activityType in ['all', 'facebook']:
+                try:
+                    task = UserTask.objects.get(user=user, category='news')
+                    task_status = task.status()
+                    if task_status not in [states.SUCCESS, states.FAILURE]:
+                        facebook_import_pending = True
+                    else:
+                        fetch_task_failed = task_status == states.FAILURE
+                except UserTask.DoesNotExist:
+                    pass
 
             try:
-                all_activity_items = user.activity(request.GET.get('activityType'))
+                all_activity_items = user.activity(activityType)
                 start_index = int(request.GET['start'])
                 end_index = start_index + int(request.GET['count'])
                 if len(all_activity_items) >= end_index:
