@@ -43,7 +43,9 @@ def geolocate(view):
         agent = request.REQUEST.get('agent')
         version = request.REQUEST.get('version')
 
-        location = GEOIP.record_by_addr(request.META['REMOTE_ADDR']) if GEOIP else None
+        ip_address = request.META['REMOTE_ADDR']
+
+        location = GEOIP.record_by_addr(ip_address) if GEOIP else None
         country = location.get('country_code') if location else None
         city = location.get('city') if location else None
 
@@ -53,7 +55,8 @@ def geolocate(view):
                         'version': version,
                         'context': context,
                         'country': country,
-                        'city': city })
+                        'city': city,
+                        'ip': ip_address })
 
         return view(request, *args, **kwargs)
 
@@ -102,7 +105,8 @@ def action(request, *args, **kwargs):
                                        agent=kwargs.get('agent'),
                                        agent_version=kwargs.get('version'),
                                        country=kwargs.get('country'),
-                                       city=kwargs.get('city'))
+                                       city=kwargs.get('city'),
+                                       ip_address=kwargs.get('ip'))
     return { 'id': activity.id }
 
 
@@ -126,7 +130,8 @@ def event(request, *args, **kwargs):
                                  agent=kwargs.get('agent'),
                                  agent_version=kwargs.get('version'),
                                  country=kwargs.get('country'),
-                                 city=kwargs.get('city'))
+                                 city=kwargs.get('city'),
+                                 ip_address=kwargs.get('ip'))
 
     return { 'id': event.id }
 
@@ -149,7 +154,8 @@ def error(request, *args, **kwargs):
                                  agent=kwargs.get('agent'),
                                  agent_version=kwargs.get('version'),
                                  country=kwargs.get('country'),
-                                 city=kwargs.get('city'))
+                                 city=kwargs.get('city'),
+                                 ip_address=kwargs.get('ip'))
 
     return { 'id': error.id }
 
