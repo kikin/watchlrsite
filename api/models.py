@@ -12,6 +12,8 @@ from django.core.urlresolvers import reverse
 from celery.app import default_app
 from celery import states
 
+from utils import epoch
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -131,10 +133,12 @@ class Video(models.Model):
 
                 user_video = UserVideo.objects\
                                       .filter(video=self)\
-                                      .values('saved_timestamp', 'liked_timestamp')\
-                                      .order_by('-saved_timestamp', '-liked_timestamp')[0:1].get()
+                                      .values('saved_timestamp', 'liked_timestamp', 'shared_timestamp')\
+                                      .order_by('-saved_timestamp', '-liked_timestamp', '-shared_timestamp')[0:1].get()
 
-                added = user_video.get('saved_timestamp') or user_video.get('liked_timestamp')
+                added = user_video.get('saved_timestamp') or \
+                        user_video.get('liked_timestamp') or \
+                        user_video.get('shared_timestamp')
 
                 if (datetime.utcnow() - added).seconds > 900 and (not self.title or not self.html_embed_code):
                     state = states.FAILURE
@@ -223,14 +227,19 @@ class Thumbnail(models.Model):
 
 
 class UserActivity(object):
-    def __init__(self, user, timestammp, type):
+    def __init__(self, user, timestammp, action):
         super(UserActivity, self).__init__()
         self.user = user
         self.timestamp = timestammp
-        self.type = type
+        self.action = action
 
     def __cmp__(self, other):
         return cmp(self.timestamp, other.timestamp)
+
+    def json(self):
+        return { 'user': self.user.json(),
+                 'timestamp': epoch(self.timestamp),
+                 'action': self.action }
 
 
 class ActivityItem(object):
@@ -242,6 +251,11 @@ class ActivityItem(object):
 
     def __cmp__(self, other):
         return cmp(self.timestamp, other.timestamp)
+
+    def json(self):
+        return { 'video': self.video.json(),
+                 'user_activities': [user_activity.json() for user_activity in self.user_activities],
+                 'timestamp': epoch(self.timestamp) }
 
 
 class User(auth_models.User):
@@ -264,7 +278,7 @@ class User(auth_models.User):
     fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_fb_friends', symmetrical=False)
     fb_friends_fetched = models.DateTimeField(null=True, db_index=True)
     fb_news_feed_fetched = models.DateTimeField(null=True, db_index=True)
-    fb_news_last_shared_item_timestamp = models.DateField(null=True)
+    fb_news_last_shared_item_timestamp = models.DateTimeField(null=True)
     dismissed_user_suggestions = models.ManyToManyField('self', through='DismissedUserSuggestions',
                                                         related_name='r_dismissed_user_suggestions', symmetrical=False)
     karma = models.PositiveIntegerField(default=0, db_index=True)
@@ -453,7 +467,7 @@ class User(auth_models.User):
             p.value = int(value)
             p.save()
 
-    def activity(self, type=None, since=None):
+    def activity(self, type=None):
         """
         Activity stream for user.
 
@@ -485,9 +499,6 @@ class User(auth_models.User):
         (2, u'http://www.youtube.com/watch?v=LOWL0KMAIek', [<User: aquaman>, <User: ghostface>])
         """
 
-        if since is None:
-            since = datetime(1970, 1, 1)
-
         by_video = dict()
 
         if not type == 'facebook':
@@ -499,8 +510,6 @@ class User(auth_models.User):
                         continue
 
                     user_video = UserVideo.objects.get(user=user, video=video)
-                    if since is not None and user_video.liked_timestamp < since:
-                        continue
 
                     user_activity = UserActivity(user, user_video.liked_timestamp, 'like')
                     try:
@@ -517,8 +526,6 @@ class User(auth_models.User):
                 for video in filter(lambda v: v.status() == states.SUCCESS, user.shared_videos()):
 
                     user_video = UserVideo.objects.get(user=user, video=video)
-                    if since is not None and user_video.shared_timestamp < since:
-                        continue
 
                     user_activity = UserActivity(user, user_video.shared_timestamp, 'share')
                     try:
@@ -582,19 +589,38 @@ class User(auth_models.User):
 
         return invite_list
     
-    def json(self):
-        return { 'name': ' '.join([self.first_name, self.last_name]),
-                 'username': self.username,
-                 'picture': self.picture(),
-                 'email': self.email,
-                 'notifications': self.notifications(),
-                 'preferences': self.preferences(),
-                 'queued': self.saved_videos().count(),
-                 'saved': self.videos.count(),
-                 'watched': self.watched_videos().count(),
-                 'liked': self.liked_videos().count(),
-                 'following': self.following_count(),
-                 'followers': self.follower_count() }
+    def json(self, other=None, excludes=None):
+        serialized = { 'id': self.id,
+                       'name': ' '.join([self.first_name, self.last_name]),
+                       'username': self.username,
+                       'picture': self.picture(),
+                       'email': self.email,
+                       'notifications': self.notifications(),
+                       'preferences': self.preferences(),
+                       'saves': self.saved_videos().count(),
+                       'watches': self.watched_videos().count(),
+                       'likes': self.liked_videos().count(),
+                       'following_count': self.following_count(),
+                       'follower_count': self.follower_count() }
+
+        if other is not None:
+            serialized.update({ 'following': other in self.followers(),
+                                'follower': other in self.following() })
+                    
+        if excludes is not None:
+            try:
+                for property in excludes:
+                    try:
+                        del serialized[property]
+                    except KeyError:
+                        pass
+            except TypeError:
+                try:
+                    del serialized[excludes]
+                except KeyError:
+                    pass
+
+        return serialized
 
 
 class UserFollowsUser(models.Model):
@@ -680,11 +706,37 @@ class Preference(models.Model):
     changed = models.DateTimeField(auto_now=True)
 
 
+class UserTask(models.Model):
+    user = models.ForeignKey(User)
+    category = models.CharField(max_length=50, db_index=True)
+    task_id = models.CharField(max_length=255, null=True, db_index=True)
+    result = models.CharField(max_length=10, default=states.PENDING, null=True, db_index=True)
+    added = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def status(self):
+        if (datetime.utcnow() - self.added).seconds > 300 and not self.result == states.SUCCESS:
+            return states.FAILURE
+        return self.result
+
+    def json(self, excludes=None):
+        return { 'user': self.user.json(excludes=excludes),
+                 'category': self.category,
+                 'task_id': self.task_id,
+                 'status': self.status() }
+
+
 # Note that since we are defining a custom User model, import and handler
 # registration MUST be done after model definition to avoid circular import issues.
 from social_auth.signals import pre_update
 
 def social_auth_pre_update(sender, user, response, details, **kwargs):
+    def add_user_task(user, category, task):
+        user_task, created = UserTask.objects.get_or_create(user=user, category=category)
+        task_info = task.delay(user, user_task=user_task)
+        user_task.task_id = task_info.task_id
+        user_task.added = datetime.utcnow()
+        user_task.save()
+
     saved = user.username
 
     # New user?
@@ -703,10 +755,11 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
     if not registered or is_new:
 
         # Fetch new user's facebook friends
-        if not getattr(user, 'is_friend_fetch_scheduled', False):
-            from api.tasks import fetch_facebook_friends
-            fetch_facebook_friends.delay(user)
-            setattr(user, 'is_friend_fetch_scheduled', True)
+        if not getattr(user, 'sign_up_fetch_scheduled', False):
+            from api.tasks import fetch_facebook_friends, fetch_user_news_feed
+            add_user_task(user, 'friends', fetch_facebook_friends)
+            add_user_task(user, 'news', fetch_user_news_feed)
+            setattr(user, 'sign_up_fetch_scheduled', True)
 
         # Override `is_new` property
         # This will ensure that the welcome experience gets triggered for this user

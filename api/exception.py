@@ -31,8 +31,8 @@ class Conflict(ApiError):
     code = 409
     reason = 'Conflict'
 
-class VideoNotFound(BadRequest):
+class NotFound(BadRequest):
     code = 404
 
     def __init__(self, id):
-        super(VideoNotFound, self).__init__('Video:%s not found' % id)
+        super(NotFound, self).__init__('%s not found' % id)

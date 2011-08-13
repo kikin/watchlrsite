@@ -9,10 +9,11 @@ from django.contrib.auth import authenticate
 
 from kikinvideo.settings import AUTHENTICATION_SWAP_SECRET
 
-from api.exception import ApiError, Unauthorized, VideoNotFound, BadRequest, BadGateway
-from api.models import Video, User, UserVideo, Notification, Preference
+from api.exception import ApiError, Unauthorized, NotFound, BadRequest, BadGateway
+from api.models import Video, User, UserVideo, Notification, Preference, UserTask
 from api.utils import epoch, url_fix, MalformedURLException
 from api.tasks import fetch, push_like_to_fb, slugify
+from webapp.templatetags.kikinvideo_tags import activity_item_heading
 
 from celery import states
 
@@ -58,7 +59,7 @@ def jsonp_view(f):
         response = None
         try:
             result = f(request, *args, **kwargs)
-            assert isinstance(result, dict)
+            assert isinstance(result, dict) or type(result) == type([])
             response = {'success': True,
                         'result': result}
 
@@ -98,7 +99,7 @@ def do_request(request, video_id, method):
         user_video = getattr(request.user, method)(Video.objects.get(pk=video_id))
         return user_video.json()
     except Video.DoesNotExist:
-        raise VideoNotFound(video_id)
+        raise NotFound(video_id)
 
 
 @jsonp_view
@@ -107,7 +108,7 @@ def like(request, video_id):
     try:
         video = Video.objects.get(pk=video_id)
     except Video.DoesNotExist:
-        raise VideoNotFound(video_id)
+        raise NotFound(video_id)
 
     user = request.user
     try:
@@ -123,12 +124,12 @@ def like(request, video_id):
 
 @csrf_exempt
 @jsonp_view
+@require_authentication
 @require_http_methods(['GET', 'POST'])
 def like_by_url(request):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
 
     querydict = request.GET if request.method == 'GET' else request.POST
+
     try:
         url = url_fix(querydict['url'])
     except KeyError:
@@ -183,12 +184,12 @@ def unlike(request, video_id):
 
 @csrf_exempt
 @jsonp_view
+@require_authentication
 @require_http_methods(['GET', 'POST'])
 def unlike_by_url(request):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
 
     querydict = request.GET if request.method == 'GET' else request.POST
+
     try:
         normalized_url = url_fix(querydict['url'])
     except KeyError:
@@ -200,7 +201,7 @@ def unlike_by_url(request):
         user_video = request.user.unlike_video(Video.objects.get(url=normalized_url))
         return user_video.json()
     except Video.DoesNotExist:
-        raise VideoNotFound(normalized_url)
+        raise NotFound(normalized_url)
 
 
 @jsonp_view
@@ -213,12 +214,12 @@ def save(request, video_id):
 
 @csrf_exempt
 @jsonp_view
+@require_authentication
 @require_http_methods(['GET', 'POST'])
 def add(request):
-    if not request.user.is_authenticated():
-        raise Unauthorized()
 
     querydict = request.GET if request.method == 'GET' else request.POST
+
     try:
         url = url_fix(querydict['url'])
     except KeyError:
@@ -298,7 +299,7 @@ def get(request, video_id):
         return {'videos': [ video ] }
 
     except Video.DoesNotExist:
-        raise VideoNotFound(video_id)
+        raise NotFound(video_id)
 
 
 # See note on `profile()` method about CSRF exemption
@@ -473,7 +474,7 @@ def list(request):
     user = request.user
 
     try:
-        count = min(10, int(request.GET['count']))
+        count = int(request.GET['count'])
     except (KeyError, ValueError):
         count = 10
 
@@ -682,16 +683,171 @@ def unfollow(request, other):
 def activity(request):
     user = request.user
 
-    items = []
-    for item in user.activity():
+    try:
+        count = int(request.GET['count'])
+    except (KeyError, ValueError):
+        count = 10
 
-        users = []
-        for user_like_tuple in item.users:
-            users.append({'timestamp': user_like_tuple[1],
-                          'user': user_like_tuple[0]})
+    try:
+        type = request.GET['type']
+        if not type in ('facebook', 'watchlr'):
+            raise ValueError
+    except (KeyError, ValueError):
+        type = None
 
-        items.append({ 'type': 'like',
-                       'video': item.video.json(),
-                       'users': users })
+    paginator = Paginator(user.activity(type=type), count)
 
-    return items
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
+    try:
+        embed = request.GET['embed']
+        if not embed in ('html', 'html5'):
+            raise ValueError
+    except (KeyError, ValueError):
+        embed = 'html5'
+
+    activity_list = []
+
+    for item in items:
+        item_json = item.json()
+        item_json.update({ 'activity_heading': activity_item_heading(item, user) })
+
+        try:
+            user_video = UserVideo.objects.get(user=user, video=item.video)
+            item_json['video']['saved'] = user_video.saved
+            item_json['video']['liked'] = user_video.liked
+            item_json['video']['seek'] = float(user_video.position or 0)
+        except UserVideo.DoesNotExist:
+            item_json['video']['saved'] = item_json['video']['liked'] = False
+            item_json['video']['seek'] = 0
+
+        item_json['video']['html'] = getattr(item.video, '%s_embed_code' % embed)
+
+        activity_list.append(item_json)
+
+    return { 'page': page,
+             'count': len(activity_list),
+             'total': paginator.count,
+             'activity_list': activity_list }
+
+
+def get_user(request):
+    user = None
+
+    try:
+        user_id = int(request.GET['user_id'])
+        user = User.objects.get(pk=user_id)
+    except KeyError:
+        pass
+    except ValueError:
+        raise BadRequest('Malformed parameter: %s' % request.GET['user_id'])
+    except User.DoesNotExist:
+        raise NotFound(request.GET['user_id'])
+
+    if user is None:
+        try:
+            username = request.GET['username']
+            user = User.objects.get(username=username)
+        except KeyError:
+            raise BadRequest('Should supply either "user_id" or "username" parameter')
+        except User.DoesNotExist:
+            raise NotFound(request.GET['username'])
+
+    return user
+
+
+@jsonp_view
+@require_http_methods(['GET',])
+def userinfo(request):
+    if not request.user.is_authenticated():
+        try:
+            # Clients can send session key as a request parameter
+            session_key = request.REQUEST['session_id']
+            session = Session.objects.get(pk=session_key)
+
+            if session.expire_date > datetime.now():
+                uid = session.get_decoded().get('_auth_user_id')
+                request.user = User.objects.get(pk=uid)
+
+        except (KeyError, Session.DoesNotExist):
+            pass
+
+    user = get_user(request)
+    return user.json(other=request.user, excludes=['email'])
+
+
+@jsonp_view
+@require_http_methods(['GET',])
+def followers(request):
+    user = get_user(request)
+
+    user_followers = [follower.json(other=request.user, excludes=['email']) for follower in user.followers()]
+
+    return { 'count': len(user_followers),
+             'followers': user_followers }
+
+
+@jsonp_view
+@require_http_methods(['GET',])
+def following(request):
+    user = get_user(request)
+
+    user_followers = [followee.json(other=request.user, excludes=['email']) for followee in user.following()]
+
+    return { 'count': len(user_followers),
+             'following': user_followers }
+
+
+@jsonp_view
+@require_http_methods(['GET',])
+def liked_videos(request):
+
+    if not request.user.is_authenticated():
+        try:
+            # Clients can send session key as a request parameter
+            session_key = request.REQUEST['session_id']
+            session = Session.objects.get(pk=session_key)
+
+            if session.expire_date > datetime.now():
+                uid = session.get_decoded().get('_auth_user_id')
+                request.user = User.objects.get(pk=uid)
+
+        except (KeyError, Session.DoesNotExist):
+            pass
+
+    user = get_user(request)
+
+    videos = []
+
+    for video in user.liked_videos():
+        json = video.json()
+        videos.append(json)
+
+        if request.user.is_authenticated():
+            try:
+                user_video = UserVideo.objects.get(user=request.user, video=video)
+
+                json['saved'] = user_video.saved
+                json['liked'] = user_video.liked
+                json['seek'] = float(user_video.position or 0)
+
+                continue
+
+            except UserVideo.DoesNotExist:
+                pass
+            
+        json['saved'] = json['liked'] = False
+        json['seek'] = 0
+
+    return { 'count': len(videos),
+             'videos': videos }

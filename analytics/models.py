@@ -9,6 +9,7 @@ class Base(models.Model):
     country = models.CharField(max_length=10, null=True, db_index=True)
     city = models.CharField(max_length=100, null=True)
     timestamp = models.DateTimeField(auto_now=True)
+    ip_address = models.IPAddressField(null=True)
 
     class Meta:
         abstract = True

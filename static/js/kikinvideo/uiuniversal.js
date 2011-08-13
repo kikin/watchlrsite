@@ -35,6 +35,12 @@ kikinvideo.UIUniversal =
 
             var videoList = [];
 
+            // Activity filter selection
+            var activityFilterTypeMap = {
+                all: "#activity-option-all",
+                facebook: "#activity-option-facebook",
+                watchlr: "#activity-option-watchlr"
+            };
 
             /*initialization...*/
             bindToUI();
@@ -242,17 +248,39 @@ kikinvideo.UIUniversal =
 
             function bindEvents() {
                 $(PROFILE_OPTIONS_BUTTON_SELECTOR).hover(
-                        function() {
-                            if(!$(this).hasClass('selected') && $('#lnkConnectFb').length == 0)
-                                $(this).addClass('selected');
-                            $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
-                        },
-                        function() {
-                            if($(this).hasClass('selected'))
-                                $(this).removeClass('selected');
-                            $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
-                        }
+                    function() {
+                        if(!$(this).hasClass('selected') && $('#lnkConnectFb').length == 0)
+                            $(this).addClass('selected');
+                        $(PROFILE_OPTIONS_PANEL_SELECTOR).show();
+                    },
+                    function() {
+                        if($(this).hasClass('selected'))
+                            $(this).removeClass('selected');
+                        $(PROFILE_OPTIONS_PANEL_SELECTOR).hide();
+                    }
+                );
+                $('#activity-filter-menu').hover(
+                    function() {
+                        var activityFilterItem = activityFilterTypeMap[home.getSelectedActivityType()];
+                        if (!$(activityFilterItem).hasClass('selected'))
+                            $(activityFilterItem).addClass('selected');
+                        $('#activity-options').show();
+                    },
+                    function() {
+                        $('#activity-options').hide();
+                    }
                 )
+            }
+
+            function switchActivityType(type){
+                $('#activity-options').hide();
+
+                var activityFilterItem = activityFilterTypeMap[home.getSelectedActivityType()];
+                if ($(activityFilterItem).hasClass('selected'))
+                    $(activityFilterItem).removeClass('selected');
+
+                home.setSelectedActivityType(type);
+                home.populatePanel();
             }
 
             function addToVideoList(vid, metadata){
@@ -304,7 +332,8 @@ kikinvideo.UIUniversal =
                 handleProfileSave : handleProfileSave,
                 videoList: videoList,
                 addToVideoList: addToVideoList,
-                checkForVideoMetadata: checkForVideoMetadata
+                checkForVideoMetadata: checkForVideoMetadata,
+                switchActivityType: switchActivityType
             }
         };
 
