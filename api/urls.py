@@ -22,5 +22,4 @@ urlpatterns = patterns(
     (r'^followers$', 'views.followers'),
     (r'^following$', 'views.following'),
     (r'^liked_videos$', 'views.liked_videos'),
-    (r'^user_tasks(/(?P<category>[_a-zA-Z0-9]+))?$', 'views.user_tasks'),
 )

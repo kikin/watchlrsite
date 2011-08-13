@@ -769,8 +769,21 @@ def get_user(request):
 @jsonp_view
 @require_http_methods(['GET',])
 def userinfo(request):
+    if not request.user.is_authenticated():
+        try:
+            # Clients can send session key as a request parameter
+            session_key = request.REQUEST['session_id']
+            session = Session.objects.get(pk=session_key)
+
+            if session.expire_date > datetime.now():
+                uid = session.get_decoded().get('_auth_user_id')
+                request.user = User.objects.get(pk=uid)
+
+        except (KeyError, Session.DoesNotExist):
+            pass
+
     user = get_user(request)
-    return user.json(excludes=['email'])
+    return user.json(other=request.user, excludes=['email'])
 
 
 @jsonp_view
@@ -778,7 +791,7 @@ def userinfo(request):
 def followers(request):
     user = get_user(request)
 
-    user_followers = [follower.json(excludes=['email']) for follower in user.followers()]
+    user_followers = [follower.json(other=request.user, excludes=['email']) for follower in user.followers()]
 
     return { 'count': len(user_followers),
              'followers': user_followers }
@@ -789,7 +802,7 @@ def followers(request):
 def following(request):
     user = get_user(request)
 
-    user_followers = [followee.json(excludes=['email']) for followee in user.following()]
+    user_followers = [followee.json(other=request.user, excludes=['email']) for followee in user.following()]
 
     return { 'count': len(user_followers),
              'following': user_followers }
@@ -811,7 +824,6 @@ def liked_videos(request):
 
         except (KeyError, Session.DoesNotExist):
             pass
-
 
     user = get_user(request)
 
@@ -839,24 +851,3 @@ def liked_videos(request):
 
     return { 'count': len(videos),
              'videos': videos }
-
-
-@jsonp_view
-@require_authentication
-def user_tasks(request, category=None):
-    if category is not None:
-        try:
-            task = UserTask.objects.get(user=request.user, category=category)
-            tasks = [task.json(excludes=['email'])]
-        except UserTask.DoesNotExist:
-            raise NotFound(category)
-
-    else:
-        tasks = []
-        try:
-            for task in UserTask.objects.filter(user=request.user):
-                tasks.append(task.json(excludes=['email']))
-        except UserTask.DoesNotExist:
-            pass
-
-    return tasks

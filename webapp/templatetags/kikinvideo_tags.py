@@ -515,12 +515,6 @@ def thumbnail_target_for_device(request, id):
     else:
         return "javascript:UI.loadPlayer(%s)" % id
 
-@register.filter
-def importing_new_user_fb_videos(user):
-    try:
-        task = UserTask.objects.get(user=user, category='news')
-        if task._status() not in states.READY_STATES:
-            return True
-    except UserTask.DoesNotExist:
-        pass
-    return False
+@register.inclusion_tag('inclusion_tags/facebook_import.hfrg')
+def facebook_import_template(fetch_task_failed=False):
+    return { 'fetch_task_failed': fetch_task_failed }

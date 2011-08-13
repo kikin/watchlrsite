@@ -1,0 +1,62 @@
+<style>
+    .fetching-data.wrapper{
+        margin-top:45px;
+        margin-bottom:60px;
+        text-align: center;
+    }
+    .fetching-data .inner{
+        font-size: 16px;
+    }
+    .fetching-data.icon{
+        margin-top: 20px;
+    }
+    .fetching-data.close-button{
+        display: block;
+        text-align: center;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        width: 110px;
+        font-size: 15px;
+        font-weight: 500;
+        color: white;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #0C536F;
+        margin-top: 10px;
+        position: relative;
+        margin-left: 310px;
+    }
+    .fetching-data.close-button:hover{
+        text-decoration:none;
+        background-color: #4ab7e3;
+    }
+</style>
+
+<script type="text/javascript">
+
+    $(function(){
+         setTimeout(function(){
+             home.populatePanel(null, true);
+         }, 5000);
+    });
+
+    function closeFacebookImportFailureMsg(){
+        home.populatePanel();
+    }
+
+</script>
+
+<div class="fetching-data wrapper">
+    {% if not fetch_task_failed %}
+        <div id="fetching-data-spinner" class="inner">
+            Importing videos shared by your Facebook friends.<br>
+            <img class="fetching-data icon" src="/static/images/fetching_data.gif"/>
+        </div>
+    {% else %}
+        <div id="fetching-facebook-news-failure" class="inner">
+            Awww, shucks! Something went wrong.<br>
+            <a class="fetching-data close-button" href="javascript:closeFacebookImportFailureMsg()">reload</a>
+        </div>
+    {% endif %}
+</div>

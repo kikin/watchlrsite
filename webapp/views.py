@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
-from kikinvideo.api.models import Video, User, UserVideo
+from kikinvideo.api.models import Video, User, UserVideo, UserTask
 
 from celery import states
 
@@ -214,7 +214,21 @@ def plugin_no_videos(request):
 def activity(request):
     if request.user.is_authenticated():
         user = request.user
+
+        facebook_import_pending = fetch_task_failed = False
+
         if 'start' in request.GET and 'count' in request.GET:
+
+            try:
+                task = UserTask.objects.get(user=user, category='news')
+                task_status = task.status()
+                if task_status not in [states.SUCCESS, states.FAILURE]:
+                    facebook_import_pending = True
+                else:
+                    fetch_task_failed = task_status == states.FAILURE
+            except UserTask.DoesNotExist:
+                pass
+
             try:
                 all_activity_items = user.activity(request.GET.get('activityType'))
                 start_index = int(request.GET['start'])
@@ -225,13 +239,18 @@ def activity(request):
                     vid_subset = all_activity_items[start_index:]
                 else:
                     vid_subset = []
+
             except Exception, e:
                 #means url was malformed...
                 return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+
         else:
             vid_subset = request.user.activity()
-        return render_to_response('content/activity_queue.hfrg', \
-                {'activity_items':vid_subset},context_instance=RequestContext(request))
+
+        return render_to_response('content/activity_queue.hfrg',
+                                  { 'activity_items': vid_subset, 'facebook_import_pending': facebook_import_pending, 'fetch_task_failed': fetch_task_failed },
+                                  context_instance=RequestContext(request))
+    
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 

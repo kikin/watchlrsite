@@ -589,7 +589,7 @@ class User(auth_models.User):
 
         return invite_list
     
-    def json(self, excludes=None):
+    def json(self, other=None, excludes=None):
         serialized = { 'id': self.id,
                        'name': ' '.join([self.first_name, self.last_name]),
                        'username': self.username,
@@ -600,9 +600,13 @@ class User(auth_models.User):
                        'saves': self.saved_videos().count(),
                        'watches': self.watched_videos().count(),
                        'likes': self.liked_videos().count(),
-                       'following': self.following_count(),
-                       'followers': self.follower_count() }
+                       'following_count': self.following_count(),
+                       'follower_count': self.follower_count() }
 
+        if other is not None:
+            serialized.update({ 'following': other in self.followers(),
+                                'follower': other in self.following() })
+                    
         if excludes is not None:
             try:
                 for property in excludes:
@@ -706,39 +710,19 @@ class UserTask(models.Model):
     user = models.ForeignKey(User)
     category = models.CharField(max_length=50, db_index=True)
     task_id = models.CharField(max_length=255, null=True, db_index=True)
-    result = models.CharField(max_length=10, null=True, db_index=True)
+    result = models.CharField(max_length=10, default=states.PENDING, null=True, db_index=True)
     added = models.DateTimeField(auto_now_add=True, db_index=True)
 
-    def _status(self):
-        if self.result is not None:
-            state = self.result
-        else:
-            if (datetime.utcnow() - self.added).seconds > 900:
-                state = states.FAILURE
-            else:
-                state = default_app.backend.get_status(self.task_id)
-        return state
+    def status(self):
+        if (datetime.utcnow() - self.added).seconds > 300 and not self.result == states.SUCCESS:
+            return states.FAILURE
+        return self.result
 
     def json(self, excludes=None):
         return { 'user': self.user.json(excludes=excludes),
                  'category': self.category,
                  'task_id': self.task_id,
-                 'status': self.status(self.task_id) }
-
-    @staticmethod
-    def update_result(task_id, result):
-        try:
-            task = UserTask.objects.get(task_id=task_id)
-            task.result = result
-            task.save()
-            return task
-        except UserTask.DoesNotExist:
-            return None
-
-    @staticmethod
-    def status(task_id):
-        task = UserTask.objects.get(task_id=task_id)
-        return task._status()
+                 'status': self.status() }
 
 
 # Note that since we are defining a custom User model, import and handler
@@ -748,7 +732,7 @@ from social_auth.signals import pre_update
 def social_auth_pre_update(sender, user, response, details, **kwargs):
     def add_user_task(user, category, task):
         user_task, created = UserTask.objects.get_or_create(user=user, category=category)
-        task_info = task.delay(user)
+        task_info = task.delay(user, user_task=user_task)
         user_task.task_id = task_info.task_id
         user_task.added = datetime.utcnow()
         user_task.save()

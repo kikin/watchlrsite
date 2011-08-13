@@ -261,7 +261,7 @@ kikinvideo.UIUniversal =
                 );
                 $('#activity-filter-menu').hover(
                     function() {
-                        var activityFilterItem = activityFilterTypeMap[home.activityItemsType];
+                        var activityFilterItem = activityFilterTypeMap[home.getSelectedActivityType()];
                         if (!$(activityFilterItem).hasClass('selected'))
                             $(activityFilterItem).addClass('selected');
                         $('#activity-options').show();
@@ -275,11 +275,11 @@ kikinvideo.UIUniversal =
             function switchActivityType(type){
                 $('#activity-options').hide();
 
-                var activityFilterItem = activityFilterTypeMap[home.activityItemsType];
+                var activityFilterItem = activityFilterTypeMap[home.getSelectedActivityType()];
                 if ($(activityFilterItem).hasClass('selected'))
                     $(activityFilterItem).removeClass('selected');
 
-                home.activityItemsType = type;
+                home.setSelectedActivityType(type);
                 home.populatePanel();
             }
 
@@ -324,38 +324,6 @@ kikinvideo.UIUniversal =
                 }, checkVideoMetadataInterval);
             }
 
-            function checkFacebookImportStatus(){
-                var interval = 6000;
-                var maxAttempts = 20;
-                intervalTimer = setInterval(function(){
-                    if(maxAttempts > 0){
-                        $.get('/api/user_tasks/news', function(data){
-                            if (data && data.success && data.result) {
-                                result = data.result[0]
-                                if (result.status == 'SUCCESS'){
-                                    clearInterval(intervalTimer);
-                                    home.populatePanel();
-                                } else if(result.status == 'FAILURE'){
-                                    clearInterval(intervalTimer);
-                                    $('#fetching-data-spinner').hide();
-                                    $('#fetching-facebook-news-failure').fadeIn('fast');
-                                }
-                            }
-                        });
-                    } else {
-                        clearInterval(intervalTimer);
-                        $('#fetching-data-spinner').hide();
-                        $('#fetching-facebook-news-failure').show();
-                    }
-                    maxAttempts--;
-                }, interval);
-            }
-
-            function closeFacebookImportFailureMsg(){
-                $('#fetching-facebook-news-failure').hide();
-                home.populatePanel();
-            }
-
             //expose public functions...
             return {
                 closePlayer : closePlayer,
@@ -365,9 +333,7 @@ kikinvideo.UIUniversal =
                 videoList: videoList,
                 addToVideoList: addToVideoList,
                 checkForVideoMetadata: checkForVideoMetadata,
-                switchActivityType: switchActivityType,
-                checkFacebookImportStatus: checkFacebookImportStatus,
-                closeFacebookImportFailureMsg: closeFacebookImportFailureMsg
+                switchActivityType: switchActivityType
             }
         };
 

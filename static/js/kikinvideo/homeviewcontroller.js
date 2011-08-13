@@ -49,7 +49,7 @@ kikinvideo.HomeViewController = function() {
 
     var activityItemsToLoad = 10;
 
-    var activityItemsType = "all";
+    var selectedActivityType = "all";
 
     var active_vid_liked_by_dropdown;
 
@@ -248,9 +248,9 @@ kikinvideo.HomeViewController = function() {
 
     }
 
-    function populatePanel(onComplete) {
+    function populatePanel(onComplete, noLoadingIndicator) {
 
-        if(!initialLoad){
+        if(!initialLoad && !noLoadingIndicator){
             $(VIDEO_PANEL_SELECTOR).prepend(LOADING_DIV_HTML);
             $(LOADING_ICON_BACKGROUND).css({width:$(VIDEO_PANEL_SELECTOR).width(),
                                             height:$(VIDEO_PANEL_SELECTOR).height()-110,
@@ -273,7 +273,7 @@ kikinvideo.HomeViewController = function() {
             requestParams = {'start':0, 'count':savedVideosToLoad};
         }else if (activeView == VIEWS.activity){
             contentSource = ACTIVITY_CONTENT_URL;
-            requestParams = {'start':0, 'count':activityItemsToLoad, 'activityType': home.activityItemsType};
+            requestParams = {'start':0, 'count':activityItemsToLoad, 'activityType': selectedActivityType};
         }
 
         if(uid)
@@ -558,6 +558,14 @@ kikinvideo.HomeViewController = function() {
         }
     }
 
+    function getSelectedActivityType(){
+        return selectedActivityType;
+    }
+
+    function setSelectedActivityType(type){
+        selectedActivityType = type;
+    }
+
     /*expose public functions...*/
     return {
 
@@ -579,7 +587,8 @@ kikinvideo.HomeViewController = function() {
 
         hideVidLikedBy : hideVidLikedBy,
 
-        activityItemsType: activityItemsType
+        getSelectedActivityType: getSelectedActivityType,
+        setSelectedActivityType: setSelectedActivityType
 
     };
 
