@@ -1602,12 +1602,12 @@ If you'd rather not receive follow notification emails, you can manage your sett
 
 
 @task(max_retries=3, default_retry_delay=60)
-def fetch_user_news_feed(user, until=None, since=None, page=1, user_task=None, news_feed_url=None):
+def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url=None):
     from social_auth.backends.facebook import FACEBOOK_SERVER
 
     logger = fetch_news_feed.get_logger()
-    logger.info('Fetching facebook news feed for user:%s, until=%s, since=%s, page=%s' % \
-                (user.username, until, since, page))
+    logger.info('Fetching facebook news feed for user=%s, since=%s, page=%s, news_feed_url=%s' % \
+                (user.username, since, page, news_feed_url))
 
     if user.social_auth.get().extra_data is None:
         logger.info('Facebook credentials unavailable...sleeping')
@@ -1681,6 +1681,11 @@ def fetch_user_news_feed(user, until=None, since=None, page=1, user_task=None, n
                 user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
                 user_video.save()
 
+        # Update to reflect the most recent news item seen
+        if page == 1 and items:
+            newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
+            User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
+
         # Fetch next page?
         if json_data.get('paging') and json_data['paging'].get('next'):
             task_info = fetch_user_news_feed.delay(user,
@@ -1693,11 +1698,6 @@ def fetch_user_news_feed(user, until=None, since=None, page=1, user_task=None, n
             if user_task:
                 logger.info('Setting task id = %s' % task_info.task_id)
                 UserTask.objects.filter(pk=user_task.id).update(task_id=task_info.task_id)
-
-            # Update to reflect the most recent news item seen
-            if page == 1:
-                newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
-                User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
 
         elif user_task:
             UserTask.objects.filter(pk=user_task.id).update(result=states.SUCCESS)
