@@ -1456,8 +1456,12 @@ def push_like_to_fb(video_id, user):
     except Exception:
         logger.exception('Could not post to Facebook')
 
-def get_or_create_fb_identity(friend, user, logger):
+def get_or_create_fb_identity(friend, logger):
     from social_auth.models import UserSocialAuth
+
+    if not friend['id'] or not friend['name']:
+        # Cannot create an identity without a name!
+        return None
 
     try:
         fb_identity = UserSocialAuth.objects.get(uid=friend['id'], provider='facebook')
@@ -1467,7 +1471,7 @@ def get_or_create_fb_identity(friend, user, logger):
     try:
         fb_friend = fb_identity.user
     except User.DoesNotExist:
-        logger.info('Creating new facebook identity: (%s, %s)' % (friend['id'], friend['name']))
+        logger.info('Creating new facebook identity: %s' % str(friend))
 
         parts = friend['name'].split(None, 1)
         if len(parts) >= 2:
@@ -1515,8 +1519,9 @@ def fetch_facebook_friends(user, user_task=None):
             raise Exception('Facebook friends response not valid JSON:\n%s' % content)
 
         for friend in friends:
-            fb_friend = get_or_create_fb_identity(friend, user, logger)
-            FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+            fb_friend = get_or_create_fb_identity(friend, logger)
+            if fb_friend:
+                FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
 
         User.objects.filter(id=user.id).update(fb_friends_fetched=datetime.utcnow())
         logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
@@ -1525,7 +1530,7 @@ def fetch_facebook_friends(user, user_task=None):
             UserTask.objects.filter(pk=user_task.id).update(result=states.SUCCESS)
 
     except urllib2.URLError, exc:
-        logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))
+        logger.error('Error fetching facebook friends for user: %s, reason=%s' % (user.username, exc.reason))
         if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
             try:
                 error = exc.fp.read()
@@ -1667,12 +1672,14 @@ def fetch_user_news_feed(user, until=None, since=None, page=1, user_task=None, n
                     logger.info('Shared link:%s not supported' % item['link'])
                     continue
 
-            fb_friend = get_or_create_fb_identity(item['from'], user, logger)
-            FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+            fb_friend = get_or_create_fb_identity(item['from'], logger)
 
-            user_video, created = UserVideo.objects.get_or_create(user=fb_friend, video=video)
-            user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
-            user_video.save()
+            if fb_friend:
+                FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+
+                user_video, created = UserVideo.objects.get_or_create(user=fb_friend, video=video)
+                user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
+                user_video.save()
 
         # Fetch next page?
         if json_data.get('paging') and json_data['paging'].get('next'):
