@@ -1459,7 +1459,7 @@ def push_like_to_fb(video_id, user):
 def get_or_create_fb_identity(friend, logger):
     from social_auth.models import UserSocialAuth
 
-    if not friend['id'] or not friend['name']:
+    if not friend['id'] or not friend['name'] or not friend['name'].strip():
         # Cannot create an identity without a name!
         return None
 
@@ -1640,7 +1640,7 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
                 continue
 
             try:
-                url = url_fix(item['link'])
+                url = url_fix(item.get('link', item['source']))
             except KeyError:
                 logger.info('Skipping over item with missing required fields:\n%s' % json.dumps(item))
                 continue

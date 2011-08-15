@@ -44,7 +44,14 @@ def url_fix(url, charset='utf-8'):
         try:
             scheme = 'http'
             netloc = 'www.vimeo.com'
-            path = path[path.rindex('/') + 1:]
+            if query:
+                params = parse_qs(query + fragment)
+                try:
+                    path = params['clip_id'][0]
+                except KeyError:
+                    raise MalformedURLException(url)
+            else:
+                path = path[path.rindex('/') + 1:]
             query = params = fragment = ''
         except ValueError:
             raise MalformedURLException(url)
@@ -61,11 +68,12 @@ def url_fix(url, charset='utf-8'):
             path = '/%s' % video_id
             query = params = fragment = ''
         except KeyError:
-            vid_match = match('/v/([0-9]+)$', path)
+            vid_match = match('/v/([0-9]+)', path)
             if not vid_match:
                 raise MalformedURLException(url)
             scheme = 'http'
             netloc = 'www.facebook.com'
+            path = vid_match.group()
             query = params = fragment = ''
 
     else:
