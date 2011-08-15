@@ -1530,8 +1530,8 @@ def fetch_facebook_friends(user, user_task=None):
             UserTask.objects.filter(pk=user_task.id).update(result=states.SUCCESS)
 
     except urllib2.URLError, exc:
-        logger.error('Error fetching facebook friends for user: %s, reason=%s' % (user.username, exc.reason))
-        if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
+        if isinstance(exc, urllib2.HTTPError):
+            logger.error('HTTPError fetching facebook friends for user=%s, code=%s' % (user.username, exc.code))
             try:
                 error = exc.fp.read()
                 logger.info('Facebook API error fetching Facebook friends for user:%s\n%s' % (user.username, error))
@@ -1542,6 +1542,7 @@ def fetch_facebook_friends(user, user_task=None):
             except KeyError:
                 return fetch_facebook_friends.retry(exc=exc)
         else:
+            logger.error('URLError fetching facebook friends for user=%s, reason=%s' % (user.username, exc.reason))
             return fetch_facebook_friends.retry(exc=exc)
         raise
 
@@ -1615,9 +1616,7 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
 
     if news_feed_url is None:
         news_feed_url = 'https://%s/me/home?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
-        if until is not None:
-            news_feed_url += '&until=%s' % until.strftime('%s')
-        elif since is not None:
+        if since is not None:
             news_feed_url += '&since=%s' % since.strftime('%s')
 
     try:
