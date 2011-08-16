@@ -25,11 +25,11 @@ def url_fix(url, charset='utf-8'):
     >>> url_fix("http://www.youtube.com/watch?v=Q11ASg2sBBY&feature=related")
     u'http://www.youtube.com/watch?v=Q11ASg2sBBY'
     >>> url_fix("http://youtu.be/ZiQoVv0FSKQ")
-    u'http://www.youtube.com/watch?v=ZiQoVv0FSK'
+    u'http://www.youtube.com/watch?v=ZiQoVv0FSKQ'
     >>> url_fix("http://www.youtube.com/watch?v=n13K5BWZBP4&feature=BFa&list=AVGxdCwVVULXcTlRUA6nB72euF2Mhv5rVJ&index=3")
     u'http://www.youtube.com/watch?v=n13K5BWZBP4'
     >>> url_fix("http://youtu.be/DFTpQLK3lOs?t=17s")
-    u'http://www.youtube.com/watch?v=DFTpQLK3lO'
+    u'http://www.youtube.com/watch?v=DFTpQLK3lOs'
     >>> url_fix("http://vimeo.com/27260633")
     u'http://www.vimeo.com/27260633'
     >>> url_fix("http://vimeo.com/moogaloop.swf?clip_id=27260633&amp;server=vimeo.com&amp;fullscreen=1&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF")
@@ -48,9 +48,14 @@ def url_fix(url, charset='utf-8'):
         if netloc.endswith('youtu.be'):
             # Of the form http://youtu.be/0yfArN-e2OU?t=1m
             try:
-                video_id = path[path.index('/') + 1 : path.find('?')]
+                start = path.index('/') + 1
             except ValueError:
                 raise MalformedURLException(url)
+            try:
+                end = path.index('?')
+            except ValueError:
+                end = len(path)
+            video_id = path[start:end]
         else:
             params = parse_qs(query)
             # Of the form http://www.youtube.com/v/<video_id>(?|&)foo=bar
