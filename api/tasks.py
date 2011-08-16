@@ -1706,8 +1706,8 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
             UserTask.objects.filter(pk=user_task.id).update(result=states.SUCCESS)
 
     except urllib2.URLError, exc:
-        logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))
-        if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
+        if isinstance(exc, urllib2.HTTPError):
+            logger.error('Error fetching facebook news feed. url=%s, code=%s' % (news_feed_url, exc.code))
             try:
                 error = exc.fp.read()
                 logger.info('Facebook API error fetching news feed for user:%s\n%s' % (user.username, error))
@@ -1718,6 +1718,7 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
             except KeyError:
                 return fetch_news_feed.retry(exc=exc)
         else:
+            logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))
             return fetch_news_feed.retry(exc=exc)
         raise
 
