@@ -1459,7 +1459,7 @@ def push_like_to_fb(video_id, user):
 def get_or_create_fb_identity(friend, logger):
     from social_auth.models import UserSocialAuth
 
-    if not friend['id'] or not friend['name']:
+    if not friend['id'] or not friend['name'] or not friend['name'].strip():
         # Cannot create an identity without a name!
         return None
 
@@ -1640,7 +1640,7 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
                 continue
 
             try:
-                url = url_fix(item['link'])
+                url = url_fix(item.get('link', item['source']))
             except KeyError:
                 logger.info('Skipping over item with missing required fields:\n%s' % json.dumps(item))
                 continue
@@ -1687,10 +1687,14 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
 
         # Fetch next page?
         if json_data.get('paging') and json_data['paging'].get('next'):
+            next_page_url = json_data['paging']['next']
+            if since:
+                next_page_url = '%s?since=%s' % (next_page_url, since.strftime('%s'))
+                
             task_info = fetch_user_news_feed.delay(user,
                                                    page=page+1,
                                                    user_task=user_task,
-                                                   news_feed_url=json_data['paging']['next'])
+                                                   news_feed_url=next_page_url)
 
             # Set user task id to that of next page fetch task. This makes sure we
             # display loading indicator with partial import of Facebook videos.
