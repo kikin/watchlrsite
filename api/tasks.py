@@ -1640,10 +1640,13 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
                 continue
 
             try:
-                url = url_fix(item.get('link', item['source']))
+                url = url_fix(item['link'])
             except KeyError:
-                logger.info('Skipping over item with missing required fields:\n%s' % json.dumps(item))
-                continue
+                try:
+                    url = url_fix(item['source'])
+                except KeyError:
+                    logger.info('Skipping over item with missing required fields:\n%s' % json.dumps(item))
+                    continue
             except MalformedURLException:
                 logger.info('Skipping over malformed url:%s' % item['link'])
                 continue
