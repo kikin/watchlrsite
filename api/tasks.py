@@ -1689,7 +1689,7 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
         if json_data.get('paging') and json_data['paging'].get('next'):
             next_page_url = json_data['paging']['next']
             if since:
-                next_page_url = '%s?since=%s' % (next_page_url, since.strftime('%s'))
+                next_page_url = '%s&since=%s' % (next_page_url, since.strftime('%s'))
                 
             task_info = fetch_user_news_feed.delay(user,
                                                    page=page+1,
