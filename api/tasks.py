@@ -1459,7 +1459,7 @@ def push_like_to_fb(video_id, user):
 def get_or_create_fb_identity(friend, logger):
     from social_auth.models import UserSocialAuth
 
-    if not friend['id'] or not friend['name'] or not friend['name'].strip():
+    if not friend['id'] or not friend.get('name') or not friend['name'].strip():
         # Cannot create an identity without a name!
         return None
 
