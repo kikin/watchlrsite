@@ -1697,6 +1697,7 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
             task_info = fetch_user_news_feed.delay(user,
                                                    page=page+1,
                                                    user_task=user_task,
+                                                   since=since,
                                                    news_feed_url=next_page_url)
 
             # Set user task id to that of next page fetch task. This makes sure we
