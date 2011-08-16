@@ -15,6 +15,27 @@ class MalformedURLException(Exception):
 
 
 def url_fix(url, charset='utf-8'):
+    """
+    Normalize url encoding and for supported domains, convert to a known format.
+
+    >>> url_fix("http://www.youtube.com/v/CIEW5asEHF4?version=3&autohide=1&autoplay=1")
+    u'http://www.youtube.com/watch?v=CIEW5asEHF4'
+    >>> url_fix("http://www.youtube.com/watch?v=iFO-JdGt5_U")
+    u'http://www.youtube.com/watch?v=iFO-JdGt5_U'
+    >>> url_fix("http://www.youtube.com/watch?v=Q11ASg2sBBY&feature=related")
+    u'http://www.youtube.com/watch?v=Q11ASg2sBBY'
+    >>> url_fix("http://youtu.be/ZiQoVv0FSKQ")
+    u'http://www.youtube.com/watch?v=ZiQoVv0FSK'
+    >>> url_fix("http://www.youtube.com/watch?v=n13K5BWZBP4&feature=BFa&list=AVGxdCwVVULXcTlRUA6nB72euF2Mhv5rVJ&index=3")
+    u'http://www.youtube.com/watch?v=n13K5BWZBP4'
+    >>> url_fix("http://youtu.be/DFTpQLK3lOs?t=17s")
+    u'http://www.youtube.com/watch?v=DFTpQLK3lO'
+    >>> url_fix("http://vimeo.com/27260633")
+    u'http://www.vimeo.com/27260633'
+    >>> url_fix("http://vimeo.com/moogaloop.swf?clip_id=27260633&amp;server=vimeo.com&amp;fullscreen=1&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF")
+    u'http://www.vimeo.com/27260633'
+    """
+
     if isinstance(url, unicode):
         url = url.encode(charset, 'ignore')
 
@@ -23,28 +44,42 @@ def url_fix(url, charset='utf-8'):
     if not netloc:
         raise MalformedURLException(url)
 
-    if netloc.endswith('youtube.com'):
-        params = parse_qs(query + fragment)
-        try:
+    if netloc.endswith('youtube.com') or netloc.endswith('youtu.be'):
+        if netloc.endswith('youtu.be'):
+            # Of the form http://youtu.be/0yfArN-e2OU?t=1m
+            try:
+                video_id = path[path.index('/') + 1 : path.find('?')]
+            except ValueError:
+                raise MalformedURLException(url)
+        else:
+            params = parse_qs(query)
             # Of the form http://www.youtube.com/v/<video_id>(?|&)foo=bar
             matched = match('^/(v|embed)/([^?&]+)', path)
             if matched:
                 video_id = matched.group(2)
             else:
-                video_id = params['v'][0]
-            scheme = 'http'
-            netloc = 'www.youtube.com'
-            path = '/watch'
-            query = 'v=%s' % video_id
-            fragment = params = ''
-        except KeyError:
-            raise MalformedURLException(url)
+                try:
+                    video_id = params['v'][0]
+                except KeyError:
+                    raise MalformedURLException(url)
+        scheme = 'http'
+        netloc = 'www.youtube.com'
+        path = '/watch'
+        query = 'v=%s' % video_id
+        fragment = params = ''
 
     elif netloc.endswith('vimeo.com'):
         try:
             scheme = 'http'
             netloc = 'www.vimeo.com'
-            path = path[path.rindex('/') + 1:]
+            if query:
+                params = parse_qs(query + fragment)
+                try:
+                    path = params['clip_id'][0]
+                except KeyError:
+                    raise MalformedURLException(url)
+            else:
+                path = path[path.rindex('/') + 1:]
             query = params = fragment = ''
         except ValueError:
             raise MalformedURLException(url)
@@ -61,11 +96,12 @@ def url_fix(url, charset='utf-8'):
             path = '/%s' % video_id
             query = params = fragment = ''
         except KeyError:
-            vid_match = match('/v/([0-9]+)$', path)
+            vid_match = match('/v/([0-9]+)', path)
             if not vid_match:
                 raise MalformedURLException(url)
             scheme = 'http'
             netloc = 'www.facebook.com'
+            path = vid_match.group()
             query = params = fragment = ''
 
     else:

@@ -1456,8 +1456,12 @@ def push_like_to_fb(video_id, user):
     except Exception:
         logger.exception('Could not post to Facebook')
 
-def get_or_create_fb_identity(friend, user, logger):
+def get_or_create_fb_identity(friend, logger):
     from social_auth.models import UserSocialAuth
+
+    if not friend['id'] or not friend['name'] or not friend['name'].strip():
+        # Cannot create an identity without a name!
+        return None
 
     try:
         fb_identity = UserSocialAuth.objects.get(uid=friend['id'], provider='facebook')
@@ -1467,7 +1471,7 @@ def get_or_create_fb_identity(friend, user, logger):
     try:
         fb_friend = fb_identity.user
     except User.DoesNotExist:
-        logger.info('Creating new facebook identity: (%s, %s)' % (friend['id'], friend['name']))
+        logger.info('Creating new facebook identity: %s' % str(friend))
 
         parts = friend['name'].split(None, 1)
         if len(parts) >= 2:
@@ -1515,8 +1519,9 @@ def fetch_facebook_friends(user, user_task=None):
             raise Exception('Facebook friends response not valid JSON:\n%s' % content)
 
         for friend in friends:
-            fb_friend = get_or_create_fb_identity(friend, user, logger)
-            FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+            fb_friend = get_or_create_fb_identity(friend, logger)
+            if fb_friend:
+                FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
 
         User.objects.filter(id=user.id).update(fb_friends_fetched=datetime.utcnow())
         logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
@@ -1525,8 +1530,8 @@ def fetch_facebook_friends(user, user_task=None):
             UserTask.objects.filter(pk=user_task.id).update(result=states.SUCCESS)
 
     except urllib2.URLError, exc:
-        logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))
-        if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
+        if isinstance(exc, urllib2.HTTPError):
+            logger.error('HTTPError fetching facebook friends for user=%s, code=%s' % (user.username, exc.code))
             try:
                 error = exc.fp.read()
                 logger.info('Facebook API error fetching Facebook friends for user:%s\n%s' % (user.username, error))
@@ -1537,6 +1542,7 @@ def fetch_facebook_friends(user, user_task=None):
             except KeyError:
                 return fetch_facebook_friends.retry(exc=exc)
         else:
+            logger.error('URLError fetching facebook friends for user=%s, reason=%s' % (user.username, exc.reason))
             return fetch_facebook_friends.retry(exc=exc)
         raise
 
@@ -1597,12 +1603,12 @@ If you'd rather not receive follow notification emails, you can manage your sett
 
 
 @task(max_retries=3, default_retry_delay=60)
-def fetch_user_news_feed(user, until=None, since=None, page=1, user_task=None, news_feed_url=None):
+def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url=None):
     from social_auth.backends.facebook import FACEBOOK_SERVER
 
     logger = fetch_news_feed.get_logger()
-    logger.info('Fetching facebook news feed for user:%s, until=%s, since=%s, page=%s' % \
-                (user.username, until, since, page))
+    logger.info('Fetching facebook news feed for user=%s, since=%s, page=%s, news_feed_url=%s' % \
+                (user.username, since, page, news_feed_url))
 
     if user.social_auth.get().extra_data is None:
         logger.info('Facebook credentials unavailable...sleeping')
@@ -1610,9 +1616,7 @@ def fetch_user_news_feed(user, until=None, since=None, page=1, user_task=None, n
 
     if news_feed_url is None:
         news_feed_url = 'https://%s/me/home?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
-        if until is not None:
-            news_feed_url += '&until=%s' % until.strftime('%s')
-        elif since is not None:
+        if since is not None:
             news_feed_url += '&since=%s' % since.strftime('%s')
 
     try:
@@ -1636,7 +1640,7 @@ def fetch_user_news_feed(user, until=None, since=None, page=1, user_task=None, n
                 continue
 
             try:
-                url = url_fix(item['link'])
+                url = url_fix(item.get('link', item['source']))
             except KeyError:
                 logger.info('Skipping over item with missing required fields:\n%s' % json.dumps(item))
                 continue
@@ -1667,30 +1671,36 @@ def fetch_user_news_feed(user, until=None, since=None, page=1, user_task=None, n
                     logger.info('Shared link:%s not supported' % item['link'])
                     continue
 
-            fb_friend = get_or_create_fb_identity(item['from'], user, logger)
-            FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+            fb_friend = get_or_create_fb_identity(item['from'], logger)
 
-            user_video, created = UserVideo.objects.get_or_create(user=fb_friend, video=video)
-            user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
-            user_video.save()
+            if fb_friend:
+                FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+
+                user_video, created = UserVideo.objects.get_or_create(user=fb_friend, video=video)
+                user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
+                user_video.save()
+
+        # Update to reflect the most recent news item seen
+        if page == 1 and items:
+            newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
+            User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
 
         # Fetch next page?
         if json_data.get('paging') and json_data['paging'].get('next'):
+            next_page_url = json_data['paging']['next']
+            if since:
+                next_page_url = '%s?since=%s' % (next_page_url, since.strftime('%s'))
+                
             task_info = fetch_user_news_feed.delay(user,
                                                    page=page+1,
                                                    user_task=user_task,
-                                                   news_feed_url=json_data['paging']['next'])
+                                                   news_feed_url=next_page_url)
 
             # Set user task id to that of next page fetch task. This makes sure we
             # display loading indicator with partial import of Facebook videos.
             if user_task:
                 logger.info('Setting task id = %s' % task_info.task_id)
                 UserTask.objects.filter(pk=user_task.id).update(task_id=task_info.task_id)
-
-            # Update to reflect the most recent news item seen
-            if page == 1:
-                newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
-                User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
 
         elif user_task:
             UserTask.objects.filter(pk=user_task.id).update(result=states.SUCCESS)
