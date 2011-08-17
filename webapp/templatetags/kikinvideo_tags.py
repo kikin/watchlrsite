@@ -501,7 +501,7 @@ def extract_source_for_watchlr_player(video):
         elif video.html5_embed_code:
             return VideoHelper.source_from_video_tag(video.html5_embed_code)
     except Exception:
-        logger.exception('Error extracting source from video: %s' % video.id)
+        logger.exception('Error extracting source from video: url=%s, embed=%s' % (video.url, video.html5_embed_code))
     return ''
 
 @register.inclusion_tag('inclusion_tags/watchlr_player.hfrg')
