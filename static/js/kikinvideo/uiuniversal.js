@@ -324,6 +324,15 @@ kikinvideo.UIUniversal =
                 }, checkVideoMetadataInterval);
             }
 
+
+            function handleFacebookSyndicate(vid){
+                var preferences = '{ "syndicate":' + checkboxValueInt($('#fb-push-message')) + '}';
+                $.post('/api/auth/profile', {'preferences':preferences}, function(data){
+                    $('#video-syndicate-dialog').hide();
+                    home.handleLike(vid, true);
+                });
+            }
+
             //expose public functions...
             return {
                 closePlayer : closePlayer,
@@ -333,7 +342,8 @@ kikinvideo.UIUniversal =
                 videoList: videoList,
                 addToVideoList: addToVideoList,
                 checkForVideoMetadata: checkForVideoMetadata,
-                switchActivityType: switchActivityType
+                switchActivityType: switchActivityType,
+                handleFacebookSyndicate: handleFacebookSyndicate
             }
         };
 

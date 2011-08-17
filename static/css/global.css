@@ -1404,3 +1404,11 @@ box-shadow: 10px 10px 5px #888;
     top: 9px;
     width: 0;
 }
+
+.video-wrapper a, .suggested-followee-item a, #lnk-page-next{
+    color:#43B6E6;
+}
+
+.video-wrapper a:hover, .suggested-followee-item a:hover, #lnk-page-next:hover{
+    color:#0C536F;
+}

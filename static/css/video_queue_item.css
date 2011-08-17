@@ -54,3 +54,107 @@
     padding-left:8px;
     padding-top:5px;
 }
+
+#video-syndicate-dialog {
+    display: none;
+    z-index: 100;
+    background-color: white;
+}
+
+#video-syndicate-dialog.callout {
+    width: 320px;
+    height: 112px;
+    position: absolute;
+    margin-top: -146px;
+    margin-left: 338px;
+    border:2px solid #999999;
+    padding:10px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    -moz-box-shadow:0 0 5px #888888;
+    -webkit-box-shadow:0 0 5px #888888;
+}
+
+#video-syndicate-dialog .callout-notch-border {
+    border-color: transparent transparent transparent white;
+    border-style: solid;
+    border-width: 10px;
+    height: 0;
+    width: 0;
+    position: absolute;
+    top: 8px;
+    right: -17px;
+    z-index: 110;
+}
+
+#video-syndicate-dialog .callout-notch {
+    border-color: transparent transparent transparent #999;
+    border-style: solid;
+    border-width: 10px;
+    height: 0;
+    width: 0;
+    position: absolute;
+    top: 8px;
+    right: -20px;
+}
+
+#video-syndicate-dialog .message {
+    width : 250px;
+    height: 35px;
+    text-align: center;
+    font-size: 15px;
+    position: relative;
+    left: 35px;
+    overflow: hidden;
+    padding: 5px;
+    font-style: normal;
+    font-weight: 500;
+    font-variant: normal;
+    color: #000000;
+}
+
+#video-syndicate-dialog .image {
+    background:url('/static/images/heart_fb.png') no-repeat scroll 0px 0px transparent;
+    width: 150px;
+    height: 46px;
+    display: block;
+    position: relative;
+    left: 85px;
+}
+
+#video-syndicate-dialog .footer {
+    top: 3px;
+    width : 100%;
+    height: 30px;
+    position: relative;
+}
+
+#video-syndicate-dialog .footer-left {
+    float: left;
+}
+
+#video-syndicate-dialog .footer-right {
+    float: right;
+}
+
+#video-syndicate-dialog .ok-button {
+    display: block;
+    text-align: center;
+    width: 40px;
+    height: 20px;
+    background-color: #0C536F;
+    color: white;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-box-shadow: 0 0 3px #888888;
+    -webkit-box-shadow: 0 0 3px #888888;
+}
+
+#video-syndicate-dialog .fb-show-message-label {
+    font-size: 12px;
+}
+
+#video-syndicate-dialog .ok-button:hover {
+    background-color: #E5EFF3;
+    color: #144D63;
+}

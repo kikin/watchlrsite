@@ -239,13 +239,6 @@ kikinvideo.HomeViewController = function() {
 
         });
 
-        $('.video-wrapper a, .suggested-followee-item a, #lnk-page-next').hover(function(){
-                    $(this).css({color:'#0C536F'});
-                },function(){
-                    $(this).css({color:'#43B6E6'});
-        });
-
-
     }
 
     function populatePanel(onComplete, noLoadingIndicator) {
@@ -339,68 +332,89 @@ kikinvideo.HomeViewController = function() {
         });
     }
 
-    function handleLike(vid){
-        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
-        {
-            $.get('/api/like/'+vid, function(data){
-                if(!data.success){
-                    showErrorDialog(data.error, data.code);
-                }else{
-                    var video_properties = data.result;
-                    if(video_properties){
-                        if(video_properties.liked){
-                            //update the icon...
-                            if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
-                                if(data.result.liked){
-                                    if(data){
-                                        $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'unlike');
-                                        $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
-                                        if($(LIKED_ICON_ID_PREFIX+vid).hasClass('hovered'))
-                                                $(LIKED_ICON_ID_PREFIX+vid).removeClass('hovered');
-                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(600);
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
-                                            if(activeView == VIEWS.activity){
-                                                var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
-                                                var like_details = trim(activity_item_header.html());
+    function _doLike(vid){
+        $.get('/api/like/'+vid, function(data){
+            if(!data.success){
+                showErrorDialog(data.error, data.code);
+            }else{
+                var video_properties = data.result;
+                if(video_properties){
+                    if(video_properties.liked){
+                        //update the icon...
+                        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
+                            if(data.result.liked){
+                                if(data){
+                                    $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'unlike');
+                                    $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
+                                    if($(LIKED_ICON_ID_PREFIX+vid).hasClass('hovered'))
+                                            $(LIKED_ICON_ID_PREFIX+vid).removeClass('hovered');
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(600);
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
+                                        if(activeView == VIEWS.activity){
+                                            var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
+                                            var like_details = trim(activity_item_header.html());
 
-                                                if(data.result.likes == 2){
-                                                    if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
-                                                        like_details = 'You and '+like_details;
-                                                    }else{
-                                                        var like_offset = like_details.indexOf('shared, ');
-                                                        like_details = like_details.substr(0, like_offset)+'shared, You and '+like_details.substr(like_offset+8, like_details.length);
-                                                    }
-                                                }else if(data.result.likes > 2){
-                                                    if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
-                                                        like_details = 'You, '+like_details;
-                                                    }else{
-                                                        var like_offset = like_details.indexOf('shared, ');
-                                                        like_details = like_details.substr(0, like_offset)+'shared, You, '+like_details.substr(like_offset+8, like_details.length);
-                                                    }
+                                            if(data.result.likes == 2){
+                                                if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                    like_details = 'You and '+like_details;
                                                 }else{
-                                                    like_details = like_details.substr(0, like_details.length-3)+', You liked...'
+                                                    var like_offset = like_details.indexOf('shared, ');
+                                                    like_details = like_details.substr(0, like_offset)+'shared, You and '+like_details.substr(like_offset+8, like_details.length);
                                                 }
-                                                activity_item_header.fadeOut(500, function(){
-                                                    activity_item_header.html(like_details);
-                                                    activity_item_header.fadeIn(500);
-                                                });
+                                            }else if(data.result.likes > 2){
+                                                if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                    like_details = 'You, '+like_details;
+                                                }else{
+                                                    var like_offset = like_details.indexOf('shared, ');
+                                                    like_details = like_details.substr(0, like_offset)+'shared, You, '+like_details.substr(like_offset+8, like_details.length);
+                                                }
+                                            }else{
+                                                like_details = like_details.substr(0, like_details.length-3)+', You liked...'
                                             }
-                                        });
+                                            activity_item_header.fadeOut(500, function(){
+                                                activity_item_header.html(like_details);
+                                                activity_item_header.fadeIn(500);
+                                            });
+                                        }
+                                    });
 
-                                        trackEvent('Video', 'Like');
-                                    }
+                                    trackEvent('Video', 'Like');
                                 }
                             }
                         }
                     }
-                    if (!$(LIKED_ICON_ID_PREFIX+vid).hasClass("like-tracked")) {
-                        trackAction('like', vid, function(msg) { $(LIKED_ICON_ID_PREFIX+vid).addClass("like-tracked"); });
-                    }
                 }
-            });
+                if (!$(LIKED_ICON_ID_PREFIX+vid).hasClass("like-tracked")) {
+                    trackAction('like', vid, function(msg) { $(LIKED_ICON_ID_PREFIX+vid).addClass("like-tracked"); });
+                }
+            }
+        });
+    }
+
+    function handleLike(vid, skipSyndicationCheck){
+        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
+        {
+            if (skipSyndicationCheck){
+                _doLike(vid);
+            }else{
+                $.get('/api/auth/profile', function(data){
+                    if (data && data.success && data.result.preferences.syndicate == 2){
+                        $('#video-syndicate-dialog').show();
+                        $('html').click(function() {
+                            $('#video-syndicate-dialog').hide();
+                            _doLike(vid);
+                        });
+                        $('#video-syndicate-dialog').click(function(event){
+                            event.stopPropagation();
+                        });
+                    } else {
+                        _doLike(vid);
+                    }
+                });
+            }
         }else{
             $.get('/api/unlike/'+vid, function(data){
                 var video_properties = data.result;
