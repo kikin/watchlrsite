@@ -291,6 +291,9 @@ class User(auth_models.User):
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
 
+    def is_authenticated(self):
+        return self.is_fetch_enabled and super(User, self).is_authenticated()
+
     def facebook_access_token(self):
         return self.social_auth.get().extra_data['access_token']
 
@@ -752,8 +755,8 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
 
     # Ensure that the status flag is set
     # This flag promotes, possibly a facebook friend to a regular user
-    registered = user.is_registered
-    user.is_registered = True
+    registered, fetch_enabled = user.is_registered, user.is_fetch_enabled
+    user.is_registered = user.is_fetch_enabled = True
 
     # Upgrade?
     if not registered or is_new:
@@ -773,7 +776,9 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
         user.date_joined = datetime.utcnow()
 
     # Handlers must return True if any value was updated/changed
-    return not saved == user.username or not registered == user.is_registered
+    return not saved == user.username or \
+           not registered == user.is_registered or \
+           not fetch_enabled == user.is_fetch_enabled
 
 
 # Register for the `pre_update` signal (as opposed to `socialauth_registered` signal)
