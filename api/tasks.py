@@ -1555,7 +1555,7 @@ def refresh_friends_list():
 
     queued = 0
     for user in User.objects.filter(is_registered=True, is_fetch_enabled=True)\
-                            .exclude(date_joined__lt=five_minutes_before_now)\
+                            .exclude(date_joined__gte=five_minutes_before_now)\
                             .order_by('fb_friends_fetched'):
 
         if queued >= FACEBOOK_FRIENDS_FETCHER_SCHEDULE:
@@ -1739,7 +1739,7 @@ def fetch_news_feed(*args, **kwargs):
 
     queued = 0
     for user in User.objects.filter(is_registered=True, is_fetch_enabled=True)\
-                            .exclude(date_joined__lt=five_minutes_before_now)\
+                            .exclude(date_joined__gte=five_minutes_before_now)\
                             .order_by('fb_news_feed_fetched'):
 
         if queued >= FACEBOOK_NEWS_FEED_FETCH_SCHEDULE:
