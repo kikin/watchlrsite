@@ -1538,7 +1538,7 @@ def fetch_facebook_friends(user, user_task=None):
                 error_obj = json.loads(error)
                 if error_obj['error']['type'] == 'OAuthException':
                     logger.info('User:%s revoked access from facebook...disabling' % user.username)
-                    User.objects.filter(id=user.id).update(is_registered=False)
+                    User.objects.filter(id=user.id).update(is_fetch_enabled=False)
             except KeyError:
                 return fetch_facebook_friends.retry(exc=exc)
         else:
@@ -1551,8 +1551,12 @@ def fetch_facebook_friends(user, user_task=None):
 def refresh_friends_list():
     logger = refresh_friends_list.get_logger()
 
+    five_minutes_before_now = datetime.utcnow() - timedelta(minutes=15)
+
     queued = 0
-    for user in User.objects.filter(is_registered=True).order_by('fb_friends_fetched'):
+    for user in User.objects.filter(is_registered=True, is_fetch_enabled=True)\
+                            .exclude(date_joined__lt=five_minutes_before_now)\
+                            .order_by('fb_friends_fetched'):
 
         if queued >= FACEBOOK_FRIENDS_FETCHER_SCHEDULE:
             break
@@ -1718,7 +1722,7 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
                 error_obj = json.loads(error)
                 if error_obj['error']['type'] == 'OAuthException':
                     logger.info('User:%s revoked access from facebook...disabling' % user.username)
-                    User.objects.filter(id=user.id).update(is_registered=False)
+                    User.objects.filter(id=user.id).update(is_fetch_enabled=False)
             except KeyError:
                 return fetch_news_feed.retry(exc=exc)
         else:
@@ -1734,7 +1738,8 @@ def fetch_news_feed(*args, **kwargs):
     five_minutes_before_now = datetime.utcnow() - timedelta(minutes=15)
 
     queued = 0
-    for user in User.objects.filter(is_registered=True, date_joined__lte=five_minutes_before_now)\
+    for user in User.objects.filter(is_registered=True, is_fetch_enabled=True)\
+                            .exclude(date_joined__lt=five_minutes_before_now)\
                             .order_by('fb_news_feed_fetched'):
 
         if queued >= FACEBOOK_NEWS_FEED_FETCH_SCHEDULE:
