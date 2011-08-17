@@ -10,6 +10,7 @@ from django.dispatch import receiver
 from django.core.urlresolvers import reverse
 
 from celery.app import default_app
+from celery.task.control import revoke
 from celery import states
 
 from utils import epoch
@@ -141,7 +142,9 @@ class Video(models.Model):
                         user_video.get('shared_timestamp')
 
                 if (datetime.utcnow() - added).seconds > 900 and (not self.title or not self.html_embed_code):
-                    state = states.FAILURE
+                    state = self.result = states.FAILURE
+                    Video.objects.filter(id=self.id).update(result=states.FAILURE)
+                    revoke(self.task_id, terminate=True, reply=False)
                 else:
                     state = default_app.backend.get_status(self.task_id)
 
