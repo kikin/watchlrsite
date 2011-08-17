@@ -274,7 +274,7 @@ class User(auth_models.User):
     """
     videos = models.ManyToManyField(Video, through='UserVideo')
     follows = models.ManyToManyField('self', through='UserFollowsUser', related_name='r_follows', symmetrical=False)
-    is_registered = models.BooleanField(default=True)
+    is_registered = models.BooleanField(default=True, db_index=True)
     fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_fb_friends', symmetrical=False)
     fb_friends_fetched = models.DateTimeField(null=True, db_index=True)
     fb_news_feed_fetched = models.DateTimeField(null=True, db_index=True)
@@ -283,6 +283,7 @@ class User(auth_models.User):
                                                         related_name='r_dismissed_user_suggestions', symmetrical=False)
     karma = models.PositiveIntegerField(default=0, db_index=True)
     campaign = models.CharField(max_length=50, null=True, db_index=True)
+    is_fetch_enabled = models.BooleanField(default=True, db_index=True)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
