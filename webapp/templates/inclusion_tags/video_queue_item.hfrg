@@ -146,27 +146,29 @@
 
         <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
 
-        {% if display_mode == 'liked' and video in user.saved_videos %}
-        <div id="video-syndicate-dialog-{{ video.id }}" class="video-syndicate-dialog callout saved-callout">
-        {% else %}
-        <div id="video-syndicate-dialog-{{ video.id }}" class="video-syndicate-dialog callout">
-        {% endif %}
-            <div class="callout-notch-border"></div>
-            <div class="callout-notch"></div>
-            <div class="image"></div>
-            <div class="message">
-                <span>When you like a video, it's added to </span>
-                <a {{ user|user_profile_link }} target="_blank">your profile</a>
-                <span> so others can discover it.</span>
-            </div>
-            <div class="footer">
-                <div class="footer-left">
-                    <input id="fb-push-message-{{ video.id }}" type="checkbox" value="on" checked="checked">
-                    <label for="fb-push-message-{{ video.id }}" class="fb-show-message-label">Automatically update facebook when I like videos.</label>
+        {% if user.is_authenticated %}
+            {% if display_mode == 'liked' and video in user.saved_videos %}
+            <div id="video-syndicate-dialog-{{ video.id }}" class="video-syndicate-dialog callout saved-callout">
+            {% else %}
+            <div id="video-syndicate-dialog-{{ video.id }}" class="video-syndicate-dialog callout">
+            {% endif %}
+                <div class="callout-notch-border"></div>
+                <div class="callout-notch"></div>
+                <div class="image"></div>
+                <div class="message">
+                    <span>When you like a video, it's added to </span>
+                    <a {{ user|user_profile_link }} target="">your profile</a>
+                    <span> so others can discover it.</span>
                 </div>
-                <a class="footer-right ok-button" href="javascript:UI.handleFacebookSyndicate({{ video.id }})">ok</a>
+                <div class="footer">
+                    <div class="footer-left">
+                        <input id="fb-push-message-{{ video.id }}" type="checkbox" value="on" checked="checked">
+                        <label for="fb-push-message-{{ video.id }}" class="fb-show-message-label">Automatically update facebook when I like videos.</label>
+                    </div>
+                    <a class="footer-right ok-button" href="javascript:UI.handleFacebookSyndicate({{ video.id }})">ok</a>
+                </div>
             </div>
-        </div>
+        {% endif %}
     
     </div>
     {% endif %}
