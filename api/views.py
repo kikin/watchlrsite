@@ -148,16 +148,17 @@ def like_by_url(request):
         user_video = request.user.like_video(video)
 
     except Video.DoesNotExist:
-        video = Video(url=url)
+        video, created = Video.objects.get_or_create(url=url)
 
-        # Fetch video metadata in background
-        task = fetch.delay(request.user.id,
-                           url,
-                           request.META.get('HTTP_REFERER'),
-                           callback=push_like_to_fb.subtask((request.user, )))
+        if created:
+            # Fetch video metadata in background
+            task = fetch.delay(request.user.id,
+                               url,
+                               request.META.get('HTTP_REFERER'),
+                               callback=push_like_to_fb.subtask((request.user, )))
 
-        video.task_id = task.task_id
-        video.save()
+            video.task_id = task.task_id
+            video.save()
 
         user_video = UserVideo(user=request.user,
                                video=video,

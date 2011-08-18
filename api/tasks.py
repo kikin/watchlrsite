@@ -111,7 +111,7 @@ class OEmbed(object):
     def fetch(self, user_id, url, host, logger):
         logger.info('Fetching metadata for url:%s' % url)
 
-        video = Video.objects.get(url__exact=url)
+        video = Video.objects.get(url=url)
         fetched = video.fetched
 
         # Refresh metadata if cache older than a day
