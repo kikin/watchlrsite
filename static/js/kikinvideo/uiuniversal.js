@@ -326,9 +326,9 @@ kikinvideo.UIUniversal =
 
 
             function handleFacebookSyndicate(vid){
-                var preferences = '{ "syndicate":' + checkboxValueInt($('#fb-push-message')) + '}';
+                var preferences = '{ "syndicate":' + checkboxValueInt($('#fb-push-message-'+vid)) + '}';
                 $.post('/api/auth/profile', {'preferences':preferences}, function(data){
-                    $('#video-syndicate-dialog').hide();
+                    $('#video-syndicate-dialog-'+vid).hide();
                     home.handleLike(vid, true);
                 });
             }

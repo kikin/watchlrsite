@@ -402,12 +402,13 @@ kikinvideo.HomeViewController = function() {
             }else{
                 $.get('/api/auth/profile', function(data){
                     if (data && data.success && data.result.preferences.syndicate == 2){
-                        $('#video-syndicate-dialog').show();
-                        $('html').click(function() {
-                            $('#video-syndicate-dialog').hide();
+                        $('#video-syndicate-dialog-'+vid).show();
+                        $('html').bind('click.videoSyndication', function() {
+                            $('#video-syndicate-dialog-'+vid).hide();
                             _doLike(vid);
+                            $('html').unbind('click.videoSyndication');
                         });
-                        $('#video-syndicate-dialog').click(function(event){
+                        $('#video-syndicate-dialog-'+vid).click(function(event){
                             event.stopPropagation();
                         });
                     } else {

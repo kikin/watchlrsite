@@ -146,7 +146,7 @@
 
         <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
 
-        <div id="video-syndicate-dialog" class="callout">
+        <div id="video-syndicate-dialog-{{ video.id }}" class="video-syndicate-dialog callout">
             <div class="callout-notch-border"></div>
             <div class="callout-notch"></div>
             <div class="image"></div>
@@ -157,8 +157,8 @@
             </div>
             <div class="footer">
                 <div class="footer-left">
-                    <input id="fb-push-message" type="checkbox" checked="checked">
-                    <label for="fb-push-message" class="fb-show-message-label">Automatically update facebook when I like videos.</label>
+                    <input id="fb-push-message-{{ video.id }}" type="checkbox" value="on" checked="checked">
+                    <label for="fb-push-message-{{ video.id }}" class="fb-show-message-label">Automatically update facebook when I like videos.</label>
                 </div>
                 <a class="footer-right ok-button" href="javascript:UI.handleFacebookSyndicate({{ video.id }})">ok</a>
             </div>
