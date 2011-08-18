@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator, EmptyPage
@@ -858,3 +858,19 @@ def liked_videos(request):
     return { 'count': len(videos),
              'videos': videos }
 
+
+@jsonp_view
+@require_http_methods(['GET',])
+def raw_video_source(request, video_id):
+    from webapp.templatetags.kikinvideo_tags import extract_source_for_watchlr_player
+
+    try:
+        video = Video.objects.get(pk=video_id)
+    except Video.DoesNotExist:
+        raise NotFound(video_id)
+
+    raw_source = extract_source_for_watchlr_player(video)
+    if not raw_source:
+        raise ApiError()
+
+    return { "source" : raw_source }

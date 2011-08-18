@@ -460,6 +460,10 @@ def truncate_chars(s, num):
     Template filter to truncate a string to at most num characters respecting word
     boundaries.
     """
+    
+    if not s:
+        return ''
+
     s = force_unicode(s)
     length = int(num)
     if len(s) > length:

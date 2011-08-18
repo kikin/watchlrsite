@@ -12,6 +12,7 @@
 		<![CDATA[
 			import at.matthew.httpstreaming.HTTPStreamingM3U8NetLoader;
 			
+			import com.adobe.serialization.json.JSON;
 			import com.watchlr.GigaPlayer.Event.GigaPlayerEvent;
 			import com.watchlr.GigaPlayer.Util.BrightCove;
 			import com.watchlr.GigaPlayer.Util.Util;
@@ -45,6 +46,9 @@
 			import spark.components.SkinnableContainer;
 			import spark.components.supportClasses.SkinnableComponent;
 			import spark.effects.Fade;
+			
+			// API endpoints
+			protected static var API_VIDEO_SOURCE_BY_ID:String = "/api/video_source/";
 			
 			public var SourceType:Object = { DEFAULT : 0, VIMEO : 1, YOUTUBE : 2, BRIGHTCOVE : 3 };
 			
@@ -147,9 +151,28 @@
 				//finally, load the video...
 				if (FlexGlobals.topLevelApplication.parameters.src) {
 					source = FlexGlobals.topLevelApplication.parameters.src;
+				} else if (FlexGlobals.topLevelApplication.parameters.video_id) {
+					getRawVideoSource(FlexGlobals.topLevelApplication.parameters.video_id);
 				}
 				
 				handlePlayerLoad();	
+			}
+			
+			public function getRawVideoSource(videoId:String):void{
+				var loader:URLLoader = new URLLoader();
+				loader.addEventListener(Event.COMPLETE, this.parseVideoSourceApiResponse);
+				var targetURL:String = API_VIDEO_SOURCE_BY_ID + videoId;
+				var req:URLRequest = new URLRequest(targetURL);
+				loader.load(req);
+			}
+			
+			private function parseVideoSourceApiResponse(event:Event):void{
+				var response:Object = JSON.decode(event.target.data);
+				if (response.success == true) {
+					source = response.result.source;
+				} else {
+					source = "";
+				}
 			}
 			
 			public function onUnload(event:Event): void {

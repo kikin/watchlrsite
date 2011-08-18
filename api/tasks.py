@@ -1418,6 +1418,8 @@ slugify = stringfilter(slugify)
 @task(max_retries=3, default_retry_delay=60)
 def push_like_to_fb(video_id, user):
     from social_auth.backends.facebook import FACEBOOK_SERVER
+    from webapp.templatetags.kikinvideo_tags import truncate_chars
+
     def encode(text):
         if isinstance(text, unicode):
             return text.encode('utf-8')
@@ -1441,7 +1443,7 @@ def push_like_to_fb(video_id, user):
                'link': '%s/%s' % (server_name, video.get_absolute_url()),
                'caption': server_name,
                'name': encode(video.title),
-               'description': encode(video.description),
+               'description': encode(truncate_chars(video.description, 160)),
                'message': 'likes \'%s\'' % encode(video.title) }
 
     try:

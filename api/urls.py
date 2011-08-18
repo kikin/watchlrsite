@@ -22,4 +22,5 @@ urlpatterns = patterns(
     (r'^followers$', 'views.followers'),
     (r'^following$', 'views.following'),
     (r'^liked_videos$', 'views.liked_videos'),
+    (r'^video_source/(?P<video_id>[0-9]+)', 'views.raw_video_source'),
 )
