@@ -75,6 +75,24 @@
     -webkit-box-shadow:0 0 5px #888888;
 }
 
+.video-syndicate-dialog.activity-callout {
+    position: absolute;
+    margin-top: -167px;
+    margin-left: 355px;
+}
+
+.video-syndicate-dialog.activity-callout-save-button {
+    position: absolute;
+    margin-top: -167px;
+    margin-left: 335px;
+}
+
+.video-syndicate-dialog.saved-callout {
+    position: absolute;
+    margin-top: -146px;
+    margin-left: 360px;
+}
+
 .video-syndicate-dialog .callout-notch-border {
     border-color: transparent transparent transparent white;
     border-style: solid;

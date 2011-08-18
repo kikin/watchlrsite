@@ -407,6 +407,14 @@ kikinvideo.HomeViewController = function() {
                             $('#video-syndicate-dialog-'+vid).hide();
                             _doLike(vid);
                             $('html').unbind('click.videoSyndication');
+                            $('#video-syndicate-dialog-'+vid).unbind('click');
+                            event.stopPropagation();
+                        });
+                        $(LIKED_ICON_ID_PREFIX+vid).bind('click.videoSyndication', function() {
+                            $('#video-syndicate-dialog-'+vid).hide();
+                            $(LIKED_ICON_ID_PREFIX+vid).unbind('click.videoSyndication');
+                            $('#video-syndicate-dialog-'+vid).unbind('click');
+                            event.stopPropagation();
                         });
                         $('#video-syndicate-dialog-'+vid).click(function(event){
                             event.stopPropagation();

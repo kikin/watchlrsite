@@ -92,11 +92,13 @@
 
                         <a href="javascript:home.showVidLikedBy({{ activity_item.video.id }})" title="See who liked this video">
                         {% if activity_item.video in user.liked_videos %}
-                            <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}">
+                            <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}"
+                                  {% if activity_item.video.total_likes == 0 %}style="display: none;"{% endif %}>
                                 {{ activity_item.video.total_likes }}
                             </span>
                         {% else %}
-                            <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}" style="color:#d0d0d0;">
+                            <span class ="video-liked-info"id="video-liked-info-vid-{{ activity_item.video.id }}"
+                                  style="color:#d0d0d0;{% if activity_item.video.total_likes == 0 %}display: none;{% endif %}">
                                 {{ activity_item.video.total_likes }}
                             </span>
                         {%  endif %}
@@ -104,7 +106,30 @@
                     </div>
                 </div>
             </div>
-            <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}" ></div>
+
+            <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ activity_item.video.id }}"></div>
+
+            {% if activity_item.video in user.saved_videos %}
+            <div id="video-syndicate-dialog-{{ activity_item.video.id }}" class="video-syndicate-dialog callout activity-callout" >
+            {% else %}
+            <div id="video-syndicate-dialog-{{ activity_item.video.id }}" class="video-syndicate-dialog callout activity-callout-save-button" >
+            {% endif %}
+                <div class="callout-notch-border"></div>
+                <div class="callout-notch"></div>
+                <div class="image"></div>
+                <div class="message">
+                    <span>When you like a video, it's added to </span>
+                    <a {{ user|user_profile_link }} target="_blank">your profile</a>
+                    <span> so others can discover it.</span>
+                </div>
+                <div class="footer">
+                    <div class="footer-left">
+                        <input id="fb-push-message-{{ activity_item.video.id }}" type="checkbox" value="on" checked="checked">
+                        <label for="fb-push-message-{{ activity_item.video.id }}" class="fb-show-message-label">Automatically update facebook when I like videos.</label>
+                    </div>
+                    <a class="footer-right ok-button" href="javascript:UI.handleFacebookSyndicate({{ activity_item.video.id }})">ok</a>
+                </div>
+            </div>
         </div>
         {% endif %}
     {% endfor %}

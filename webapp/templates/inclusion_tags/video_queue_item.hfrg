@@ -23,7 +23,7 @@
             <div class="video-buttons">
 
                 {% if display_mode == 'profile' or display_mode == 'liked' or display_mode == 'detail' %}
-                    {% if user.is_authenticated and video not in user.saved_videos%}
+                    {% if user.is_authenticated and video not in user.saved_videos %}
                         <a href="javascript:home.handleSave({{ video.id }})" title="save">
                             <div id="save-video-button-vid-{{ video.id }}" class="save-video-button not-saved no-hover"></div>
                         </a>
@@ -146,7 +146,11 @@
 
         <div class="liked-by-wrapper" id="liked-by-wrapper-vid-{{ video.id }}" ></div>
 
+        {% if display_mode == 'liked' and video in user.saved_videos %}
+        <div id="video-syndicate-dialog-{{ video.id }}" class="video-syndicate-dialog callout saved-callout">
+        {% else %}
         <div id="video-syndicate-dialog-{{ video.id }}" class="video-syndicate-dialog callout">
+        {% endif %}
             <div class="callout-notch-border"></div>
             <div class="callout-notch"></div>
             <div class="image"></div>
