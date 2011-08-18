@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator, EmptyPage
@@ -474,7 +474,7 @@ def list(request):
     user = request.user
 
     try:
-        count = int(request.GET['count'])
+        count = max(int(request.GET['count']), 10)
     except (KeyError, ValueError):
         count = 10
 
@@ -501,7 +501,7 @@ def list(request):
         if not type in ('html', 'html5'):
             raise ValueError
     except (KeyError, ValueError):
-        type = 'html'
+        type = 'html5'
 
     videos = []
     for item in items:
@@ -654,9 +654,7 @@ def follow(request, other):
 
     user.follow(other)
 
-    return { 'username': user.username,
-             'following': user.following_count(),
-             'followers': user.follower_count() }
+    return other.json(other=user)
 
 
 @jsonp_view
@@ -673,9 +671,7 @@ def unfollow(request, other):
 
     user.unfollow(other)
 
-    return { 'username': user.username,
-             'following': user.following_count(),
-             'followers': user.follower_count() }
+    return other.json(other=user)
 
 
 @jsonp_view
@@ -812,6 +808,13 @@ def following(request):
 @require_http_methods(['GET',])
 def liked_videos(request):
 
+    try:
+        type = request.GET['type']
+        if not type in ('html', 'html5'):
+            raise ValueError
+    except (KeyError, ValueError):
+        type = 'html5'
+
     if not request.user.is_authenticated():
         try:
             # Clients can send session key as a request parameter
@@ -831,6 +834,9 @@ def liked_videos(request):
 
     for video in user.liked_videos():
         json = video.json()
+
+        json['html'] = getattr(video, '%s_embed_code' % type)
+
         videos.append(json)
 
         if request.user.is_authenticated():
@@ -851,3 +857,4 @@ def liked_videos(request):
 
     return { 'count': len(videos),
              'videos': videos }
+
