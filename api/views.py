@@ -638,7 +638,7 @@ def swap(request):
     user.is_registerd = True
     user.save()
 
-    return { 'session_id': session.session_key }
+    return { 'session_id': session.session_key, 'user': user.json() }
 
 
 @jsonp_view
