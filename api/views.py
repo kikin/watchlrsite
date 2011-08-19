@@ -148,16 +148,17 @@ def like_by_url(request):
         user_video = request.user.like_video(video)
 
     except Video.DoesNotExist:
-        video = Video(url=url)
+        video, created = Video.objects.get_or_create(url=url)
 
-        # Fetch video metadata in background
-        task = fetch.delay(request.user.id,
-                           url,
-                           request.META.get('HTTP_REFERER'),
-                           callback=push_like_to_fb.subtask((request.user, )))
+        if created:
+            # Fetch video metadata in background
+            task = fetch.delay(request.user.id,
+                               url,
+                               request.META.get('HTTP_REFERER'),
+                               callback=push_like_to_fb.subtask((request.user, )))
 
-        video.task_id = task.task_id
-        video.save()
+            video.task_id = task.task_id
+            video.save()
 
         user_video = UserVideo(user=request.user,
                                video=video,
@@ -474,7 +475,7 @@ def list(request):
     user = request.user
 
     try:
-        count = int(request.GET['count'])
+        count = max(int(request.GET['count']), 10)
     except (KeyError, ValueError):
         count = 10
 
@@ -501,7 +502,7 @@ def list(request):
         if not type in ('html', 'html5'):
             raise ValueError
     except (KeyError, ValueError):
-        type = 'html'
+        type = 'html5'
 
     videos = []
     for item in items:
@@ -654,9 +655,7 @@ def follow(request, other):
 
     user.follow(other)
 
-    return { 'username': user.username,
-             'following': user.following_count(),
-             'followers': user.follower_count() }
+    return other.json(other=user)
 
 
 @jsonp_view
@@ -673,9 +672,7 @@ def unfollow(request, other):
 
     user.unfollow(other)
 
-    return { 'username': user.username,
-             'following': user.following_count(),
-             'followers': user.follower_count() }
+    return other.json(other=user)
 
 
 @jsonp_view
@@ -812,6 +809,13 @@ def following(request):
 @require_http_methods(['GET',])
 def liked_videos(request):
 
+    try:
+        type = request.GET['type']
+        if not type in ('html', 'html5'):
+            raise ValueError
+    except (KeyError, ValueError):
+        type = 'html5'
+
     if not request.user.is_authenticated():
         try:
             # Clients can send session key as a request parameter
@@ -831,6 +835,9 @@ def liked_videos(request):
 
     for video in user.liked_videos():
         json = video.json()
+
+        json['html'] = getattr(video, '%s_embed_code' % type)
+
         videos.append(json)
 
         if request.user.is_authenticated():
@@ -851,3 +858,20 @@ def liked_videos(request):
 
     return { 'count': len(videos),
              'videos': videos }
+
+
+@jsonp_view
+@require_http_methods(['GET',])
+def raw_video_source(request, video_id):
+    from webapp.templatetags.kikinvideo_tags import extract_source_for_watchlr_player
+
+    try:
+        video = Video.objects.get(pk=video_id)
+    except Video.DoesNotExist:
+        raise NotFound(video_id)
+
+    raw_source = extract_source_for_watchlr_player(video)
+    if not raw_source:
+        raise ApiError()
+
+    return { "source" : raw_source }

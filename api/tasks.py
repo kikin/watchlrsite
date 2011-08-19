@@ -111,7 +111,7 @@ class OEmbed(object):
     def fetch(self, user_id, url, host, logger):
         logger.info('Fetching metadata for url:%s' % url)
 
-        video = Video.objects.get(url__exact=url)
+        video = Video.objects.get(url=url)
         fetched = video.fetched
 
         # Refresh metadata if cache older than a day
@@ -1418,6 +1418,8 @@ slugify = stringfilter(slugify)
 @task(max_retries=3, default_retry_delay=60)
 def push_like_to_fb(video_id, user):
     from social_auth.backends.facebook import FACEBOOK_SERVER
+    from webapp.templatetags.kikinvideo_tags import truncate_chars
+
     def encode(text):
         if isinstance(text, unicode):
             return text.encode('utf-8')
@@ -1441,7 +1443,7 @@ def push_like_to_fb(video_id, user):
                'link': '%s/%s' % (server_name, video.get_absolute_url()),
                'caption': server_name,
                'name': encode(video.title),
-               'description': encode(video.description),
+               'description': encode(truncate_chars(video.description, 160)),
                'message': 'likes \'%s\'' % encode(video.title) }
 
     try:
@@ -1555,7 +1557,7 @@ def refresh_friends_list():
 
     queued = 0
     for user in User.objects.filter(is_registered=True, is_fetch_enabled=True)\
-                            .exclude(date_joined__lt=five_minutes_before_now)\
+                            .exclude(date_joined__gte=five_minutes_before_now)\
                             .order_by('fb_friends_fetched'):
 
         if queued >= FACEBOOK_FRIENDS_FETCHER_SCHEDULE:
@@ -1739,7 +1741,7 @@ def fetch_news_feed(*args, **kwargs):
 
     queued = 0
     for user in User.objects.filter(is_registered=True, is_fetch_enabled=True)\
-                            .exclude(date_joined__lt=five_minutes_before_now)\
+                            .exclude(date_joined__gte=five_minutes_before_now)\
                             .order_by('fb_news_feed_fetched'):
 
         if queued >= FACEBOOK_NEWS_FEED_FETCH_SCHEDULE:

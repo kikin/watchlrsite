@@ -10,6 +10,7 @@ from django.dispatch import receiver
 from django.core.urlresolvers import reverse
 
 from celery.app import default_app
+from celery.task.control import revoke
 from celery import states
 
 from utils import epoch
@@ -141,7 +142,9 @@ class Video(models.Model):
                         user_video.get('shared_timestamp')
 
                 if (datetime.utcnow() - added).seconds > 900 and (not self.title or not self.html_embed_code):
-                    state = states.FAILURE
+                    state = self.result = states.FAILURE
+                    Video.objects.filter(id=self.id).update(result=states.FAILURE)
+                    revoke(self.task_id, terminate=True, reply=False)
                 else:
                     state = default_app.backend.get_status(self.task_id)
 
@@ -287,6 +290,9 @@ class User(auth_models.User):
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
+
+    def is_authenticated(self):
+        return self.is_fetch_enabled and super(User, self).is_authenticated()
 
     def facebook_access_token(self):
         return self.social_auth.get().extra_data['access_token']
@@ -749,8 +755,8 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
 
     # Ensure that the status flag is set
     # This flag promotes, possibly a facebook friend to a regular user
-    registered = user.is_registered
-    user.is_registered = True
+    registered, fetch_enabled = user.is_registered, user.is_fetch_enabled
+    user.is_registered = user.is_fetch_enabled = True
 
     # Upgrade?
     if not registered or is_new:
@@ -770,7 +776,9 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
         user.date_joined = datetime.utcnow()
 
     # Handlers must return True if any value was updated/changed
-    return not saved == user.username or not registered == user.is_registered
+    return not saved == user.username or \
+           not registered == user.is_registered or \
+           not fetch_enabled == user.is_fetch_enabled
 
 
 # Register for the `pre_update` signal (as opposed to `socialauth_registered` signal)
