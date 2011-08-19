@@ -1071,7 +1071,7 @@ a#lnk-page-next:hover {
 
 .save-video-button.saved{
     margin-top:-1px;
-    width:27px;
+    width:22px;
     background:url(/static/images/checkmark.png) no-repeat;
 }
 
@@ -1403,4 +1403,12 @@ box-shadow: 10px 10px 5px #888;
     position: absolute;
     top: 9px;
     width: 0;
+}
+
+.video-wrapper a, .suggested-followee-item a, #lnk-page-next{
+    color:#43B6E6;
+}
+
+.video-wrapper a:hover, .suggested-followee-item a:hover, #lnk-page-next:hover{
+    color:#0C536F;
 }
