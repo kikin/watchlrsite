@@ -48,7 +48,7 @@
 			import spark.effects.Fade;
 			
 			// API endpoints
-			protected static var API_VIDEO_SOURCE_BY_ID:String = "/api/video_source/";
+			protected static var API_VIDEO_SOURCE_BY_ID:String = "http://www.watchlr.com/api/video_source/";
 			
 			public var SourceType:Object = { DEFAULT : 0, VIMEO : 1, YOUTUBE : 2, BRIGHTCOVE : 3 };
 			
