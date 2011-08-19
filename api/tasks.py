@@ -1441,6 +1441,7 @@ def push_like_to_fb(video_id, user):
 
     params = { 'access_token': user.facebook_access_token(),
                'link': '%s/%s' % (server_name, video.get_absolute_url()),
+               'source': '%s/static/video_player/WatchlrPlayer.swf?video_id=%s' % (server_name, video.id),
                'caption': server_name,
                'name': encode(video.title),
                'description': encode(truncate_chars(video.description, 160)),
