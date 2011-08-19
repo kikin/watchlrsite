@@ -280,35 +280,67 @@
 			
 			/* Firing events to JS. */
 			public function handlePlayerLoad():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_LOAD);
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_LOAD);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoReady():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYING);
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYING);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 		
 			public function handleVideoPaused():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PAUSED, curTime());	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_PAUSED, curTime());
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoFinished():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_FINISHED);	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_FINISHED);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoTimeChanged():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, curTime());	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, curTime());
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoLoadProgress(bytes:Number, bytesTotal:Number):void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, bytes, bytesTotal);	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, bytes, bytesTotal);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoSeekStart():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoSeekEnd():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoPlaybackError(errorCode:Number):void{
@@ -320,7 +352,11 @@
 				if (!_stopCountdown) {
 					if (countDowntime == 0) {
 						hideCountdown();
-						ExternalInterface.call(Globals.JS_SIGNATURES.PLAYBACK_ERROR, errorCode);
+						try {
+							ExternalInterface.call(Globals.JS_SIGNATURES.PLAYBACK_ERROR, errorCode);
+						} catch (error:SecurityError) {
+							// Script access not enabled - Ignore!
+						}
 					} else {
 						loadingIndicatorCountdown.text = countDowntime + '';
 						setTimeout(updateCountdownTimer, 1000, --countDowntime, errorCode);
@@ -352,8 +388,12 @@
 			
 			protected function onViewSourceLinkClicked(event:Event):void {
 				_stopCountdown = true;
-				var targetURL:URLRequest = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
-				navigateToURL(targetURL, "_blank");
+				try {
+					var targetURL:URLRequest = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
+					navigateToURL(targetURL, "_blank");
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			/*videoDisplay function wrappers*/
@@ -661,11 +701,19 @@
 			}
 			
 			protected function onPrevButtonClicked(event:Event): void {
-				ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_PREVIOUS_VIDEO); 
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_PREVIOUS_VIDEO);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			protected function onNextButtonClicked(event:Event): void {
-				ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_NEXT_VIDEO); 
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_NEXT_VIDEO);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			protected function UIChromeFadeout(event:TimerEvent):void{
