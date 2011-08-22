@@ -1,5 +1,8 @@
 # Django settings for video project.
 
+_version = (2, 0, 3)
+VERSION = '.'.join([str(number) for number in _version])
+
 import sys, os
 
 sys.path.append(os.getcwd())
@@ -128,6 +131,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.auth',
     'django.core.context_processors.media',
     'django.core.context_processors.static',
+    'kikinvideo.context_processors.release_version',
 )
 
 AUTHENTICATION_BACKENDS = (

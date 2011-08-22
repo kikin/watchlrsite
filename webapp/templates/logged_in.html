@@ -1,10 +1,10 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
 {% block style_refs %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/download.css?v=1" media="all"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/download.css?v={{ VERSION }}" type="text/css" media="all"/>
     {% if suggested_followees|length_is:0 %}
      <style>
      #content{
@@ -16,9 +16,9 @@
 
 {% block script_refs %}
     {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/downloadpitch.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/downloadpitch.js?v={{ VERSION }}"></script>
 
 
     <script type="text/javascript">

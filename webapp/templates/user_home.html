@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 {% load kikinvideo_tags %}
 {% block style_refs %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}video_player/video-js.css" type="text/css" media="screen" title="Video JS" charset="utf-8">
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css?v={{ VERSION }}" type="text/css"/>
 {% endblock style_refs %}
 
 {% block script_refs %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/WatchlrPlayerInterface.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/WatchlrPlayerInterface.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/uiuniversal.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/String.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/Kikin.js?v={{ VERSION }}"></script>
 {% endblock script_refs %}
 
 {% block header_right %}
@@ -45,13 +44,6 @@
                     </li>
                 </ul>
             </div>
-        </div>
-    {% else %}
-
-        <div id="myConnectionsNot">
-            <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?next={{ request.path }}">
-
-            </a>
         </div>
     {% endif %}
 {% endblock header_right %}

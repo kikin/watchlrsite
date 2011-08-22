@@ -1700,18 +1700,18 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
             next_page_url = json_data['paging']['next']
             if since:
                 next_page_url = '%s&since=%s' % (next_page_url, since.strftime('%s'))
-                
-            task_info = fetch_user_news_feed.delay(user,
-                                                   page=page+1,
-                                                   user_task=user_task,
-                                                   since=since,
-                                                   news_feed_url=next_page_url)
 
-            # Set user task id to that of next page fetch task. This makes sure we
-            # display loading indicator with partial import of Facebook videos.
-            if user_task:
-                logger.info('Setting task id = %s' % task_info.task_id)
-                UserTask.objects.filter(pk=user_task.id).update(task_id=task_info.task_id)
+            if not next_page_url == news_feed_url:
+                task_info = fetch_user_news_feed.delay(user,
+                                                       page=page+1,
+                                                       user_task=user_task,
+                                                       since=since,
+                                                       news_feed_url=next_page_url)
+
+                # Set user task id to that of next page fetch task. This makes sure we
+                # display loading indicator with partial import of Facebook videos.
+                if user_task:
+                    UserTask.objects.filter(pk=user_task.id).update(task_id=task_info.task_id)
 
         elif user_task:
             UserTask.objects.filter(pk=user_task.id).update(result=states.SUCCESS)

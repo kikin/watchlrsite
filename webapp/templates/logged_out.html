@@ -15,13 +15,14 @@
         <link rel="icon" href="{{ STATIC_URL }}images/favicon.ico"/>
 
         <!-- Styles -->
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/homepage.css?v=4" media="all"/>{% block style_refs %}{% endblock style_refs %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/homepage.css?v={{ VERSION }}" media="all"/>{% block style_refs %}{% endblock style_refs %}
 
         <!-- jQuery & friends -->
-        <script type="text/javascript" src="{{ STATIC_URL }}js/cfon-yui+vag_400.js?v=0"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.6.1.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.hashchange-1.0.0.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/globals.js"></script>{% block script_refs %}{% endblock script_refs %}
+        <script type="text/javascript" src="https://d1bz0niltboynx.cloudfront.net/cfon-yui%2Bvag_400.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="https://d1bz0niltboynx.cloudfront.net/jquery.hashchange-1.0.0.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/globals.js?v={{ VERSION }}"></script>{% block script_refs %}{% endblock script_refs %}
     </head>
     <body>
         <div id="header">

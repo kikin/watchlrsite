@@ -16,16 +16,16 @@
     <link rel="shortcut icon" href="{{ STATIC_URL }}images/favicon.ico" type="image/x-icon"/>
 
     <!-- Styles -->
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/global.css" media="all"/>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/global.css?v={{ VERSION }}" media="all"/>
     <link href='http://fonts.googleapis.com/css?family=PT+Sans&v1' rel='stylesheet' type='text/css'>{% block style_refs %}{% endblock style_refs %}
 
     <!-- jQuery & friends -->
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cfon-yui+vag_400.js?v=0"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.6.1.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.js"></script>
+    <script type="text/javascript" src="https://d1bz0niltboynx.cloudfront.net/cfon-yui%2Bvag_400.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.hashchange-1.0.0.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/globals.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/CSSHelper.js"></script>{% block script_refs %}{% endblock script_refs %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/globals.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/CSSHelper.js?v={{ VERSION }}"></script>{% block script_refs %}{% endblock script_refs %}
 </head>
 <body>
 <div id="header">
