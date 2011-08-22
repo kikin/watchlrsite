@@ -895,7 +895,7 @@ class FacebookFetcher(object):
                     'http://facebook.com/',
                     'http://c2548752.cdn.cloudfiles.rackspacecloud.com/facebook.ico')
 
-    FACEBOOK_URL_SCHEME = re.compile(r'http://(www\.)facebook\.com/video/video.php?v=(.+)')
+    FACEBOOK_URL_SCHEME = re.compile(r'http://(www\.)?facebook\.com/video/video.php\?v=(.+)')
 
     FACEBOOK_HTML5_EMBED_TEMPLATE = '<video width="100%%" height="100%%" poster="%s" controls="controls" src="%s"></video>'
 
