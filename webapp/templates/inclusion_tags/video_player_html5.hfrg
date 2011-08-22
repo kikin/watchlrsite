@@ -12,7 +12,7 @@
         {% autoescape off %}
             <div class="video-embed-wrapper html5" id="video-embed-wrapper"
                         style="width:640px;height:385px;">
-                {% watchlr_player %}
+                {% include "includes/watchlr_player.html" %}
             </div>
         {% endautoescape %}
     </div>

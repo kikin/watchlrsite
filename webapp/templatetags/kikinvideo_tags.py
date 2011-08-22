@@ -508,10 +508,6 @@ def extract_source_for_watchlr_player(video):
         logger.exception('Error extracting source from video: url=%s, embed=%s' % (video.url, video.html5_embed_code))
     return ''
 
-@register.inclusion_tag('inclusion_tags/watchlr_player.hfrg')
-def watchlr_player():
-    return
-
 @register.filter
 def thumbnail_target_for_device(request, id):
     if user_agent_os(request) == 'ios':

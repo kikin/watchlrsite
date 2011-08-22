@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate
 from kikinvideo.settings import AUTHENTICATION_SWAP_SECRET
 
 from api.exception import ApiError, Unauthorized, NotFound, BadRequest, BadGateway
-from api.models import Video, User, UserVideo, Notification, Preference, UserTask
+from api.models import Video, User, UserVideo, Notification, Preference
 from api.utils import epoch, url_fix, MalformedURLException
 from api.tasks import fetch, push_like_to_fb, slugify
 from webapp.templatetags.kikinvideo_tags import activity_item_heading
@@ -278,25 +278,28 @@ def get(request, video_id):
 
     try:
         item = Video.objects.get(pk=video_id)
+
         video = item.json()
+
         video['html'] = getattr(item, '%s_embed_code' % type)
+        video['host'] = item.url
 
         if request.user.is_authenticated():
             try:
                 user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
 
                 video['saved'] = user_video.saved
-                video['host'] = user_video.host
                 video['timestamp'] = epoch(user_video.saved_timestamp)
                 video['liked'] = user_video.liked
                 video['watched'] = user_video.watched
+
                 return {'videos': [ video ] }
 
             except UserVideo.DoesNotExist:
                 pass
 
         video['saved'] = video['liked'] = video['watched'] = False
-        video['host'] = video['timestamp'] = None
+        video['timestamp'] = None
         return {'videos': [ video ] }
 
     except Video.DoesNotExist:
@@ -516,6 +519,8 @@ def list(request):
         video['timestamp'] = epoch(getattr(user_video, 'liked_timestamp' if likes else 'saved_timestamp'))
 
         video['html'] = getattr(item, '%s_embed_code' % type)
+
+        video['host'] = item.url
 
         videos.append(video)
 
@@ -849,7 +854,10 @@ def liked_videos(request):
                 json['saved'] = user_video.saved
                 json['liked'] = user_video.liked
                 json['seek'] = float(user_video.position or 0)
+
                 json['timestamp'] = epoch(user_video.liked_timestamp)
+
+                json['host'] = video.url
 
                 continue
 
