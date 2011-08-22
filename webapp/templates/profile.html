@@ -3,13 +3,8 @@
 
 {% block script_refs %}
     {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/swfobject.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.swfobject.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/froogaloop.js"></script>
-    <script type="text/javascript" src="http://www.youtube.com/player_api"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
-    <script type='text/javascript' src='{{ STATIC_URL }}js/kikinvideo/VideoController.js'></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js?v={{ VERSION }}"></script>
     
     <script type="text/javascript">
         activeView = VIEWS.profile;
@@ -21,8 +16,6 @@
             }
 
             $('.video-container:last').css('border-bottom', 'none');
-
-            videoController.prepareEmbeds();
 
         });
 
@@ -41,10 +34,9 @@
 {% endblock script_refs %}
 
 {% block style_refs %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
-    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}css/profile.css'/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/profile.css?v={{ VERSION }}" type="text/css"/>
 {% endblock style_refs %}
 
 {% block content %}
