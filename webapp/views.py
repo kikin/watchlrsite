@@ -25,7 +25,7 @@ _VID_LIKED_BY_PAGINATION_THRESHOLD = 1
 
 
 # For new users, grab campaign parameter and store in database
-def login_complete(request):
+def welcome(request):
     if request.user.is_authenticated():
         logger.info('Wohoo! New user registered:%s (campaign=%s)' % (request.user.username, request.GET.get('campaign')))
 
@@ -35,9 +35,12 @@ def login_complete(request):
         except KeyError:
             pass
 
-        if request.GET.get(REDIRECT_FIELD_NAME):
+        # Used to track new user conversion in Google Analytics
+        request.session['is_new_user'] = True
+
+        try:
             return HttpResponseRedirect(request.GET[REDIRECT_FIELD_NAME])
-        else:
+        except KeyError:
             return home(request)
         
     else:
@@ -54,8 +57,16 @@ def home(request):
 #        invite_list = request.user.invite_friends_list(INVITE_LIST_SIZE)
         invite_list = []
 
+        is_new_user = request.session.get('is_new_user', False)
+        try:
+            del request.session['is_new_user']
+        except KeyError:
+            pass
+
         return render_to_response('logged_in.html',
-                                  {'suggested_followees': suggested_followees, 'invite_list': invite_list},
+                                  { 'suggested_followees': suggested_followees,
+                                    'invite_list': invite_list,
+                                    'is_new_user': is_new_user },
                                   context_instance=RequestContext(request))
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
