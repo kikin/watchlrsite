@@ -736,6 +736,7 @@ def activity(request):
             item_json['video']['seek'] = 0
 
         item_json['video']['html'] = getattr(item.video, '%s_embed_code' % embed)
+        item_json['host'] = item.video.url
 
         activity_list.append(item_json)
 

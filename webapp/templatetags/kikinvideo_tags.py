@@ -518,3 +518,11 @@ def thumbnail_target_for_device(request, id):
 @register.inclusion_tag('inclusion_tags/facebook_import.hfrg')
 def facebook_import_template(fetch_task_failed=False):
     return { 'fetch_task_failed': fetch_task_failed }
+
+@register.filter
+def video_liked_by_user(video, user):
+    return 'true' if video in user.liked_videos() else 'false'
+
+@register.filter
+def video_saved_by_user(video, user):
+    return 'true' if video in user.saved_videos() else 'false'

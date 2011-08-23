@@ -704,11 +704,12 @@ ul>span.cufon-canvas {
 }
 
 .player-video-description {
-    float: right;
+    float: left;
     color: #FFFFFF;
-    width: 95%;
+    width: 87%;
     text-align: left;
     display: none;
+    margin-left: 10px;
 }
 
 .win .video-description {
@@ -1132,6 +1133,14 @@ video{
     margin-right:auto;
     margin-top:0px;
     margin-bottom:0px;
+}
+
+#player-actions-container{
+    float: right;
+    position: absolute;
+    margin-left: 587px;
+    margin-top: 3px;
+    width: 52px;
 }
 
 .shadow-10r{

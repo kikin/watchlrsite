@@ -177,7 +177,9 @@
                 host: '{{ video.url|safe }}',
                 title: '{{ video.title|truncate_text:45|escapejs }}',
                 description: '{{ video.description|truncate_chars:175|urlize|escapejs }}',
-                faviconURl: '{{ video|source_icon }}'
+                faviconURl: '{{ video|source_icon }}',
+                liked: {{ video|video_liked_by_user:user }},
+                saved: {{ video|video_saved_by_user:user }}
             }
         );
     });
