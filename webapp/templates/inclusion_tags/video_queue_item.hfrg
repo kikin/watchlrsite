@@ -122,13 +122,7 @@
                     {% endif %}
 
                     &bull;
-                    {% if video.source %}
-                        {% if user.is_authenticated %}
-                            <a href="{{video|saved_from:user}}" target="_blank">source</a>
-                        {% else %}
-                            <a href="{{video|saved_from:-1}}" target="_blank">source</a>
-                        {% endif %}
-                    {% endif %}
+                    <a href="{{ video.url }}" target="_blank">source</a>
                 </div>
             </div>
 

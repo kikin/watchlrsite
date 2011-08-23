@@ -16,6 +16,7 @@
 			import com.watchlr.GigaPlayer.Event.GigaPlayerEvent;
 			import com.watchlr.GigaPlayer.Util.BrightCove;
 			import com.watchlr.GigaPlayer.Util.Util;
+			import com.watchlr.GigaPlayer.Util.Tracker;
 			import com.watchlr.GigaPlayer.Util.Vimeo;
 			import com.watchlr.Globals;
 			
@@ -159,17 +160,21 @@
 			}
 			
 			public function getRawVideoSource(videoId:String):void{
+				Tracker.trackAction('facebook-view', videoId);
+				
 				var loader:URLLoader = new URLLoader();
 				loader.addEventListener(Event.COMPLETE, this.parseVideoSourceApiResponse);
+				
 				var targetURL:String = API_VIDEO_SOURCE_BY_ID + videoId;
 				var req:URLRequest = new URLRequest(targetURL);
+				
 				loader.load(req);
 			}
 			
 			private function parseVideoSourceApiResponse(event:Event):void{
 				var response:Object = JSON.decode(event.target.data);
 				if (response.success == true) {
-					source = response.result.source;
+					source = response.result.source; 
 				} else {
 					source = "";
 				}
@@ -388,6 +393,7 @@
 			
 			protected function onViewSourceLinkClicked(event:Event):void {
 				_stopCountdown = true;
+				stage.displayState = StageDisplayState.NORMAL;
 				try {
 					var targetURL:URLRequest = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
 					navigateToURL(targetURL, "_blank");

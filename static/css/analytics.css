@@ -50,3 +50,10 @@ h2 {
     margin-top: 5px;
     margin-left: 75px;
 }
+
+#content {
+    padding: 0;
+    width: 1250px;
+    margin-left: auto;
+    margin-right: auto;
+}

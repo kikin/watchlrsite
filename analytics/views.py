@@ -302,7 +302,8 @@ def views(request):
                     ('Total Views', 'number'),
                     ('Watchlr', 'number'),
                     ('InSitu', 'number'),
-                    ('Leanback', 'number'), ]
+                    ('Leanback', 'number'),
+                    ('Facebook', 'number'), ]
 
     try:
         start = datetime.strptime(request.REQUEST['start'], DATE_FORMAT).date()
@@ -323,7 +324,7 @@ def views(request):
 
     current = start
     while current < end:
-        data[current] = [current, 0, 0, 0, 0]
+        data[current] = [current, 0, 0, 0, 0, 0]
         current += timedelta(days=1)
 
     result = Activity.objects.filter(action__endswith='view', timestamp__gte=start, timestamp__lt=end)\
@@ -338,6 +339,8 @@ def views(request):
             data[row['date']][3] = row['action__count']
         elif row['action'] == 'leanback-view':
             data[row['date']][4] = row['action__count']
+        elif row['action'] == 'facebook-view':
+            data[row['date']][5] = row['action__count']
         else:
             continue
         data[row['date']][1] += row['action__count']

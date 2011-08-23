@@ -1,6 +1,6 @@
 # Django settings for video project.
 
-_version = (2, 0, 3)
+_version = (2, 3, 1)
 VERSION = '.'.join([str(number) for number in _version])
 
 import sys, os
@@ -211,7 +211,7 @@ LOGIN_URL = '/'
 LOGOUT_URL = '/'
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = LOGIN_REDIRECT_URL = LOGIN_URL
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/login_complete'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/welcome'
 
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
 FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']

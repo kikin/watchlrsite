@@ -96,10 +96,11 @@ def url_fix(url, charset='utf-8'):
                 video_id = params['video_id'][0]
             except KeyError:
                 video_id = params['v'][0]
-            scheme = 'https'
-            netloc = 'graph.facebook.com'
-            path = '/%s' % video_id
-            query = params = fragment = ''
+            scheme = 'http'
+            netloc = 'www.facebook.com'
+            path = '/video/video.php'
+            query = 'v=%s' % video_id
+            params = fragment = ''
         except KeyError:
             vid_match = match('/v/([0-9]+)', path)
             if not vid_match:

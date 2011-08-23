@@ -895,8 +895,7 @@ class FacebookFetcher(object):
                     'http://facebook.com/',
                     'http://c2548752.cdn.cloudfiles.rackspacecloud.com/facebook.ico')
 
-    FACEBOOK_URL_SCHEME = re.compile(r'https://graph\.facebook\.com/(.+)')
-    EMBEDLY_FACEBOOK_URL = 'http://www.facebook.com/video/video.php?v=%s'
+    FACEBOOK_URL_SCHEME = re.compile(r'http://(www\.)?facebook\.com/video/video.php\?v=(.+)')
 
     FACEBOOK_HTML5_EMBED_TEMPLATE = '<video width="100%%" height="100%%" poster="%s" controls="controls" src="%s"></video>'
 
@@ -921,20 +920,19 @@ class FacebookFetcher(object):
         match = self.FACEBOOK_URL_SCHEME.match(url)
         if not match:
             raise UrlNotSupported(url)
+        video_id = match.group(2)
 
         logger.debug('Fetching Facebook metadata for url:%s' % url)
 
         user = User.objects.get(pk=kwargs['user_id'])
         access_token = user.facebook_access_token()
 
-        url = '%s?%s' % (url, urlencode({'access_token': access_token}))
+        url = 'https://graph.facebook.com/%s?%s' % (video_id, urlencode({'access_token': access_token}))
         response = json.loads(urllib2.urlopen(url).read())
 
         # Facebook sometimes does this for facebook-videos!
         if not response:
-            fb_url = self.EMBEDLY_FACEBOOK_URL % match.group(1)
-            norm_fb_url = url_fix(fb_url)
-            meta = self.forward(norm_fb_url, logger, **kwargs)
+            meta = self.forward(url, logger, **kwargs)
 
         else:
             # Link to original video?
