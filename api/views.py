@@ -843,6 +843,9 @@ def liked_videos(request):
     for video in user.liked_videos():
         json = video.json()
 
+        json['timestamp'] = epoch(UserVideo.objects.get(user=user, video=video).liked_timestamp)
+        json['host'] = video.url
+
         json['html'] = getattr(video, '%s_embed_code' % type)
 
         videos.append(json)
@@ -854,10 +857,6 @@ def liked_videos(request):
                 json['saved'] = user_video.saved
                 json['liked'] = user_video.liked
                 json['seek'] = float(user_video.position or 0)
-
-                json['timestamp'] = epoch(user_video.liked_timestamp)
-
-                json['host'] = video.url
 
                 continue
 
