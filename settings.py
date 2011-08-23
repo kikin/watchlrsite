@@ -1,6 +1,6 @@
 # Django settings for video project.
 
-_version = (2, 0, 3)
+_version = (2, 3, 1)
 VERSION = '.'.join([str(number) for number in _version])
 
 import sys, os
