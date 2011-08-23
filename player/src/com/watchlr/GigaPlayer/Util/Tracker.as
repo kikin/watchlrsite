@@ -29,7 +29,7 @@ package com.watchlr.GigaPlayer.Util
 			request.method = URLRequestMethod.GET;
 			
 			var variables:URLVariables = new URLVariables();
-			variables.action = 'facebook-view';
+			variables.action = action;
 			variables.id = objectId;
 			variables.agent = AGENT_NAME;
 			variables.version = AGENT_VERSION;
