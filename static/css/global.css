@@ -405,6 +405,61 @@ ul.navigation li.selected, ul.navigation li.selected a {
     background: #e5eff3;
 }
 
+ul.navigation li.selected a#activity-tab-header {
+    background-image: url('/static/images/ekg_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a:hover#activity-tab-header {
+    background-image: url('/static/images/ekg_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a#activity-tab-header {
+    background-image: url('/static/images/ekg_white.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li.selected a#saved-tab-header {
+    background-image: url('/static/images/save_video_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a:hover#saved-tab-header {
+    background-image: url('/static/images/save_video_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a#saved-tab-header {
+    background-image: url('/static/images/save_video_white.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+
+ul.navigation li.selected a#likes-tab-header {
+    background-image: url('/static/images/heart_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a:hover#likes-tab-header {
+    background-image: url('/static/images/heart_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a#likes-tab-header {
+    background-image: url('/static/images/heart_white.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
 #myConnectionsNot,
 #myConnections {
 }
@@ -1138,9 +1193,9 @@ video{
 #player-actions-container{
     float: right;
     position: absolute;
-    margin-left: 587px;
+    margin-left: 585px;
     margin-top: 3px;
-    width: 52px;
+    width: 54px;
 }
 
 .shadow-10r{
