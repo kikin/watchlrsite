@@ -25,6 +25,7 @@ from django.contrib.sites.models import Site
 from django.template.defaultfilters import stringfilter
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
 
 from api.utils import url_fix, MalformedURLException
 from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend, UserVideo, UserTask
@@ -895,7 +896,7 @@ class FacebookFetcher(object):
                     'http://facebook.com/',
                     'http://c2548752.cdn.cloudfiles.rackspacecloud.com/facebook.ico')
 
-    FACEBOOK_URL_SCHEME = re.compile(r'http://(www\.)?facebook\.com/video/video.php\?v=(.+)')
+    FACEBOOK_URL_SCHEME = re.compile(r'http://(www\.)?facebook\.com/video/video\.php\?v=(.+)')
 
     FACEBOOK_HTML5_EMBED_TEMPLATE = '<video width="100%%" height="100%%" poster="%s" controls="controls" src="%s"></video>'
 
@@ -1522,7 +1523,9 @@ def fetch_facebook_friends(user, user_task=None):
         for friend in friends:
             fb_friend = get_or_create_fb_identity(friend, logger)
             if fb_friend:
-                FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+                friend_obj, created = FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+                if created:
+                    cache.delete(User._cache_key(user, 'facebook_friends'))
 
         User.objects.filter(id=user.id).update(fb_friends_fetched=datetime.utcnow())
         logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
@@ -1687,6 +1690,8 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
                 user_video, created = UserVideo.objects.get_or_create(user=fb_friend, video=video)
                 user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
                 user_video.save()
+
+                cache.delete(User._cache_key(fb_friend, 'shared_videos'))
 
         # Update to reflect the most recent news item seen
         if page == 1 and items:

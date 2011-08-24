@@ -300,6 +300,23 @@ def get(request, video_id):
 
         video['saved'] = video['liked'] = video['watched'] = False
         video['timestamp'] = None
+
+        if not request.user.is_authenticated():
+            try:
+                # Clients can send session key as a request parameter
+                session_key = request.REQUEST['session_id']
+                session = Session.objects.get(pk=session_key)
+
+                if session.expire_date > datetime.now():
+                    uid = session.get_decoded().get('_auth_user_id')
+                    request.user = User.objects.get(pk=uid)
+
+            except (KeyError, Session.DoesNotExist):
+                pass
+
+        context_user = request.user if request.user.is_authenticated() else None
+        video['liked_by'] = [user.json(excludes=['email']) for user in item.all_likers(context_user=context_user)]
+
         return {'videos': [ video ] }
 
     except Video.DoesNotExist:
@@ -688,7 +705,7 @@ def activity(request):
     user = request.user
 
     try:
-        count = int(request.GET['count'])
+        count = max(int(request.GET['count']), 10)
     except (KeyError, ValueError):
         count = 10
 
@@ -796,9 +813,29 @@ def userinfo(request):
 def followers(request):
     user = get_user(request)
 
-    user_followers = [follower.json(other=request.user, excludes=['email']) for follower in user.followers()]
+    try:
+        count = max(int(request.GET['count']), 10)
+    except (KeyError, ValueError):
+        count = 10
+
+    paginator = Paginator(user.followers(), count)
+
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
+    user_followers = [follower.json(other=request.user, excludes=['email']) for follower in items]
 
     return { 'count': len(user_followers),
+             'total': paginator.count,
              'followers': user_followers }
 
 
@@ -807,9 +844,29 @@ def followers(request):
 def following(request):
     user = get_user(request)
 
-    user_followers = [followee.json(other=request.user, excludes=['email']) for followee in user.following()]
+    try:
+        count = max(int(request.GET['count']), 10)
+    except (KeyError, ValueError):
+        count = 10
+
+    paginator = Paginator(user.following(), count)
+
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
+    user_followers = [followee.json(other=request.user, excludes=['email']) for followee in items]
 
     return { 'count': len(user_followers),
+             'total': paginator.count,
              'following': user_followers }
 
 
@@ -839,9 +896,28 @@ def liked_videos(request):
 
     user = get_user(request)
 
+    try:
+        count = max(int(request.GET['count']), 10)
+    except (KeyError, ValueError):
+        count = 10
+
+    paginator = Paginator(user.liked_videos(), count)
+
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
     videos = []
 
-    for video in user.liked_videos():
+    for video in items:
         json = video.json()
 
         json['timestamp'] = epoch(UserVideo.objects.get(user=user, video=video).liked_timestamp)
@@ -868,6 +944,7 @@ def liked_videos(request):
         json['seek'] = 0
 
     return { 'count': len(videos),
+             'total': paginator.count,
              'videos': videos }
 
 

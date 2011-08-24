@@ -96,9 +96,9 @@ def liked_video_queue(request):
             all_liked_vids = user.liked_videos()
             start_index = int(request.GET['start'])
             end_index = start_index + int(request.GET['count'])
-            if all_liked_vids.count() >= end_index:
+            if len(all_liked_vids) >= end_index:
                 vid_subset = all_liked_vids[start_index:end_index]
-            elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
+            elif start_index < len(all_liked_vids) and end_index >= len(all_liked_vids):
                 vid_subset = all_liked_vids[start_index:]
             else:
                 vid_subset = []
@@ -118,9 +118,9 @@ def liked_video_queue(request):
             try:
                 start_index = int(request.GET['start'])
                 end_index = start_index + int(request.GET['count'])
-                if all_liked_vids.count() >= end_index:
+                if len(all_liked_vids) >= end_index:
                     vid_subset = all_liked_vids[start_index:end_index]
-                elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
+                elif start_index < len(all_liked_vids) and end_index >= len(all_liked_vids):
                     vid_subset = all_liked_vids[start_index:]
                 else:
                     vid_subset = []
@@ -140,9 +140,9 @@ def saved_video_queue(request):
             try:
                 start_index = int(request.GET['start'])
                 end_index = start_index + int(request.GET['count'])
-                if all_saved_vids.count() >= end_index:
+                if len(all_saved_vids) >= end_index:
                     vid_subset = all_saved_vids[start_index:end_index]
-                elif start_index < all_saved_vids.count() and end_index >= all_saved_vids.count():
+                elif start_index < len(all_saved_vids) and end_index >= len(all_saved_vids):
                     vid_subset = all_saved_vids[start_index:]
                 else:
                     vid_subset = []
