@@ -537,6 +537,9 @@ class EmbedlyFetcher(object):
                 pass
             meta['title'] = meta['title'].title()
 
+            if meta['title'] == "Welcome to Facebook - Log In, Sign Up or Learn More":
+                raise Exception('Facebook video metadata not found for: %s' % url)
+
             # Issue #63
             if meta['html5']:
                 try:
