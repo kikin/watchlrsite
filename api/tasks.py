@@ -928,8 +928,8 @@ class FacebookFetcher(object):
         user = User.objects.get(pk=kwargs['user_id'])
         access_token = user.facebook_access_token()
 
-        url = 'https://graph.facebook.com/%s?%s' % (video_id, urlencode({'access_token': access_token}))
-        response = json.loads(urllib2.urlopen(url).read())
+        fb_url = 'https://graph.facebook.com/%s?%s' % (video_id, urlencode({'access_token': access_token}))
+        response = json.loads(urllib2.urlopen(fb_url).read())
 
         # Facebook sometimes does this for facebook-videos!
         if not response:
