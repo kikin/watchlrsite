@@ -503,7 +503,9 @@ def list(request):
     user = request.user
 
     try:
-        count = max(int(request.GET['count']), 10)
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
     except (KeyError, ValueError):
         count = 10
 
@@ -713,7 +715,9 @@ def activity(request):
     user = request.user
 
     try:
-        count = max(int(request.GET['count']), 10)
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
     except (KeyError, ValueError):
         count = 10
 
@@ -822,7 +826,9 @@ def followers(request):
     user = get_user(request)
 
     try:
-        count = max(int(request.GET['count']), 10)
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
     except (KeyError, ValueError):
         count = 10
 
@@ -853,7 +859,9 @@ def following(request):
     user = get_user(request)
 
     try:
-        count = max(int(request.GET['count']), 10)
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
     except (KeyError, ValueError):
         count = 10
 
@@ -905,7 +913,9 @@ def liked_videos(request):
     user = get_user(request)
 
     try:
-        count = max(int(request.GET['count']), 10)
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
     except (KeyError, ValueError):
         count = 10
 
