@@ -1,0 +1,21 @@
+{% extends 'analytics_base.html' %}
+
+{% block content %}
+    <br>
+    <h2>Cache Status</h2>
+    <br>
+
+    <ul>
+        <li>Memory Usage:
+            {{ stats.bytes|filesizeformat }}
+        <li>Keys in Cache:
+            {{ stats.curr_items }} of {{ stats.total_items }}
+        <li>Cache Hits:
+            {{ stats.get_hits }} of {{ stats.cmd_get }}:
+            <b>{{ hit_rate }}%</b>
+        <li>Cache Traffic:
+            {{ stats.bytes_read|filesizeformat }} in,
+            {{ stats.bytes_written|filesizeformat }} out
+        <li>Uptime: {{ stats.uptime }}
+    </ul>
+{% endblock content %}

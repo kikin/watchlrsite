@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from johnny.cache import invalidate
 from api.models import User, UserVideo
 
 class Command(BaseCommand):
@@ -7,6 +8,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Zero out karma points for everybody
         User.objects.update(karma=0)
+        
+        invalidate(User)
 
         # For every liked video, assign karma points to sharing user
         for user_video in UserVideo.objects.filter(liked=True):

@@ -143,13 +143,8 @@ def like_by_url(request):
 
         try:
             UserVideo.objects.get(user=request.user, video=video, liked_timestamp__isnull=False)
-
         except UserVideo.DoesNotExist:
             push_like_to_fb.delay(video.id, request.user)
-
-            cache.delete(User._cache_key(request.user, 'liked_videos'))
-
-        user_video = request.user.like_video(video)
 
     except Video.DoesNotExist:
         video, created = Video.objects.get_or_create(url=url)
@@ -164,14 +159,7 @@ def like_by_url(request):
             video.task_id = task.task_id
             video.save()
 
-        user_video = UserVideo(user=request.user,
-                               video=video,
-                               host=request.META.get('HTTP_REFERER'),
-                               liked=True,
-                               liked_timestamp=datetime.utcnow())
-        user_video.save()
-
-        cache.delete(User._cache_key(request.user, 'liked_videos'))
+    user_video = request.user.like_video(video, host=request.META.get('HTTP_REFERER'))
 
     info = user_video.json()
     info.update({ 'firstlike': request.user.notifications()['firstlike'],
@@ -235,34 +223,34 @@ def add(request):
         raise BadRequest('Malformed URL:%s' % querydict['url'])
 
     try:
-        user_video = UserVideo.objects.get(user=request.user, video__url=url)
+        video = Video.objects.get(url=url)
 
-        if user_video.saved:
-            raise BadRequest('Video:%s already saved with id:%s' % (user_video.video.url, user_video.video.id))
+        try:
+            user_video = UserVideo.objects.get(user=request.user, video=video)
 
-    except UserVideo.DoesNotExist:
+            if user_video.saved:
+                raise BadRequest('Video:%s already saved with id:%s' % (user_video.video.url, user_video.video.id))
+            
+        except UserVideo.DoesNotExist:
+            pass
+
+    except Video.DoesNotExist:
         video, created = Video.objects.get_or_create(url=url)
 
         # Fetch video metadata in background
         if created or video.status() == states.FAILURE:
             task = fetch.delay(request.user.id, url, request.META.get('HTTP_REFERER'))
+
             video.task_id = task.task_id
+            video.save()
 
-        video.save()
-
-        user_video = UserVideo(user=request.user, video=video)
-
-    user_video.saved = True
-    user_video.saved_timestamp = datetime.utcnow()
-    user_video.host = request.META.get('HTTP_REFERER')
-    user_video.save()
-
-    cache.delete(User._cache_key(request.user, 'saved_videos'))
+    user_video = request.user.save_video(video, host=request.META.get('HTTP_REFERER'))
 
     info = user_video.json()
     info.update({ 'emptyq': request.user.notifications()['emptyq'],
                   'unwatched': request.user.unwatched_videos().count(),
                   'task_id': user_video.video.task_id })
+
     return info
 
 

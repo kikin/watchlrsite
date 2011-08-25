@@ -1,7 +1,11 @@
 from datetime import datetime
 from itertools import chain
 from decimal import Decimal
-from pickle import dumps, loads
+
+try:
+    from cpickle import dumps, loads
+except ImportError:
+    from pickle import dumps, loads
 
 from django.db import models
 from django.db.models import F
@@ -101,11 +105,28 @@ class Video(models.Model):
 
         thumbnail.save()
 
+        cache.delete('%s_%s_thumbnail' % (self.id, type))
+
     def get_thumbnail(self, type='web'):
-        return self.thumbnails.get(type=type)
+        cache_key = '%s_%s_thumbnail' % (self.id, type)
+
+        cached = cache.get(cache_key)
+        if cached:
+            thumbnail = loads(cached)
+            if isinstance(thumbnail, basestring) and thumbnail == '_NONE_':
+                raise Thumbnail.DoesNotExist
+            return thumbnail
+
+        thumbnails = self.thumbnails.filter(type=type)
+        if thumbnails:
+            cache.set(cache_key, dumps(thumbnails[0]))
+            return thumbnails[0]
+
+        cache.set(cache_key, dumps('_NONE_'))
+        raise Thumbnail.DoesNotExist()
 
     def total_likes(self):
-        return UserVideo.objects.filter(video=self, liked=True).count()
+        return len(self.all_likers())
 
     # Date when user saved video
     def date_saved(self, user):
@@ -119,7 +140,8 @@ class Video(models.Model):
     # Pass in a user object as `context_user` to sort likers by friends first followed by others
     def all_likers(self, context_user=None):
         if not context_user:
-            return [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
+            likers = cache.get('%s_likers' % self.id) or \
+                     [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
 
         else:
             followed_likers = [user_video.user for user_video in UserVideo.objects.filter(user__r_follows=context_user,
@@ -130,7 +152,9 @@ class Video(models.Model):
                                                                          .exclude(user__r_follows=context_user)\
                                                                          .filter(video=self, liked=True)]
 
-            return followed_likers + others
+            likers = followed_likers + others
+
+        return likers
 
     @models.permalink
     def get_absolute_url(self):
@@ -339,9 +363,14 @@ class User(auth_models.User):
             except KeyError:
                 pass
 
+        try:
+            user_video.host = kwargs['host']
+        except KeyError:
+            pass
+
         user_video.save()
 
-        cache.delete_many([User._cache_key(self, '%s_videos' % property) for property in properties])
+        cache.delete_many([User._cache_key(self, '%s_videos' % property) for property in properties if kwargs.get(property)])
 
         return user_video
 
@@ -414,8 +443,16 @@ class User(auth_models.User):
     @cached
     def facebook_friends(self):
         return self.fb_friends.all()
+
+    def add_facebook_friend(self, friend):
+        friend_obj, created = FacebookFriend.objects.get_or_create(user=self, fb_friend=friend)
+
+        if created:
+            cache.delete(User._cache_key(self, 'facebook_friends'))
+
+        return friend_obj
         
-    def like_video(self, video, timestamp=None):
+    def like_video(self, video, timestamp=None, host=None):
         """
         Like a video. Creates an association between `User` and `Video` objects (if one doesn't exist already).
 
@@ -432,17 +469,25 @@ class User(auth_models.User):
         False
         """
 
+        cache.delete('%s_likers' % self.id)
+        
         if timestamp is None:
             timestamp = datetime.utcnow()
 
         # Give karma points to user who first shared this video
         video.increment_karma(self)
 
-        return self._create_or_update_video(video, **{'liked': True, 'timestamp': timestamp})
+        kwargs = {'liked': True, 'timestamp': timestamp}
+        if host:
+            kwargs['host'] = host
+
+        return self._create_or_update_video(video, **kwargs)
 
     def unlike_video(self, video):
         # Take away karma points from sharing user
         video.increment_karma(self, -1)
+
+        cache.delete('%s_likers' % self.id)
 
         return self._create_or_update_video(video, **{'liked': False})
 
@@ -465,7 +510,12 @@ class User(auth_models.User):
                             .order_by('-uservideo__shared_timestamp')\
                             .count()
 
-    def save_video(self, video, timestamp=None):
+    def add_shared_video(self, video, timestamp=None):
+        if timestamp is None:
+            timestamp = datetime.utcnow()
+        return self._create_or_update_video(video, **{'shared': True, 'timestamp': timestamp})
+
+    def save_video(self, video, timestamp=None, host=None):
         """
         Add video to user's saved queue.
 
@@ -486,7 +536,12 @@ class User(auth_models.User):
         """
         if timestamp is None:
             timestamp = datetime.utcnow()
-        return self._create_or_update_video(video, **{'saved': True, 'timestamp': timestamp})
+
+        kwargs = {'saved': True, 'timestamp': timestamp}
+        if host:
+            kwargs['host'] = host
+
+        return self._create_or_update_video(video, **kwargs)
 
     def remove_video(self, video):
         return self._create_or_update_video(video, **{'saved': False})

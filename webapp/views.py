@@ -135,26 +135,34 @@ def liked_video_queue(request):
 
 def saved_video_queue(request):
     if request.method == 'GET' and request.user.is_authenticated():
+
         all_saved_vids = request.user.saved_videos()
+
         if 'start' in request.GET and 'count' in request.GET:
             try:
                 start_index = int(request.GET['start'])
                 end_index = start_index + int(request.GET['count'])
+
                 if len(all_saved_vids) >= end_index:
                     vid_subset = all_saved_vids[start_index:end_index]
+
                 elif start_index < len(all_saved_vids) and end_index >= len(all_saved_vids):
                     vid_subset = all_saved_vids[start_index:]
+
                 else:
                     vid_subset = []
+
             except Exception, e:
                 #means url was malformed...
                 return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
         else:
             #just pass through all liked videos...
             vid_subset = request.user.saved_videos()
-        return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                                  'display_mode':'saved', 'videos': vid_subset},
+
+        return render_to_response('content/video_queue.hfrg',
+                                  { 'user': request.user, 'display_mode': 'saved', 'videos': vid_subset },
                                   context_instance=RequestContext(request))
+
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 
