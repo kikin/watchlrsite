@@ -130,18 +130,40 @@ class Video(models.Model):
 
     # Date when user saved video
     def date_saved(self, user):
-        return UserVideo.objects.get(video=self, user=user).saved_timestamp
+        cache_key = '%s_%s_saved' % (self.id, user.id)
+
+        cached = cache.get(cache_key)
+        if cached:
+            return loads(cached)
+
+        timestamp = UserVideo.objects.get(video=self, user=user).saved_timestamp
+        cache.set(cache_key, dumps(timestamp))
+        return timestamp
 
     # Date when user liked video
     def date_liked(self, user):
-        return UserVideo.objects.get(video=self, user=user).liked_timestamp
+        cache_key = '%s_%s_liked' % (self.id, user.id)
+
+        cached = cache.get(cache_key)
+        if cached:
+            return loads(cached)
+
+        timestamp = UserVideo.objects.get(video=self, user=user).liked_timestamp
+        cache.set(cache_key, dumps(timestamp))
+        return timestamp
 
     # List of all users who have liked this video
     # Pass in a user object as `context_user` to sort likers by friends first followed by others
     def all_likers(self, context_user=None):
         if not context_user:
-            likers = cache.get('%s_likers' % self.id) or \
-                     [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
+            cache_key = '%s_likers' % self.id
+
+            cached = cache.get()
+            if cached:
+                likers = loads(cached)
+            else:
+                likers = [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
+                cache.set(cache_key, likers)
 
         else:
             followed_likers = [user_video.user for user_video in UserVideo.objects.filter(user__r_follows=context_user,
@@ -371,6 +393,7 @@ class User(auth_models.User):
         user_video.save()
 
         cache.delete_many([User._cache_key(self, '%s_videos' % property) for property in properties if kwargs.get(property)])
+        cache.delete_many(['%s_%s_%s' % (video.id, self.id, property) for property in properties if kwargs.get(property)])
 
         return user_video
 
