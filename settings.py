@@ -260,6 +260,10 @@ SESSION_COOKIE_HTTPONLY = True # Prevent script access to cookie
 cache_configurations = {
     'local': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 600,
+        'OPTIONS': {
+            'MAX_ENTRIES': 5000,
+        },
     },
     'local_sqlite': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',

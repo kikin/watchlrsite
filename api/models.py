@@ -128,29 +128,27 @@ class Video(models.Model):
     def total_likes(self):
         return len(self.all_likers())
 
-    # Date when user saved video
+    def _get_timestamp_for_action(self, user, action):
+        cache_key = '%s_%s_%s' % (self.id, user.id, action)
+
+        cached = cache.get(cache_key)
+        if cached:
+            return loads(cached)
+
+        timestamp = getattr(UserVideo.objects.get(video=self, user=user), '%s_timestamp' % action)
+
+        cache.set(cache_key, dumps(timestamp))
+
+        return timestamp
+
     def date_saved(self, user):
-        cache_key = '%s_%s_saved' % (self.id, user.id)
+        return self._get_timestamp_for_action(user, 'saved')
 
-        cached = cache.get(cache_key)
-        if cached:
-            return loads(cached)
-
-        timestamp = UserVideo.objects.get(video=self, user=user).saved_timestamp
-        cache.set(cache_key, dumps(timestamp))
-        return timestamp
-
-    # Date when user liked video
     def date_liked(self, user):
-        cache_key = '%s_%s_liked' % (self.id, user.id)
-
-        cached = cache.get(cache_key)
-        if cached:
-            return loads(cached)
-
-        timestamp = UserVideo.objects.get(video=self, user=user).liked_timestamp
-        cache.set(cache_key, dumps(timestamp))
-        return timestamp
+        return self._get_timestamp_for_action(user, 'liked')
+    
+    def date_shared(self, user):
+        return self._get_timestamp_for_action(user, 'shared')
 
     # List of all users who have liked this video
     # Pass in a user object as `context_user` to sort likers by friends first followed by others
@@ -158,12 +156,12 @@ class Video(models.Model):
         if not context_user:
             cache_key = '%s_likers' % self.id
 
-            cached = cache.get()
+            cached = cache.get(cache_key)
             if cached:
                 likers = loads(cached)
             else:
                 likers = [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
-                cache.set(cache_key, likers)
+                cache.set(cache_key, dumps(likers))
 
         else:
             followed_likers = [user_video.user for user_video in UserVideo.objects.filter(user__r_follows=context_user,
@@ -519,9 +517,7 @@ class User(auth_models.User):
         return Video.objects.filter(user__id=self.id, uservideo__liked=True).order_by('-uservideo__liked_timestamp')
 
     def liked_videos_count(self):
-        return Video.objects.filter(user__id=self.id, uservideo__liked=True)\
-                            .order_by('-uservideo__liked_timestamp')\
-                            .count()
+        return len(self.liked_videos())
 
     @cached
     def shared_videos(self):
@@ -529,9 +525,7 @@ class User(auth_models.User):
                             .order_by('-uservideo__shared_timestamp')
 
     def shared_videos_count(self):
-        return Video.objects.filter(user__id=self.id, uservideo__shared_timestamp__isnull=False)\
-                            .order_by('-uservideo__shared_timestamp')\
-                            .count()
+        return len(self.shared_videos())
 
     def add_shared_video(self, video, timestamp=None):
         if timestamp is None:
@@ -574,9 +568,7 @@ class User(auth_models.User):
         return Video.objects.filter(user__id=self.id, uservideo__saved=True).order_by('-uservideo__saved_timestamp')
 
     def saved_videos_count(self):
-        return Video.objects.filter(user__id=self.id, uservideo__saved=True)\
-                            .order_by('-uservideo__saved_timestamp')\
-                            .count()
+        return len(self.saved_videos())
 
     def mark_video_watched(self, video, timestamp=None):
         if timestamp is None:
@@ -671,32 +663,32 @@ class User(auth_models.User):
                     if not video.status() == states.SUCCESS:
                         continue
 
-                    user_video = UserVideo.objects.get(user=user, video=video)
+                    liked_timestamp = video.date_liked(user)
 
-                    user_activity = UserActivity(user, user_video.liked_timestamp, 'like')
+                    user_activity = UserActivity(user, liked_timestamp, 'like')
                     try:
                         by_video[video].user_activities.append(user_activity)
                     except KeyError:
                         by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
 
-                    if not by_video[video].timestamp or user_video.liked_timestamp > by_video[video].timestamp:
-                        by_video[video].timestamp = user_video.liked_timestamp
+                    if not by_video[video].timestamp or liked_timestamp > by_video[video].timestamp:
+                        by_video[video].timestamp = liked_timestamp
 
         if not type == 'watchlr':
             for user in self.facebook_friends():
 
                 for video in filter(lambda v: v.status() == states.SUCCESS, user.shared_videos()):
 
-                    user_video = UserVideo.objects.get(user=user, video=video)
+                    shared_timestamp = video.date_shared(user)
 
-                    user_activity = UserActivity(user, user_video.shared_timestamp, 'share')
+                    user_activity = UserActivity(user, shared_timestamp, 'share')
                     try:
                         by_video[video].user_activities.append(user_activity)
                     except KeyError:
                         by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
 
-                    if not by_video[video].timestamp or user_video.shared_timestamp > by_video[video].timestamp:
-                        by_video[video].timestamp = user_video.shared_timestamp
+                    if not by_video[video].timestamp or shared_timestamp > by_video[video].timestamp:
+                        by_video[video].timestamp = shared_timestamp
 
         items = sorted(by_video.values(), reverse=True)
         for item in items:
