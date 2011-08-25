@@ -6,6 +6,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 from django.contrib.sites.models import Site
 from django.contrib.auth import authenticate
+from django.core.cache import cache
 
 from kikinvideo.settings import AUTHENTICATION_SWAP_SECRET
 
@@ -142,8 +143,11 @@ def like_by_url(request):
 
         try:
             UserVideo.objects.get(user=request.user, video=video, liked_timestamp__isnull=False)
+
         except UserVideo.DoesNotExist:
             push_like_to_fb.delay(video.id, request.user)
+
+            cache.delete(User._cache_key(request.user, 'liked_videos'))
 
         user_video = request.user.like_video(video)
 
@@ -166,6 +170,8 @@ def like_by_url(request):
                                liked=True,
                                liked_timestamp=datetime.utcnow())
         user_video.save()
+
+        cache.delete(User._cache_key(request.user, 'liked_videos'))
 
     info = user_video.json()
     info.update({ 'firstlike': request.user.notifications()['firstlike'],
@@ -250,6 +256,8 @@ def add(request):
     user_video.saved_timestamp = datetime.utcnow()
     user_video.host = request.META.get('HTTP_REFERER')
     user_video.save()
+
+    cache.delete(User._cache_key(request.user, 'saved_videos'))
 
     info = user_video.json()
     info.update({ 'emptyq': request.user.notifications()['emptyq'],
