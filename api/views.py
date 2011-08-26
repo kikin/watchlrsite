@@ -836,7 +836,8 @@ def followers(request):
 
     user_followers = [follower.json(other=request.user, excludes=['email']) for follower in items]
 
-    return { 'count': len(user_followers),
+    return { 'page': page,
+             'count': len(user_followers),
              'total': paginator.count,
              'followers': user_followers }
 
@@ -869,7 +870,8 @@ def following(request):
 
     user_followers = [followee.json(other=request.user, excludes=['email']) for followee in items]
 
-    return { 'count': len(user_followers),
+    return { 'page': page,
+             'count': len(user_followers),
              'total': paginator.count,
              'following': user_followers }
 
@@ -949,7 +951,8 @@ def liked_videos(request):
         json['saved'] = json['liked'] = False
         json['seek'] = 0
 
-    return { 'count': len(videos),
+    return { 'page': page,
+             'count': len(videos),
              'total': paginator.count,
              'videos': videos }
 
