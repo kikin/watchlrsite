@@ -8,4 +8,5 @@ urlpatterns = patterns(
     (r'^/saves', 'kikinvideo.analytics.views.saves'),
     (r'^/likes', 'kikinvideo.analytics.views.likes'),
     (r'^/follows', 'kikinvideo.analytics.views.follows'),
+    (r'^/cache', 'kikinvideo.analytics.views.memcache_status'),
 )

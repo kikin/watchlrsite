@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models.aggregates import Count
@@ -45,7 +45,12 @@ def geolocate(view):
 
         ip_address = request.META['REMOTE_ADDR']
 
-        location = GEOIP.record_by_addr(ip_address) if GEOIP else None
+        try:
+            location = GEOIP.record_by_addr(ip_address) if GEOIP else None
+        except Exception:
+            logger.exception('Error geolocating IP address')
+            location = None
+
         country = location.get('country_code') if location else None
         city = location.get('city') if location else None
 
@@ -496,4 +501,54 @@ def follows(request):
     data_table.LoadData(data.values())
 
     return format_data(data_table, request)
+
+
+@internal
+def memcache_status(request):
+
+    # See http://effbot.org/zone/django-memcached-view.htm
+
+    try:
+        import memcache
+    except ImportError:
+        return HttpResponseNotFound()
+
+    cache_config = settings.CACHES['default']
+    
+    if not cache_config['BACKEND'].endswith('MemcachedCache'):
+        return HttpResponseNotFound()
+
+    host = memcache._Host(cache_config['LOCATION'][0])
+    host.connect()
+    host.send_cmd('stats')
+
+    class Stats:
+        pass
+
+    stats = Stats()
+
+    while 1:
+        line = host.readline().split(None, 2)
+        if line[0] == 'END':
+            break
+        stat, key, value = line
+        try:
+            # convert to native type, if possible
+            value = int(value)
+            if key == 'uptime':
+                value = timedelta(seconds=value)
+            elif key == 'time':
+                value = datetime.fromtimestamp(value)
+        except ValueError:
+            pass
+        setattr(stats, key, value)
+
+    host.close_socket()
+
+    return render_to_response(
+        'memcached_status.html', dict(
+            stats=stats,
+            hit_rate=100 * stats.get_hits / stats.cmd_get,
+            time=datetime.now(), # server time
+        ))
 
