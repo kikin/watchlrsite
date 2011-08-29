@@ -12,3 +12,5 @@ South==0.7.3
 -e git+https://github.com/hmarr/django-ses.git#egg=django-ses
 pygeoip==0.2.1
 http://google-visualization-python.googlecode.com/files/gviz_api_py-1.7.0.tar.gz
+python-memcached==1.47
+johnny-cache==0.3.3

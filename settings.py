@@ -1,6 +1,6 @@
 # Django settings for video project.
 
-_version = (2, 3, 1)
+_version = (2, 3, 2)
 VERSION = '.'.join([str(number) for number in _version])
 
 import sys, os
@@ -128,7 +128,7 @@ TEMPLATE_LOADERS = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
-    'django.core.context_processors.auth',
+    'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.media',
     'django.core.context_processors.static',
     'kikinvideo.context_processors.release_version',
@@ -146,6 +146,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'kikinvideo.middleware.MultipleProxyMiddleware',
+    'johnny.middleware.LocalStoreClearMiddleware',
+    'johnny.middleware.QueryCacheMiddleware',
 )
 
 ROOT_URLCONF = 'kikinvideo.urls'
@@ -258,12 +260,19 @@ SESSION_COOKIE_HTTPONLY = True # Prevent script access to cookie
 cache_configurations = {
     'local': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 600,
+        'OPTIONS': {
+            'MAX_ENTRIES': 5000,
+        },
     },
     'local_sqlite': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
     'dev': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'johnny.backends.memcached.MemcachedCache',
+        'JOHNNY_CACHE': True,
+        'LOCATION': ['127.0.0.1:11211',],
+        'TIMEOUT': 0,
     },
     'prod': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -271,6 +280,11 @@ cache_configurations = {
 }
 
 CACHES = { 'default': cache_configurations[VIDEO_ENV] }
+
+JOHNNY_MIDDLEWARE_KEY_PREFIX = 'kikinvideo'
+
+# Uncomment this to disable QuerySet caching
+#DISABLE_QUERYSET_CACHE = VIDEO_ENV.startswith('local')
 
 #frontend feature switches
 ENABLE_HTML5_VIDEO = True

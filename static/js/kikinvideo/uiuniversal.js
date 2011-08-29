@@ -168,6 +168,9 @@ kikinvideo.UIUniversal =
                 $('#video-player-title').hide();
                 $('#player-video-description').hide();
                 $('#player-video-source-image').hide();
+                
+                $('#player-like-button').hide();
+                $('#player-save-button').hide();
 
                 //pause video if it is html5
                 // if($.browser.webkit){

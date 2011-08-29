@@ -15,14 +15,15 @@
 			import com.adobe.serialization.json.JSON;
 			import com.watchlr.GigaPlayer.Event.GigaPlayerEvent;
 			import com.watchlr.GigaPlayer.Util.BrightCove;
-			import com.watchlr.GigaPlayer.Util.Util;
 			import com.watchlr.GigaPlayer.Util.Tracker;
+			import com.watchlr.GigaPlayer.Util.Util;
 			import com.watchlr.GigaPlayer.Util.Vimeo;
 			import com.watchlr.Globals;
 			
 			import flash.external.*;
 			import flash.system.Security;
 			import flash.utils.Timer;
+			import flash.utils.clearTimeout;
 			import flash.utils.setTimeout;
 			
 			import flashx.textLayout.formats.Float;
@@ -86,6 +87,7 @@
 			private var _brightcovePlayer: BrightCove;
 			
 			private var _stopCountdown:Boolean = false;
+			private var _countdownInterval:Number = -1;
 			
 			protected var fillElementComponents:ArrayList = new ArrayList();
 			
@@ -364,7 +366,7 @@
 						}
 					} else {
 						loadingIndicatorCountdown.text = countDowntime + '';
-						setTimeout(updateCountdownTimer, 1000, --countDowntime, errorCode);
+						_countdownInterval = setTimeout(updateCountdownTimer, 1000, --countDowntime, errorCode);
 					}	
 				}
 			}
@@ -385,6 +387,9 @@
 			
 			private function hideCountdown(): void {
 				_stopCountdown = true;
+				if (_countdownInterval != -1) {
+					clearTimeout(_countdownInterval);
+				}
 				loadingErrorMessage.visible = false;
 				viewSourceLink.visible = false;
 				loadingIndicatorMessage.visible = false;
@@ -409,11 +414,13 @@
 			}
 			
 			public function set source(val:Object):void{
+				hideCountdown();
+				
 				var util:Util = new Util();
 				var vid:String;
+				
 				if (val) {
 					trace('Source:' + val.toString());
-					hideCountdown();
 					if(util.isYouTube(val.toString())){
 						vid = util.YTIframeSourceToVID(val.toString());
 						playYTVideo(vid);

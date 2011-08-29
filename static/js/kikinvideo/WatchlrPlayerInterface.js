@@ -151,18 +151,46 @@ window.WatchlrPlayerInterface = function(){
             trackAction('view', vid);
         }
 
+        $('#player-like-button').hide();
+        $('#player-save-button').hide();
 
         if (typeof priv._currentVideoItemIndex == "number") {
-            $('#video-player-title').html(UI.videoList[priv._currentVideoItemIndex].title);
-            $('#player-video-description').html(UI.videoList[priv._currentVideoItemIndex].description);
-            $('#player-video-source-image').attr('src', UI.videoList[priv._currentVideoItemIndex].faviconURl);
+            var video = UI.videoList[priv._currentVideoItemIndex];
+
+            $('#video-player-title').html(video.title);
+            $('#player-video-description').html(video.description);
+            $('#player-video-source-image').attr('src', video.faviconURl);
 
             $('#video-player-title').show();
             $('#player-video-description').show();
             $('#player-video-source-image').show();
 
+            if (video.liked) {
+                if (!$('#player-like-button').hasClass('liked'))
+                    $('#player-like-button').addClass('liked');
+                if ($('#player-like-button').hasClass('not-liked'))
+                    $('#player-like-button').removeClass('not-liked');
+                $('#player-like-button').attr('title', 'unlike');
+            } else {
+                if (!$('#player-like-button').hasClass('not-liked'))
+                    $('#player-like-button').addClass('not-liked');
+                if ($('#player-like-button').hasClass('liked'))
+                    $('#player-like-button').removeClass('liked');
+                $('#player-like-button').attr('title', 'like');
+            }
+            $('#player-like-button').show();
+
+            if (!video.saved) {
+                if (!$('#player-save-button').hasClass('not-saved'))
+                    $('#player-save-button').addClass('not-saved');
+                if ($('#player-save-button').hasClass('saved'))
+                    $('#player-save-button').removeClass('saved');
+                $('#player-save-button').attr('title', 'save');
+                $('#player-save-button').show();
+            }
+
             if (priv._watchlrPlayer && priv._watchlrPlayer.setSource) {
-                priv._watchlrPlayer.setSource(UI.videoList[priv._currentVideoItemIndex].embed);
+                priv._watchlrPlayer.setSource(video.embed);
             }
         }
 
@@ -220,6 +248,85 @@ window.WatchlrPlayerInterface = function(){
             }
         }
         return null;
+    };
+
+    pub.likeVideo = function(){
+        var video = UI.videoList[priv._currentVideoItemIndex];
+        if (!$('#player-like-button').hasClass('liked')) {
+            home.handleLike(video.id, true, function(data){
+                if (data.success) {
+                    var video_properties = data.result;
+                    if (video_properties && video_properties.liked){
+                        if (!$('#player-like-button').hasClass('liked')) {
+                            if(data.result.liked){
+                                $('#player-like-button').addClass('liked');
+                                $('#player-like-button').attr('title', 'unlike');
+                                if ($('#player-like-button').hasClass('hovered')) {
+                                    $('#player-like-button').removeClass('hovered');
+                                }
+                                video.liked = true;
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            home.handleLike(video.id, true, function(data){
+                if (data.success) {
+                    var video_properties = data.result;
+                    if (video_properties && !video_properties.liked){
+                        if ($('#player-like-button').hasClass('liked')) {
+                            if(!data.result.liked){
+                                $('#player-like-button').removeClass('liked');
+                                $('#player-like-button').attr('title', 'like');
+                                if ($('#player-like-button').hasClass('hovered')) {
+                                    $('#player-like-button').removeClass('hovered');
+                                }
+                                video.liked = false;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    pub.saveVideo = function(){
+        var video = UI.videoList[priv._currentVideoItemIndex];
+        if (!$('#player-save-button').hasClass('saved')) {
+            home.handleSave(video.id, function(response){
+                if (response.success) {
+                    if (response.result.saved) {
+                        if ($('#player-save-button').hasClass('not-saved')) {
+                            $('#player-save-button').removeClass('not-saved');
+                        }
+                        if (!$('#player-save-button').hasClass('saved')) {
+                            $('#player-save-button').addClass('saved');
+                        }
+                        $('#player-save-button').attr('title', 'saved');
+                        video.saved = true;
+                    }
+                }
+            });
+        }
+    };
+
+    pub.updateVideoLikedStatus = function(vid, liked){
+        if (vid != undefined && vid != null && typeof vid == "number") {
+            var idx = pub._getVideoIndex(vid);
+            if (typeof idx == "number" && idx != -1) {
+                UI.videoList[idx].liked = liked;
+            }
+        }
+    };
+
+    pub.updateVideoSavedStatus = function(vid, saved){
+        if (vid != undefined && vid != null && typeof vid == "number") {
+            var idx = pub._getVideoIndex(vid);
+            if (typeof idx == "number" && idx != -1) {
+                 UI.videoList[idx].saved = saved;
+            }
+        }
     };
 
     return pub;

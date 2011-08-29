@@ -1,10 +1,12 @@
 import os, logging, logging.config
 
-def init():
-    logging.basicConfig(level=logging.DEBUG)
+def init(debug=False):
+    level = logging.DEBUG if debug else logging.INFO
+
+    logging.basicConfig(level=level)
 
     logger = logging.getLogger('kikinvideo')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(level)
 
     env = os.environ.get('VIDEO_ENV', 'local')
     file = 'error.log'
@@ -20,4 +22,8 @@ def init():
 initDone = False
 if not initDone:
     initDone = True
-    init()
+
+    video_env = os.environ.get('VIDEO_ENV', 'local')
+    debug = video_env.startswith('local')
+
+    init(debug=debug)

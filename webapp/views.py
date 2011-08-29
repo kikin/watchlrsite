@@ -96,9 +96,9 @@ def liked_video_queue(request):
             all_liked_vids = user.liked_videos()
             start_index = int(request.GET['start'])
             end_index = start_index + int(request.GET['count'])
-            if all_liked_vids.count() >= end_index:
+            if len(all_liked_vids) >= end_index:
                 vid_subset = all_liked_vids[start_index:end_index]
-            elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
+            elif start_index < len(all_liked_vids) and end_index >= len(all_liked_vids):
                 vid_subset = all_liked_vids[start_index:]
             else:
                 vid_subset = []
@@ -108,8 +108,10 @@ def liked_video_queue(request):
         else:
             #just pass through all liked videos...
             vid_subset = user.liked_videos()
-        return render_to_response('content/video_queue.hfrg',{'user':user,
-                                  'display_mode':'profile', 'videos': vid_subset},
+        return render_to_response('content/video_queue.hfrg',
+                                  dict(user=request.user,
+                                       display_mode='profile',
+                                       videos=vid_subset),
                                   context_instance=RequestContext(request))
 
     elif request.method == 'GET' and request.user.is_authenticated():
@@ -118,32 +120,10 @@ def liked_video_queue(request):
             try:
                 start_index = int(request.GET['start'])
                 end_index = start_index + int(request.GET['count'])
-                if all_liked_vids.count() >= end_index:
+                if len(all_liked_vids) >= end_index:
                     vid_subset = all_liked_vids[start_index:end_index]
-                elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
+                elif start_index < len(all_liked_vids) and end_index >= len(all_liked_vids):
                     vid_subset = all_liked_vids[start_index:]
-                else:
-                    vid_subset = []
-            except Exception, e:
-                #means url was malformed...
-                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
-            return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                              'display_mode':'liked', 'videos': vid_subset},
-                              context_instance=RequestContext(request))
-    return HttpResponseForbidden('you are not authorized to view this content, please log in')
-
-
-def saved_video_queue(request):
-    if request.method == 'GET' and request.user.is_authenticated():
-        all_saved_vids = request.user.saved_videos()
-        if 'start' in request.GET and 'count' in request.GET:
-            try:
-                start_index = int(request.GET['start'])
-                end_index = start_index + int(request.GET['count'])
-                if all_saved_vids.count() >= end_index:
-                    vid_subset = all_saved_vids[start_index:end_index]
-                elif start_index < all_saved_vids.count() and end_index >= all_saved_vids.count():
-                    vid_subset = all_saved_vids[start_index:]
                 else:
                     vid_subset = []
             except Exception, e:
@@ -151,10 +131,45 @@ def saved_video_queue(request):
                 return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
         else:
             #just pass through all liked videos...
-            vid_subset = request.user.saved_videos()
-        return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                                  'display_mode':'saved', 'videos': vid_subset},
+            vid_subset = all_liked_vids
+        return render_to_response('content/video_queue.hfrg',
+                                  dict(user=request.user,
+                                       display_mode='liked',
+                                       videos=vid_subset),
                                   context_instance=RequestContext(request))
+    return HttpResponseForbidden('you are not authorized to view this content, please log in')
+
+
+def saved_video_queue(request):
+    if request.method == 'GET' and request.user.is_authenticated():
+
+        all_saved_vids = request.user.saved_videos()
+
+        if 'start' in request.GET and 'count' in request.GET:
+            try:
+                start_index = int(request.GET['start'])
+                end_index = start_index + int(request.GET['count'])
+
+                if len(all_saved_vids) >= end_index:
+                    vid_subset = all_saved_vids[start_index:end_index]
+
+                elif start_index < len(all_saved_vids) and end_index >= len(all_saved_vids):
+                    vid_subset = all_saved_vids[start_index:]
+
+                else:
+                    vid_subset = []
+
+            except Exception, e:
+                #means url was malformed...
+                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+        else:
+            #just pass through all liked videos...
+            vid_subset = request.user.saved_videos()
+
+        return render_to_response('content/video_queue.hfrg',
+                                  { 'user': request.user, 'display_mode': 'saved', 'videos': vid_subset },
+                                  context_instance=RequestContext(request))
+
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 
@@ -376,13 +391,13 @@ def single_video(request, display_mode, video_id):
             video = Video.objects.get(pk=video_id)
             uservideo = UserVideo.objects.get(user=request.user, video=video)
 
-            status = uservideo,video.status()
+            status = video.status()
             if status == states.FAILURE:
                 return render_to_response('inclusion_tags/error_fetching_data.hfrg',
                                           { 'video': video, 'user_video': uservideo },
                                           context_instance=RequestContext(request))
             
-            if uservideo.video.status() == states.SUCCESS:
+            if status == states.SUCCESS:
                 return render_to_response('inclusion_tags/video_queue_item.hfrg',
                                           { 'user': request.user, 'video': video, 'display_mode': display_mode },
                                           context_instance=RequestContext(request))
