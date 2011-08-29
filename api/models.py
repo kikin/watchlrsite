@@ -95,7 +95,7 @@ class Video(models.Model):
 
     def save(self, *args, **kwargs):
 
-        for user_video in UserVideo.objects.filter(video=video)\
+        for user_video in UserVideo.objects.filter(video=self)\
                                            .exclude(saved=False, liked=False, shared_timestamp__isnull=True):
 
             properties = ('saved', 'liked', 'shared_timestamp')
