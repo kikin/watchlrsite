@@ -93,6 +93,23 @@ class Video(models.Model):
     task_id = models.CharField(max_length=255, null=True, db_index=True)
     result = models.CharField(max_length=10, null=True)
 
+    def save(self, *args, **kwargs):
+
+        for user_video in UserVideo.objects.filter(video=video)\
+                                           .exclude(saved=False, liked=False, shared_timestamp__isnull=True):
+
+            properties = ('saved', 'liked', 'shared_timestamp')
+
+            cache_keys = [User._cache_key(user_video.user, '%s_videos' % property[:6]) \
+                          for property in properties if getattr(user_video, property)]
+
+            cache_keys += ['%s_%s_%s' % (self.id, user_video.user.id, property[:6])\
+                           for property in properties if getattr(user_video, property)]
+            
+            cache.delete_many(cache_keys)
+
+        super(Video, self).save(*args, **kwargs)
+
     def set_thumbnail(self, url, width, height, type='web'):
         try:
             thumbnail = Thumbnail.objects.get(video=self, type=type)
@@ -390,8 +407,10 @@ class User(auth_models.User):
 
         user_video.save()
 
-        cache.delete_many([User._cache_key(self, '%s_videos' % property) for property in properties if kwargs.get(property)])
-        cache.delete_many(['%s_%s_%s' % (video.id, self.id, property) for property in properties if kwargs.get(property)])
+        # Invalidate cached user and video properties, if any.
+        cache_keys = [User._cache_key(self, '%s_videos' % property) for property in properties if kwargs.get(property)]
+        cache_keys += ['%s_%s_%s' % (video.id, self.id, property) for property in properties if kwargs.get(property)]
+        cache.delete_many(cache_keys)
 
         return user_video
 
