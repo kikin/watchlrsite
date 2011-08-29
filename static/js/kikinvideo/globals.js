@@ -1,5 +1,5 @@
 //project namesapce...
-var _WATCHLR_JS_VERSION_ = '2.3.1';
+var _WATCHLR_JS_VERSION_ = '2.3.2';
 
 var kikinvideo = {'util':{}};
 
