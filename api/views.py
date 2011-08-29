@@ -281,7 +281,25 @@ def get(request, video_id):
         video['html'] = getattr(item, '%s_embed_code' % type)
         video['host'] = item.url
 
-        if request.user.is_authenticated():
+        authenticated = request.user.is_authenticated()
+        if not authenticated:
+            try:
+                # Clients can send session key as a request parameter
+                session_key = request.REQUEST['session_id']
+                session = Session.objects.get(pk=session_key)
+
+                if session.expire_date > datetime.now():
+                    uid = session.get_decoded().get('_auth_user_id')
+                    request.user = User.objects.get(pk=uid)
+                    authenticated = True
+
+            except (KeyError, Session.DoesNotExist):
+                pass
+
+        context_user = request.user if authenticated else None
+        video['liked_by'] = [user.json(excludes=['email']) for user in video.all_likers(context_user=context_user)]
+
+        if authenticated:
             try:
                 user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
 
@@ -304,22 +322,6 @@ def get(request, video_id):
 
         video['saved'] = video['liked'] = video['watched'] = False
         video['timestamp'] = None
-
-        if not request.user.is_authenticated():
-            try:
-                # Clients can send session key as a request parameter
-                session_key = request.REQUEST['session_id']
-                session = Session.objects.get(pk=session_key)
-
-                if session.expire_date > datetime.now():
-                    uid = session.get_decoded().get('_auth_user_id')
-                    request.user = User.objects.get(pk=uid)
-
-            except (KeyError, Session.DoesNotExist):
-                pass
-
-        context_user = request.user if request.user.is_authenticated() else None
-        video['liked_by'] = [user.json(excludes=['email']) for user in item.all_likers(context_user=context_user)]
 
         return {'videos': [ video ] }
 
