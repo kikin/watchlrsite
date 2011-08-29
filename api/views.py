@@ -286,9 +286,16 @@ def get(request, video_id):
                 user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
 
                 video['saved'] = user_video.saved
-                video['timestamp'] = epoch(user_video.saved_timestamp)
                 video['liked'] = user_video.liked
                 video['watched'] = user_video.watched
+
+                timestamp = 'saved_timestamp'
+                if not user_video.saved:
+                    if user_video.liked:
+                        timestamp = 'liked_timestamp'
+                    else:
+                        timestamp = 'shared_timestamp'
+                video['timestamp'] = epoch(getattr(user_video, timestamp))
 
                 return {'videos': [ video ] }
 
