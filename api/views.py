@@ -297,7 +297,7 @@ def get(request, video_id):
                 pass
 
         context_user = request.user if authenticated else None
-        video['liked_by'] = [user.json(excludes=['email']) for user in video.all_likers(context_user=context_user)]
+        video['liked_by'] = [user.json(excludes=['email']) for user in item.all_likers(context_user=context_user)]
 
         if authenticated:
             try:
