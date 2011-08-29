@@ -108,8 +108,10 @@ def liked_video_queue(request):
         else:
             #just pass through all liked videos...
             vid_subset = user.liked_videos()
-        return render_to_response('content/video_queue.hfrg',{'user':user,
-                                  'display_mode':'profile', 'videos': vid_subset},
+        return render_to_response('content/video_queue.hfrg',
+                                  dict(user=request.user,
+                                       display_mode='profile',
+                                       videos=vid_subset),
                                   context_instance=RequestContext(request))
 
     elif request.method == 'GET' and request.user.is_authenticated():
@@ -127,9 +129,14 @@ def liked_video_queue(request):
             except Exception, e:
                 #means url was malformed...
                 return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
-            return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                              'display_mode':'liked', 'videos': vid_subset},
-                              context_instance=RequestContext(request))
+        else:
+            #just pass through all liked videos...
+            vid_subset = all_liked_vids
+        return render_to_response('content/video_queue.hfrg',
+                                  dict(user=request.user,
+                                       display_mode='liked',
+                                       videos=vid_subset),
+                                  context_instance=RequestContext(request))
     return HttpResponseForbidden('you are not authorized to view this content, please log in')
 
 
@@ -384,13 +391,13 @@ def single_video(request, display_mode, video_id):
             video = Video.objects.get(pk=video_id)
             uservideo = UserVideo.objects.get(user=request.user, video=video)
 
-            status = uservideo,video.status()
+            status = video.status()
             if status == states.FAILURE:
                 return render_to_response('inclusion_tags/error_fetching_data.hfrg',
                                           { 'video': video, 'user_video': uservideo },
                                           context_instance=RequestContext(request))
             
-            if uservideo.video.status() == states.SUCCESS:
+            if status == states.SUCCESS:
                 return render_to_response('inclusion_tags/video_queue_item.hfrg',
                                           { 'user': request.user, 'video': video, 'display_mode': display_mode },
                                           context_instance=RequestContext(request))

@@ -45,7 +45,12 @@ def geolocate(view):
 
         ip_address = request.META['REMOTE_ADDR']
 
-        location = GEOIP.record_by_addr(ip_address) if GEOIP else None
+        try:
+            location = GEOIP.record_by_addr(ip_address) if GEOIP else None
+        except Exception:
+            logger.exception('Error geolocating IP address')
+            location = None
+
         country = location.get('country_code') if location else None
         city = location.get('city') if location else None
 

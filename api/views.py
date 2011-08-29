@@ -149,8 +149,9 @@ def like_by_url(request):
     except Video.DoesNotExist:
         video, created = Video.objects.get_or_create(url=url)
 
-        if created:
-            # Fetch video metadata in background
+        # Fetch video metadata in background
+        if created or video.status() == states.FAILURE:
+
             task = fetch.delay(request.user.id,
                                url,
                                request.META.get('HTTP_REFERER'),
@@ -365,13 +366,10 @@ def info(request):
     authenticated = request.user.is_authenticated()
 
     if authenticated:
-        for user_video in UserVideo.objects.filter(user=request.user):
+        for user_video in UserVideo.objects.filter(user=request.user, video__url__in=requested.keys()):
             url = user_video.video.url
 
-            try:
-              response[url] = requested[url]
-            except KeyError:
-              continue
+            response[url] = requested[url]
 
             response[url]['normalized'] = url
             response[url]['success'] = True

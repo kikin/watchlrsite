@@ -26,11 +26,13 @@ from django.template.defaultfilters import stringfilter
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 
-from johnny.cache import invalidate
-
 from api.utils import url_fix, MalformedURLException
-from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend, UserVideo, UserTask
+from api.models import Video, User, Source as VideoSource, Thumbnail, UserTask
 from kikinvideo.settings import SENDER_EMAIL_ADDRESS, FACEBOOK_FRIENDS_FETCHER_SCHEDULE, FACEBOOK_NEWS_FEED_FETCH_SCHEDULE
+
+from johnny.cache import invalidate
+from hookjohnny import hook_johnny_cache
+hook_johnny_cache()
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -94,12 +96,10 @@ def update_video_metadata(video, meta, logger):
                             meta['mobile_thumbnail_height'],
                             type='mobile')
 
-    try:
-        source = VideoSource.objects.get(name=meta['source'].name)
-    except VideoSource.DoesNotExist:
-        source = VideoSource.objects.create(name=meta['source'].name,
-                                            url=meta['source'].url,
-                                            favicon=meta['source'].favicon)
+    source, created = VideoSource.objects.get_or_create(name=meta['source'].name)
+    if created:
+        source.url = meta['source'].url
+        source.favicon = meta['source'].favicon
 
     video.source = source
     video.result = states.SUCCESS

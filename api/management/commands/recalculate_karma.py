@@ -2,6 +2,9 @@ from django.core.management.base import BaseCommand
 from johnny.cache import invalidate
 from api.models import User, UserVideo
 
+from hookjohnny import hook_johnny_cache
+hook_johnny_cache()
+
 class Command(BaseCommand):
     help = 'Recalculates karma points for all users in system'
 

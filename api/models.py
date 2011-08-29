@@ -39,6 +39,25 @@ DEFAULT_PREFERENCES = {
 }
 
 
+def cache_get(key, default=None):
+    cached = cache.get(key, default)
+
+    result = 'HIT' if not cached == default else 'MISS'
+    logger.debug('CACHE %s - %s' % (result, key))
+
+    return cached
+
+
+def cache_delete(keys):
+    logger.debug('CACHE DELETE - [%s]' % ','.join(keys))
+    cache.delete_many(keys)
+
+
+def cache_set(key, value):
+    logger.debug('CACHE SEED - %s' % key)
+    cache.set(key, value)
+
+
 class Source(models.Model):
     """
     Video source
@@ -95,8 +114,7 @@ class Video(models.Model):
 
     def save(self, *args, **kwargs):
 
-        for user_video in UserVideo.objects.filter(video=self)\
-                                           .exclude(saved=False, liked=False, shared_timestamp__isnull=True):
+        for user_video in UserVideo.objects.filter(video=self).exclude(saved=False, liked=False, shared_timestamp__isnull=True):
 
             properties = ('saved', 'liked', 'shared_timestamp')
 
@@ -106,7 +124,7 @@ class Video(models.Model):
             cache_keys += ['%s_%s_%s' % (self.id, user_video.user.id, property[:6])\
                            for property in properties if getattr(user_video, property)]
             
-            cache.delete_many(cache_keys)
+            cache_delete(cache_keys)
 
         super(Video, self).save(*args, **kwargs)
 
@@ -122,24 +140,26 @@ class Video(models.Model):
 
         thumbnail.save()
 
-        cache.delete('%s_%s_thumbnail' % (self.id, type))
+        cache_delete(['%s_%s_thumbnail' % (self.id, type)])
 
     def get_thumbnail(self, type='web'):
         cache_key = '%s_%s_thumbnail' % (self.id, type)
 
-        cached = cache.get(cache_key)
+        cached = cache_get(cache_key)
+
         if cached:
             thumbnail = loads(cached)
             if isinstance(thumbnail, basestring) and thumbnail == '_NONE_':
                 raise Thumbnail.DoesNotExist
+
             return thumbnail
 
         thumbnails = self.thumbnails.filter(type=type)
         if thumbnails:
-            cache.set(cache_key, dumps(thumbnails[0]))
+            cache_set(cache_key, dumps(thumbnails[0]))
             return thumbnails[0]
 
-        cache.set(cache_key, dumps('_NONE_'))
+        cache_set(cache_key, dumps('_NONE_'))
         raise Thumbnail.DoesNotExist()
 
     def total_likes(self):
@@ -148,13 +168,13 @@ class Video(models.Model):
     def _get_timestamp_for_action(self, user, action):
         cache_key = '%s_%s_%s' % (self.id, user.id, action)
 
-        cached = cache.get(cache_key)
+        cached = cache_get(cache_key)
         if cached:
             return loads(cached)
 
         timestamp = getattr(UserVideo.objects.get(video=self, user=user), '%s_timestamp' % action)
 
-        cache.set(cache_key, dumps(timestamp))
+        cache_set(cache_key, dumps(timestamp))
 
         return timestamp
 
@@ -173,12 +193,12 @@ class Video(models.Model):
         if not context_user:
             cache_key = '%s_likers' % self.id
 
-            cached = cache.get(cache_key)
+            cached = cache_get(cache_key)
             if cached:
                 likers = loads(cached)
             else:
                 likers = [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
-                cache.set(cache_key, dumps(likers))
+                cache_set(cache_key, dumps(likers))
 
         else:
             followed_likers = [user_video.user for user_video in UserVideo.objects.filter(user__r_follows=context_user,
@@ -408,9 +428,9 @@ class User(auth_models.User):
         user_video.save()
 
         # Invalidate cached user and video properties, if any.
-        cache_keys = [User._cache_key(self, '%s_videos' % property) for property in properties if kwargs.get(property)]
-        cache_keys += ['%s_%s_%s' % (video.id, self.id, property) for property in properties if kwargs.get(property)]
-        cache.delete_many(cache_keys)
+        cache_keys = [User._cache_key(self, '%s_videos' % property) for property in properties if property in kwargs]
+        cache_keys += ['%s_%s_%s' % (video.id, self.id, property) for property in properties if property in kwargs]
+        cache_delete(cache_keys)
 
         return user_video
 
@@ -422,7 +442,7 @@ class User(auth_models.User):
         def wrap(self, *args, **kwargs):
             key = User._cache_key(self, func.__name__)
 
-            cached = cache.get(key)
+            cached = cache_get(key)
             if cached:
                 return loads(cached)
 
@@ -432,7 +452,7 @@ class User(auth_models.User):
             for item in queryset:
                 result.append(item)
 
-            cache.set(key, dumps(result))
+            cache_set(key, dumps(result))
             return result
 
         return wrap
@@ -465,7 +485,7 @@ class User(auth_models.User):
             from api.tasks import send_follow_email_notification
             send_follow_email_notification.delay(other, self)
 
-        cache.delete_many([User._cache_key(self, 'following'), User._cache_key(other, 'followers')])
+        cache_delete([User._cache_key(self, 'following'), User._cache_key(other, 'followers')])
 
         return result
 
@@ -475,7 +495,7 @@ class User(auth_models.User):
             relation.is_active = False
             relation.save()
 
-            cache.delete_many([User._cache_key(self, 'following'), User._cache_key(other, 'followers')])
+            cache_delete([User._cache_key(self, 'following'), User._cache_key(other, 'followers')])
 
         except UserFollowsUser.DoesNotExist:
             pass
@@ -488,7 +508,8 @@ class User(auth_models.User):
         friend_obj, created = FacebookFriend.objects.get_or_create(user=self, fb_friend=friend)
 
         if created:
-            cache.delete(User._cache_key(self, 'facebook_friends'))
+            cache_key = User._cache_key(self, 'facebook_friends')
+            cache_delete([cache_key])
 
         return friend_obj
         
@@ -527,20 +548,23 @@ class User(auth_models.User):
         # Take away karma points from sharing user
         video.increment_karma(self, -1)
 
-        cache.delete('%s_likers' % self.id)
+        cache_delete(['%s_likers' % self.id])
 
         return self._create_or_update_video(video, **{'liked': False})
 
     @cached
     def liked_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__liked=True).order_by('-uservideo__liked_timestamp')
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__liked=True)\
+                            .order_by('-uservideo__liked_timestamp')
 
     def liked_videos_count(self):
         return len(self.liked_videos())
 
     @cached
     def shared_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__shared_timestamp__isnull=False)\
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__shared_timestamp__isnull=False)\
                             .order_by('-uservideo__shared_timestamp')
 
     def shared_videos_count(self):
@@ -584,7 +608,9 @@ class User(auth_models.User):
 
     @cached
     def saved_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__saved=True).order_by('-uservideo__saved_timestamp')
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__saved=True)\
+                            .order_by('-uservideo__saved_timestamp')
 
     def saved_videos_count(self):
         return len(self.saved_videos())
@@ -599,15 +625,17 @@ class User(auth_models.User):
 
     @cached
     def watched_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__watched=True).order_by('-uservideo__watched_timestamp')
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__watched=True)\
+                            .order_by('-uservideo__watched_timestamp')
 
     def watched_videos_count(self):
-        return Video.objects.filter(user__id=self.id, uservideo__watched=True)\
-                            .order_by('-uservideo__watched_timestamp')\
-                            .count()
+        return len(self.watched_videos())
 
     def unwatched_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__watched=False).order_by('-uservideo__saved_timestamp')
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__watched=False)\
+                            .order_by('-uservideo__saved_timestamp')
 
     def notifications(self):
         """
