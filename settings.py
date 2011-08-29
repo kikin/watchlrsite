@@ -275,7 +275,10 @@ cache_configurations = {
         'TIMEOUT': 0,
     },
     'prod': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'johnny.backends.memcached.MemcachedCache',
+        'JOHNNY_CACHE': True,
+        'LOCATION': ['127.0.0.1:11211',],
+        'TIMEOUT': 0,
     }
 }
 
