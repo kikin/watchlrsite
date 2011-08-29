@@ -530,8 +530,6 @@ class User(auth_models.User):
         False
         """
 
-        cache.delete('%s_likers' % self.id)
-        
         if timestamp is None:
             timestamp = datetime.utcnow()
 
@@ -542,7 +540,9 @@ class User(auth_models.User):
         if host:
             kwargs['host'] = host
 
-        return self._create_or_update_video(video, **kwargs)
+        user_video = self._create_or_update_video(video, **kwargs)
+        cache.delete('%s_likers' % video.id)
+        return user_video
 
     def unlike_video(self, video):
         # Take away karma points from sharing user
