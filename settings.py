@@ -277,7 +277,7 @@ cache_configurations = {
     'prod': {
         'BACKEND': 'johnny.backends.memcached.MemcachedCache',
         'JOHNNY_CACHE': True,
-        'LOCATION': ['127.0.0.1:11211',],
+        'LOCATION': ['cache.jpm4bl.0001.use1.cache.amazonaws.com:11211',],
         'TIMEOUT': 0,
     }
 }
