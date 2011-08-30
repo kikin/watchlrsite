@@ -25,7 +25,7 @@ database_configurations = {
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '',
+        'HOST': 'store.cboprdhtcqew.us-east-1.rds.amazonaws.com',
         'PORT': '',
         },
     'dev': {
