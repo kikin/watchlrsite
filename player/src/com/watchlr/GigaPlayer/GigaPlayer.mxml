@@ -89,6 +89,8 @@
 			private var _stopCountdown:Boolean = false;
 			private var _countdownInterval:Number = -1;
 			
+			private var _pitchDisplayed:Boolean = false;
+			
 			protected var fillElementComponents:ArrayList = new ArrayList();
 			
 			public function set seekTarget(value:Number):void{
@@ -138,15 +140,16 @@
 				setChildIndex(bgRect, -1);
 				setChildIndex(_videoDisplay, 0);
 				setChildIndex(_youTubeLoaderWrapper, 1);
-				setChildIndex(controlPallette, 2);
-				setChildIndex(_vimeoLoaderWrapper, 3);
-				setChildIndex(_brightcoveLoaderWrapper, 4);
-				setChildIndex(loadingIndicatorCountdown, 5);
-				setChildIndex(loadingErrorMessage, 6);
-				setChildIndex(viewSourceLink, 7);
-				setChildIndex(loadingIndicatorMessage, 8);
-				setChildIndex(prevVideoButton, 9);
-				setChildIndex(nextVideoButton, 10);
+				setChildIndex(pitch, 2);
+				setChildIndex(controlPallette, 3);
+				setChildIndex(_vimeoLoaderWrapper, 4);
+				setChildIndex(_brightcoveLoaderWrapper, 5);
+				setChildIndex(loadingIndicatorCountdown, 6);
+				setChildIndex(loadingErrorMessage, 7);
+				setChildIndex(viewSourceLink, 8);
+				setChildIndex(loadingIndicatorMessage, 9);
+				setChildIndex(prevVideoButton, 10);
+				setChildIndex(nextVideoButton, 11);
 				
 				//time change callback...
 				_videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onPlayerTimeChange);
@@ -311,6 +314,19 @@
 			}
 			
 			public function handleVideoFinished():void{
+				_pitchDisplayed = true;
+				
+				// If source set throught video_id parameter - pitch viewer.
+				if (FlexGlobals.topLevelApplication.parameters.video_id) {
+					pitchLogo.top = _videoDisplay.height / 2 - 78;
+					pitchLogo.left = _videoDisplay.width / 2 - 152;
+					pitchLogoTagLine.top = pitchLogo.top + 78;
+					pitchSignupLink.top = pitchLogo.top + 115;
+					
+					showDefaultPlayer();
+					pitch.visible = true;
+				}
+				
 				try {
 					ExternalInterface.call(Globals.JS_SIGNATURES.ON_FINISHED);
 				} catch (error:SecurityError) {
@@ -396,15 +412,49 @@
 				loadingIndicatorCountdown.visible = false;	
 			}
 			
-			protected function onViewSourceLinkClicked(event:Event):void {
+			protected function onViewSourceLinkClicked(link:TextEvent):void {
 				_stopCountdown = true;
 				stage.displayState = StageDisplayState.NORMAL;
+				
+				var targetURL:URLRequest = null;
 				try {
-					var targetURL:URLRequest = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
-					navigateToURL(targetURL, "_blank");
+					targetURL = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
 				} catch (error:SecurityError) {
-					// Script access not enabled - Ignore!
+					targetURL = new URLRequest(link.text);
 				}
+				navigateToURL(targetURL, "_blank");
+			}
+			
+			private function hidePitch(): void {
+				pitch.visible = false;
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE: {
+						showYTPlayer();
+						break;
+					}
+						
+					case SourceType.VIMEO: {
+						showVimeoPlayer();
+						break;
+					}
+						
+					case SourceType.BRIGHTCOVE: {
+						showBrightcovePlayer();
+						break;
+					}
+						
+					case SourceType.DEFAULT: {
+						showDefaultPlayer();
+						break;
+					}
+				}
+				_pitchDisplayed = false;
+			}
+			
+			protected function onPitchClicked(link:TextEvent): void {
+				stage.displayState = StageDisplayState.NORMAL;
+				var targetURL:URLRequest = new URLRequest(link.text as String);
+				navigateToURL(targetURL, "_blank");				
 			}
 			
 			/*videoDisplay function wrappers*/
@@ -415,6 +465,7 @@
 			
 			public function set source(val:Object):void{
 				hideCountdown();
+				hidePitch();
 				
 				var util:Util = new Util();
 				var vid:String;
@@ -480,6 +531,8 @@
 			}
 			
 			public function seek(position:Number):void{
+				hidePitch();
+				
 				switch (currentVidSourceType) {
 					case SourceType.YOUTUBE: {
 						if(_youtubePlayer){
@@ -510,6 +563,8 @@
 			}
 			
 			public function play():void{
+				hidePitch();
+				
 				switch (currentVidSourceType) {
 					case SourceType.YOUTUBE: {
 						if(_youtubePlayer){
@@ -677,6 +732,7 @@
 					fill100(component);
 				}
 				
+				
 				if (_youtubePlayer)
 					_youtubePlayer.setSize(width, height);
 				
@@ -687,6 +743,10 @@
 					_brightcovePlayer.setSize(width, height);
 				
 				positionPrevNextButtons();
+				
+				if (_pitchDisplayed) {
+					handleVideoFinished();
+				}
 			}
 			
 			protected function fill100(component:UIComponent):void{
@@ -943,6 +1003,23 @@
 	</mx:Label>
 	<mx:Label id="loadingIndicatorMessage" text="Your next video will play in" fontSize="20" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
 	<mx:Label id="loadingIndicatorCountdown" text="5" fontSize="50" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
+	<s:BorderContainer id="pitch" visible="false" width="100%" height="100%" backgroundColor="0xffffff" textAlign="center" x="0" y="0">
+		<mx:Text id="pitchLogo" link="onPitchClicked(event);" visible="true" useHandCursor="true" buttonMode="true" width="100%" height="100%">
+			<mx:htmlText>
+				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'><img src='assets/watchlr_logo.png'/></a>]]>
+			</mx:htmlText>
+		</mx:Text>
+		<mx:Text id="pitchLogoTagLine" link="onPitchClicked(event);" color="0x424242" fontSize="20" visible="true" textDecoration="none" useHandCursor="true" buttonMode="true" width="100%">
+			<mx:htmlText>
+				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'>Your Online DV-R</a>]]>
+			</mx:htmlText>
+		</mx:Text>
+		<mx:Text id="pitchSignupLink" link="onPitchClicked(event);" color="0x000000" fontSize="13" visible="true" textDecoration="underline" useHandCursor="true" buttonMode="true" width="100%">
+			<mx:htmlText>
+				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'>Sing Up Today!</a>]]>
+			</mx:htmlText>
+		</mx:Text>				
+	</s:BorderContainer>
 	<Components:Controls id="controlPallette" width="100%" bottom="0" left="0">
 	</Components:Controls>
 </mx:Canvas>
