@@ -1,23 +1,11 @@
- """
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
+# Adapted from http://stackoverflow.com/questions/2380527/django-doctests-in-views-py
 
-Replace these with more appropriate tests for your application.
-"""
+from unittest import TestSuite
+from doctest import DocTestSuite
 
-from django.test import TestCase
+import helpers
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.failUnlessEqual(1 + 1, 2)
-
-__test__ = {"doctest": """
-Another way to test that 1 + 1 is equal to 2.
-
->>> 1 + 1 == 2
-True
-"""}
-
+def suite():
+    testsuite = TestSuite()
+    testsuite.addTest(DocTestSuite(helpers))
+    return testsuite
