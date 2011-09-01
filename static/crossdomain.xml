@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
- <!DOCTYPE cross-domain-policy SYSTEM "http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd">
- <cross-domain-policy>
+<!DOCTYPE cross-domain-policy SYSTEM "http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd">
+<cross-domain-policy>
     <site-control permitted-cross-domain-policies="all"/>
     <allow-http-request-headers-from domain="*" headers="*"/>
-    <allow-access-from domain="*.watchlr.com" /> 
- </cross-domain-policy>
+    <allow-access-from domain="*.watchlr.com" />
+    <allow-access-from domain="*.facebook.com" />
+</cross-domain-policy>
