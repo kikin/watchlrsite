@@ -984,11 +984,13 @@
 						break;
 					case 38: // Up arrow
 						controlPallette.volumeSlider.volume = controlPallette.volumeSlider.volume + 0.1;
+						break;
 					case 39: // Right arrow
 						onNextButtonClicked(event);
 						break;
 					case 40: // Down arrow
 						controlPallette.volumeSlider.volume = controlPallette.volumeSlider.volume - 0.1;
+						break;
 				}
 			}
 			
