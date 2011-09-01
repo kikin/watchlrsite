@@ -13,6 +13,7 @@
 			import at.matthew.httpstreaming.HTTPStreamingM3U8NetLoader;
 			
 			import com.adobe.serialization.json.JSON;
+			import com.watchlr.GigaPlayer.Components.VolumeSlider;
 			import com.watchlr.GigaPlayer.Event.GigaPlayerEvent;
 			import com.watchlr.GigaPlayer.Util.BrightCove;
 			import com.watchlr.GigaPlayer.Util.Tracker;
@@ -90,6 +91,8 @@
 			private var _countdownInterval:Number = -1;
 			
 			private var _pitchDisplayed:Boolean = false;
+			
+			private var _keyEventHandlerRegistered:Boolean = false;
 			
 			protected var fillElementComponents:ArrayList = new ArrayList();
 			
@@ -313,8 +316,17 @@
 				}
 			}
 			
+			private function log(message:String):void
+			{
+				trace (message);
+				if (ExternalInterface.available)
+				{
+					ExternalInterface.call('console.log', message);
+				}
+			}			
+			
 			public function handleVideoFinished():void{
-				_pitchDisplayed = true;
+				log('video finished');
 				
 				// If source set throught video_id parameter - pitch viewer.
 				if (FlexGlobals.topLevelApplication.parameters.video_id) {
@@ -325,6 +337,7 @@
 					
 					showDefaultPlayer();
 					pitch.visible = true;
+					_pitchDisplayed = true;
 				}
 				
 				try {
@@ -427,27 +440,6 @@
 			
 			private function hidePitch(): void {
 				pitch.visible = false;
-				switch (currentVidSourceType) {
-					case SourceType.YOUTUBE: {
-						showYTPlayer();
-						break;
-					}
-						
-					case SourceType.VIMEO: {
-						showVimeoPlayer();
-						break;
-					}
-						
-					case SourceType.BRIGHTCOVE: {
-						showBrightcovePlayer();
-						break;
-					}
-						
-					case SourceType.DEFAULT: {
-						showDefaultPlayer();
-						break;
-					}
-				}
 				_pitchDisplayed = false;
 			}
 			
@@ -465,7 +457,10 @@
 			
 			public function set source(val:Object):void{
 				hideCountdown();
-				hidePitch();
+				
+				if (_pitchDisplayed) {
+					hidePitch();
+				}
 				
 				var util:Util = new Util();
 				var vid:String;
@@ -515,6 +510,11 @@
 					currentVidSourceType = SourceType.DEFAULT;
 					_videoDisplay.source = "default";
 				}
+				
+				if (stage && !_keyEventHandlerRegistered) {
+					stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyPress);
+					_keyEventHandlerRegistered = true;
+				}
 			}
 			
 			public function onBrightcovePlayerLoaded():void
@@ -531,7 +531,9 @@
 			}
 			
 			public function seek(position:Number):void{
-				hidePitch();
+				if (_pitchDisplayed) {
+					hidePitch();
+				}
 				
 				switch (currentVidSourceType) {
 					case SourceType.YOUTUBE: {
@@ -563,7 +565,9 @@
 			}
 			
 			public function play():void{
-				hidePitch();
+				if (_pitchDisplayed) {
+					hidePitch();
+				}
 				
 				switch (currentVidSourceType) {
 					case SourceType.YOUTUBE: {
@@ -927,7 +931,7 @@
 			
 			protected function hideYTPlayer():void{
 				// pause the video if any video is playing in youtube chromeless player
-				if (_youtubePlayer && _youtubePlayer.getPlayerState() == '1') {
+				if (_youTubePlayerLoaded && _youtubePlayer && _youtubePlayer.getPlayerState() == '1') {
 					_youtubePlayer.pauseVideo();
 					_youTubePlaybackPollTimer.stop();		
 				}
@@ -972,6 +976,54 @@
 			public function playPause():void{
 				controlPallette.playPause();
 			}
+			
+			protected function handleKeyPress(event:KeyboardEvent):void {
+				switch(event.keyCode) {
+					case 37: // Left arrow
+						onPrevButtonClicked(event);
+						break;
+					case 38: // Up arrow
+						controlPallette.volumeSlider.volume = controlPallette.volumeSlider.volume + 0.1;
+					case 39: // Right arrow
+						onNextButtonClicked(event);
+						break;
+					case 40: // Down arrow
+						controlPallette.volumeSlider.volume = controlPallette.volumeSlider.volume - 0.1;
+				}
+			}
+			
+			public function get volume():Number {
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE: {
+						if(_youtubePlayer){
+							return _youtubePlayer.getVolume() / 100;
+						}
+					}
+				}
+				return _videoDisplay.volume;
+			}
+			
+			public function set volume(volume:Number):void {
+				switch (currentVidSourceType) {
+					case SourceType.YOUTUBE: {
+						if(_youtubePlayer){
+							// Youtube player accepts a value between 0 and 100.
+							volume = Math.round(100 * volume);
+							if (volume > 100) {
+								volume = 100;
+							}
+							
+							_youtubePlayer.setVolume(volume);
+						}
+						break;
+					}
+						
+					case SourceType.DEFAULT: {
+						_videoDisplay.volume = volume;
+					}
+				}				
+			}
+			
 		]]>
 	</fx:Script>
 	<s:Group width="100%" height="100%" id="bgRect">
