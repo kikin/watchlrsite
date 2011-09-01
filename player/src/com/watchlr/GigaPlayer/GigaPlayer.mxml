@@ -1006,7 +1006,7 @@
 	<s:BorderContainer id="pitch" visible="false" width="100%" height="100%" backgroundColor="0xffffff" textAlign="center" x="0" y="0">
 		<mx:Text id="pitchLogo" link="onPitchClicked(event);" visible="true" useHandCursor="true" buttonMode="true" width="100%" height="100%">
 			<mx:htmlText>
-				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'><img src='assets/watchlr_logo.png'/></a>]]>
+				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'><img src='http://www.watchlr.com/static/images/player_watchlr_logo.png'/></a>]]>
 			</mx:htmlText>
 		</mx:Text>
 		<mx:Text id="pitchLogoTagLine" link="onPitchClicked(event);" color="0x424242" fontSize="20" visible="true" textDecoration="none" useHandCursor="true" buttonMode="true" width="100%">
