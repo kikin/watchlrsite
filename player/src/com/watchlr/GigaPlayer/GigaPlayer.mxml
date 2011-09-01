@@ -1016,7 +1016,7 @@
 		</mx:Text>
 		<mx:Text id="pitchSignupLink" link="onPitchClicked(event);" color="0x000000" fontSize="13" visible="true" textDecoration="underline" useHandCursor="true" buttonMode="true" width="100%">
 			<mx:htmlText>
-				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'>Sing Up Today!</a>]]>
+				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'>Sign Up Today!</a>]]>
 			</mx:htmlText>
 		</mx:Text>				
 	</s:BorderContainer>
