@@ -38,49 +38,70 @@
 			
 			public function set gigaPlayer(value:GigaPlayer):void{
 				_gigaPlayer = value;
+				storedVolume = _gigaPlayer.volume;
 				setSliderForVol(_gigaPlayer.videoDisplay.volume);
+			}
+			
+			private function normalizeVolume(volume:Number):Number {
+				if (volume < 0.05) {
+					//snap to 0 if close...
+					volume = 0;
+				} else if (volume > 0.95) {
+					//snap to 1 if close...
+					volume = 1;
+				}
+				return volume
+			}
+			
+			public function get volume():Number {
+				return storedVolume;
+			}
+			
+			public function set volume(volume:Number):void {
+				storedVolume = normalizeVolume(volume);
+				setSliderForVol(storedVolume);				
+				_gigaPlayer.volume = storedVolume;
 			}
 			
 			protected function volumeHandlePosUpdate(event:MouseEvent):void{
 				if(_gigaPlayer && dragging){
+					
 						var targetY:Number = event.localY + CURSOR_V_OFFSET;
-						if(targetY >= 0 && 
-							targetY <= (sliderBackground.height as Number) - 0.8*(sliderHandle.height as Number)){
+						
+						if(targetY >= 0 
+							&& targetY <= (sliderBackground.height as Number) - 0.8 * (sliderHandle.height as Number)) {
+							
 							sliderHandle.top = targetY;
-							volumeIndication.height = ((sliderBackground.height as Number)
-							- targetY) - 0.5*(sliderHandle.height as Number);
-							//_gigaPlayer.videoDisplay.volume 
-							var targetVol:Number = ((sliderBackground.height - 0.8*sliderHandle.height)- 
-								(sliderBackground.top as Number) - targetY)
-								/(sliderBackground.height - 0.8*sliderHandle.height);
-							//snap to 0 if close...
-							if(targetVol < 0.05)
-								targetVol = 0;
-							//snap to 1 if close...
-							if(targetVol > 0.95)
-								targetVol = 1;
-							_gigaPlayer.videoDisplay.volume = targetVol;
-							storedVolume = targetVol;
+							
+							volumeIndication.height = ((sliderBackground.height as Number) - targetY)
+														- 0.5 * (sliderHandle.height as Number);
+							
+							var targetVol:Number = ((sliderBackground.height - 0.8 * sliderHandle.height)
+												 	- (sliderBackground.top as Number) - targetY) 
+													/ (sliderBackground.height - 0.8 * sliderHandle.height);
+							
+
+							storedVolume = normalizeVolume(targetVol);
+							_gigaPlayer.volume = storedVolume;
 						}
 				}
 			}
 			
 			protected function setSliderForVol(vol:Number):void{
-				sliderHandle.top = (sliderBackground.height - 0.8*sliderHandle.height) -
-					vol*(sliderBackground.height -  0.8*sliderHandle.height);
+				sliderHandle.top = (sliderBackground.height - 0.8 * sliderHandle.height)
+								 	- vol*(sliderBackground.height -  0.8 * sliderHandle.height);
 				volumeIndication.height = sliderBackground.height - (sliderHandle.top as Number);
 			}
 			
 			public function mute():void{
 				if(!muted){
 					muted=true;
-					storedVolume = _gigaPlayer.videoDisplay.volume;
-					_gigaPlayer.videoDisplay.volume = 0;
 					setSliderForVol(0);
+					_gigaPlayer.volume = 0;
 				}else{
 					muted=false;
-					_gigaPlayer.videoDisplay.volume = storedVolume;
 					setSliderForVol(storedVolume);
+					_gigaPlayer.volume = storedVolume;
 				}
 			}
 		]]>
