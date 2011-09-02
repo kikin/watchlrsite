@@ -92,8 +92,6 @@
 			
 			private var _pitchDisplayed:Boolean = false;
 			
-			private var _keyEventHandlerRegistered:Boolean = false;
-			
 			protected var fillElementComponents:ArrayList = new ArrayList();
 			
 			public function set seekTarget(value:Number):void{
@@ -510,11 +508,6 @@
 					currentVidSourceType = SourceType.DEFAULT;
 					_videoDisplay.source = "default";
 				}
-				
-				if (stage && !_keyEventHandlerRegistered) {
-					stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyPress);
-					_keyEventHandlerRegistered = true;
-				}
 			}
 			
 			public function onBrightcovePlayerLoaded():void
@@ -881,6 +874,9 @@
 					// UIChromeShow();
 					UIChromeFadeoutTimer.reset();	
 					UIChromeFadeoutTimer.start();
+					
+					// Pass on current volume setting to YouTube player.
+					setYouTubePlayerVolume(volume);
 				}
 			}
 			
@@ -977,8 +973,11 @@
 				controlPallette.playPause();
 			}
 			
-			protected function handleKeyPress(event:KeyboardEvent):void {
+			public function handleKeyPress(event:KeyboardEvent):void {
 				switch(event.keyCode) {
+					case 32: // Space
+						playPause()
+						break;
 					case 37: // Left arrow
 						onPrevButtonClicked(event);
 						break;
@@ -995,35 +994,23 @@
 			}
 			
 			public function get volume():Number {
-				switch (currentVidSourceType) {
-					case SourceType.YOUTUBE: {
-						if(_youtubePlayer){
-							return _youtubePlayer.getVolume() / 100;
-						}
-					}
-				}
 				return _videoDisplay.volume;
 			}
 			
 			public function set volume(volume:Number):void {
-				switch (currentVidSourceType) {
-					case SourceType.YOUTUBE: {
-						if(_youtubePlayer){
-							// Youtube player accepts a value between 0 and 100.
-							volume = Math.round(100 * volume);
-							if (volume > 100) {
-								volume = 100;
-							}
-							
-							_youtubePlayer.setVolume(volume);
-						}
-						break;
+				_videoDisplay.volume = volume;
+				setYouTubePlayerVolume(volume);
+			}
+			
+			private function setYouTubePlayerVolume(volume:Number):void {
+				// Youtube player accepts a value between 0 and 100.
+				if (currentVidSourceType == SourceType.YOUTUBE && _youtubePlayer) {
+					volume = Math.round(100 * volume);
+					if (volume > 100) {
+						volume = 100;
 					}
-						
-					case SourceType.DEFAULT: {
-						_videoDisplay.volume = volume;
-					}
-				}				
+					_youtubePlayer.setVolume(volume);
+				}
 			}
 			
 		]]>
