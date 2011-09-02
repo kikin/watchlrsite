@@ -506,11 +506,11 @@ def facebook_import_template(fetch_task_failed=False):
 @register.filter
 def video_liked_by_user(video, user):
     if not user.is_authenticated():
-        return False
+        return 'false'
     return 'true' if video in user.liked_videos() else 'false'
 
 @register.filter
 def video_saved_by_user(video, user):
     if not user.is_authenticated():
-        return False
+        return 'false'
     return 'true' if video in user.saved_videos() else 'false'
