@@ -134,6 +134,10 @@ package com.watchlr.GigaPlayer.Util
 		
 		private function onVideoReady(event:Event): void {
 			_state.state = VideoState.READY;
+			
+			// Pass on current volume setting
+			_vimeoPlayer.setVolume(_gigaPlayer.volume);
+			
 			// _gigaPlayer.handlePlayerLoad();
 			// _vimeoPlayer.play();
 		}
