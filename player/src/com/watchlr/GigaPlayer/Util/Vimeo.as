@@ -145,7 +145,6 @@ package com.watchlr.GigaPlayer.Util
 		private function onVideoFinished(event:Event): void {
 			_state.state = VideoState.FINISHED;
 			_gigaPlayer.handleVideoFinished();
-			event.stopImmediatePropagation();
 		}
 		
 		private function onVideoPlaybackError(event:Event): void {

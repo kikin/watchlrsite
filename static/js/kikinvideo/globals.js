@@ -205,11 +205,7 @@ function registerPageView(page){
     if (!page) {
         page = window.location.hash;
     }
-    try {
-        var tracker = _gat._getTracker('UA-4788978-3');
-        tracker._trackPageview(page);
-    } catch(exc) {
-    }
+    _gaq.push(['_trackPageview', page]);
 }
 
 function trackAction(action, id, success){
