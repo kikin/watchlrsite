@@ -259,12 +259,15 @@ kikinvideo.HomeViewController = function() {
 
         $('#activity-filter-menu').hide();
         if(activeView == VIEWS.likedQueue){
+            document.title = 'Liked Videos - Watchlr';
             contentSource = LIKED_VIDEOS_CONTENT_URL;
             requestParams = {'start':0, 'count':likedVideosToLoad};
         }else if (activeView == VIEWS.savedQueue){
+            document.title = 'Saved Videos - Watchlr';
             contentSource = SAVED_VIDEOS_CONTENT_URL;
             requestParams = {'start':0, 'count':savedVideosToLoad};
         }else if (activeView == VIEWS.activity){
+            document.title = 'Activity - Watchlr';
             contentSource = ACTIVITY_CONTENT_URL;
             requestParams = {'start':0, 'count':activityItemsToLoad, 'activityType': selectedActivityType};
         }
