@@ -23,7 +23,7 @@
 
     <script type="text/javascript">
     $(document).ready(function(){
-        if(!window.location.hash || window.location.hash == '#_')
+        if(!window.location.hash || /#_$/.test(window.location.hash))
             window.location = "/#!/activity";
     });
     </script>
