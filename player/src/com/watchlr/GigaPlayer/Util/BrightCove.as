@@ -114,6 +114,9 @@ package com.watchlr.GigaPlayer.Util
 		
 		private function onVideoPlaying(event:Event): void {
 			_gigaPlayer.handleVideoReady();
+			
+			// Pass on current volume setting
+			_brightcoveVideoPlayer.setVolume(_gigaPlayer.volume);			
 		}
 		
 		private function onVideoPaused(event:Event): void {

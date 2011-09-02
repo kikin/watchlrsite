@@ -55,6 +55,10 @@ window.WatchlrPlayerInterface = function(){
         if (priv._watchlrPlayer && typeof priv._currentVideoItemIndex == "number") {
             priv._watchlrPlayer.setSource(UI.videoList[priv._currentVideoItemIndex].embed);
         }
+
+        // set focus so as to pass on keyboard events to player
+        priv._watchlrPlayer.tabIndex = 0;
+        priv._watchlrPlayer.focus();
     };
 
     /**
