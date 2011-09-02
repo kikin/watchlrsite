@@ -314,18 +314,7 @@
 				}
 			}
 			
-			private function log(message:String):void
-			{
-				trace (message);
-				if (ExternalInterface.available)
-				{
-					ExternalInterface.call('console.log', message);
-				}
-			}			
-			
 			public function handleVideoFinished():void{
-				log('video finished');
-				
 				// If source set throught video_id parameter - pitch viewer.
 				if (FlexGlobals.topLevelApplication.parameters.video_id) {
 					pitchLogo.top = _videoDisplay.height / 2 - 78;
