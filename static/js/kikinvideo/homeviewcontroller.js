@@ -167,7 +167,7 @@ kikinvideo.HomeViewController = function() {
             populatePanel();
         }else if(url_content.path == LOAD_MORE_VIDEOS_PATH){
             loadMoreVideos();
-        } else {
+        } else if(hash_url && window.location.pathname == '/') {
             // If location hash unknown, default to activity view
             window.location.hash = "!/activity";
         }
