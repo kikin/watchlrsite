@@ -1656,6 +1656,16 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
             raise Exception('Facebook news feed response not valid JSON:\n%s' % content)
 
         for item in items:
+            # Is news feed item older than the one we saw in previous fetch cycle?
+            created = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
+            if since and created < since:
+                try:
+                    updated = datetime.strptime(item['updated_time'], FACEBOOK_DATETIME_FMT)
+                    if updated < since:
+                        break
+                except KeyError:
+                    break
+
             # Is news feed item a shared link?
             if item.get('type') not in ('link', 'video'):
                 continue
@@ -1709,8 +1719,6 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
         # Fetch next page?
         if json_data.get('paging') and json_data['paging'].get('next'):
             next_page_url = json_data['paging']['next']
-            if since:
-                next_page_url = '%s&since=%s' % (next_page_url, since.strftime('%s'))
 
             if not next_page_url == news_feed_url:
                 task_info = fetch_user_news_feed.delay(user,
