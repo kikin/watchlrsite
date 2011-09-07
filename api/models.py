@@ -400,10 +400,10 @@ class User(auth_models.User):
         return 'https://graph.facebook.com/%s/picture' % self.facebook_uid()
 
     def _create_or_update_video(self, video, **kwargs):
-        properties = ('liked', 'saved', 'watched')
+        properties = ('liked', 'saved', 'watched', 'shared')
 
         if not any([property not in kwargs for property in properties]):
-            raise Exception('Must (un)set at least one of liked/saved/watched flags')
+            raise Exception('Must (un)set at least one of liked/saved/watched/shared flags')
 
         try:
             user_video = UserVideo.objects.get(user=self, video=video)

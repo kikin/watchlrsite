@@ -285,7 +285,7 @@ def get(request, video_id):
         if not authenticated:
             try:
                 # Clients can send session key as a request parameter
-                session_key = request.REQUEST['session_id']
+                session_key = request.GET['session_id']
                 session = Session.objects.get(pk=session_key)
 
                 if session.expire_date > datetime.now():
@@ -295,9 +295,6 @@ def get(request, video_id):
 
             except (KeyError, Session.DoesNotExist):
                 pass
-
-        context_user = request.user if authenticated else None
-        video['liked_by'] = [user.json(excludes=['email']) for user in item.all_likers(context_user=context_user)]
 
         if authenticated:
             try:
@@ -327,6 +324,65 @@ def get(request, video_id):
 
     except Video.DoesNotExist:
         raise NotFound(video_id)
+
+
+@jsonp_view
+@require_http_methods(['GET',])
+def liked_by(request, video_id):
+    try:
+        video = Video.objects.get(pk=video_id)
+    except Video.DoesNotExist:
+        raise NotFound(video_id)
+    
+    authenticated = request.user.is_authenticated()
+    if not authenticated:
+        try:
+            # Clients can send session key as a request parameter
+            session_key = request.GET['session_id']
+            session = Session.objects.get(pk=session_key)
+
+            if session.expire_date > datetime.now():
+                uid = session.get_decoded().get('_auth_user_id')
+                request.user = User.objects.get(pk=uid)
+                authenticated = True
+
+        except (KeyError, Session.DoesNotExist):
+            pass
+
+    try:
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
+    except (KeyError, ValueError):
+        count = 10
+
+    if authenticated:
+        all_likers = [request.user,] if video in request.user.liked_videos() else []
+        all_likers += video.all_likers(context_user=request.user)
+    else:
+        all_likers = video.all_likers()
+
+    likers = [user.json(excludes=['email']) for user in all_likers]
+
+    paginator = Paginator(likers, count)
+
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
+    return { 'page': page,
+             'count': len(items),
+             'total': paginator.count,
+             'video_id': video_id,
+             'liked_by': items }
 
 
 # See note on `profile()` method about CSRF exemption
@@ -770,12 +826,20 @@ def activity(request):
              'activity_list': activity_list }
 
 
-def get_user(request):
+def get_user(request, user_id=None):
     user = None
 
     try:
-        user_id = int(request.GET['user_id'])
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            user_id = int(request.GET['user_id'])
+
         user = User.objects.get(pk=user_id)
+
+        if not user.is_registered:
+            raise User.DoesNotExist()
+
     except KeyError:
         pass
     except ValueError:
@@ -788,7 +852,7 @@ def get_user(request):
             username = request.GET['username']
             user = User.objects.get(username=username)
         except KeyError:
-            raise BadRequest('Should supply either "user_id" or "username" parameter')
+            raise BadRequest('Must supply either "user_id" or "username" parameters')
         except User.DoesNotExist:
             raise NotFound(request.GET['username'])
 
@@ -797,7 +861,7 @@ def get_user(request):
 
 @jsonp_view
 @require_http_methods(['GET',])
-def userinfo(request):
+def userinfo(request, user_id):
     if not request.user.is_authenticated():
         try:
             # Clients can send session key as a request parameter
@@ -811,14 +875,14 @@ def userinfo(request):
         except (KeyError, Session.DoesNotExist):
             pass
 
-    user = get_user(request)
+    user = get_user(request, user_id)
     return user.json(other=request.user, excludes=['email'])
 
 
 @jsonp_view
 @require_http_methods(['GET',])
-def followers(request):
-    user = get_user(request)
+def followers(request, user_id):
+    user = get_user(request, user_id)
 
     try:
         count = int(request.GET['count'])
@@ -851,8 +915,8 @@ def followers(request):
 
 @jsonp_view
 @require_http_methods(['GET',])
-def following(request):
-    user = get_user(request)
+def following(request, user_id):
+    user = get_user(request, user_id)
 
     try:
         count = int(request.GET['count'])
@@ -885,8 +949,7 @@ def following(request):
 
 @jsonp_view
 @require_http_methods(['GET',])
-def liked_videos(request):
-
+def liked_videos(request, user_id):
     try:
         type = request.GET['type']
         if not type in ('html', 'html5'):
@@ -907,7 +970,7 @@ def liked_videos(request):
         except (KeyError, Session.DoesNotExist):
             pass
 
-    user = get_user(request)
+    user = get_user(request, user_id)
 
     try:
         count = int(request.GET['count'])
