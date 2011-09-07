@@ -403,7 +403,7 @@ class User(auth_models.User):
         properties = ('liked', 'saved', 'watched', 'shared')
 
         if not any([property not in kwargs for property in properties]):
-            raise Exception('Must (un)set at least one of liked/saved/watched flags')
+            raise Exception('Must (un)set at least one of liked/saved/watched/shared flags')
 
         try:
             user_video = UserVideo.objects.get(user=self, video=video)
