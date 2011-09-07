@@ -241,10 +241,10 @@ CELERYBEAT_SCHEDULE = {
 
 # For the facebook friends list fetcher, number of users to schedule every time
 # the task gets fired.
-FACEBOOK_FRIENDS_FETCHER_SCHEDULE = 5
+FACEBOOK_FRIENDS_FETCHER_SCHEDULE = 10
 
 # Number of users to schedule for news feed fetch every time
-FACEBOOK_NEWS_FEED_FETCH_SCHEDULE = 5
+FACEBOOK_NEWS_FEED_FETCH_SCHEDULE = 25
 
 # Set up logging
 import logconfig
