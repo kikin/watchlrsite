@@ -1627,8 +1627,6 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
     from social_auth.backends.facebook import FACEBOOK_SERVER
 
     logger = fetch_news_feed.get_logger()
-    logger.info('Fetching facebook news feed for user=%s, since=%s, page=%s, news_feed_url=%s' % \
-                (user.username, since, page, news_feed_url))
 
     if user.social_auth.get().extra_data is None:
         logger.info('Facebook credentials unavailable...sleeping')
@@ -1638,6 +1636,9 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
         news_feed_url = 'https://%s/me/home?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
         if since is not None:
             news_feed_url += '&since=%s' % since.strftime('%s')
+
+    logger.info('Fetching facebook news feed for user=%s, since=%s, page=%s, news_feed_url=%s' % \
+                (user.username, since, page, news_feed_url))
 
     try:
         response = urllib2.urlopen(news_feed_url)
@@ -1654,7 +1655,7 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
         except (TypeError, ValueError, KeyError):
             raise Exception('Facebook news feed response not valid JSON:\n%s' % content)
 
-        for index, item in enumerate(items):
+        for item in items:
             # Is news feed item a shared link?
             if item.get('type') not in ('link', 'video'):
                 continue
