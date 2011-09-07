@@ -356,8 +356,13 @@ def liked_by(request, video_id):
     except (KeyError, ValueError):
         count = 10
 
-    context_user = request.user if authenticated else None
-    likers = [user.json(excludes=['email']) for user in video.all_likers(context_user=context_user)]
+    if authenticated:
+        all_likers = [request.user,] if video in request.user.liked_videos() else []
+        all_likers += video.all_likers(context_user=request.user)
+    else:
+        all_likers = video.all_likers()
+
+    likers = [user.json(excludes=['email']) for user in all_likers]
 
     paginator = Paginator(likers, count)
 
