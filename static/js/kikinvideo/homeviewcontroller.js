@@ -157,16 +157,19 @@ kikinvideo.HomeViewController = function() {
                 populatePanel(pluginDetect);
             else
                 populatePanel();
-        }if(url_content.path == LIKED_QUEUE_PATH){
+        }else if(url_content.path == LIKED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.likedQueue);
             activeView = VIEWS.likedQueue;
             populatePanel();
-        }if(url_content.path == ACTIVITY_QUEUE_PATH){
+        }else if(url_content.path == ACTIVITY_QUEUE_PATH){
             swapTab(TAB_SELECTORS.activity);
             activeView = VIEWS.activity;
             populatePanel();
-        }if(url_content.path == LOAD_MORE_VIDEOS_PATH){
+        }else if(url_content.path == LOAD_MORE_VIDEOS_PATH){
             loadMoreVideos();
+        } else {
+            // If location hash unknown, default to activity view
+            window.location.hash = "!/activity";
         }
     }
 

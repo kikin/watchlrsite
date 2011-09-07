@@ -155,7 +155,7 @@ function swapTab(selector) {
         $(activeTab).removeClass('selected');
         $(selector).addClass('selected');
         activeTab = selector;
-        registerPageView();
+        _gaq.push(['_trackPageview', selector]);
     }
 };
 
@@ -198,14 +198,6 @@ function trackEvent(category, action){
     }
 
     _gaq.push(['_trackEvent', category, action, 'web_app']);
-}
-
-
-function registerPageView(page){
-    if (!page) {
-        page = window.location.hash;
-    }
-    _gaq.push(['_trackPageview', page]);
 }
 
 function trackAction(action, id, success){

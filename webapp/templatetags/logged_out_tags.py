@@ -4,4 +4,7 @@ register = template.Library()
 
 @register.filter
 def get_campaign(request, fallback):
-    return request.REQUEST.get('campaign', fallback)
+    try:
+        return request.REQUEST['campaign']
+    except KeyError:
+        return fallback
