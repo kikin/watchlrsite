@@ -23,7 +23,7 @@
 
     <script type="text/javascript">
     $(document).ready(function(){
-        if(!window.location.hash || /#_$/.test(window.location.hash))
+        if(!window.location.hash)
             window.location = "/#!/activity";
     });
     </script>
@@ -96,7 +96,7 @@
     {% if is_new_user %}
         <script type="text/javascript">
              $(function() {
-                 registerPageView('/welcome');
+                _gaq.push(['_trackPageview', '/welcome']);
              });
         </script>
     {% endif %}
