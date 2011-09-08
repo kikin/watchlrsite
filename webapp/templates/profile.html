@@ -1,6 +1,8 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
 
+{% block title %}{{ profile_owner|full_name }} ({{ profile_owner.username }}) on Watchlr{% endblock title %}
+
 {% block script_refs %}
     {{ block.super }}
     <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/homeviewcontroller.js?v={{ VERSION }}"></script>
