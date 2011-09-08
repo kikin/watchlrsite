@@ -922,11 +922,14 @@ class FacebookFetcher(object):
         else:
             raise UrlNotSupported(url)
 
-    def fetch(self, url, logger, **kwargs):
+    def supported(self, url):
         match = self.FACEBOOK_URL_SCHEME.match(url)
         if not match:
             raise UrlNotSupported(url)
-        video_id = match.group(2)
+        return match.group(2)
+
+    def fetch(self, url, logger, **kwargs):
+        video_id = self.supported(url)
 
         logger.debug('Fetching Facebook metadata for url:%s' % url)
 
@@ -955,7 +958,7 @@ class FacebookFetcher(object):
                 meta['thumbnail_url'] = response.get('picture')
                 meta['thumbnail_width'], meta['thumbnail_height'] = 160, 120
 
-                meta['html'] = response['embed_html']
+                meta['html'] = response.get('embed_html')
 
                 try:
                     meta['html5'] = self.FACEBOOK_HTML5_EMBED_TEMPLATE % (meta['thumbnail_url'], response['source'])
@@ -963,6 +966,25 @@ class FacebookFetcher(object):
                     pass
 
                 meta['source'] = self.SOURCE
+
+        return meta
+
+    def metadata_from_news_item(self, item):
+        if item['source'].find('.mp4') == -1:
+            raise Exception('News feed item does not contain valid source type')
+
+        meta = dict()
+
+        meta['title'] = item.get('name')
+
+        meta['description'] = item.get('description')
+
+        meta['thumbnail'] = item.get('picture')
+        meta['thumbnail_width'], meta['thumbnail_height'] = 160, 120
+
+        meta['html5'] = self.FACEBOOK_HTML5_EMBED_TEMPLATE % (meta['thumbnail_url'], item['source'])
+
+        meta['source'] = self.SOURCE
 
         return meta
 
@@ -1689,14 +1711,24 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
 
                 video = None
                 for fetcher in _fetcher.fetchers:
+
                     try:
-                        meta = fetcher.fetch(url, logger, user_id=user.id, host='http://www.facebook.com')
+                        if fetcher == _facebook_fetcher \
+                           and item.get('link') and item.get('source') \
+                           and _facebook_fetcher.supported(item['link']):
+                            meta = _facebook_fetcher.metadata_from_news_item(item)
+                        else:
+                            meta = fetcher.fetch(url, logger, user_id=user.id, host='http://www.facebook.com')
+
                         video, created = Video.objects.get_or_create(url=url)
                         update_video_metadata(video, meta, logger)
+
                         logger.info('Successfully fetched metadata for video:%s' % url)
                         break
+
                     except UrlNotSupported:
                         continue
+
                     except Exception:
                         logger.exception('Error fetching link:%s' % item['link'])
                         break
