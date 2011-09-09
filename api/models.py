@@ -118,7 +118,7 @@ class Video(models.Model):
     _url_hash = models.CharField(db_column='url_hash', max_length=255, null=True, unique=True)
 
     def save(self, *args, **kwargs):
-        self._url_hash = md5(self.url).hexdigest()
+        self._url_hash = md5(self.url.encode('ascii', 'xmlcharrefreplace')).hexdigest()
 
         # Invalidate associated cache keys
         for user_video in UserVideo.objects.filter(video=self).exclude(saved=False, liked=False, shared_timestamp__isnull=True):
