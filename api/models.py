@@ -1,6 +1,7 @@
 from datetime import datetime
 from itertools import chain
 from decimal import Decimal
+from hashlib import md5
 
 try:
     from cpickle import dumps, loads
@@ -112,8 +113,14 @@ class Video(models.Model):
     task_id = models.CharField(max_length=255, null=True, db_index=True)
     result = models.CharField(max_length=10, null=True)
 
-    def save(self, *args, **kwargs):
+    # MySQL cannot handle unique indices on columns > 255 characters.
+    # As a workaround, ensure uniqueness on hash of URL field instead!
+    _url_hash = models.CharField(db_column='url_hash', max_length=255, null=True, unique=True)
 
+    def save(self, *args, **kwargs):
+        self._url_hash = md5(self.url).hexdigest()
+
+        # Invalidate associated cache keys
         for user_video in UserVideo.objects.filter(video=self).exclude(saved=False, liked=False, shared_timestamp__isnull=True):
 
             properties = ('saved', 'liked', 'shared_timestamp')
