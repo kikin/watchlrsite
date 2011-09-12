@@ -674,12 +674,10 @@ def swap(request):
     try:
         # Check if user is already registered.
         user = UserSocialAuth.objects.get(uid=facebook_id).user
-        if not user.is_registered:
+        if not user.is_registered or not user.is_authenticated():
             raise UserSocialAuth.DoesNotExist()
 
     except UserSocialAuth.DoesNotExist:
-
-        # New user!
 
         # Add padding, if necessary
         if not access_token.endswith('=='):
