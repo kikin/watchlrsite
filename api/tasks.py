@@ -1713,9 +1713,7 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
                 for fetcher in _fetcher.fetchers:
 
                     try:
-                        if fetcher == _facebook_fetcher \
-                           and item.get('link') and item.get('source') \
-                           and _facebook_fetcher.supported(item['link']):
+                        if fetcher == _facebook_fetcher and _facebook_fetcher.supported(url):
                             meta = _facebook_fetcher.metadata_from_news_item(item)
                         else:
                             meta = fetcher.fetch(url, logger, user_id=user.id, host='http://www.facebook.com')
