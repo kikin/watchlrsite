@@ -68,6 +68,46 @@ def geolocate(view):
     return wrap
 
 
+def agent_host(view):
+    def wrap(request, *args, **kwargs):
+        user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+
+        host, version = '', None
+        if user_agent.find('firefox/') > -1:
+            host = 'FF'
+            offset = user_agent.find('firefox/')
+            if offset > -1:
+                version = user_agent[offset+8:user_agent.find(' ', offset)][:3]
+        elif user_agent.find('chrome/') > -1:
+            host = 'CR'
+            offset = user_agent.find('chrome/')
+            if offset > -1:
+                version = user_agent[offset+7:user_agent.find(' ', offset)][:4]
+        elif user_agent.find('safari') > -1:
+            host = 'SAFARI'
+            offset = user_agent.find('version/')
+            if offset > -1:
+                version = user_agent[offset+8:user_agent.find(' ', offset)][:3]
+        elif user_agent.find('iphone') > -1 or user_agent.find('ipad') > -1:
+            host = 'iOS'
+            offset = user_agent.find('cpu os ')
+            if offset > -1:
+                version = user_agent[offset+7:user_agent.find(' ', offset)]
+
+        os = ''
+        if user_agent.find('windows') > -1:
+            os = 'WIN'
+        elif user_agent.find('macintosh') > -1:
+            os = 'MAC'
+
+        kwargs.update({ 'agent_host': '%s;%s' % (host, os),
+                        'agent_host_version': version })
+
+        return view(request, *args, **kwargs)
+
+    return wrap
+
+
 def user_context(f):
     def wrap(request, *args, **kwargs):
         user = request.user
@@ -92,6 +132,7 @@ def user_context(f):
 
 @jsonp_view
 @geolocate
+@agent_host
 @user_context
 def action(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
@@ -111,12 +152,15 @@ def action(request, *args, **kwargs):
                                        agent_version=kwargs.get('version'),
                                        country=kwargs.get('country'),
                                        city=kwargs.get('city'),
-                                       ip_address=kwargs.get('ip'))
+                                       ip_address=kwargs.get('ip'),
+                                       agent_host=kwargs.get('agent_host'),
+                                       agent_host_version=kwargs.get('agent_host_version'))
     return { 'id': activity.id }
 
 
 @jsonp_view
 @geolocate
+@agent_host
 @user_context
 def event(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
@@ -136,13 +180,16 @@ def event(request, *args, **kwargs):
                                  agent_version=kwargs.get('version'),
                                  country=kwargs.get('country'),
                                  city=kwargs.get('city'),
-                                 ip_address=kwargs.get('ip'))
+                                 ip_address=kwargs.get('ip'),
+                                 agent_host=kwargs.get('agent_host'),
+                                 agent_host_version=kwargs.get('agent_host_version'))
 
     return { 'id': event.id }
 
 
 @jsonp_view
 @geolocate
+@agent_host
 @user_context
 def error(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
@@ -160,7 +207,9 @@ def error(request, *args, **kwargs):
                                  agent_version=kwargs.get('version'),
                                  country=kwargs.get('country'),
                                  city=kwargs.get('city'),
-                                 ip_address=kwargs.get('ip'))
+                                 ip_address=kwargs.get('ip'),
+                                 agent_host=kwargs.get('agent_host'),
+                                 agent_host_version=kwargs.get('agent_host_version'))
 
     return { 'id': error.id }
 

@@ -709,6 +709,15 @@ def swap(request):
             error = data.get('error') or 'unknown error'
             raise Unauthorized('Authentication error: %s' % error)
 
+        # Set campaign to mobile device type.
+        agent = request.META.get('HTTP_USER_AGENT', '').lower()
+        if agent.find('ipad') > -1:
+            user.campaign = 'iPad'
+        elif agent.find('iphone') > -1:
+            user.campaign = 'iPhone'
+        else:
+            user.campaign = 'mobile'
+
     if not user.is_authenticated():
         raise Unauthorized()
 
@@ -716,8 +725,6 @@ def swap(request):
     session['_auth_user_id'] = user.id
     session.save()
 
-    # Only iPad clients in wild as of yet.
-    user.campaign = 'iPad'
     user.is_registerd = True
     user.save()
 
