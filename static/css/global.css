@@ -123,10 +123,17 @@ a:hover {
     padding-bottom: 10px;
     background: #0c536f;
     z-index: 10;
-    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+#header-wrapper {
+    margin: auto;
+    text-align: left;
+    width: 1050px;
+    position:relative;
 }
 
 #header-logo {
@@ -135,7 +142,6 @@ a:hover {
     height: 42px;
     background: url(/static/images/watchlr_logo.png) no-repeat;
     margin-top:10px;
-    margin-left:20px;
 }
 
 #header-logo a {
@@ -149,7 +155,6 @@ a:hover {
     float: right;
     height:40px;
     padding-top: 10px;
-    margin-right: 20px;
     min-width: 125px;
 }
 

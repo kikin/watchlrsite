@@ -30,8 +30,8 @@
             <div id="header-wrapper">
                 <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
                 <div id="header-right" class="right">
-                    <div id="myConnectionsNot">
-                        <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?campaign={{ request|get_campaign:"hp2" }}&next={{ request.path }}"></a>
+                    <div id="sign-in-facebook">
+                        <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?campaign={{ request|get_campaign:"hp2" }}&next={{ request.path }}">Sign In With Facebook</a>
                     </div>
                 </div>
 
@@ -46,10 +46,10 @@
                 <div id="wrapper-left">
                     <img title="Watchlr" src="{{ STATIC_URL }}images/logo_big2.png" style="padding-top: 85px;"/>
                     <br />
-                    <div style="font-size: 36px; font-weight:700; padding-top:5px; padding-left: 175px;">
+                    <div style="font-size: 36px; font-weight:700; padding-top:5px; padding-left: 185px;">
                         Your online DVR.
                     </div>
-                    <div style="font-size: 19px; padding-top: 45px; padding-left: 60px; font-style: italic;">
+                    <div style="font-size: 19px; padding-top: 32px; padding-left: 60px; font-style: italic;">
                         New Users
                     </div>
                     <a href="/login/facebook?campaign={{ request|get_campaign:"hp2" }}&next={{ request.path }}">
@@ -57,7 +57,7 @@
                     </a>
                 </div>
                 <div id="wrapper-right">
-                    <img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png"/>
+                    <img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices2.png"/>
                 </div>
             </div>
         </div>
@@ -65,30 +65,30 @@
             <div id="iconset-container">
                 <div style="width:280px; color:white; float:left; clear: both;">
                     <img title="Watch Later" src="{{ STATIC_URL }}images/white_plus_rounded.png" style="float:left; margin-right:25px;"/>
-                    <div style="font-size: 18px; font-weight: 700; text-shadow: 1px 1px 1px #000;">
+                    <div style="font-size: 18px; font-weight: 700; text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);">
                         Watch Later
                     </div>
-                    <div style="font-size: 14px;">
+                    <div style="font-size: 15px;">
                         Don't have time?<br/>Save videos to watch later.
                     </div>
                 </div>
                 <div class="iconset-divider"></div>
                 <div style="width:380px; color:white; float:left;">
                     <img title="Watchlr on iPad" src="{{ STATIC_URL }}images/white_ipad.png" style="float:left; margin-right:25px; margin-left: 50px;"/>
-                    <div style="font-size: 18px; font-weight: bold; text-shadow: 1px 1px 1px #000;">
+                    <div style="font-size: 18px; font-weight: bold; text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);">
                         Watchlr iPad App
                     </div>
-                    <div style="font-size: 14px;">
+                    <div style="font-size: 15px;">
                         Get the Watchlr experience<br/>on your iPad ... Coming Soon!
                     </div>
                 </div>
                 <div class="iconset-divider"></div>
                 <div style="width:300px; color:white; float:right;">
                     <img title="Watchlr Community" src="{{ STATIC_URL }}images/white_peeps.png" style="float:left; margin-right:25px; margin-left: 25px;"/>
-                    <div style="font-size: 18px; font-weight: bold; text-shadow: 1px 1px 1px #000;">
+                    <div style="font-size: 18px; font-weight: bold; text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);">
                         People-powered
                     </div>
-                    <div style="font-size: 14px;">
+                    <div style="font-size: 15px;">
                         Join, share and discover videos<br/>in the Watchlr community.
                     </div>
                 </div>
@@ -164,7 +164,7 @@
                     </span>
                 </div>
                 <div class="feature-text">
-                    Join the Watchlr community, create playlists, and share with others on Watchlr and Facebook
+                    Join the Watchlr community, create playlists, and share with others on Watchlr and Facebook.
                     <span style="font-style: italic;">Twitter coming soon.</span>
                 </div>
                 <div class="feature-mugshot" style="width: 800px; position: relative; left: 87px;">
@@ -202,10 +202,18 @@
 		{% include "includes/analytics.html" %}
         <script type="text/javascript">
             $(window).load(function(){
-                try{
-                    var tracker = _gat._getTracker('UA-4788978-3');
-                    tracker._trackPageview('landing_page');
-                }catch(excp){}
+                _gaq.push(['_trackPageview'], 'landing_page');
+            
+                $('#header-right').hover(
+                    function() {
+                        if(!$(this).hasClass('selected'))
+                            $(this).addClass('selected');
+                    },
+                    function() {
+                        if($(this).hasClass('selected'))
+                            $(this).removeClass('selected');
+                    }
+                );
             });
         </script>
     </body>

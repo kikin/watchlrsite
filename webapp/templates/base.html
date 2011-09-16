@@ -29,16 +29,18 @@
 </head>
 <body>
 <div id="header">
-    <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
-    <div id="header-right" class="right">
+    <div id="header-wrapper">
+        <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
+        <div id="header-right" class="right">
 
-        {% block header_right %}
-        {% endblock header_right %}
+            {% block header_right %}
+            {% endblock header_right %}
 
-    </div>
+        </div>
 
-    <div class="right" id="loggedInInstallPitch" style="display: none;">
-        <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
+        <div class="right" id="loggedInInstallPitch" style="display: none;">
+            <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
+        </div>
     </div>
 </div>
 
