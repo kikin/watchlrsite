@@ -15,6 +15,7 @@
         <link rel="icon" href="{{ STATIC_URL }}images/favicon.ico"/>
 
         <!-- Styles -->
+        <link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/homepage.css?v={{ VERSION }}" media="all"/>{% block style_refs %}{% endblock style_refs %}
 
         <!-- jQuery & friends -->
@@ -26,84 +27,73 @@
     </head>
     <body>
         <div id="header">
+            <div id="header-wrapper">
+                <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
+                <div id="header-right" class="right">
+                    <div id="myConnectionsNot">
+                        <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?campaign={{ request|get_campaign:"hp2" }}&next={{ request.path }}"></a>
+                    </div>
+                </div>
 
+                <div class="right" id="loggedInInstallPitch" style="display: none;">
+                    <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
+                </div>
+            </div>
         </div>
-        <div id="header-wrapper">
-            <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
-            <div id="header-right" class="right">
-                <div id="myConnectionsNot">
-                    <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?campaign={{ request|get_campaign:"hp2" }}&next={{ request.path }}"></a>
-                </div>
-            </div>
 
-            <div class="right" id="loggedInInstallPitch" style="display: none;">
-                <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
+        <div id="splash">
+            <div id="wrapper">
+                <div id="wrapper-left">
+                    <img title="Watchlr" src="{{ STATIC_URL }}images/logo_big2.png" style="padding-top: 85px;"/>
+                    <br />
+                    <div style="font-size: 36px; font-weight:700; padding-top:5px; padding-left: 175px;">
+                        Your online DVR.
+                    </div>
+                    <div style="font-size: 19px; padding-top: 45px; padding-left: 60px; font-style: italic;">
+                        New Users
+                    </div>
+                    <a href="/login/facebook?campaign={{ request|get_campaign:"hp2" }}&next={{ request.path }}">
+                        <div title="Sign up" class="facebook_signup"></div>
+                    </a>
+                </div>
+                <div id="wrapper-right">
+                    <img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png"/>
+                </div>
             </div>
         </div>
-
-        <div id="wrapper" style="height:370px;">
-            <script type="text/javascript">
-                if ((navigator.userAgent.indexOf("Firefox")) > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:32px; right:0px;" />');
-                }
-                else if ((navigator.userAgent.indexOf("MSIE")) > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:31px; right:0px;" />');
-                }
-                else if (navigator.userAgent.indexOf("Firefox") > 0)
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:21px; right:0px;" />');
-                }
-                else if (navigator.userAgent.indexOf("iPad") > 0)
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:42px; right:0px;" />');
-                }
-                else
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:33px; right:0px;" />');
-                }
-            </script>
-
-            <img title="Watchlr" src="{{ STATIC_URL }}images/logo_big.png" style="padding-top: 65px;"/>
-            <br />
-            <div style="font-family: Helvetica, Arial, sans-serif; font-size: 28px; padding-top:20px; padding-left: 8px;">
-                Discover, save and share video.
+        <div id="iconset-wrapper">
+            <div id="iconset-container">
+                <div style="width:280px; color:white; float:left; clear: both;">
+                    <img title="Watch Later" src="{{ STATIC_URL }}images/white_plus_rounded.png" style="float:left; margin-right:25px;"/>
+                    <div style="font-size: 18px; font-weight: 700; text-shadow: 1px 1px 1px #000;">
+                        Watch Later
+                    </div>
+                    <div style="font-size: 14px;">
+                        Don't have time?<br/>Save videos to watch later.
+                    </div>
+                </div>
+                <div class="iconset-divider"></div>
+                <div style="width:380px; color:white; float:left;">
+                    <img title="Watchlr on iPad" src="{{ STATIC_URL }}images/white_ipad.png" style="float:left; margin-right:25px; margin-left: 50px;"/>
+                    <div style="font-size: 18px; font-weight: bold; text-shadow: 1px 1px 1px #000;">
+                        Watchlr iPad App
+                    </div>
+                    <div style="font-size: 14px;">
+                        Get the Watchlr experience<br/>on your iPad ... Coming Soon!
+                    </div>
+                </div>
+                <div class="iconset-divider"></div>
+                <div style="width:300px; color:white; float:right;">
+                    <img title="Watchlr Community" src="{{ STATIC_URL }}images/white_peeps.png" style="float:left; margin-right:25px; margin-left: 25px;"/>
+                    <div style="font-size: 18px; font-weight: bold; text-shadow: 1px 1px 1px #000;">
+                        People-powered
+                    </div>
+                    <div style="font-size: 14px;">
+                        Join, share and discover videos<br/>in the Watchlr community.
+                    </div>
+                </div>
+                <div style="clear:both;"></div>
             </div>
-            <div style="font-family: Helvetica, Arial, sans-serif; font-size: 19px; padding-top:51px; padding-left: 8px; font-style: italic;">
-                New Users
-            </div>
-            <a href="/login/facebook?campaign={{ request|get_campaign:"hp2" }}&next={{ request.path }}"><div title="Sign up" class="facebook_signup"></div></a>
-        </div>
-        <div id="wrapper" style="width:980px; margin-top:45px;">
-            <div style="width:300px; color:white; border-right: 1px solid white; float:left;">
-                <img title="Watch Later" src="{{ STATIC_URL }}images/white_plus.png" style="float:left; padding-right:25px;"/>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
-                    Watch Later
-                </div>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
-                    Don't have time?<br/>Save videos to watch later.
-                </div>
-            </div>
-            <div style="width:320px; color:white; border-right: 1px solid white; padding-left:35px; float:left;">
-                <img title="Watch Later" src="{{ STATIC_URL }}images/white_mobile.png" style="float:left; padding-right:25px;"/>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
-                    Mobile Friendly
-                </div>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
-                    View Watchlr on<br/>iPhone, iPad and Android.
-                </div>
-            </div>
-            <div style="width:320px; color:white; float:right;">
-                <img title="Watch Later" src="{{ STATIC_URL }}images/white_peeps.png" style="float:left; padding-left:25px; padding-right:25px;"/>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
-                    People Powered
-                </div>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
-                    Share and discover videos<br/>through friends and influencers.
-                </div>
-            </div>
-            <div style="clear:both;"></div>
         </div>
 
         <!-- footer -->
