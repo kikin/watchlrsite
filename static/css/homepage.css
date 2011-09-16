@@ -148,6 +148,7 @@ a:hover {
 }
 
 #header-right.selected{
+    background: -moz-linear-gradient(top,  #032e40,  #0C536F);
     background: -webkit-gradient(linear, left top, left bottom, from(#032e40), to(#0C536F));
 }
 
@@ -222,11 +223,10 @@ a:hover {
     width: 482px;
     border-width: 1px;
     border-color: #424242;
+    border-style: solid;
     -moz-box-shadow: 0 0 4px rgba(0,0,0,.4);
     -webkit-box-shadow: 0 0 4px rgba(0,0,0,.4);
-    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
     box-shadow: 0 0 4px rgba(0,0,0,.4);
-    border-radius: 8px;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     border-radius: 8px;
