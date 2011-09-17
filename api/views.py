@@ -216,8 +216,19 @@ def add(request):
 
     querydict = request.GET if request.method == 'GET' else request.POST
 
+    user_video = do_add(request.user, querydict['url'], request.META.get('HTTP_REFERER'))
+
+    info = user_video.json()
+    info.update({ 'emptyq': request.user.notifications()['emptyq'],
+                  'unwatched': request.user.unwatched_videos().count(),
+                  'task_id': user_video.video.task_id })
+
+    return info
+
+
+def do_add(user, url, host=None):
     try:
-        url = url_fix(querydict['url'])
+        url = url_fix(url)
     except KeyError:
         raise BadRequest('Parameter:url missing')
     except MalformedURLException:
@@ -226,33 +237,17 @@ def add(request):
     try:
         video = Video.objects.get(url=url)
 
-        try:
-            user_video = UserVideo.objects.get(user=request.user, video=video)
-
-            if user_video.saved:
-                raise BadRequest('Video:%s already saved with id:%s' % (user_video.video.url, user_video.video.id))
-            
-        except UserVideo.DoesNotExist:
-            pass
-
     except Video.DoesNotExist:
         video, created = Video.objects.get_or_create(url=url)
 
         # Fetch video metadata in background
         if created or video.status() == states.FAILURE:
-            task = fetch.delay(request.user.id, url, request.META.get('HTTP_REFERER'))
+            task = fetch.delay(user.id, url, host)
 
             video.task_id = task.task_id
             video.save()
 
-    user_video = request.user.save_video(video, host=request.META.get('HTTP_REFERER'))
-
-    info = user_video.json()
-    info.update({ 'emptyq': request.user.notifications()['emptyq'],
-                  'unwatched': request.user.unwatched_videos().count(),
-                  'task_id': user_video.video.task_id })
-
-    return info
+    return user.save_video(video, host=host)
 
 
 @jsonp_view

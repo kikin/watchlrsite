@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
+from kikinvideo.api.views import do_add
 from kikinvideo.api.models import Video, User, UserVideo, UserTask
 
 from celery import states
@@ -24,19 +25,27 @@ INVITE_LIST_SIZE = 5
 _VID_LIKED_BY_PAGINATION_THRESHOLD = 1
 
 
-# For new users, grab campaign parameter and store in database
 def welcome(request):
     if request.user.is_authenticated():
         logger.info('Wohoo! New user registered:%s (campaign=%s)' % (request.user.username, request.GET.get('campaign')))
 
+        # Used to track new user conversion in Google Analytics
+        request.session['is_new_user'] = True
+
+        # For new users, grab campaign parameter and store in database
         try:
             request.user.campaign = request.GET['campaign']
             request.user.save()
         except KeyError:
             pass
 
-        # Used to track new user conversion in Google Analytics
-        request.session['is_new_user'] = True
+        # If user converted from a YouTube pitch, add video to save queue
+        try:
+            if request.GET['action'] == 'save':
+                do_add(request.user, request.GET['url'], host=request.GET['url'])
+                request.session['is_yt_pitch'] = True
+        except Exception:
+            pass
 
         try:
             return HttpResponseRedirect(request.GET[REDIRECT_FIELD_NAME])
@@ -63,10 +72,17 @@ def home(request):
         except KeyError:
             pass
 
+        is_yt_pitch = request.session.get('is_yt_pitch', False)
+        try:
+            del request.session['is_yt_pitch']
+        except KeyError:
+            pass
+
         return render_to_response('logged_in.html',
                                   { 'suggested_followees': suggested_followees,
                                     'invite_list': invite_list,
-                                    'is_new_user': is_new_user },
+                                    'is_new_user': is_new_user,
+                                    'is_yt_pitch': is_yt_pitch },
                                   context_instance=RequestContext(request))
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
