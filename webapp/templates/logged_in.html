@@ -23,8 +23,13 @@
 
     <script type="text/javascript">
     $(document).ready(function(){
-        if(!window.location.hash)
-            window.location = "/#!/activity";
+        {% if is_new_user %}
+            window.location.hash = "!/saved_queue";
+        {% else %}
+            if(!window.location.hash) {
+                window.location.hash = "!/activity";
+            }
+        {% endif %}
     });
     </script>
     
