@@ -10,6 +10,8 @@ class Base(models.Model):
     city = models.CharField(max_length=100, null=True)
     timestamp = models.DateTimeField(auto_now=True)
     ip_address = models.IPAddressField(null=True)
+    agent_host = models.CharField(max_length=20, null=True, db_index=True)
+    agent_host_version = models.CharField(max_length=15, null=True, db_index=True)
 
     class Meta:
         abstract = True
