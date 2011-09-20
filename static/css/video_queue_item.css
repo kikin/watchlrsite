@@ -170,6 +170,7 @@
 
 .video-syndicate-dialog .fb-show-message-label {
     font-size: 12px;
+    float: none;
 }
 
 .video-syndicate-dialog .ok-button:hover {

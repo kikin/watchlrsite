@@ -571,6 +571,7 @@ ol li {
 #footer-copyright {
     float: left;
     position: relative;
+    padding: 10px 10px 11px;
 }
 
 #footer-nav {
@@ -595,6 +596,7 @@ ol li {
 #footer-nav li a {
     color: #999;
     text-decoration: none;
+    display: inline-block;
 }
 
 #footer-nav li a:hover {

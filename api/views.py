@@ -6,7 +6,6 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 from django.contrib.sites.models import Site
 from django.contrib.auth import authenticate
-from django.core.cache import cache
 
 from kikinvideo.settings import AUTHENTICATION_SWAP_SECRET
 
@@ -17,6 +16,7 @@ from api.tasks import fetch, push_like_to_fb, slugify
 from webapp.templatetags.kikinvideo_tags import activity_item_heading
 
 from celery import states
+from social_auth.backends.facebook import FACEBOOK_CHECK_AUTH
 
 import hashlib
 from re import split
@@ -519,7 +519,8 @@ def profile(request):
 
         try:
             # TODO: Email address validation
-            user.email = querydict['email']
+            if querydict['email']:
+                user.email = querydict['email']
         except KeyError:
             pass
 
@@ -536,6 +537,18 @@ def profile(request):
             pass
         except (TypeError, ValueError, Preference.DoesNotExist):
             raise BadRequest('Parameter:preferences malformed')
+
+        try:
+            params = {'access_token': querydict['access_token'],}
+            url = FACEBOOK_CHECK_AUTH + '?' + urlencode(params)
+            try:
+                fb_response = loads(urlopen(url).read())
+                if fb_response and 'error' not in fb_response:
+                    user.set_facebook_access_token(querydict['access_token'])
+            except ValueError:
+                pass
+        except KeyError:
+            pass
 
         user.save()
 

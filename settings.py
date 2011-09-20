@@ -216,7 +216,7 @@ SOCIAL_AUTH_LOGIN_REDIRECT_URL = LOGIN_REDIRECT_URL = LOGIN_URL
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/welcome'
 
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
-FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']
+FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'read_stream', 'email']
 
 AUTHENTICATION_SWAP_SECRET = '1020Amsterdam'
 
