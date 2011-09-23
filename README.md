@@ -103,7 +103,7 @@ i.e.:
           'NAME': 'kikinvideo',
           'USER': 'webapp',
           'PASSWORD': 'savemore',
-          'HOST': 'dev-video.kikin.com',
+          'HOST': 'dev.watchlr.com',
           'PORT': '',
         },
           'local':{
@@ -220,12 +220,12 @@ Apache site configuration file is apache/video.site and associated WSGI script i
 Pushing Changes to Development Server
 -------------------------------------
 
-Assuming you have the SSH permissions on dev-video.kikin.com, the following steps illustrate pushing changes
+Assuming you have the SSH permissions on dev.watchlr.com, the following steps illustrate pushing changes
 to the development server.
 
 Push procedure:
 
-    $ ssh root@dev-video.kikin.com /root/bin/updog
+    $ ssh root@dev.watchlr.com /root/bin/updog
 
 Database Migration
 ------------------
