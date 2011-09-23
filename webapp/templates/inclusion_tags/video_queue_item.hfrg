@@ -159,7 +159,11 @@
                         <input id="fb-push-message-{{ video.id }}" type="checkbox" value="on" checked="checked">
                         <label for="fb-push-message-{{ video.id }}" class="fb-show-message-label">Automatically update facebook when I like videos.</label>
                     </div>
-                    <a class="footer-right ok-button" href="javascript:UI.handleFacebookSyndicate({{ video.id }})">ok</a>
+                    {% if not user.have_publish_rights %}
+                        <a class="footer-right ok-button" href="javascript:UI.handleFacebookSyndicate({{ video.id }}, 'publish_stream')">ok</a>
+                    {% else %}
+                        <a class="footer-right ok-button" href="javascript:UI.handleFacebookSyndicate({{ video.id }})">ok</a>
+                    {% endif %}
                 </div>
             </div>
         {% endif %}

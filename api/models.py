@@ -390,6 +390,7 @@ class User(auth_models.User):
     karma = models.PositiveIntegerField(default=0, db_index=True)
     campaign = models.CharField(max_length=50, null=True, db_index=True)
     is_fetch_enabled = models.BooleanField(default=True, db_index=True)
+    have_publish_rights = models.BooleanField(default=False)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
@@ -399,6 +400,11 @@ class User(auth_models.User):
 
     def facebook_access_token(self):
         return self.social_auth.get().extra_data['access_token']
+
+    def set_facebook_access_token(self, access_token):
+        fb_auth = self.social_auth.get()
+        fb_auth.extra_data['access_token'] = access_token
+        fb_auth.save()
 
     def facebook_uid(self):
         return self.social_auth.get().uid

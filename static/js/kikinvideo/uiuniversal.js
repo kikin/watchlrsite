@@ -328,12 +328,30 @@ kikinvideo.UIUniversal =
             }
 
 
-            function handleFacebookSyndicate(vid){
-                var preferences = '{ "syndicate":' + checkboxValueInt($('#fb-push-message-'+vid)) + '}';
-                $.post('/api/auth/profile', {'preferences':preferences}, function(data){
-                    $('#video-syndicate-dialog-'+vid).hide();
-                    home.handleLike(vid, true);
-                });
+            function handleFacebookSyndicate(vid, extraPermissions){
+                var syndicate = checkboxValueInt($('#fb-push-message-'+vid));
+
+                var addSyndication = function(accessToken) {
+                    params = { 'preferences': '{"syndicate":' + syndicate + '}' };
+                    if (accessToken)
+                        params['access_token'] = accessToken;
+
+                    $.post('/api/auth/profile', params, function(){
+                        $('#video-syndicate-dialog-'+vid).hide();
+                        home.handleLike(vid, true);
+                    });
+                };
+
+                if (extraPermissions && syndicate) {
+                    FB.login(function(response) {
+                        if (response.authResponse) {
+                            addSyndication(response.authResponse.accessToken);
+                        }
+                    }, {scope: extraPermissions});
+                } else {
+                    addSyndication();
+                }
+
             }
 
             //expose public functions...
