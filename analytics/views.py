@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models.aggregates import Count
@@ -45,7 +45,12 @@ def geolocate(view):
 
         ip_address = request.META['REMOTE_ADDR']
 
-        location = GEOIP.record_by_addr(ip_address) if GEOIP else None
+        try:
+            location = GEOIP.record_by_addr(ip_address) if GEOIP else None
+        except Exception:
+            logger.exception('Error geolocating IP address')
+            location = None
+
         country = location.get('country_code') if location else None
         city = location.get('city') if location else None
 
@@ -57,6 +62,46 @@ def geolocate(view):
                         'country': country,
                         'city': city,
                         'ip': ip_address })
+
+        return view(request, *args, **kwargs)
+
+    return wrap
+
+
+def agent_host(view):
+    def wrap(request, *args, **kwargs):
+        user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+
+        host, version = '', None
+        if user_agent.find('firefox/') > -1:
+            host = 'FF'
+            offset = user_agent.find('firefox/')
+            if offset > -1:
+                version = user_agent[offset+8:user_agent.find(' ', offset)][:3]
+        elif user_agent.find('chrome/') > -1:
+            host = 'CR'
+            offset = user_agent.find('chrome/')
+            if offset > -1:
+                version = user_agent[offset+7:user_agent.find(' ', offset)][:4]
+        elif user_agent.find('safari') > -1:
+            host = 'SAFARI'
+            offset = user_agent.find('version/')
+            if offset > -1:
+                version = user_agent[offset+8:user_agent.find(' ', offset)][:3]
+        elif user_agent.find('iphone') > -1 or user_agent.find('ipad') > -1:
+            host = 'iOS'
+            offset = user_agent.find('cpu os ')
+            if offset > -1:
+                version = user_agent[offset+7:user_agent.find(' ', offset)]
+
+        os = ''
+        if user_agent.find('windows') > -1:
+            os = 'WIN'
+        elif user_agent.find('macintosh') > -1:
+            os = 'MAC'
+
+        kwargs.update({ 'agent_host': '%s;%s' % (host, os),
+                        'agent_host_version': version })
 
         return view(request, *args, **kwargs)
 
@@ -87,6 +132,7 @@ def user_context(f):
 
 @jsonp_view
 @geolocate
+@agent_host
 @user_context
 def action(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
@@ -106,12 +152,15 @@ def action(request, *args, **kwargs):
                                        agent_version=kwargs.get('version'),
                                        country=kwargs.get('country'),
                                        city=kwargs.get('city'),
-                                       ip_address=kwargs.get('ip'))
+                                       ip_address=kwargs.get('ip'),
+                                       agent_host=kwargs.get('agent_host'),
+                                       agent_host_version=kwargs.get('agent_host_version'))
     return { 'id': activity.id }
 
 
 @jsonp_view
 @geolocate
+@agent_host
 @user_context
 def event(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
@@ -131,13 +180,16 @@ def event(request, *args, **kwargs):
                                  agent_version=kwargs.get('version'),
                                  country=kwargs.get('country'),
                                  city=kwargs.get('city'),
-                                 ip_address=kwargs.get('ip'))
+                                 ip_address=kwargs.get('ip'),
+                                 agent_host=kwargs.get('agent_host'),
+                                 agent_host_version=kwargs.get('agent_host_version'))
 
     return { 'id': event.id }
 
 
 @jsonp_view
 @geolocate
+@agent_host
 @user_context
 def error(request, *args, **kwargs):
     user_id = str(request.user.id) if request.user.is_authenticated() else UNAUTHORIZED_USER
@@ -155,7 +207,9 @@ def error(request, *args, **kwargs):
                                  agent_version=kwargs.get('version'),
                                  country=kwargs.get('country'),
                                  city=kwargs.get('city'),
-                                 ip_address=kwargs.get('ip'))
+                                 ip_address=kwargs.get('ip'),
+                                 agent_host=kwargs.get('agent_host'),
+                                 agent_host_version=kwargs.get('agent_host_version'))
 
     return { 'id': error.id }
 
@@ -302,7 +356,8 @@ def views(request):
                     ('Total Views', 'number'),
                     ('Watchlr', 'number'),
                     ('InSitu', 'number'),
-                    ('Leanback', 'number'), ]
+                    ('Leanback', 'number'),
+                    ('Facebook', 'number'), ]
 
     try:
         start = datetime.strptime(request.REQUEST['start'], DATE_FORMAT).date()
@@ -323,7 +378,7 @@ def views(request):
 
     current = start
     while current < end:
-        data[current] = [current, 0, 0, 0, 0]
+        data[current] = [current, 0, 0, 0, 0, 0]
         current += timedelta(days=1)
 
     result = Activity.objects.filter(action__endswith='view', timestamp__gte=start, timestamp__lt=end)\
@@ -338,6 +393,8 @@ def views(request):
             data[row['date']][3] = row['action__count']
         elif row['action'] == 'leanback-view':
             data[row['date']][4] = row['action__count']
+        elif row['action'] == 'facebook-view':
+            data[row['date']][5] = row['action__count']
         else:
             continue
         data[row['date']][1] += row['action__count']
@@ -493,4 +550,54 @@ def follows(request):
     data_table.LoadData(data.values())
 
     return format_data(data_table, request)
+
+
+@internal
+def memcache_status(request):
+
+    # See http://effbot.org/zone/django-memcached-view.htm
+
+    try:
+        import memcache
+    except ImportError:
+        return HttpResponseNotFound()
+
+    cache_config = settings.CACHES['default']
+    
+    if not cache_config['BACKEND'].endswith('MemcachedCache'):
+        return HttpResponseNotFound()
+
+    host = memcache._Host(cache_config['LOCATION'][0])
+    host.connect()
+    host.send_cmd('stats')
+
+    class Stats:
+        pass
+
+    stats = Stats()
+
+    while 1:
+        line = host.readline().split(None, 2)
+        if line[0] == 'END':
+            break
+        stat, key, value = line
+        try:
+            # convert to native type, if possible
+            value = int(value)
+            if key == 'uptime':
+                value = timedelta(seconds=value)
+            elif key == 'time':
+                value = datetime.fromtimestamp(value)
+        except ValueError:
+            pass
+        setattr(stats, key, value)
+
+    host.close_socket()
+
+    return render_to_response(
+        'memcached_status.html', dict(
+            stats=stats,
+            hit_rate=100 * stats.get_hits / stats.cmd_get,
+            time=datetime.now(), # server time
+        ))
 

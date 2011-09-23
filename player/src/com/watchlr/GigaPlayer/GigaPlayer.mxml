@@ -12,8 +12,11 @@
 		<![CDATA[
 			import at.matthew.httpstreaming.HTTPStreamingM3U8NetLoader;
 			
+			import com.adobe.serialization.json.JSON;
+			import com.watchlr.GigaPlayer.Components.VolumeSlider;
 			import com.watchlr.GigaPlayer.Event.GigaPlayerEvent;
 			import com.watchlr.GigaPlayer.Util.BrightCove;
+			import com.watchlr.GigaPlayer.Util.Tracker;
 			import com.watchlr.GigaPlayer.Util.Util;
 			import com.watchlr.GigaPlayer.Util.Vimeo;
 			import com.watchlr.Globals;
@@ -21,6 +24,7 @@
 			import flash.external.*;
 			import flash.system.Security;
 			import flash.utils.Timer;
+			import flash.utils.clearTimeout;
 			import flash.utils.setTimeout;
 			
 			import flashx.textLayout.formats.Float;
@@ -45,6 +49,9 @@
 			import spark.components.SkinnableContainer;
 			import spark.components.supportClasses.SkinnableComponent;
 			import spark.effects.Fade;
+			
+			// API endpoints
+			protected static var API_VIDEO_SOURCE_BY_ID:String = "http://www.watchlr.com/api/video_source/";
 			
 			public var SourceType:Object = { DEFAULT : 0, VIMEO : 1, YOUTUBE : 2, BRIGHTCOVE : 3 };
 			
@@ -81,6 +88,9 @@
 			private var _brightcovePlayer: BrightCove;
 			
 			private var _stopCountdown:Boolean = false;
+			private var _countdownInterval:Number = -1;
+			
+			private var _pitchDisplayed:Boolean = false;
 			
 			protected var fillElementComponents:ArrayList = new ArrayList();
 			
@@ -131,15 +141,16 @@
 				setChildIndex(bgRect, -1);
 				setChildIndex(_videoDisplay, 0);
 				setChildIndex(_youTubeLoaderWrapper, 1);
-				setChildIndex(controlPallette, 2);
-				setChildIndex(_vimeoLoaderWrapper, 3);
-				setChildIndex(_brightcoveLoaderWrapper, 4);
-				setChildIndex(loadingIndicatorCountdown, 5);
-				setChildIndex(loadingErrorMessage, 6);
-				setChildIndex(viewSourceLink, 7);
-				setChildIndex(loadingIndicatorMessage, 8);
-				setChildIndex(prevVideoButton, 9);
-				setChildIndex(nextVideoButton, 10);
+				setChildIndex(pitch, 2);
+				setChildIndex(controlPallette, 3);
+				setChildIndex(_vimeoLoaderWrapper, 4);
+				setChildIndex(_brightcoveLoaderWrapper, 5);
+				setChildIndex(loadingIndicatorCountdown, 6);
+				setChildIndex(loadingErrorMessage, 7);
+				setChildIndex(viewSourceLink, 8);
+				setChildIndex(loadingIndicatorMessage, 9);
+				setChildIndex(prevVideoButton, 10);
+				setChildIndex(nextVideoButton, 11);
 				
 				//time change callback...
 				_videoDisplay.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, onPlayerTimeChange);
@@ -147,9 +158,32 @@
 				//finally, load the video...
 				if (FlexGlobals.topLevelApplication.parameters.src) {
 					source = FlexGlobals.topLevelApplication.parameters.src;
+				} else if (FlexGlobals.topLevelApplication.parameters.video_id) {
+					getRawVideoSource(FlexGlobals.topLevelApplication.parameters.video_id);
 				}
 				
 				handlePlayerLoad();	
+			}
+			
+			public function getRawVideoSource(videoId:String):void{
+				Tracker.trackAction('facebook-view', videoId);
+				
+				var loader:URLLoader = new URLLoader();
+				loader.addEventListener(Event.COMPLETE, this.parseVideoSourceApiResponse);
+				
+				var targetURL:String = API_VIDEO_SOURCE_BY_ID + videoId;
+				var req:URLRequest = new URLRequest(targetURL);
+				
+				loader.load(req);
+			}
+			
+			private function parseVideoSourceApiResponse(event:Event):void{
+				var response:Object = JSON.decode(event.target.data);
+				if (response.success == true) {
+					source = response.result.source; 
+				} else {
+					source = "";
+				}
 			}
 			
 			public function onUnload(event:Event): void {
@@ -257,35 +291,79 @@
 			
 			/* Firing events to JS. */
 			public function handlePlayerLoad():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_LOAD);
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_LOAD);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoReady():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYING);
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_PLAYING);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 		
 			public function handleVideoPaused():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_PAUSED, curTime());	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_PAUSED, curTime());
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoFinished():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_FINISHED);	
+				// If source set throught video_id parameter - pitch viewer.
+				if (FlexGlobals.topLevelApplication.parameters.video_id) {
+					pitchLogo.top = _videoDisplay.height / 2 - 78;
+					pitchLogo.left = _videoDisplay.width / 2 - 152;
+					pitchLogoTagLine.top = pitchLogo.top + 78;
+					pitchSignupLink.top = pitchLogo.top + 115;
+					
+					showDefaultPlayer();
+					pitch.visible = true;
+					_pitchDisplayed = true;
+				}
+				
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_FINISHED);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoTimeChanged():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, curTime());	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.ON_CURRENT_TIME_CHANGE, curTime());
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoLoadProgress(bytes:Number, bytesTotal:Number):void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, bytes, bytesTotal);	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.LOAD_PROGRESS, bytes, bytesTotal);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoSeekStart():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_START);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoSeekEnd():void{
-				ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);	
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.SEEK_END);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			public function handleVideoPlaybackError(errorCode:Number):void{
@@ -297,10 +375,14 @@
 				if (!_stopCountdown) {
 					if (countDowntime == 0) {
 						hideCountdown();
-						ExternalInterface.call(Globals.JS_SIGNATURES.PLAYBACK_ERROR, errorCode);
+						try {
+							ExternalInterface.call(Globals.JS_SIGNATURES.PLAYBACK_ERROR, errorCode);
+						} catch (error:SecurityError) {
+							// Script access not enabled - Ignore!
+						}
 					} else {
 						loadingIndicatorCountdown.text = countDowntime + '';
-						setTimeout(updateCountdownTimer, 1000, --countDowntime, errorCode);
+						_countdownInterval = setTimeout(updateCountdownTimer, 1000, --countDowntime, errorCode);
 					}	
 				}
 			}
@@ -321,16 +403,37 @@
 			
 			private function hideCountdown(): void {
 				_stopCountdown = true;
+				if (_countdownInterval != -1) {
+					clearTimeout(_countdownInterval);
+				}
 				loadingErrorMessage.visible = false;
 				viewSourceLink.visible = false;
 				loadingIndicatorMessage.visible = false;
 				loadingIndicatorCountdown.visible = false;	
 			}
 			
-			protected function onViewSourceLinkClicked(event:Event):void {
+			protected function onViewSourceLinkClicked(link:TextEvent):void {
 				_stopCountdown = true;
-				var targetURL:URLRequest = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
+				stage.displayState = StageDisplayState.NORMAL;
+				
+				var targetURL:URLRequest = null;
+				try {
+					targetURL = new URLRequest(ExternalInterface.call(Globals.JS_SIGNATURES.GET_VIDEO_HOST_URL) as String);
+				} catch (error:SecurityError) {
+					targetURL = new URLRequest(link.text);
+				}
 				navigateToURL(targetURL, "_blank");
+			}
+			
+			private function hidePitch(): void {
+				pitch.visible = false;
+				_pitchDisplayed = false;
+			}
+			
+			protected function onPitchClicked(link:TextEvent): void {
+				stage.displayState = StageDisplayState.NORMAL;
+				var targetURL:URLRequest = new URLRequest(link.text as String);
+				navigateToURL(targetURL, "_blank");				
 			}
 			
 			/*videoDisplay function wrappers*/
@@ -340,11 +443,17 @@
 			}
 			
 			public function set source(val:Object):void{
+				hideCountdown();
+				
+				if (_pitchDisplayed) {
+					hidePitch();
+				}
+				
 				var util:Util = new Util();
 				var vid:String;
+				
 				if (val) {
 					trace('Source:' + val.toString());
-					hideCountdown();
 					if(util.isYouTube(val.toString())){
 						vid = util.YTIframeSourceToVID(val.toString());
 						playYTVideo(vid);
@@ -404,6 +513,10 @@
 			}
 			
 			public function seek(position:Number):void{
+				if (_pitchDisplayed) {
+					hidePitch();
+				}
+				
 				switch (currentVidSourceType) {
 					case SourceType.YOUTUBE: {
 						if(_youtubePlayer){
@@ -434,6 +547,10 @@
 			}
 			
 			public function play():void{
+				if (_pitchDisplayed) {
+					hidePitch();
+				}
+				
 				switch (currentVidSourceType) {
 					case SourceType.YOUTUBE: {
 						if(_youtubePlayer){
@@ -601,6 +718,7 @@
 					fill100(component);
 				}
 				
+				
 				if (_youtubePlayer)
 					_youtubePlayer.setSize(width, height);
 				
@@ -611,6 +729,10 @@
 					_brightcovePlayer.setSize(width, height);
 				
 				positionPrevNextButtons();
+				
+				if (_pitchDisplayed) {
+					handleVideoFinished();
+				}
 			}
 			
 			protected function fill100(component:UIComponent):void{
@@ -638,11 +760,19 @@
 			}
 			
 			protected function onPrevButtonClicked(event:Event): void {
-				ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_PREVIOUS_VIDEO); 
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_PREVIOUS_VIDEO);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			protected function onNextButtonClicked(event:Event): void {
-				ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_NEXT_VIDEO); 
+				try {
+					ExternalInterface.call(Globals.JS_SIGNATURES.PLAY_NEXT_VIDEO);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 			}
 			
 			protected function UIChromeFadeout(event:TimerEvent):void{
@@ -733,6 +863,9 @@
 					// UIChromeShow();
 					UIChromeFadeoutTimer.reset();	
 					UIChromeFadeoutTimer.start();
+					
+					// Pass on current volume setting to YouTube player.
+					setYouTubePlayerVolume(volume);
 				}
 			}
 			
@@ -783,7 +916,7 @@
 			
 			protected function hideYTPlayer():void{
 				// pause the video if any video is playing in youtube chromeless player
-				if (_youtubePlayer && _youtubePlayer.getPlayerState() == '1') {
+				if (_youTubePlayerLoaded && _youtubePlayer && _youtubePlayer.getPlayerState() == '1') {
 					_youtubePlayer.pauseVideo();
 					_youTubePlaybackPollTimer.stop();		
 				}
@@ -828,6 +961,47 @@
 			public function playPause():void{
 				controlPallette.playPause();
 			}
+			
+			public function handleKeyPress(event:KeyboardEvent):void {
+				switch(event.keyCode) {
+					case 32: // Space
+						playPause()
+						break;
+					case 37: // Left arrow
+						onPrevButtonClicked(event);
+						break;
+					case 38: // Up arrow
+						controlPallette.volumeSlider.volume = controlPallette.volumeSlider.volume + 0.1;
+						break;
+					case 39: // Right arrow
+						onNextButtonClicked(event);
+						break;
+					case 40: // Down arrow
+						controlPallette.volumeSlider.volume = controlPallette.volumeSlider.volume - 0.1;
+						break;
+				}
+			}
+			
+			public function get volume():Number {
+				return _videoDisplay.volume;
+			}
+			
+			public function set volume(volume:Number):void {
+				_videoDisplay.volume = volume;
+				setYouTubePlayerVolume(volume);
+			}
+			
+			private function setYouTubePlayerVolume(volume:Number):void {
+				// Youtube player accepts a value between 0 and 100.
+				if (currentVidSourceType == SourceType.YOUTUBE && _youtubePlayer) {
+					volume = Math.round(100 * volume);
+					if (volume > 100) {
+						volume = 100;
+					}
+					_youtubePlayer.setVolume(volume);
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	<s:Group width="100%" height="100%" id="bgRect">
@@ -859,6 +1033,23 @@
 	</mx:Label>
 	<mx:Label id="loadingIndicatorMessage" text="Your next video will play in" fontSize="20" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
 	<mx:Label id="loadingIndicatorCountdown" text="5" fontSize="50" color="0xFFFFFF" visible="false" textAlign="center" width="100%"></mx:Label>
+	<s:BorderContainer id="pitch" visible="false" width="100%" height="100%" backgroundColor="0xffffff" textAlign="center" x="0" y="0">
+		<mx:Text id="pitchLogo" link="onPitchClicked(event);" visible="true" useHandCursor="true" buttonMode="true" width="100%" height="100%">
+			<mx:htmlText>
+				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'><img src='http://www.watchlr.com/static/images/player_watchlr_logo.png'/></a>]]>
+			</mx:htmlText>
+		</mx:Text>
+		<mx:Text id="pitchLogoTagLine" link="onPitchClicked(event);" color="0x424242" fontSize="20" visible="true" textDecoration="none" useHandCursor="true" buttonMode="true" width="100%">
+			<mx:htmlText>
+				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'>Your Online DV-R</a>]]>
+			</mx:htmlText>
+		</mx:Text>
+		<mx:Text id="pitchSignupLink" link="onPitchClicked(event);" color="0x000000" fontSize="13" visible="true" textDecoration="underline" useHandCursor="true" buttonMode="true" width="100%">
+			<mx:htmlText>
+				<![CDATA[<a href='event:http://www.watchlr.com?campaign=fbplay' target='_blank'>Sign Up Today!</a>]]>
+			</mx:htmlText>
+		</mx:Text>				
+	</s:BorderContainer>
 	<Components:Controls id="controlPallette" width="100%" bottom="0" left="0">
 	</Components:Controls>
 </mx:Canvas>

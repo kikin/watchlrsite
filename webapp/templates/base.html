@@ -2,56 +2,61 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <!-- kiss metrics -->
-    <script type="text/javascript">
-      var _kmq = _kmq || [];
-      function _kms(u){
-        setTimeout(function(){
-          var s = document.createElement('script'); var f = document.getElementsByTagName('script')[0]; s.type = 'text/javascript'; s.async = true;
-          s.src = u; f.parentNode.insertBefore(s, f);
-        }, 1);
-      }
-      _kms('//i.kissmetrics.com/i.js');_kms('//doug1izaerwt3.cloudfront.net/182748b1ce15ad4b4827dd3ef99073c937f871dd.1.js');
-    </script>
-    <!-- /kiss metrics -->
-
-    <title>Watchlr</title>
+    <title>{% block title %}Watchlr{% endblock title %}</title>
 
     <meta http-equiv="X-UA-Compatible" content="IE=8"/>
     <meta name="Charset" content="UTF-8"/>
     <meta name="title" content="Watchlr"/>
     <meta name="copyright" content="Watchlr"/>
     <meta name="description" content="Discover, save and share video online."/>
-    <meta name="keywords" content="Watchlr, video, Watchlr video, online video, instant video, save video, save video for later"/>
+    <meta name="keywords" content="Watchlr, video, Watchlr video, online video, instant video, save video, save video for later"/>{% block meta_tags %}{% endblock meta_tags %}
 
     <link rel="image_src" href="{{ STATIC_URL }}images/watchlr_logo_small.png"/>
     <link rel="icon" href="{{ STATIC_URL }}images/favicon.ico" type="image/x-icon"/>
     <link rel="shortcut icon" href="{{ STATIC_URL }}images/favicon.ico" type="image/x-icon"/>
 
     <!-- Styles -->
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/global.css" media="all"/>
-    <link href='http://fonts.googleapis.com/css?family=PT+Sans&v1' rel='stylesheet' type='text/css'>{% block style_refs %}{% endblock style_refs %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-1.3.0.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/global.css?v={{ VERSION }}" media="all"/>
+    <link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>{% block style_refs %}{% endblock style_refs %}
 
     <!-- jQuery & friends -->
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cfon-yui+vag_400.js?v=0"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.6.1.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.js"></script>
+    <script type="text/javascript" src="https://d1bz0niltboynx.cloudfront.net/cfon-yui%2Bvag_400.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.hashchange-1.0.0.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/globals.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/CSSHelper.js"></script>{% block script_refs %}{% endblock script_refs %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-alerts-1.3.0.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/globals.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/util/CSSHelper.js?v={{ VERSION }}"></script>{% block script_refs %}{% endblock script_refs %}
+
+    <script src="http://connect.facebook.net/en_US/all.js"></script>
+    <script>
+      $(function() {
+          FB.init({
+            appId  : '220283271338035',
+            status : true,
+            cookie : true,
+            channelURL : '{{ STATIC_URL }}html/channel.html',
+            oauth  : true
+          });
+      });
+    </script>
 </head>
 <body>
+<div id="fb-root"></div>
 <div id="header">
-    <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
-    <div id="header-right" class="right">
+    <div id="header-wrapper">
+        <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
+        <div id="header-right" class="right">
 
-        {% block header_right %}
-        {% endblock header_right %}
+            {% block header_right %}
+            {% endblock header_right %}
 
-    </div>
+        </div>
 
-    <div class="right" id="loggedInInstallPitch" style="display: none;">
-        <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
+        <div class="right" id="loggedInInstallPitch" style="display: none;">
+            <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
+        </div>
     </div>
 </div>
 
@@ -65,7 +70,7 @@
 
 <!-- footer -->
 <div id="footer">
-    <div id="footer-copyright">&copy; 2011 2B Interactive Group Inc.</div>
+    <div id="footer-copyright">&copy; 2011 2b Holdings LLC</div>
     <ul id="footer-nav" class="nav">
         <li>
             <a href="http://webux.wufoo.com/forms/contact-team-watchlr/" title="Contact">Contact</a>

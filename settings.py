@@ -1,5 +1,8 @@
 # Django settings for video project.
 
+_version = (2, 3, 5)
+VERSION = '.'.join([str(number) for number in _version])
+
 import sys, os
 
 sys.path.append(os.getcwd())
@@ -22,7 +25,7 @@ database_configurations = {
         'NAME': 'kikinvideo',
         'USER': 'webapp',
         'PASSWORD': 'savemore',
-        'HOST': '',
+        'HOST': 'store.cboprdhtcqew.us-east-1.rds.amazonaws.com',
         'PORT': '',
         },
     'dev': {
@@ -125,9 +128,10 @@ TEMPLATE_LOADERS = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
-    'django.core.context_processors.auth',
+    'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.media',
     'django.core.context_processors.static',
+    'kikinvideo.context_processors.release_version',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -142,6 +146,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'kikinvideo.middleware.MultipleProxyMiddleware',
+    'johnny.middleware.LocalStoreClearMiddleware',
+    'johnny.middleware.QueryCacheMiddleware',
 )
 
 ROOT_URLCONF = 'kikinvideo.urls'
@@ -207,10 +213,10 @@ LOGIN_URL = '/'
 LOGOUT_URL = '/'
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = LOGIN_REDIRECT_URL = LOGIN_URL
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/login_complete'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/welcome'
 
 SOCIAL_AUTH_DEFAULT_USERNAME = 'user'
-FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'publish_stream', 'read_stream', 'email']
+FACEBOOK_EXTENDED_PERMISSIONS = ['offline_access', 'read_stream', 'email']
 
 AUTHENTICATION_SWAP_SECRET = '1020Amsterdam'
 
@@ -235,10 +241,10 @@ CELERYBEAT_SCHEDULE = {
 
 # For the facebook friends list fetcher, number of users to schedule every time
 # the task gets fired.
-FACEBOOK_FRIENDS_FETCHER_SCHEDULE = 5
+FACEBOOK_FRIENDS_FETCHER_SCHEDULE = 10
 
 # Number of users to schedule for news feed fetch every time
-FACEBOOK_NEWS_FEED_FETCH_SCHEDULE = 5
+FACEBOOK_NEWS_FEED_FETCH_SCHEDULE = 25
 
 # Set up logging
 import logconfig
@@ -254,19 +260,34 @@ SESSION_COOKIE_HTTPONLY = True # Prevent script access to cookie
 cache_configurations = {
     'local': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 600,
+        'OPTIONS': {
+            'MAX_ENTRIES': 5000,
+        },
     },
     'local_sqlite': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
     'dev': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'johnny.backends.memcached.MemcachedCache',
+        'JOHNNY_CACHE': True,
+        'LOCATION': ['127.0.0.1:11211',],
+        'TIMEOUT': 0,
     },
     'prod': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'johnny.backends.memcached.MemcachedCache',
+        'JOHNNY_CACHE': True,
+        'LOCATION': ['cache.jpm4bl.0001.use1.cache.amazonaws.com:11211',],
+        'TIMEOUT': 0,
     }
 }
 
 CACHES = { 'default': cache_configurations[VIDEO_ENV] }
+
+JOHNNY_MIDDLEWARE_KEY_PREFIX = 'kikinvideo'
+
+# Uncomment this to disable QuerySet caching
+#DISABLE_QUERYSET_CACHE = VIDEO_ENV.startswith('local')
 
 #frontend feature switches
 ENABLE_HTML5_VIDEO = True
@@ -287,4 +308,4 @@ MIDDLEWARE_CLASSES += ('kikinvideo.middleware.P3PHeaderMiddleware',)
 GEOIP_DATABASE_PATH = os.environ.get('GEOIP_DATABASE_PATH', '/opt/video_env/GeoIP.dat')
 
 # Analytics dashboard is restricted to these IPs
-INTERNAL_IPS = ('69.193.216.26',)
+INTERNAL_IPS = ('69.193.216.26', '65.86.91.130')

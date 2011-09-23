@@ -5,10 +5,18 @@ from django.contrib.auth.views import logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.core.urlresolvers import reverse
+from django.conf import settings
 
+from kikinvideo.api.views import do_add
 from kikinvideo.api.models import Video, User, UserVideo, UserTask
 
+from social_auth.utils import sanitize_redirect
+from social_auth.backends.facebook import FACEBOOK_AUTHORIZATION_URL
+
 from celery import states
+
+from urllib import urlencode
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -24,20 +32,31 @@ INVITE_LIST_SIZE = 5
 _VID_LIKED_BY_PAGINATION_THRESHOLD = 1
 
 
-# For new users, grab campaign parameter and store in database
-def login_complete(request):
+def welcome(request):
     if request.user.is_authenticated():
         logger.info('Wohoo! New user registered:%s (campaign=%s)' % (request.user.username, request.GET.get('campaign')))
 
+        # Used to track new user conversion in Google Analytics
+        request.session['is_new_user'] = True
+
+        # For new users, grab campaign parameter and store in database
         try:
             request.user.campaign = request.GET['campaign']
             request.user.save()
         except KeyError:
             pass
 
-        if request.GET.get(REDIRECT_FIELD_NAME):
+        # If user converted from a YouTube pitch, add video to save queue
+        try:
+            if request.GET['action'] == 'save':
+                do_add(request.user, request.GET['url'], host=request.GET['url'])
+                request.session['is_yt_pitch'] = True
+        except Exception:
+            pass
+
+        try:
             return HttpResponseRedirect(request.GET[REDIRECT_FIELD_NAME])
-        else:
+        except KeyError:
             return home(request)
         
     else:
@@ -54,8 +73,23 @@ def home(request):
 #        invite_list = request.user.invite_friends_list(INVITE_LIST_SIZE)
         invite_list = []
 
+        is_new_user = request.session.get('is_new_user', False)
+        try:
+            del request.session['is_new_user']
+        except KeyError:
+            pass
+
+        is_yt_pitch = request.session.get('is_yt_pitch', False)
+        try:
+            del request.session['is_yt_pitch']
+        except KeyError:
+            pass
+
         return render_to_response('logged_in.html',
-                                  {'suggested_followees': suggested_followees, 'invite_list': invite_list},
+                                  { 'suggested_followees': suggested_followees,
+                                    'invite_list': invite_list,
+                                    'is_new_user': is_new_user,
+                                    'is_yt_pitch': is_yt_pitch },
                                   context_instance=RequestContext(request))
     else:
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
@@ -85,9 +119,9 @@ def liked_video_queue(request):
             all_liked_vids = user.liked_videos()
             start_index = int(request.GET['start'])
             end_index = start_index + int(request.GET['count'])
-            if all_liked_vids.count() >= end_index:
+            if len(all_liked_vids) >= end_index:
                 vid_subset = all_liked_vids[start_index:end_index]
-            elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
+            elif start_index < len(all_liked_vids) and end_index >= len(all_liked_vids):
                 vid_subset = all_liked_vids[start_index:]
             else:
                 vid_subset = []
@@ -97,8 +131,10 @@ def liked_video_queue(request):
         else:
             #just pass through all liked videos...
             vid_subset = user.liked_videos()
-        return render_to_response('content/video_queue.hfrg',{'user':user,
-                                  'display_mode':'profile', 'videos': vid_subset},
+        return render_to_response('content/video_queue.hfrg',
+                                  dict(user=request.user,
+                                       display_mode='profile',
+                                       videos=vid_subset),
                                   context_instance=RequestContext(request))
 
     elif request.method == 'GET' and request.user.is_authenticated():
@@ -107,32 +143,10 @@ def liked_video_queue(request):
             try:
                 start_index = int(request.GET['start'])
                 end_index = start_index + int(request.GET['count'])
-                if all_liked_vids.count() >= end_index:
+                if len(all_liked_vids) >= end_index:
                     vid_subset = all_liked_vids[start_index:end_index]
-                elif start_index < all_liked_vids.count() and end_index >= all_liked_vids.count():
+                elif start_index < len(all_liked_vids) and end_index >= len(all_liked_vids):
                     vid_subset = all_liked_vids[start_index:]
-                else:
-                    vid_subset = []
-            except Exception, e:
-                #means url was malformed...
-                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
-            return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                              'display_mode':'liked', 'videos': vid_subset},
-                              context_instance=RequestContext(request))
-    return HttpResponseForbidden('you are not authorized to view this content, please log in')
-
-
-def saved_video_queue(request):
-    if request.method == 'GET' and request.user.is_authenticated():
-        all_saved_vids = request.user.saved_videos()
-        if 'start' in request.GET and 'count' in request.GET:
-            try:
-                start_index = int(request.GET['start'])
-                end_index = start_index + int(request.GET['count'])
-                if all_saved_vids.count() >= end_index:
-                    vid_subset = all_saved_vids[start_index:end_index]
-                elif start_index < all_saved_vids.count() and end_index >= all_saved_vids.count():
-                    vid_subset = all_saved_vids[start_index:]
                 else:
                     vid_subset = []
             except Exception, e:
@@ -140,10 +154,45 @@ def saved_video_queue(request):
                 return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
         else:
             #just pass through all liked videos...
-            vid_subset = request.user.saved_videos()
-        return render_to_response('content/video_queue.hfrg',{'user':request.user,
-                                  'display_mode':'saved', 'videos': vid_subset},
+            vid_subset = all_liked_vids
+        return render_to_response('content/video_queue.hfrg',
+                                  dict(user=request.user,
+                                       display_mode='liked',
+                                       videos=vid_subset),
                                   context_instance=RequestContext(request))
+    return HttpResponseForbidden('you are not authorized to view this content, please log in')
+
+
+def saved_video_queue(request):
+    if request.method == 'GET' and request.user.is_authenticated():
+
+        all_saved_vids = request.user.saved_videos()
+
+        if 'start' in request.GET and 'count' in request.GET:
+            try:
+                start_index = int(request.GET['start'])
+                end_index = start_index + int(request.GET['count'])
+
+                if len(all_saved_vids) >= end_index:
+                    vid_subset = all_saved_vids[start_index:end_index]
+
+                elif start_index < len(all_saved_vids) and end_index >= len(all_saved_vids):
+                    vid_subset = all_saved_vids[start_index:]
+
+                else:
+                    vid_subset = []
+
+            except Exception, e:
+                #means url was malformed...
+                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+        else:
+            #just pass through all liked videos...
+            vid_subset = request.user.saved_videos()
+
+        return render_to_response('content/video_queue.hfrg',
+                                  { 'user': request.user, 'display_mode': 'saved', 'videos': vid_subset },
+                                  context_instance=RequestContext(request))
+
     return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
 
 
@@ -365,13 +414,13 @@ def single_video(request, display_mode, video_id):
             video = Video.objects.get(pk=video_id)
             uservideo = UserVideo.objects.get(user=request.user, video=video)
 
-            status = uservideo,video.status()
+            status = video.status()
             if status == states.FAILURE:
                 return render_to_response('inclusion_tags/error_fetching_data.hfrg',
                                           { 'video': video, 'user_video': uservideo },
                                           context_instance=RequestContext(request))
             
-            if uservideo.video.status() == states.SUCCESS:
+            if status == states.SUCCESS:
                 return render_to_response('inclusion_tags/video_queue_item.hfrg',
                                           { 'user': request.user, 'video': video, 'display_mode': display_mode },
                                           context_instance=RequestContext(request))
@@ -381,6 +430,21 @@ def single_video(request, display_mode, video_id):
         
         except UserVideo.DoesNotExist:
             return HttpResponseNotFound()
+
+def publish_permissions(request):
+    redirect = sanitize_redirect(request.get_host(), request.REQUEST.get(REDIRECT_FIELD_NAME))
+    request.session[REDIRECT_FIELD_NAME] = redirect
+
+    complete_url = getattr(settings, 'SOCIAL_AUTH_COMPLETE_URL_NAME', 'complete')
+    complete_url = reverse(complete_url, args=('facebook',))
+
+    args = { 'client_id': settings.FACEBOOK_APP_ID,
+             'redirect_uri': request.build_absolute_uri(complete_url),
+             'scope' : 'publish_stream,' + ','.join(settings.FACEBOOK_EXTENDED_PERMISSIONS) }
+
+    auth_url = FACEBOOK_AUTHORIZATION_URL + '?' + urlencode(args)
+
+    return HttpResponseRedirect(auth_url)
 
 def goodbye(request):
     return render_to_response('goodbye.html', context_instance=RequestContext(request))

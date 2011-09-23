@@ -157,16 +157,19 @@ kikinvideo.HomeViewController = function() {
                 populatePanel(pluginDetect);
             else
                 populatePanel();
-        }if(url_content.path == LIKED_QUEUE_PATH){
+        }else if(url_content.path == LIKED_QUEUE_PATH){
             swapTab(TAB_SELECTORS.likedQueue);
             activeView = VIEWS.likedQueue;
             populatePanel();
-        }if(url_content.path == ACTIVITY_QUEUE_PATH){
+        }else if(url_content.path == ACTIVITY_QUEUE_PATH){
             swapTab(TAB_SELECTORS.activity);
             activeView = VIEWS.activity;
             populatePanel();
-        }if(url_content.path == LOAD_MORE_VIDEOS_PATH){
+        }else if(url_content.path == LOAD_MORE_VIDEOS_PATH){
             loadMoreVideos();
+        } else if(hash_url && window.location.pathname == '/') {
+            // If location hash unknown, default to activity view
+            window.location.hash = "!/activity";
         }
     }
 
@@ -239,13 +242,6 @@ kikinvideo.HomeViewController = function() {
 
         });
 
-        $('.video-wrapper a, .suggested-followee-item a, #lnk-page-next').hover(function(){
-                    $(this).css({color:'#0C536F'});
-                },function(){
-                    $(this).css({color:'#43B6E6'});
-        });
-
-
     }
 
     function populatePanel(onComplete, noLoadingIndicator) {
@@ -266,12 +262,15 @@ kikinvideo.HomeViewController = function() {
 
         $('#activity-filter-menu').hide();
         if(activeView == VIEWS.likedQueue){
+            document.title = 'Liked Videos - Watchlr';
             contentSource = LIKED_VIDEOS_CONTENT_URL;
             requestParams = {'start':0, 'count':likedVideosToLoad};
         }else if (activeView == VIEWS.savedQueue){
+            document.title = 'Saved Videos - Watchlr';
             contentSource = SAVED_VIDEOS_CONTENT_URL;
             requestParams = {'start':0, 'count':savedVideosToLoad};
         }else if (activeView == VIEWS.activity){
+            document.title = 'Activity - Watchlr';
             contentSource = ACTIVITY_CONTENT_URL;
             requestParams = {'start':0, 'count':activityItemsToLoad, 'activityType': selectedActivityType};
         }
@@ -339,68 +338,104 @@ kikinvideo.HomeViewController = function() {
         });
     }
 
-    function handleLike(vid){
-        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
-        {
-            $.get('/api/like/'+vid, function(data){
-                if(!data.success){
-                    showErrorDialog(data.error, data.code);
-                }else{
-                    var video_properties = data.result;
-                    if(video_properties){
-                        if(video_properties.liked){
-                            //update the icon...
-                            if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
-                                if(data.result.liked){
-                                    if(data){
-                                        $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'unlike');
-                                        $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
-                                        if($(LIKED_ICON_ID_PREFIX+vid).hasClass('hovered'))
-                                                $(LIKED_ICON_ID_PREFIX+vid).removeClass('hovered');
-                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(600);
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
-                                            if(activeView == VIEWS.activity){
-                                                var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
-                                                var like_details = trim(activity_item_header.html());
+    function _doLike(vid, callback){
+        $.get('/api/like/'+vid, function(data){
+            if(!data.success){
+                showErrorDialog(data.error, data.code);
+            }else{
+                var video_properties = data.result;
+                if(video_properties){
+                    if(video_properties.liked){
+                        //update the icon...
+                        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked')){
+                            if(data.result.liked){
+                                $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'unlike');
+                                $(LIKED_ICON_ID_PREFIX+vid).addClass('liked');
 
-                                                if(data.result.likes == 2){
-                                                    if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
-                                                        like_details = 'You and '+like_details;
-                                                    }else{
-                                                        var like_offset = like_details.indexOf('shared, ');
-                                                        like_details = like_details.substr(0, like_offset)+'shared, You and '+like_details.substr(like_offset+8, like_details.length);
-                                                    }
-                                                }else if(data.result.likes > 2){
-                                                    if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
-                                                        like_details = 'You, '+like_details;
-                                                    }else{
-                                                        var like_offset = like_details.indexOf('shared, ');
-                                                        like_details = like_details.substr(0, like_offset)+'shared, You, '+like_details.substr(like_offset+8, like_details.length);
-                                                    }
-                                                }else{
-                                                    like_details = like_details.substr(0, like_details.length-3)+', You liked...'
-                                                }
-                                                activity_item_header.fadeOut(500, function(){
-                                                    activity_item_header.html(like_details);
-                                                    activity_item_header.fadeIn(500);
-                                                });
+                                if($(LIKED_ICON_ID_PREFIX+vid).hasClass('hovered'))
+                                    $(LIKED_ICON_ID_PREFIX+vid).removeClass('hovered');
+
+                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(600);
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#ff0000'});
+                                    if(activeView == VIEWS.activity){
+                                        var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
+                                        var like_details = trim(activity_item_header.html());
+
+                                        if(data.result.likes == 2){
+                                            if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                like_details = 'You and '+like_details;
+                                            }else{
+                                                var like_offset = like_details.indexOf('shared, ');
+                                                like_details = like_details.substr(0, like_offset)+'shared, You and '+like_details.substr(like_offset+8, like_details.length);
                                             }
+                                        }else if(data.result.likes > 2){
+                                            if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                                like_details = 'You, '+like_details;
+                                            }else{
+                                                var like_offset = like_details.indexOf('shared, ');
+                                                like_details = like_details.substr(0, like_offset)+'shared, You, '+like_details.substr(like_offset+8, like_details.length);
+                                            }
+                                        }else{
+                                            like_details = like_details.substr(0, like_details.length-3)+', You liked...'
+                                        }
+                                        activity_item_header.fadeOut(500, function(){
+                                            activity_item_header.html(like_details);
+                                            activity_item_header.fadeIn(500);
                                         });
-
-                                        trackEvent('Video', 'Like');
                                     }
-                                }
+                                });
+
+                                trackEvent('Video', 'Like');
+
+                                window.WatchlrPlayerInterface.updateVideoLikedStatus(vid, true);
                             }
                         }
                     }
-                    if (!$(LIKED_ICON_ID_PREFIX+vid).hasClass("like-tracked")) {
-                        trackAction('like', vid, function(msg) { $(LIKED_ICON_ID_PREFIX+vid).addClass("like-tracked"); });
-                    }
                 }
-            });
+                if (!$(LIKED_ICON_ID_PREFIX+vid).hasClass("like-tracked")) {
+                    trackAction('like', vid, function(msg) { $(LIKED_ICON_ID_PREFIX+vid).addClass("like-tracked"); });
+                }
+
+                if (callback)
+                    callback(data);
+
+            }
+        });
+    }
+
+    function handleLike(vid, skipSyndicationCheck, callback){
+        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('liked'))
+        {
+            if (skipSyndicationCheck){
+                _doLike(vid, callback);
+            }else{
+                $.get('/api/auth/profile', function(data){
+                    if (data && data.success && data.result.preferences.syndicate == 2){
+                        $('#video-syndicate-dialog-'+vid).show();
+                        $('html').bind('click.videoSyndication', function() {
+                            $('#video-syndicate-dialog-'+vid).hide();
+                            _doLike(vid, callback);
+                            $('html').unbind('click.videoSyndication');
+                            $('#video-syndicate-dialog-'+vid).unbind('click');
+                            event.stopPropagation();
+                        });
+                        $(LIKED_ICON_ID_PREFIX+vid).bind('click.videoSyndication', function() {
+                            $('#video-syndicate-dialog-'+vid).hide();
+                            $(LIKED_ICON_ID_PREFIX+vid).unbind('click.videoSyndication');
+                            $('#video-syndicate-dialog-'+vid).unbind('click');
+                            event.stopPropagation();
+                        });
+                        $('#video-syndicate-dialog-'+vid).click(function(event){
+                            event.stopPropagation();
+                        });
+                    } else {
+                        _doLike(vid, callback);
+                    }
+                });
+            }
         }else{
             $.get('/api/unlike/'+vid, function(data){
                 var video_properties = data.result;
@@ -413,63 +448,68 @@ kikinvideo.HomeViewController = function() {
                                 if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('not-liked')){
                                     $(LIKED_ICON_ID_PREFIX+vid).addClass('not-liked');
                                 }
-                                if(data){
-                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
-                                        $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'like');
-                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
-                                        if(data.result.likes != 0){
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
-                                            $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#d0d0d0'});
-                                            if(activeView == VIEWS.activity){
-                                                //replace text in the header to reflect updated
-                                                // activity item state (i.e. "You and xxxx like this video"
-                                                // becomes "xxxx likes this video")
-                                                var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
-                                                var like_details = trim(activity_item_header.html());
-                                                if(data.result.likes == 1){
-                                                    like_details = like_details.replace('You and ', '');
-                                                }else{
-                                                    like_details = like_details.replace('You and ', '');
-                                                    like_details = like_details.replace('You, ', '');
-                                                }
-                                                activity_item_header.fadeOut(500, function(){
-                                                    activity_item_header.html(like_details);
-                                                    activity_item_header.fadeIn(500);
-                                                });
+                                $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeOut(1000, function(){
+                                    $(LIKED_ICON_ID_PREFIX+vid).attr('title', 'like');
+                                    $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).empty();
+                                    if(data.result.likes != 0){
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).html(data.result.likes);
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).fadeIn(1000);
+                                        $(LIKED_INFO_CONTAINER_ID_PREFIX+vid).css({"color":'#d0d0d0'});
+                                        if(activeView == VIEWS.activity){
+                                            //replace text in the header to reflect updated
+                                            // activity item state (i.e. "You and xxxx like this video"
+                                            // becomes "xxxx likes this video")
+                                            var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
+                                            var like_details = trim(activity_item_header.html());
+                                            if(data.result.likes == 1){
+                                                like_details = like_details.replace('You and ', '');
+                                            }else{
+                                                like_details = like_details.replace('You and ', '');
+                                                like_details = like_details.replace('You, ', '');
                                             }
-                                        }else if(activeView == VIEWS.activity){
-                                            if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
-                                                //means that we are in activity queue AND had been the only
-                                                //"liker" of this video, so we may gracefully remove it
-                                                $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
-                                            } else {
-                                                // Get rid of the trailing '.., You liked...'
-                                                var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
-                                                var like_details = trim(activity_item_header.html());
-                                                like_details = like_details.substr(0, like_details.length - 14) + '...';
-                                                activity_item_header.fadeOut(500, function(){
-                                                    activity_item_header.html(like_details);
-                                                    activity_item_header.fadeIn(500);
-                                                });
-                                            }
+                                            activity_item_header.fadeOut(500, function(){
+                                                activity_item_header.html(like_details);
+                                                activity_item_header.fadeIn(500);
+                                            });
                                         }
-                                    });
-                                 //analytics...
+                                    }else if(activeView == VIEWS.activity){
+                                        if(!$(LIKED_ICON_ID_PREFIX+vid).hasClass('shared')){
+                                            //means that we are in activity queue AND had been the only
+                                            //"liker" of this video, so we may gracefully remove it
+                                            $(ACTIVITY_ITEM_CONTAINER_ID_PREFIX+vid).fadeOut(1000);
+                                        } else {
+                                            // Get rid of the trailing '.., You liked...'
+                                            var activity_item_header = $(ACTIVITY_ITEM_HEADER_ID_PREFIX+vid);
+                                            var like_details = trim(activity_item_header.html());
+                                            like_details = like_details.substr(0, like_details.length - 14) + '...';
+                                            activity_item_header.fadeOut(500, function(){
+                                                activity_item_header.html(like_details);
+                                                activity_item_header.fadeIn(500);
+                                            });
+                                        }
+                                    }
+                                });
+
                                 trackEvent('Video', 'Unlike');
-                                }
+
+                                window.WatchlrPlayerInterface.updateVideoLikedStatus(vid, false);
                             }
                         }
                     }
                 }
+
                 if (!$(LIKED_ICON_ID_PREFIX+vid).hasClass("unlike-tracked")) {
                     trackAction('unlike', vid, function(msg) { $(LIKED_ICON_ID_PREFIX+vid).addClass("unlike-tracked"); });
                 }
+
+                if (callback)
+                    callback(data);
+
             });
         }
     }
 
-    function handleSave(vid){
+    function handleSave(vid, callback){
         $.ajax({
                 url : '/api/save/'+vid,
                 success : function(response){
@@ -493,9 +533,14 @@ kikinvideo.HomeViewController = function() {
                                 $(SAVE_VIDEO_BUTTON_ID_PREFIX+vid).addClass('not-saved');
                             }
                         }
-                    //analytics...
-                    trackEvent('Video', 'Save');
-                    trackAction('save', vid);
+
+                        trackEvent('Video', 'Save');
+                        trackAction('save', vid);
+
+                        if (callback)
+                            callback(response);
+
+                        window.WatchlrPlayerInterface.updateVideoSavedStatus(vid, true);
                     }
                 },
                 failure : showErrorDialog()

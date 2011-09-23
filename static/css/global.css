@@ -123,10 +123,17 @@ a:hover {
     padding-bottom: 10px;
     background: #0c536f;
     z-index: 10;
-    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#000000')";
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+#header-wrapper {
+    margin: auto;
+    text-align: left;
+    width: 1050px;
+    position:relative;
 }
 
 #header-logo {
@@ -135,7 +142,6 @@ a:hover {
     height: 42px;
     background: url(/static/images/watchlr_logo.png) no-repeat;
     margin-top:10px;
-    margin-left:20px;
 }
 
 #header-logo a {
@@ -149,7 +155,6 @@ a:hover {
     float: right;
     height:40px;
     padding-top: 10px;
-    margin-right: 20px;
     min-width: 125px;
 }
 
@@ -405,6 +410,61 @@ ul.navigation li.selected, ul.navigation li.selected a {
     background: #e5eff3;
 }
 
+ul.navigation li.selected a#activity-tab-header {
+    background-image: url('/static/images/ekg_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a:hover#activity-tab-header {
+    background-image: url('/static/images/ekg_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a#activity-tab-header {
+    background-image: url('/static/images/ekg_white.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li.selected a#saved-tab-header {
+    background-image: url('/static/images/save_video_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a:hover#saved-tab-header {
+    background-image: url('/static/images/save_video_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a#saved-tab-header {
+    background-image: url('/static/images/save_video_white.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+
+ul.navigation li.selected a#likes-tab-header {
+    background-image: url('/static/images/heart_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a:hover#likes-tab-header {
+    background-image: url('/static/images/heart_blue.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
+ul.navigation li a#likes-tab-header {
+    background-image: url('/static/images/heart_white.png');
+    background-repeat: no-repeat;
+    background-position: 10px;
+}
+
 #myConnectionsNot,
 #myConnections {
 }
@@ -511,6 +571,7 @@ ol li {
 #footer-copyright {
     float: left;
     position: relative;
+    padding: 10px 10px 11px;
 }
 
 #footer-nav {
@@ -535,6 +596,7 @@ ol li {
 #footer-nav li a {
     color: #999;
     text-decoration: none;
+    display: inline-block;
 }
 
 #footer-nav li a:hover {
@@ -704,11 +766,12 @@ ul>span.cufon-canvas {
 }
 
 .player-video-description {
-    float: right;
+    float: left;
     color: #FFFFFF;
-    width: 95%;
+    width: 87%;
     text-align: left;
     display: none;
+    margin-left: 10px;
 }
 
 .win .video-description {
@@ -1071,7 +1134,7 @@ a#lnk-page-next:hover {
 
 .save-video-button.saved{
     margin-top:-1px;
-    width:27px;
+    width:22px;
     background:url(/static/images/checkmark.png) no-repeat;
 }
 
@@ -1132,6 +1195,14 @@ video{
     margin-right:auto;
     margin-top:0px;
     margin-bottom:0px;
+}
+
+#player-actions-container{
+    float: right;
+    position: absolute;
+    margin-left: 585px;
+    margin-top: 3px;
+    width: 54px;
 }
 
 .shadow-10r{
@@ -1403,4 +1474,12 @@ box-shadow: 10px 10px 5px #888;
     position: absolute;
     top: 9px;
     width: 0;
+}
+
+.video-wrapper a, .suggested-followee-item a, #lnk-page-next{
+    color:#43B6E6;
+}
+
+.video-wrapper a:hover, .suggested-followee-item a:hover, #lnk-page-next:hover{
+    color:#0C536F;
 }

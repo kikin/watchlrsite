@@ -15,99 +15,168 @@
         <link rel="icon" href="{{ STATIC_URL }}images/favicon.ico"/>
 
         <!-- Styles -->
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/homepage.css?v=4" media="all"/>{% block style_refs %}{% endblock style_refs %}
+        <link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/homepage.css?v={{ VERSION }}" media="all">{% block style_refs %}{% endblock style_refs %}
 
         <!-- jQuery & friends -->
-        <script type="text/javascript" src="{{ STATIC_URL }}js/cfon-yui+vag_400.js?v=0"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.6.1.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.hashchange-1.0.0.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/globals.js"></script>{% block script_refs %}{% endblock script_refs %}
+        <script type="text/javascript" src="https://d1bz0niltboynx.cloudfront.net/cfon-yui%2Bvag_400.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="https://d1bz0niltboynx.cloudfront.net/jquery.hashchange-1.0.0.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/globals.js?v={{ VERSION }}"></script>{% block script_refs %}{% endblock script_refs %}
     </head>
     <body>
         <div id="header">
+            <div id="header-wrapper">
+                <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
+                <div id="header-right" class="right">
+                    <div id="sign-in-facebook">
+                        <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?campaign={{ request|get_campaign:"hp2" }}&next={{ request.path }}">Sign In With Facebook</a>
+                    </div>
+                </div>
 
+                <div class="right" id="loggedInInstallPitch" style="display: none;">
+                    <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
+                </div>
+            </div>
         </div>
-        <div id="header-wrapper">
-            <a href="/" title="Watchlr"><h1 id="header-logo"></h1></a>
-            <div id="header-right" class="right">
-                <div id="myConnectionsNot">
-                    <a id="lnkConnectFb" class="kkn-fb-connect" href="/login/facebook?campaign={{ request|get_campaign:'hp2' }}&next={{ request.path }}"></a>
+
+        <div id="splash">
+            <div id="wrapper">
+                <div id="wrapper-left">
+                    <img title="Watchlr" src="{{ STATIC_URL }}images/logo_big2.png" style="padding-top: 85px;"/>
+                    <br />
+                    <div style="font-size: 36px; font-weight:700; padding-top:5px; padding-left: 185px;">
+                        Your online DVR.
+                    </div>
+                    <div style="font-size: 19px; padding-top: 32px; padding-left: 60px; font-style: italic;">
+                        New Users
+                    </div>
+                    <a href="/login/facebook?campaign={{ request|get_campaign:"hp2" }}&next={{ request.path }}">
+                        <div title="Sign up" class="facebook_signup"></div>
+                    </a>
+                </div>
+                <div id="wrapper-right">
+                    <img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices2.png"/>
                 </div>
             </div>
-
-            <div class="right" id="loggedInInstallPitch" style="display: none;">
-                <a class="btn_dl_small" href="javascript://downloadnow">&nbsp;</a>
+        </div>
+        <div id="iconset-wrapper">
+            <div id="iconset-container">
+                <div style="width:280px; color:white; float:left; clear: both;">
+                    <img title="Watch Later" src="{{ STATIC_URL }}images/white_plus_rounded.png" style="float:left; margin-right:25px;"/>
+                    <div style="font-size: 18px; font-weight: 700; text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);">
+                        Watch Later
+                    </div>
+                    <div style="font-size: 15px;">
+                        Don't have time?<br/>Save videos to watch later.
+                    </div>
+                </div>
+                <div class="iconset-divider"></div>
+                <div style="width:380px; color:white; float:left;">
+                    <img title="Watchlr on iPad" src="{{ STATIC_URL }}images/white_ipad.png" style="float:left; margin-right:25px; margin-left: 50px;"/>
+                    <div style="font-size: 18px; font-weight: bold; text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);">
+                        Watchlr iPad App
+                    </div>
+                    <div style="font-size: 15px;">
+                        Get the Watchlr experience<br/>on your iPad ... Coming Soon!
+                    </div>
+                </div>
+                <div class="iconset-divider"></div>
+                <div style="width:300px; color:white; float:right;">
+                    <img title="Watchlr Community" src="{{ STATIC_URL }}images/white_peeps.png" style="float:left; margin-right:25px; margin-left: 25px;"/>
+                    <div style="font-size: 18px; font-weight: bold; text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);">
+                        People-powered
+                    </div>
+                    <div style="font-size: 15px;">
+                        Join, share and discover videos<br/>in the Watchlr community.
+                    </div>
+                </div>
+                <div style="clear:both;"></div>
             </div>
         </div>
 
-        <div id="wrapper" style="height:370px;">
-            <script type="text/javascript">
-                if ((navigator.userAgent.indexOf("Firefox")) > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:32px; right:0px;" />');
-                }
-                else if ((navigator.userAgent.indexOf("MSIE")) > 0 && (navigator.appVersion.indexOf("Windows") > 0 ))
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:31px; right:0px;" />');
-                }
-                else if (navigator.userAgent.indexOf("Firefox") > 0)
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:21px; right:0px;" />');
-                }
-                else if (navigator.userAgent.indexOf("iPad") > 0)
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:42px; right:0px;" />');
-                }
-                else
-                {
-                    document.write('<img title="Play video on popular devices" src="{{ STATIC_URL }}images/devices.png" style="position:absolute; top:33px; right:0px;" />');
-                }
-            </script>
-
-            <img title="Watchlr" src="{{ STATIC_URL }}images/logo_big.png" style="padding-top: 65px;"/>
-            <br />
-            <div style="font-family: Helvetica, Arial, sans-serif; font-size: 28px; padding-top:20px; padding-left: 8px;">
-                Discover, save and share video.
-            </div>
-            <div style="font-family: Helvetica, Arial, sans-serif; font-size: 19px; padding-top:51px; padding-left: 8px; font-style: italic;">
-                New Users
-            </div>
-            <a href="/login/facebook?campaign={{ request|get_campaign:'hp2' }}&next={{ request.path }}"><div title="Sign up" class="facebook_signup"></div></a>
-        </div>
-        <div id="wrapper" style="width:980px; margin-top:45px;">
-            <div style="width:300px; color:white; border-right: 1px solid white; float:left;">
-                <img title="Watch Later" src="{{ STATIC_URL }}images/white_plus.png" style="float:left; padding-right:25px;"/>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
-                    Watch Later
+        <div id="features">
+            <div id="save-video-feature" class="feature-description" style="float: left; clear: both;">
+                <div class="feature-title">
+                    <img class="feature-icon" src="/static/images/plus_icon.png"/>
+                    <span class="feature-header">
+                        Save Videos Anywhere
+                    </span>
                 </div>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
-                    Don't have time?<br/>Save videos to watch later.
+                <div class="feature-text">
+                    Save videos at any website/page and watch them later.
+                </div>
+                <div class="feature-mugshot">
+                    <img src="/static/images/features/save_videos.png"/>
                 </div>
             </div>
-            <div style="width:320px; color:white; border-right: 1px solid white; padding-left:35px; float:left;">
-                <img title="Watch Later" src="{{ STATIC_URL }}images/white_mobile.png" style="float:left; padding-right:25px;"/>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
-                    Mobile Friendly
+            <div id="ipad-feature" class="feature-description" style="float: right;">
+                <div class="feature-title">
+                    <img class="feature-icon" src="/static/images/ipad_icon.png"/>
+                    <span class="feature-header">
+                        iPad
+                    </span>
                 </div>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
-                    View Watchlr on<br/>iPhone, iPad and Android.
+                <div class="feature-text">
+                    Get the full Watchlr experience on your iPad.
+                </div>
+                <div class="feature-mugshot">
+                    <img src="/static/images/features/ipad_player.png"/>
+                </div>
+                <div class="feature-coming-soon">
+                    <img src="/static/images/features/coming_soon.png"/>
                 </div>
             </div>
-            <div style="width:320px; color:white; float:right;">
-                <img title="Watch Later" src="{{ STATIC_URL }}images/white_peeps.png" style="float:left; padding-left:25px; padding-right:25px;"/>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold;">
-                    People Powered
+            <div id="dvr-feature" class="feature-description" style="float: left; clear: both;">
+                <div class="feature-title">
+                    <img class="feature-icon" src="/static/images/leanback_icon.png"/>
+                    <span class="feature-header">
+                        Online DVR
+                    </span>
                 </div>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-size: 14px;">
-                    Share and discover videos<br/>through friends and influencers.
+                <div class="feature-text">
+                    Pause on one device and continue on another.
+                </div>
+                <div class="feature-mugshot">
+                    <img src="/static/images/features/dvr_shot.png"/>
                 </div>
             </div>
-            <div style="clear:both;"></div>
+            <div id="insitu-feature" class="feature-description" style="float: right;">
+                <div class="feature-title">
+                    <img class="feature-icon" src="/static/images/play_icon.png"/>
+                    <span class="feature-header">
+                        Instant Video Playback
+                    </span>
+                </div>
+                <div class="feature-text">
+                    Instantly play videos from Google, Yahoo, and YouTube search pages.
+                </div>
+                <div class="feature-mugshot">
+                    <img src="/static/images/features/insitu_player.png"/>
+                </div>
+            </div>
+            <div id="community-feature" class="feature-description" style="float: left; clear: both; width: 980px">
+                <div class="feature-title">
+                    <img class="feature-icon" src="/static/images/like_icon.png"/>
+                    <span class="feature-header">
+                        Community
+                    </span>
+                </div>
+                <div class="feature-text">
+                    Join the Watchlr community, create playlists, and share with others on Watchlr and Facebook.
+                    <span style="font-style: italic;">Twitter coming soon.</span>
+                </div>
+                <div class="feature-mugshot" style="width: 800px; position: relative; left: 87px;">
+                    <div id="profile-shot" style="background-image: url(/static/images/features/profile_shot.png); width: 370px; height: 210px; float: left;"></div>
+                    <div id="activity-shot" style="background-image: url(/static/images/features/activity_shot.png); width: 370px; height: 210px; float: right;"></div>
+                </div>
+            </div>
         </div>
 
         <!-- footer -->
         <div id="footer">
-            <div id="footer-copyright">&copy; 2011 2B Interactive Group Inc.</div>
+            <div id="footer-copyright">&copy; 2011 2b Holdings LLC</div>
             <ul id="footer-nav" class="nav">
                 <li>
                     <a href="http://webux.wufoo.com/forms/contact-team-watchlr/" title="Contact">Contact</a>
@@ -133,10 +202,18 @@
 		{% include "includes/analytics.html" %}
         <script type="text/javascript">
             $(window).load(function(){
-                try{
-                    var tracker = _gat._getTracker('UA-4788978-3');
-                    tracker._trackPageview('landing_page');
-                }catch(excp){}
+                _gaq.push(['_trackPageview'], 'landing_page');
+            
+                $('#header-right').hover(
+                    function() {
+                        if(!$(this).hasClass('selected'))
+                            $(this).addClass('selected');
+                    },
+                    function() {
+                        if($(this).hasClass('selected'))
+                            $(this).removeClass('selected');
+                    }
+                );
             });
         </script>
     </body>

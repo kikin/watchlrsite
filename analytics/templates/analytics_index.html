@@ -1,15 +1,10 @@
 {% extends 'analytics_base.html' %}
 
-{% block style_refs %}
-    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="/static/css/analytics.css"/>
-{% endblock style_refs %}
-
 {% block script_refs %}
 
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-  <script type="text/javascript" src="/static/js/jquery-1.6.1.js"></script>
-  <script type="text/javascript" src="/static/js/jquery-ui-1.8.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
 
   <script>
     google.load('visualization', '1', {packages:['corechart', 'table']});
@@ -39,11 +34,11 @@
           tableView.setColumns([1, 2, 3, 4, 5]);
 
           var table = new google.visualization.Table(document.getElementById('userbase_table_div'));
-          table.draw(tableView, {width: 355, page: 'enable', pageSize: 14});
+          table.draw(tableView, {width: 450, page: 'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('userbase_chart_div'));
           comboChart.draw(chartView, {
-            width: 645,
+            width: 750,
             height: 350,
             vAxes: [{title: 'Users', minValue: 1}, {title: 'New Users', minValue: 1}],
             hAxis: {title: 'Date', slantedText: true},
@@ -72,11 +67,11 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('views_table_div'));
-          table.draw(data, {width: 355, page: 'enable', pageSize: 14});
+          table.draw(data, {width: 450, page: 'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('views_chart_div'));
           comboChart.draw(data, {
-            width: 645,
+            width: 750,
             height: 350,
             vAxes: [{title: 'Views', minValue: 1}, {title: 'Total Views', minValue: 1}],
             hAxis: {title: 'Date', slantedText: true},
@@ -105,11 +100,11 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('saves_table_div'));
-          table.draw(data, {width: 355, page: 'enable', pageSize: 14});
+          table.draw(data, {width: 450, page: 'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('saves_chart_div'));
           comboChart.draw(data, {
-            width: 645,
+            width: 750,
             height: 350,
             vAxes: [{title: 'Saves', minValue: 1}, {title: 'Total Saves', minValue: 1}],
             hAxis: {title: 'Date', slantedText: true},
@@ -138,11 +133,11 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('likes_table_div'));
-          table.draw(data, {width: 355, page: 'enable', pageSize: 14});
+          table.draw(data, {width: 450, page: 'enable', pageSize: 14});
 
           var comboChart = new google.visualization.ComboChart(document.getElementById('likes_chart_div'));
           comboChart.draw(data, {
-            width: 645,
+            width: 750,
             height: 350,
             vAxes: [{title: 'Likes', minValue: 1}, {title: 'Total Saves', minValue: 1}],
             hAxis: {title: 'Date', slantedText: true},
@@ -171,11 +166,11 @@
           formatter_short.format(data, 0);
 
           var table = new google.visualization.Table(document.getElementById('follow_table_div'));
-          table.draw(data, {width: 355, page: 'enable', pageSize: 14});
+          table.draw(data, {width: 450, page: 'enable', pageSize: 14});
 
           var lineChart = new google.visualization.LineChart(document.getElementById('follow_chart_div'));
           lineChart.draw(data, {
-            width: 645,
+            width: 750,
             height: 350,
             vAxis: {title: 'Relations', minValue: 1},
             hAxis: {title: 'Date', slantedText: true},

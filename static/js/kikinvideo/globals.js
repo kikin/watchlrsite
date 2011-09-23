@@ -1,5 +1,5 @@
 //project namesapce...
-var _WATCHLR_JS_VERSION_ = '1.9';
+var _WATCHLR_JS_VERSION_ = '2.3.5';
 
 var kikinvideo = {'util':{}};
 
@@ -155,7 +155,7 @@ function swapTab(selector) {
         $(activeTab).removeClass('selected');
         $(selector).addClass('selected');
         activeTab = selector;
-        registerPageview();
+        _gaq.push(['_trackPageview', selector]);
     }
 };
 
@@ -198,14 +198,6 @@ function trackEvent(category, action){
     }
 
     _gaq.push(['_trackEvent', category, action, 'web_app']);
-}
-
-
-function registerPageview(){
-    try{
-        var tracker = _gat._getTracker('UA-4788978-3');
-        tracker._trackPageview(window.location.hash);
-    }catch(excp){}
 }
 
 function trackAction(action, id, success){

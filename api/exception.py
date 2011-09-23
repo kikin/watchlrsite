@@ -35,4 +35,4 @@ class NotFound(BadRequest):
     code = 404
 
     def __init__(self, id):
-        super(NotFound, self).__init__('%s not found' % id)
+        super(NotFound, self).__init__("'%s' not found" % id)

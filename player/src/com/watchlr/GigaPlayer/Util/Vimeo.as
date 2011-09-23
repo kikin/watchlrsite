@@ -5,14 +5,16 @@ package com.watchlr.GigaPlayer.Util
 	
 	import flash.display.DisplayObject;
 	import flash.display.Loader;
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
+	import flash.geom.Point;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
 	import flash.utils.Timer;
 	
-	public class Vimeo
+	public class Vimeo extends Sprite
 	{
 		// VIMEO oauth key
 		private var VIMEO_OAUTH_KEY:String = "14c2b560b42c7312213d3e76987d2e09";
@@ -132,6 +134,10 @@ package com.watchlr.GigaPlayer.Util
 		
 		private function onVideoReady(event:Event): void {
 			_state.state = VideoState.READY;
+			
+			// Pass on current volume setting
+			_vimeoPlayer.setVolume(_gigaPlayer.volume);
+			
 			// _gigaPlayer.handlePlayerLoad();
 			// _vimeoPlayer.play();
 		}

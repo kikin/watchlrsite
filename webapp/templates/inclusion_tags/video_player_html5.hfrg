@@ -12,7 +12,7 @@
         {% autoescape off %}
             <div class="video-embed-wrapper html5" id="video-embed-wrapper"
                         style="width:640px;height:385px;">
-                {% watchlr_player %}
+                {% include "includes/watchlr_player.html" %}
             </div>
         {% endautoescape %}
     </div>
@@ -20,6 +20,10 @@
     <div class="video-player-bottom">
         <img id="player-video-source-image" class="video-source-image player-video-source-image" src=""/>
         <div class="player-video-description" id="player-video-description"></div>
+        <div id="player-actions-container">
+            <a id="player-save-button" class="save-video-button no-hover" href="javascript:WatchlrPlayerInterface.saveVideo()" title="" style="display: none"></a>
+            <a id="player-like-button" class="heart-container no-hover" href="javascript:WatchlrPlayerInterface.likeVideo()" title="" style="display: none"></a>
+        </div>
     </div>
 
     <a href="javascript: WatchlrPlayerInterface.playPrev()" class="prev-button-fancy">

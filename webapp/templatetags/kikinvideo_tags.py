@@ -1,6 +1,5 @@
 from django import template
 from datetime import datetime
-from urlparse import urlparse
 from operator import attrgetter
 
 from django.conf import settings as app_settings
@@ -8,7 +7,7 @@ from django.utils.encoding import force_unicode
 
 from celery import states
 
-from kikinvideo.api.models import UserVideo, UserTask
+from kikinvideo.api.models import UserVideo, Thumbnail, Source
 from kikinvideo.webapp.helpers import VideoHelper
 
 import logging
@@ -134,7 +133,6 @@ def possessive(value):
 def source_icon(video):
     #temporary fix for null favicon error Kapil is experiencing
     try:
-        favicon = video.source.favicon
         return video.source.favicon
     except Exception:
         return ""
@@ -149,10 +147,8 @@ def video_page(video, user):
 @register.filter
 def source_url_root(video):
     try:
-        source_url_components = urlparse(video.source.url)
-        return source_url_components.scheme + "://" + source_url_components.hostname
-    #going to swallow this...
-    except Exception:
+        return video.source.url
+    except Source.DoesNotExist:
         return ""
 
 @register.filter
@@ -175,14 +171,10 @@ def smart_truncate(text, letter_count):
 
 @register.filter
 def web_thumbnail_url(video):
-    #until integrity assured, return the first of the web-type thumbs
-    #associated with video.
-    thumbs = video.thumbnails.filter(type='web')
-    if len(thumbs) == 0:
+    try:
+        return video.get_thumbnail(type='web').url
+    except Thumbnail.DoesNotExist:
         return '/static/images/default_video_icon.png'
-    if len(thumbs) > 0:
-        return thumbs[0].url
-    return ""
 
 @register.filter
 def no_likes(video):
@@ -369,14 +361,6 @@ def fetching_data(video):
     if not video.status() == states.SUCCESS:
         return True
     return False
-    #Alt implementation (uncomment and use if critical issue arises with
-    #with celery task queue).  Simply checks whether a few essential
-    #fields of the Video model are None and, if so, assumes data is still
-    #being fetched
-    #if not video or not video.title or not video.description or not \
-    #    video.get_thumbnail().url:
-    #    return True
-    #return False
 
 @register.filter
 def error_fetching_data(video):
@@ -460,6 +444,10 @@ def truncate_chars(s, num):
     Template filter to truncate a string to at most num characters respecting word
     boundaries.
     """
+    
+    if not s:
+        return ''
+
     s = force_unicode(s)
     length = int(num)
     if len(s) > length:
@@ -501,12 +489,8 @@ def extract_source_for_watchlr_player(video):
         elif video.html5_embed_code:
             return VideoHelper.source_from_video_tag(video.html5_embed_code)
     except Exception:
-        logger.exception('Error extracting source from video: %s' % video.id)
+        logger.exception('Error extracting source from video: url=%s, embed=%s' % (video.url, video.html5_embed_code))
     return ''
-
-@register.inclusion_tag('inclusion_tags/watchlr_player.hfrg')
-def watchlr_player():
-    return
 
 @register.filter
 def thumbnail_target_for_device(request, id):
@@ -518,3 +502,15 @@ def thumbnail_target_for_device(request, id):
 @register.inclusion_tag('inclusion_tags/facebook_import.hfrg')
 def facebook_import_template(fetch_task_failed=False):
     return { 'fetch_task_failed': fetch_task_failed }
+
+@register.filter
+def video_liked_by_user(video, user):
+    if not user.is_authenticated():
+        return 'false'
+    return 'true' if video in user.liked_videos() else 'false'
+
+@register.filter
+def video_saved_by_user(video, user):
+    if not user.is_authenticated():
+        return 'false'
+    return 'true' if video in user.saved_videos() else 'false'

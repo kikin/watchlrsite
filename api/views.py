@@ -10,12 +10,13 @@ from django.contrib.auth import authenticate
 from kikinvideo.settings import AUTHENTICATION_SWAP_SECRET
 
 from api.exception import ApiError, Unauthorized, NotFound, BadRequest, BadGateway
-from api.models import Video, User, UserVideo, Notification, Preference, UserTask
+from api.models import Video, User, UserVideo, Notification, Preference
 from api.utils import epoch, url_fix, MalformedURLException
 from api.tasks import fetch, push_like_to_fb, slugify
 from webapp.templatetags.kikinvideo_tags import activity_item_heading
 
 from celery import states
+from social_auth.backends.facebook import FACEBOOK_CHECK_AUTH
 
 import hashlib
 from re import split
@@ -145,26 +146,21 @@ def like_by_url(request):
         except UserVideo.DoesNotExist:
             push_like_to_fb.delay(video.id, request.user)
 
-        user_video = request.user.like_video(video)
-
     except Video.DoesNotExist:
-        video = Video(url=url)
+        video, created = Video.objects.get_or_create(url=url)
 
         # Fetch video metadata in background
-        task = fetch.delay(request.user.id,
-                           url,
-                           request.META.get('HTTP_REFERER'),
-                           callback=push_like_to_fb.subtask((request.user, )))
+        if created or video.status() == states.FAILURE:
 
-        video.task_id = task.task_id
-        video.save()
+            task = fetch.delay(request.user.id,
+                               url,
+                               request.META.get('HTTP_REFERER'),
+                               callback=push_like_to_fb.subtask((request.user, )))
 
-        user_video = UserVideo(user=request.user,
-                               video=video,
-                               host=request.META.get('HTTP_REFERER'),
-                               liked=True,
-                               liked_timestamp=datetime.utcnow())
-        user_video.save()
+            video.task_id = task.task_id
+            video.save()
+
+    user_video = request.user.like_video(video, host=request.META.get('HTTP_REFERER'))
 
     info = user_video.json()
     info.update({ 'firstlike': request.user.notifications()['firstlike'],
@@ -220,41 +216,38 @@ def add(request):
 
     querydict = request.GET if request.method == 'GET' else request.POST
 
+    user_video = do_add(request.user, querydict['url'], request.META.get('HTTP_REFERER'))
+
+    info = user_video.json()
+    info.update({ 'emptyq': request.user.notifications()['emptyq'],
+                  'unwatched': request.user.unwatched_videos().count(),
+                  'task_id': user_video.video.task_id })
+
+    return info
+
+
+def do_add(user, url, host=None):
     try:
-        url = url_fix(querydict['url'])
+        url = url_fix(url)
     except KeyError:
         raise BadRequest('Parameter:url missing')
     except MalformedURLException:
         raise BadRequest('Malformed URL:%s' % querydict['url'])
 
     try:
-        user_video = UserVideo.objects.get(user=request.user, video__url=url)
+        video = Video.objects.get(url=url)
 
-        if user_video.saved:
-            raise BadRequest('Video:%s already saved with id:%s' % (user_video.video.url, user_video.video.id))
-
-    except UserVideo.DoesNotExist:
+    except Video.DoesNotExist:
         video, created = Video.objects.get_or_create(url=url)
 
         # Fetch video metadata in background
         if created or video.status() == states.FAILURE:
-            task = fetch.delay(request.user.id, url, request.META.get('HTTP_REFERER'))
+            task = fetch.delay(user.id, url, host)
+
             video.task_id = task.task_id
+            video.save()
 
-        video.save()
-
-        user_video = UserVideo(user=request.user, video=video)
-
-    user_video.saved = True
-    user_video.saved_timestamp = datetime.utcnow()
-    user_video.host = request.META.get('HTTP_REFERER')
-    user_video.save()
-
-    info = user_video.json()
-    info.update({ 'emptyq': request.user.notifications()['emptyq'],
-                  'unwatched': request.user.unwatched_videos().count(),
-                  'task_id': user_video.video.task_id })
-    return info
+    return user.save_video(video, host=host)
 
 
 @jsonp_view
@@ -277,29 +270,114 @@ def get(request, video_id):
 
     try:
         item = Video.objects.get(pk=video_id)
-        video = item.json()
-        video['html'] = getattr(item, '%s_embed_code' % type)
 
-        if request.user.is_authenticated():
+        video = item.json()
+
+        video['html'] = getattr(item, '%s_embed_code' % type)
+        video['host'] = item.url
+
+        authenticated = request.user.is_authenticated()
+        if not authenticated:
+            try:
+                # Clients can send session key as a request parameter
+                session_key = request.GET['session_id']
+                session = Session.objects.get(pk=session_key)
+
+                if session.expire_date > datetime.now():
+                    uid = session.get_decoded().get('_auth_user_id')
+                    request.user = User.objects.get(pk=uid)
+                    authenticated = True
+
+            except (KeyError, Session.DoesNotExist):
+                pass
+
+        if authenticated:
             try:
                 user_video = UserVideo.objects.get(user=request.user, video__id=video_id)
 
                 video['saved'] = user_video.saved
-                video['host'] = user_video.host
-                video['timestamp'] = epoch(user_video.saved_timestamp)
                 video['liked'] = user_video.liked
                 video['watched'] = user_video.watched
+
+                timestamp = 'saved_timestamp'
+                if not user_video.saved:
+                    if user_video.liked:
+                        timestamp = 'liked_timestamp'
+                    else:
+                        timestamp = 'shared_timestamp'
+                video['timestamp'] = epoch(getattr(user_video, timestamp))
+
                 return {'videos': [ video ] }
 
             except UserVideo.DoesNotExist:
                 pass
 
         video['saved'] = video['liked'] = video['watched'] = False
-        video['host'] = video['timestamp'] = None
+        video['timestamp'] = None
+
         return {'videos': [ video ] }
 
     except Video.DoesNotExist:
         raise NotFound(video_id)
+
+
+@jsonp_view
+@require_http_methods(['GET',])
+def liked_by(request, video_id):
+    try:
+        video = Video.objects.get(pk=video_id)
+    except Video.DoesNotExist:
+        raise NotFound(video_id)
+    
+    authenticated = request.user.is_authenticated()
+    if not authenticated:
+        try:
+            # Clients can send session key as a request parameter
+            session_key = request.GET['session_id']
+            session = Session.objects.get(pk=session_key)
+
+            if session.expire_date > datetime.now():
+                uid = session.get_decoded().get('_auth_user_id')
+                request.user = User.objects.get(pk=uid)
+                authenticated = True
+
+        except (KeyError, Session.DoesNotExist):
+            pass
+
+    try:
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
+    except (KeyError, ValueError):
+        count = 10
+
+    if authenticated:
+        all_likers = [request.user,] if video in request.user.liked_videos() else []
+        all_likers += video.all_likers(context_user=request.user)
+    else:
+        all_likers = video.all_likers()
+
+    likers = [user.json(excludes=['email']) for user in all_likers]
+
+    paginator = Paginator(likers, count)
+
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
+    return { 'page': page,
+             'count': len(items),
+             'total': paginator.count,
+             'video_id': video_id,
+             'liked_by': items }
 
 
 # See note on `profile()` method about CSRF exemption
@@ -348,13 +426,10 @@ def info(request):
     authenticated = request.user.is_authenticated()
 
     if authenticated:
-        for user_video in UserVideo.objects.filter(user=request.user):
+        for user_video in UserVideo.objects.filter(user=request.user, video__url__in=requested.keys()):
             url = user_video.video.url
 
-            try:
-              response[url] = requested[url]
-            except KeyError:
-              continue
+            response[url] = requested[url]
 
             response[url]['normalized'] = url
             response[url]['success'] = True
@@ -444,7 +519,8 @@ def profile(request):
 
         try:
             # TODO: Email address validation
-            user.email = querydict['email']
+            if querydict['email']:
+                user.email = querydict['email']
         except KeyError:
             pass
 
@@ -462,6 +538,18 @@ def profile(request):
         except (TypeError, ValueError, Preference.DoesNotExist):
             raise BadRequest('Parameter:preferences malformed')
 
+        try:
+            params = {'access_token': querydict['access_token'],}
+            url = FACEBOOK_CHECK_AUTH + '?' + urlencode(params)
+            try:
+                fb_response = loads(urlopen(url).read())
+                if fb_response and 'error' not in fb_response:
+                    user.set_facebook_access_token(querydict['access_token'])
+            except ValueError:
+                pass
+        except KeyError:
+            pass
+
         user.save()
 
     return user.json()
@@ -475,6 +563,8 @@ def list(request):
 
     try:
         count = int(request.GET['count'])
+        if count < 1:
+            count = 10
     except (KeyError, ValueError):
         count = 10
 
@@ -501,7 +591,7 @@ def list(request):
         if not type in ('html', 'html5'):
             raise ValueError
     except (KeyError, ValueError):
-        type = 'html'
+        type = 'html5'
 
     videos = []
     for item in items:
@@ -512,7 +602,11 @@ def list(request):
         video['liked'] = user_video.liked
         video['seek'] = float(user_video.position or 0)
 
+        video['timestamp'] = epoch(getattr(user_video, 'liked_timestamp' if likes else 'saved_timestamp'))
+
         video['html'] = getattr(item, '%s_embed_code' % type)
+
+        video['host'] = item.url
 
         videos.append(video)
 
@@ -588,12 +682,10 @@ def swap(request):
     try:
         # Check if user is already registered.
         user = UserSocialAuth.objects.get(uid=facebook_id).user
-        if not user.is_registered:
+        if not user.is_registered or not user.is_authenticated():
             raise UserSocialAuth.DoesNotExist()
 
     except UserSocialAuth.DoesNotExist:
-
-        # New user!
 
         # Add padding, if necessary
         if not access_token.endswith('=='):
@@ -625,6 +717,15 @@ def swap(request):
             error = data.get('error') or 'unknown error'
             raise Unauthorized('Authentication error: %s' % error)
 
+        # Set campaign to mobile device type.
+        agent = request.META.get('HTTP_USER_AGENT', '').lower()
+        if agent.find('ipad') > -1:
+            user.campaign = 'iPad'
+        elif agent.find('iphone') > -1:
+            user.campaign = 'iPhone'
+        else:
+            user.campaign = 'mobile'
+
     if not user.is_authenticated():
         raise Unauthorized()
 
@@ -632,12 +733,10 @@ def swap(request):
     session['_auth_user_id'] = user.id
     session.save()
 
-    # Only iPad clients in wild as of yet.
-    user.campaign = 'iPad'
     user.is_registerd = True
     user.save()
 
-    return { 'session_id': session.session_key }
+    return { 'session_id': session.session_key, 'user': user.json() }
 
 
 @jsonp_view
@@ -654,9 +753,7 @@ def follow(request, other):
 
     user.follow(other)
 
-    return { 'username': user.username,
-             'following': user.following_count(),
-             'followers': user.follower_count() }
+    return other.json(other=user)
 
 
 @jsonp_view
@@ -673,9 +770,7 @@ def unfollow(request, other):
 
     user.unfollow(other)
 
-    return { 'username': user.username,
-             'following': user.following_count(),
-             'followers': user.follower_count() }
+    return other.json(other=user)
 
 
 @jsonp_view
@@ -685,6 +780,8 @@ def activity(request):
 
     try:
         count = int(request.GET['count'])
+        if count < 1:
+            count = 10
     except (KeyError, ValueError):
         count = 10
 
@@ -732,6 +829,7 @@ def activity(request):
             item_json['video']['seek'] = 0
 
         item_json['video']['html'] = getattr(item.video, '%s_embed_code' % embed)
+        item_json['host'] = item.video.url
 
         activity_list.append(item_json)
 
@@ -741,12 +839,20 @@ def activity(request):
              'activity_list': activity_list }
 
 
-def get_user(request):
+def get_user(request, user_id=None):
     user = None
 
     try:
-        user_id = int(request.GET['user_id'])
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            user_id = int(request.GET['user_id'])
+
         user = User.objects.get(pk=user_id)
+
+        if not user.is_registered:
+            raise User.DoesNotExist()
+
     except KeyError:
         pass
     except ValueError:
@@ -759,7 +865,7 @@ def get_user(request):
             username = request.GET['username']
             user = User.objects.get(username=username)
         except KeyError:
-            raise BadRequest('Should supply either "user_id" or "username" parameter')
+            raise BadRequest('Must supply either "user_id" or "username" parameters')
         except User.DoesNotExist:
             raise NotFound(request.GET['username'])
 
@@ -768,7 +874,7 @@ def get_user(request):
 
 @jsonp_view
 @require_http_methods(['GET',])
-def userinfo(request):
+def userinfo(request, user_id):
     if not request.user.is_authenticated():
         try:
             # Clients can send session key as a request parameter
@@ -782,35 +888,87 @@ def userinfo(request):
         except (KeyError, Session.DoesNotExist):
             pass
 
-    user = get_user(request)
+    user = get_user(request, user_id)
     return user.json(other=request.user, excludes=['email'])
 
 
 @jsonp_view
 @require_http_methods(['GET',])
-def followers(request):
-    user = get_user(request)
+def followers(request, user_id):
+    user = get_user(request, user_id)
 
-    user_followers = [follower.json(other=request.user, excludes=['email']) for follower in user.followers()]
+    try:
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
+    except (KeyError, ValueError):
+        count = 10
 
-    return { 'count': len(user_followers),
+    paginator = Paginator(user.followers(), count)
+
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
+    user_followers = [follower.json(other=request.user, excludes=['email']) for follower in items]
+
+    return { 'page': page,
+             'count': len(user_followers),
+             'total': paginator.count,
              'followers': user_followers }
 
 
 @jsonp_view
 @require_http_methods(['GET',])
-def following(request):
-    user = get_user(request)
+def following(request, user_id):
+    user = get_user(request, user_id)
 
-    user_followers = [followee.json(other=request.user, excludes=['email']) for followee in user.following()]
+    try:
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
+    except (KeyError, ValueError):
+        count = 10
 
-    return { 'count': len(user_followers),
+    paginator = Paginator(user.following(), count)
+
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
+
+    user_followers = [followee.json(other=request.user, excludes=['email']) for followee in items]
+
+    return { 'page': page,
+             'count': len(user_followers),
+             'total': paginator.count,
              'following': user_followers }
 
 
 @jsonp_view
 @require_http_methods(['GET',])
-def liked_videos(request):
+def liked_videos(request, user_id):
+    try:
+        type = request.GET['type']
+        if not type in ('html', 'html5'):
+            raise ValueError
+    except (KeyError, ValueError):
+        type = 'html5'
 
     if not request.user.is_authenticated():
         try:
@@ -825,12 +983,39 @@ def liked_videos(request):
         except (KeyError, Session.DoesNotExist):
             pass
 
-    user = get_user(request)
+    user = get_user(request, user_id)
+
+    try:
+        count = int(request.GET['count'])
+        if count < 1:
+            count = 10
+    except (KeyError, ValueError):
+        count = 10
+
+    paginator = Paginator(user.liked_videos(), count)
+
+    try:
+        page = int(request.GET['page'])
+    except (KeyError, ValueError):
+        # If page is not an integer, deliver first page.
+        page = 1
+
+    try:
+        items = paginator.page(page).object_list
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        items = paginator.page(paginator.num_pages).object_list
 
     videos = []
 
-    for video in user.liked_videos():
+    for video in items:
         json = video.json()
+
+        json['timestamp'] = epoch(UserVideo.objects.get(user=user, video=video).liked_timestamp)
+        json['host'] = video.url
+
+        json['html'] = getattr(video, '%s_embed_code' % type)
+
         videos.append(json)
 
         if request.user.is_authenticated():
@@ -849,5 +1034,24 @@ def liked_videos(request):
         json['saved'] = json['liked'] = False
         json['seek'] = 0
 
-    return { 'count': len(videos),
+    return { 'page': page,
+             'count': len(videos),
+             'total': paginator.count,
              'videos': videos }
+
+
+@jsonp_view
+@require_http_methods(['GET',])
+def raw_video_source(request, video_id):
+    from webapp.templatetags.kikinvideo_tags import extract_source_for_watchlr_player
+
+    try:
+        video = Video.objects.get(pk=video_id)
+    except Video.DoesNotExist:
+        raise NotFound(video_id)
+
+    raw_source = extract_source_for_watchlr_player(video)
+    if not raw_source:
+        raise ApiError()
+
+    return { "source" : raw_source }

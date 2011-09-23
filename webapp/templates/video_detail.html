@@ -1,11 +1,29 @@
 {% extends "user_home.html" %}
+
+{% block title %}{{ video.title }} - Watchlr{% endblock title %}
+
 {% load kikinvideo_tags %}
+
+{% block meta_tags %}
+    <meta property="og:title" content="{{ video.title }}"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:url" content="http://www.watchlr.com/video/{{ video.id }}/"/>
+    <meta property="og:image" content="{{ video|web_thumbnail_url }}"/>
+    <meta property="og:site_name" content="Watchlr"/>
+    <meta property="fb:app_id" content="220283271338035"/>
+    <meta property="og:description" content="{{ video.description|truncate_chars:160 }}"/>
+    <meta property="og:video" content="/static/video_player/WatchlrPlayer.swf?video_id={{ video.id }}" />
+    <meta property="og:video:type" content="application/x-shockwave-flash">
+    <meta property="og:video:width" content="396">
+    <meta property="og:video:width" content="297">
+{% endblock meta_tags %}
+
 {% block style_refs %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
-    <link rel='stylesheet' href='{{ STATIC_URL }}css/profile.css' type='text/css'/>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
-    <link rel='stylesheet' href="{{ STATIC_URL }}css/video_detail.css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css?v={{ VERSION }}" type="text/css"/>
+    <link rel='stylesheet' href="{{ STATIC_URL }}css/profile.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_detail.css?v={{ VERSION }}" type="text/css"/>
     <style>
     {% if not user.is_authenticated %}
         #video-section{
@@ -17,6 +35,7 @@
             -webkit-border-radius:8px 8px 8px 8px;;
             -moz-border-radius: 8px 8px 8px 8px;
             padding-top: 12px;
+            margin-left: 0px;
         }
     {% endif %}
 
@@ -96,7 +115,7 @@
             Watchlr helps you <span class="blue">discover</span>, <span class="blue">save</span> and
             <span class="blue">share</span> video online.<br>
             Sign up using your existing Facebook account!<br>
-            <a class="fb-signup" href="/login/facebook"></a>
+            <a class="fb-signup" href="/login/facebook?campaign=detail"></a>
         </div>
     </div>
     {% endif %}

@@ -1,6 +1,12 @@
 from datetime import datetime
 from itertools import chain
 from decimal import Decimal
+from hashlib import md5
+
+try:
+    from cpickle import dumps, loads
+except ImportError:
+    from pickle import dumps, loads
 
 from django.db import models
 from django.db.models import F
@@ -8,8 +14,10 @@ from django.db.models.signals import post_save
 from django.contrib.auth import models as auth_models
 from django.dispatch import receiver
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
 
 from celery.app import default_app
+from celery.task.control import revoke
 from celery import states
 
 from utils import epoch
@@ -30,6 +38,25 @@ DEFAULT_PREFERENCES = {
     'syndicate': 2,     # Syndicate likes to Facebook? 1 = Yes, 0 = No, 2 = Not set
     'follow_email': 1,  # Send email to user when someone follows them
 }
+
+
+def cache_get(key, default=None):
+    cached = cache.get(key, default)
+
+    result = 'HIT' if not cached == default else 'MISS'
+    logger.debug('CACHE %s - %s' % (result, key))
+
+    return cached
+
+
+def cache_delete(keys):
+    logger.debug('CACHE DELETE - [%s]' % ','.join(keys))
+    cache.delete_many(keys)
+
+
+def cache_set(key, value):
+    logger.debug('CACHE SEED - %s' % key)
+    cache.set(key, value)
 
 
 class Source(models.Model):
@@ -86,6 +113,28 @@ class Video(models.Model):
     task_id = models.CharField(max_length=255, null=True, db_index=True)
     result = models.CharField(max_length=10, null=True)
 
+    # MySQL cannot handle unique indices on columns > 255 characters.
+    # As a workaround, ensure uniqueness on hash of URL field instead!
+    _url_hash = models.CharField(db_column='url_hash', max_length=255, null=True, unique=True)
+
+    def save(self, *args, **kwargs):
+        self._url_hash = md5(self.url.encode('ascii', 'xmlcharrefreplace')).hexdigest()
+
+        # Invalidate associated cache keys
+        for user_video in UserVideo.objects.filter(video=self).exclude(saved=False, liked=False, shared_timestamp__isnull=True):
+
+            properties = ('saved', 'liked', 'shared_timestamp')
+
+            cache_keys = [User._cache_key(user_video.user, '%s_videos' % property[:6]) \
+                          for property in properties if getattr(user_video, property)]
+
+            cache_keys += ['%s_%s_%s' % (self.id, user_video.user.id, property[:6])\
+                           for property in properties if getattr(user_video, property)]
+            
+            cache_delete(cache_keys)
+
+        super(Video, self).save(*args, **kwargs)
+
     def set_thumbnail(self, url, width, height, type='web'):
         try:
             thumbnail = Thumbnail.objects.get(video=self, type=type)
@@ -98,23 +147,78 @@ class Video(models.Model):
 
         thumbnail.save()
 
+        cache_delete(['%s_%s_thumbnail' % (self.id, type)])
+
     def get_thumbnail(self, type='web'):
-        return self.thumbnails.get(type=type)
+        cache_key = '%s_%s_thumbnail' % (self.id, type)
+
+        cached = cache_get(cache_key)
+
+        if cached:
+            thumbnail = loads(cached)
+            if isinstance(thumbnail, basestring) and thumbnail == '_NONE_':
+                raise Thumbnail.DoesNotExist
+
+            return thumbnail
+
+        thumbnails = self.thumbnails.filter(type=type)
+        if thumbnails:
+            cache_set(cache_key, dumps(thumbnails[0]))
+            return thumbnails[0]
+
+        cache_set(cache_key, dumps('_NONE_'))
+        raise Thumbnail.DoesNotExist()
 
     def total_likes(self):
-        return UserVideo.objects.filter(video=self, liked=True).count()
+        return len(self.all_likers())
 
-    # Date when user saved video
+    def _get_timestamp_for_action(self, user, action):
+        cache_key = '%s_%s_%s' % (self.id, user.id, action)
+
+        cached = cache_get(cache_key)
+        if cached:
+            return loads(cached)
+
+        timestamp = getattr(UserVideo.objects.get(video=self, user=user), '%s_timestamp' % action)
+
+        cache_set(cache_key, dumps(timestamp))
+
+        return timestamp
+
     def date_saved(self, user):
-        return UserVideo.objects.get(video=self, user=user).saved_timestamp
+        return self._get_timestamp_for_action(user, 'saved')
 
-    # Date when user liked video
     def date_liked(self, user):
-        return UserVideo.objects.get(video=self, user=user).liked_timestamp
+        return self._get_timestamp_for_action(user, 'liked')
+    
+    def date_shared(self, user):
+        return self._get_timestamp_for_action(user, 'shared')
 
     # List of all users who have liked this video
-    def all_likers(self):
-        return [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
+    # Pass in a user object as `context_user` to sort likers by friends first followed by others
+    def all_likers(self, context_user=None):
+        if not context_user:
+            cache_key = '%s_likers' % self.id
+
+            cached = cache_get(cache_key)
+            if cached:
+                likers = loads(cached)
+            else:
+                likers = [user_video.user for user_video in UserVideo.objects.filter(video=self, liked=True)]
+                cache_set(cache_key, dumps(likers))
+
+        else:
+            followed_likers = [user_video.user for user_video in UserVideo.objects.filter(user__r_follows=context_user,
+                                                                                          video=self,
+                                                                                          liked=True)]
+
+            others = [user_video.user for user_video in UserVideo.objects.exclude(user=context_user)\
+                                                                         .exclude(user__r_follows=context_user)\
+                                                                         .filter(video=self, liked=True)]
+
+            likers = followed_likers + others
+
+        return likers
 
     @models.permalink
     def get_absolute_url(self):
@@ -141,7 +245,9 @@ class Video(models.Model):
                         user_video.get('shared_timestamp')
 
                 if (datetime.utcnow() - added).seconds > 900 and (not self.title or not self.html_embed_code):
-                    state = states.FAILURE
+                    state = self.result = states.FAILURE
+                    Video.objects.filter(id=self.id).update(result=states.FAILURE)
+                    revoke(self.task_id, terminate=True, reply=False)
                 else:
                     state = default_app.backend.get_status(self.task_id)
 
@@ -274,7 +380,7 @@ class User(auth_models.User):
     """
     videos = models.ManyToManyField(Video, through='UserVideo')
     follows = models.ManyToManyField('self', through='UserFollowsUser', related_name='r_follows', symmetrical=False)
-    is_registered = models.BooleanField(default=True)
+    is_registered = models.BooleanField(default=True, db_index=True)
     fb_friends = models.ManyToManyField('self', through='FacebookFriend', related_name='r_fb_friends', symmetrical=False)
     fb_friends_fetched = models.DateTimeField(null=True, db_index=True)
     fb_news_feed_fetched = models.DateTimeField(null=True, db_index=True)
@@ -283,12 +389,22 @@ class User(auth_models.User):
                                                         related_name='r_dismissed_user_suggestions', symmetrical=False)
     karma = models.PositiveIntegerField(default=0, db_index=True)
     campaign = models.CharField(max_length=50, null=True, db_index=True)
+    is_fetch_enabled = models.BooleanField(default=True, db_index=True)
+    have_publish_rights = models.BooleanField(default=False)
 
     # Use UserManager to get the create_user method, etc.
     objects = auth_models.UserManager()
 
+    def is_authenticated(self):
+        return self.is_fetch_enabled and super(User, self).is_authenticated()
+
     def facebook_access_token(self):
         return self.social_auth.get().extra_data['access_token']
+
+    def set_facebook_access_token(self, access_token):
+        fb_auth = self.social_auth.get()
+        fb_auth.extra_data['access_token'] = access_token
+        fb_auth.save()
 
     def facebook_uid(self):
         return self.social_auth.get().uid
@@ -297,17 +413,17 @@ class User(auth_models.User):
         return 'https://graph.facebook.com/%s/picture' % self.facebook_uid()
 
     def _create_or_update_video(self, video, **kwargs):
-        properties = ('liked', 'saved', 'watched')
+        properties = ('liked', 'saved', 'watched', 'shared')
 
         if not any([property not in kwargs for property in properties]):
-            raise Exception('Must (un)set at least one of liked/saved/watched flags')
+            raise Exception('Must (un)set at least one of liked/saved/watched/shared flags')
 
         try:
             user_video = UserVideo.objects.get(user=self, video=video)
         except UserVideo.DoesNotExist:
             user_video = UserVideo(user=self, video=video)
 
-        timestamp = kwargs.get('timestamp', None) or datetime.utcnow()
+        timestamp = kwargs.get('timestamp') or datetime.utcnow()
 
         for property in properties:
             try:
@@ -317,15 +433,51 @@ class User(auth_models.User):
             except KeyError:
                 pass
 
+        try:
+            user_video.host = kwargs['host']
+        except KeyError:
+            pass
+
         user_video.save()
+
+        # Invalidate cached user and video properties, if any.
+        cache_keys = [User._cache_key(self, '%s_videos' % property) for property in properties if property in kwargs]
+        cache_keys += ['%s_%s_%s' % (video.id, self.id, property) for property in properties if property in kwargs]
+        cache_delete(cache_keys)
+
         return user_video
 
+    @classmethod
+    def _cache_key(cls, instance, function):
+        return '%s-%s' % (instance.id, function)
+
+    def cached(func):
+        def wrap(self, *args, **kwargs):
+            key = User._cache_key(self, func.__name__)
+
+            cached = cache_get(key)
+            if cached:
+                return loads(cached)
+
+            result = []
+
+            queryset = func(self, *args, **kwargs)
+            for item in queryset:
+                result.append(item)
+
+            cache_set(key, dumps(result))
+            return result
+
+        return wrap
+
+    @cached
     def followers(self):
         return [u.follower for u in UserFollowsUser.objects.filter(followee=self, is_active=True).all()]
 
     def follower_count(self):
         return UserFollowsUser.objects.filter(followee=self, is_active=True).count()
 
+    @cached
     def following(self):
         return [u.followee for u in UserFollowsUser.objects.filter(follower=self, is_active=True).all()]
 
@@ -346,6 +498,8 @@ class User(auth_models.User):
             from api.tasks import send_follow_email_notification
             send_follow_email_notification.delay(other, self)
 
+        cache_delete([User._cache_key(self, 'following'), User._cache_key(other, 'followers')])
+
         return result
 
     def unfollow(self, other):
@@ -353,10 +507,26 @@ class User(auth_models.User):
             relation = UserFollowsUser.objects.get(follower=self, followee=other)
             relation.is_active = False
             relation.save()
+
+            cache_delete([User._cache_key(self, 'following'), User._cache_key(other, 'followers')])
+
         except UserFollowsUser.DoesNotExist:
             pass
+
+    @cached
+    def facebook_friends(self):
+        return self.fb_friends.all()
+
+    def add_facebook_friend(self, friend):
+        friend_obj, created = FacebookFriend.objects.get_or_create(user=self, fb_friend=friend)
+
+        if created:
+            cache_key = User._cache_key(self, 'facebook_friends')
+            cache_delete([cache_key])
+
+        return friend_obj
         
-    def like_video(self, video, timestamp=None):
+    def like_video(self, video, timestamp=None, host=None):
         """
         Like a video. Creates an association between `User` and `Video` objects (if one doesn't exist already).
 
@@ -379,21 +549,46 @@ class User(auth_models.User):
         # Give karma points to user who first shared this video
         video.increment_karma(self)
 
-        return self._create_or_update_video(video, **{'liked': True, 'timestamp': timestamp})
+        kwargs = {'liked': True, 'timestamp': timestamp}
+        if host:
+            kwargs['host'] = host
+
+        user_video = self._create_or_update_video(video, **kwargs)
+        cache.delete('%s_likers' % video.id)
+        return user_video
 
     def unlike_video(self, video):
         # Take away karma points from sharing user
         video.increment_karma(self, -1)
 
+        cache_delete(['%s_likers' % self.id])
+
         return self._create_or_update_video(video, **{'liked': False})
 
+    @cached
     def liked_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__liked=True).order_by('-uservideo__liked_timestamp')
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__liked=True)\
+                            .order_by('-uservideo__liked_timestamp')
 
+    def liked_videos_count(self):
+        return len(self.liked_videos())
+
+    @cached
     def shared_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__shared_timestamp__isnull=False).order_by('-uservideo__shared_timestamp')
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__shared_timestamp__isnull=False)\
+                            .order_by('-uservideo__shared_timestamp')
 
-    def save_video(self, video, timestamp=None):
+    def shared_videos_count(self):
+        return len(self.shared_videos())
+
+    def add_shared_video(self, video, timestamp=None):
+        if timestamp is None:
+            timestamp = datetime.utcnow()
+        return self._create_or_update_video(video, **{'shared': True, 'timestamp': timestamp})
+
+    def save_video(self, video, timestamp=None, host=None):
         """
         Add video to user's saved queue.
 
@@ -414,13 +609,24 @@ class User(auth_models.User):
         """
         if timestamp is None:
             timestamp = datetime.utcnow()
-        return self._create_or_update_video(video, **{'saved': True, 'timestamp': timestamp})
+
+        kwargs = {'saved': True, 'timestamp': timestamp}
+        if host:
+            kwargs['host'] = host
+
+        return self._create_or_update_video(video, **kwargs)
 
     def remove_video(self, video):
         return self._create_or_update_video(video, **{'saved': False})
 
+    @cached
     def saved_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__saved=True).order_by('-uservideo__saved_timestamp')
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__saved=True)\
+                            .order_by('-uservideo__saved_timestamp')
+
+    def saved_videos_count(self):
+        return len(self.saved_videos())
 
     def mark_video_watched(self, video, timestamp=None):
         if timestamp is None:
@@ -430,11 +636,19 @@ class User(auth_models.User):
     def mark_video_unwatched(self, video):
         return self._create_or_update_video(video, **{'watched': False})
 
+    @cached
     def watched_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__watched=True).order_by('-uservideo__watched_timestamp')
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__watched=True)\
+                            .order_by('-uservideo__watched_timestamp')
+
+    def watched_videos_count(self):
+        return len(self.watched_videos())
 
     def unwatched_videos(self):
-        return Video.objects.filter(user__id=self.id, uservideo__watched=False).order_by('-uservideo__saved_timestamp')
+        return Video.objects.select_related()\
+                            .filter(user__id=self.id, uservideo__watched=False)\
+                            .order_by('-uservideo__saved_timestamp')
 
     def notifications(self):
         """
@@ -509,32 +723,32 @@ class User(auth_models.User):
                     if not video.status() == states.SUCCESS:
                         continue
 
-                    user_video = UserVideo.objects.get(user=user, video=video)
+                    liked_timestamp = video.date_liked(user)
 
-                    user_activity = UserActivity(user, user_video.liked_timestamp, 'like')
+                    user_activity = UserActivity(user, liked_timestamp, 'like')
                     try:
                         by_video[video].user_activities.append(user_activity)
                     except KeyError:
                         by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
 
-                    if not by_video[video].timestamp or user_video.liked_timestamp > by_video[video].timestamp:
-                        by_video[video].timestamp = user_video.liked_timestamp
+                    if not by_video[video].timestamp or liked_timestamp > by_video[video].timestamp:
+                        by_video[video].timestamp = liked_timestamp
 
         if not type == 'watchlr':
-            for user in self.fb_friends.all():
+            for user in self.facebook_friends():
 
                 for video in filter(lambda v: v.status() == states.SUCCESS, user.shared_videos()):
 
-                    user_video = UserVideo.objects.get(user=user, video=video)
+                    shared_timestamp = video.date_shared(user)
 
-                    user_activity = UserActivity(user, user_video.shared_timestamp, 'share')
+                    user_activity = UserActivity(user, shared_timestamp, 'share')
                     try:
                         by_video[video].user_activities.append(user_activity)
                     except KeyError:
                         by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
 
-                    if not by_video[video].timestamp or user_video.shared_timestamp > by_video[video].timestamp:
-                        by_video[video].timestamp = user_video.shared_timestamp
+                    if not by_video[video].timestamp or shared_timestamp > by_video[video].timestamp:
+                        by_video[video].timestamp = shared_timestamp
 
         items = sorted(by_video.values(), reverse=True)
         for item in items:
@@ -597,9 +811,9 @@ class User(auth_models.User):
                        'email': self.email,
                        'notifications': self.notifications(),
                        'preferences': self.preferences(),
-                       'saves': self.saved_videos().count(),
-                       'watches': self.watched_videos().count(),
-                       'likes': self.liked_videos().count(),
+                       'saves': self.saved_videos_count(),
+                       'watches': self.watched_videos_count(),
+                       'likes': self.liked_videos_count(),
                        'following_count': self.following_count(),
                        'follower_count': self.follower_count() }
 
@@ -748,8 +962,8 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
 
     # Ensure that the status flag is set
     # This flag promotes, possibly a facebook friend to a regular user
-    registered = user.is_registered
-    user.is_registered = True
+    registered, fetch_enabled = user.is_registered, user.is_fetch_enabled
+    user.is_registered = user.is_fetch_enabled = True
 
     # Upgrade?
     if not registered or is_new:
@@ -769,7 +983,9 @@ def social_auth_pre_update(sender, user, response, details, **kwargs):
         user.date_joined = datetime.utcnow()
 
     # Handlers must return True if any value was updated/changed
-    return not saved == user.username or not registered == user.is_registered
+    return not saved == user.username or \
+           not registered == user.is_registered or \
+           not fetch_enabled == user.is_fetch_enabled
 
 
 # Register for the `pre_update` signal (as opposed to `socialauth_registered` signal)

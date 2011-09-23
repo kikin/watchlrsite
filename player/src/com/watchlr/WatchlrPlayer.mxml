@@ -33,19 +33,19 @@
 			
 			private function init(event:FlexEvent):void{
 				
-				ExternalInterface.addCallback("play", gigaPlayer.play);
-				ExternalInterface.addCallback("pause", gigaPlayer.pause);
-				ExternalInterface.addCallback("seek", gigaPlayer.seek);
-				ExternalInterface.addCallback("setSeekTarget", gigaPlayer.setSeekTarget);
-				ExternalInterface.addCallback("getDuration", gigaPlayer.getDuration);
-				ExternalInterface.addCallback("getCurrentTime", gigaPlayer.curTime);
-				ExternalInterface.addCallback("enterFullScreen", enterFullScreen);
-				ExternalInterface.addCallback("exitFullScreen", exitFullScreen);
-				ExternalInterface.addCallback("setSource", setSource);
-				// http://www.youtube.com/embed/BpsrThXh_gM?autoplay=1
-				// http://player.vimeo.com/video/26860013?title=0&byline=0&portrait=0&autoplay=1
-				// http://www.youtube.com/embed/GuJQSAiODqI?autoplay=1
-				// http%3A%2F%2Fc.brightcove.com%2Fservices%2Fviewer%2Ffederated_f9%3FisVid%3D1%26isUI%3D1%26%40videoPlayer%3D718576274001%26autoStart%3Dfalse%26playerID%3D651017566001%26domain%3Dembed%26dynamicStreaming%3Dtrue
+				try {
+					ExternalInterface.addCallback("play", gigaPlayer.play);
+					ExternalInterface.addCallback("pause", gigaPlayer.pause);
+					ExternalInterface.addCallback("seek", gigaPlayer.seek);
+					ExternalInterface.addCallback("setSeekTarget", gigaPlayer.setSeekTarget);
+					ExternalInterface.addCallback("getDuration", gigaPlayer.getDuration);
+					ExternalInterface.addCallback("getCurrentTime", gigaPlayer.curTime);
+					ExternalInterface.addCallback("enterFullScreen", enterFullScreen);
+					ExternalInterface.addCallback("exitFullScreen", exitFullScreen);
+					ExternalInterface.addCallback("setSource", setSource);
+				} catch (error:SecurityError) {
+					// Script access not enabled - Ignore!
+				}
 				
 				gigaPlayer.width = width;
 				gigaPlayer.height = height;
@@ -80,9 +80,7 @@
 			}
 			
 			protected function onKeyDown(event:KeyboardEvent):void{
-				if(event.keyCode == 32){
-					gigaPlayer.playPause()
-				}
+				gigaPlayer.handleKeyPress(event);
 			}
 			
 		]]>

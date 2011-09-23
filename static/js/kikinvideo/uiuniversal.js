@@ -168,6 +168,9 @@ kikinvideo.UIUniversal =
                 $('#video-player-title').hide();
                 $('#player-video-description').hide();
                 $('#player-video-source-image').hide();
+                
+                $('#player-like-button').hide();
+                $('#player-save-button').hide();
 
                 //pause video if it is html5
                 // if($.browser.webkit){
@@ -324,6 +327,33 @@ kikinvideo.UIUniversal =
                 }, checkVideoMetadataInterval);
             }
 
+
+            function handleFacebookSyndicate(vid, extraPermissions){
+                var syndicate = checkboxValueInt($('#fb-push-message-'+vid));
+
+                var addSyndication = function(accessToken) {
+                    params = { 'preferences': '{"syndicate":' + syndicate + '}' };
+                    if (accessToken)
+                        params['access_token'] = accessToken;
+
+                    $.post('/api/auth/profile', params, function(){
+                        $('#video-syndicate-dialog-'+vid).hide();
+                        home.handleLike(vid, true);
+                    });
+                };
+
+                if (extraPermissions && syndicate) {
+                    FB.login(function(response) {
+                        if (response.authResponse) {
+                            addSyndication(response.authResponse.accessToken);
+                        }
+                    }, {scope: extraPermissions});
+                } else {
+                    addSyndication();
+                }
+
+            }
+
             //expose public functions...
             return {
                 closePlayer : closePlayer,
@@ -333,7 +363,8 @@ kikinvideo.UIUniversal =
                 videoList: videoList,
                 addToVideoList: addToVideoList,
                 checkForVideoMetadata: checkForVideoMetadata,
-                switchActivityType: switchActivityType
+                switchActivityType: switchActivityType,
+                handleFacebookSyndicate: handleFacebookSyndicate
             }
         };
 

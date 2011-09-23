@@ -27,8 +27,12 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 
 from api.utils import url_fix, MalformedURLException
-from api.models import Video, User, Source as VideoSource, Thumbnail, FacebookFriend, UserVideo, UserTask
+from api.models import Video, User, Source as VideoSource, Thumbnail, UserTask
 from kikinvideo.settings import SENDER_EMAIL_ADDRESS, FACEBOOK_FRIENDS_FETCHER_SCHEDULE, FACEBOOK_NEWS_FEED_FETCH_SCHEDULE
+
+from johnny.cache import invalidate
+from hookjohnny import hook_johnny_cache
+hook_johnny_cache()
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -92,12 +96,10 @@ def update_video_metadata(video, meta, logger):
                             meta['mobile_thumbnail_height'],
                             type='mobile')
 
-    try:
-        source = VideoSource.objects.get(name=meta['source'].name)
-    except VideoSource.DoesNotExist:
-        source = VideoSource.objects.create(name=meta['source'].name,
-                                            url=meta['source'].url,
-                                            favicon=meta['source'].favicon)
+    source, created = VideoSource.objects.get_or_create(name=meta['source'].name)
+    if created:
+        source.url = meta['source'].url
+        source.favicon = meta['source'].favicon
 
     video.source = source
     video.result = states.SUCCESS
@@ -111,7 +113,7 @@ class OEmbed(object):
     def fetch(self, user_id, url, host, logger):
         logger.info('Fetching metadata for url:%s' % url)
 
-        video = Video.objects.get(url__exact=url)
+        video = Video.objects.get(url=url)
         fetched = video.fetched
 
         # Refresh metadata if cache older than a day
@@ -528,6 +530,10 @@ class EmbedlyFetcher(object):
         except Exception:
             logger.error('Error fetching HTML5 embed code for: %s' % url)
 
+        if meta['provider_name'] and meta['provider_name'].lower() == 'facebook':
+            if meta['title'] == "Welcome to Facebook - Log In, Sign Up or Learn More":
+                raise Exception('Facebook video metadata not found for: %s' % url)
+
         # See issue #45
         if meta['provider_name'] and meta['provider_name'].lower().startswith('cnn'):
             try:
@@ -895,8 +901,7 @@ class FacebookFetcher(object):
                     'http://facebook.com/',
                     'http://c2548752.cdn.cloudfiles.rackspacecloud.com/facebook.ico')
 
-    FACEBOOK_URL_SCHEME = re.compile(r'https://graph\.facebook\.com/(.+)')
-    EMBEDLY_FACEBOOK_URL = 'http://www.facebook.com/video/video.php?v=%s'
+    FACEBOOK_URL_SCHEME = re.compile(r'http://(www\.)?facebook\.com/video/video\.php\?v=(.+)')
 
     FACEBOOK_HTML5_EMBED_TEMPLATE = '<video width="100%%" height="100%%" poster="%s" controls="controls" src="%s"></video>'
 
@@ -917,24 +922,26 @@ class FacebookFetcher(object):
         else:
             raise UrlNotSupported(url)
 
-    def fetch(self, url, logger, **kwargs):
+    def supported(self, url):
         match = self.FACEBOOK_URL_SCHEME.match(url)
         if not match:
             raise UrlNotSupported(url)
+        return match.group(2)
+
+    def fetch(self, url, logger, **kwargs):
+        video_id = self.supported(url)
 
         logger.debug('Fetching Facebook metadata for url:%s' % url)
 
         user = User.objects.get(pk=kwargs['user_id'])
         access_token = user.facebook_access_token()
 
-        url = '%s?%s' % (url, urlencode({'access_token': access_token}))
-        response = json.loads(urllib2.urlopen(url).read())
+        fb_url = 'https://graph.facebook.com/%s?%s' % (video_id, urlencode({'access_token': access_token}))
+        response = json.loads(urllib2.urlopen(fb_url).read())
 
         # Facebook sometimes does this for facebook-videos!
         if not response:
-            fb_url = self.EMBEDLY_FACEBOOK_URL % match.group(1)
-            norm_fb_url = url_fix(fb_url)
-            meta = self.forward(norm_fb_url, logger, **kwargs)
+            meta = self.forward(url, logger, **kwargs)
 
         else:
             # Link to original video?
@@ -951,7 +958,7 @@ class FacebookFetcher(object):
                 meta['thumbnail_url'] = response.get('picture')
                 meta['thumbnail_width'], meta['thumbnail_height'] = 160, 120
 
-                meta['html'] = response['embed_html']
+                meta['html'] = response.get('embed_html')
 
                 try:
                     meta['html5'] = self.FACEBOOK_HTML5_EMBED_TEMPLATE % (meta['thumbnail_url'], response['source'])
@@ -959,6 +966,25 @@ class FacebookFetcher(object):
                     pass
 
                 meta['source'] = self.SOURCE
+
+        return meta
+
+    def metadata_from_news_item(self, item):
+        if item['source'].find('.mp4') == -1:
+            raise Exception('News feed item does not contain valid source type')
+
+        meta = dict()
+
+        meta['title'] = item.get('name')
+
+        meta['description'] = item.get('description')
+
+        meta['thumbnail'] = item.get('picture')
+        meta['thumbnail_width'], meta['thumbnail_height'] = 160, 120
+
+        meta['html5'] = self.FACEBOOK_HTML5_EMBED_TEMPLATE % (meta['thumbnail_url'], item['source'])
+
+        meta['source'] = self.SOURCE
 
         return meta
 
@@ -1418,6 +1444,8 @@ slugify = stringfilter(slugify)
 @task(max_retries=3, default_retry_delay=60)
 def push_like_to_fb(video_id, user):
     from social_auth.backends.facebook import FACEBOOK_SERVER
+    from webapp.templatetags.kikinvideo_tags import truncate_chars
+
     def encode(text):
         if isinstance(text, unicode):
             return text.encode('utf-8')
@@ -1439,9 +1467,10 @@ def push_like_to_fb(video_id, user):
 
     params = { 'access_token': user.facebook_access_token(),
                'link': '%s/%s' % (server_name, video.get_absolute_url()),
+               'source': '%s/static/video_player/WatchlrPlayer.swf?video_id=%s' % (server_name, video.id),
                'caption': server_name,
                'name': encode(video.title),
-               'description': encode(video.description),
+               'description': encode(truncate_chars(video.description, 160)),
                'message': 'likes \'%s\'' % encode(video.title) }
 
     try:
@@ -1459,7 +1488,7 @@ def push_like_to_fb(video_id, user):
 def get_or_create_fb_identity(friend, logger):
     from social_auth.models import UserSocialAuth
 
-    if not friend['id'] or not friend['name']:
+    if not friend['id'] or not friend.get('name') or not friend['name'].strip():
         # Cannot create an identity without a name!
         return None
 
@@ -1521,24 +1550,33 @@ def fetch_facebook_friends(user, user_task=None):
         for friend in friends:
             fb_friend = get_or_create_fb_identity(friend, logger)
             if fb_friend:
-                FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
+                user.add_facebook_friend(fb_friend)
 
         User.objects.filter(id=user.id).update(fb_friends_fetched=datetime.utcnow())
+        invalidate(User)
+
         logger.info('Fetched %s facebook friends for user:%s' % (len(friends), user.username))
 
         if user_task:
             UserTask.objects.filter(pk=user_task.id).update(result=states.SUCCESS)
+            invalidate(UserTask)
 
     except urllib2.URLError, exc:
         if isinstance(exc, urllib2.HTTPError):
             logger.error('HTTPError fetching facebook friends for user=%s, code=%s' % (user.username, exc.code))
+
             try:
                 error = exc.fp.read()
+
                 logger.info('Facebook API error fetching Facebook friends for user:%s\n%s' % (user.username, error))
                 error_obj = json.loads(error)
+
                 if error_obj['error']['type'] == 'OAuthException':
                     logger.info('User:%s revoked access from facebook...disabling' % user.username)
-                    User.objects.filter(id=user.id).update(is_registered=False)
+
+                    User.objects.filter(id=user.id).update(is_fetch_enabled=False)
+                    invalidate(User)
+
             except KeyError:
                 return fetch_facebook_friends.retry(exc=exc)
         else:
@@ -1551,8 +1589,12 @@ def fetch_facebook_friends(user, user_task=None):
 def refresh_friends_list():
     logger = refresh_friends_list.get_logger()
 
+    five_minutes_before_now = datetime.utcnow() - timedelta(minutes=15)
+
     queued = 0
-    for user in User.objects.filter(is_registered=True).order_by('fb_friends_fetched'):
+    for user in User.objects.filter(is_registered=True, is_fetch_enabled=True)\
+                            .exclude(date_joined__gte=five_minutes_before_now)\
+                            .order_by('fb_friends_fetched'):
 
         if queued >= FACEBOOK_FRIENDS_FETCHER_SCHEDULE:
             break
@@ -1607,8 +1649,6 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
     from social_auth.backends.facebook import FACEBOOK_SERVER
 
     logger = fetch_news_feed.get_logger()
-    logger.info('Fetching facebook news feed for user=%s, since=%s, page=%s, news_feed_url=%s' % \
-                (user.username, since, page, news_feed_url))
 
     if user.social_auth.get().extra_data is None:
         logger.info('Facebook credentials unavailable...sleeping')
@@ -1618,6 +1658,9 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
         news_feed_url = 'https://%s/me/home?access_token=%s' % (FACEBOOK_SERVER, user.facebook_access_token())
         if since is not None:
             news_feed_url += '&since=%s' % since.strftime('%s')
+
+    logger.info('Fetching facebook news feed for user=%s, since=%s, page=%s, news_feed_url=%s' % \
+                (user.username, since, page, news_feed_url))
 
     try:
         response = urllib2.urlopen(news_feed_url)
@@ -1634,7 +1677,17 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
         except (TypeError, ValueError, KeyError):
             raise Exception('Facebook news feed response not valid JSON:\n%s' % content)
 
-        for index, item in enumerate(items):
+        for item in items:
+            # Is news feed item older than the one we saw in previous fetch cycle?
+            created = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
+            if since and created < since:
+                try:
+                    updated = datetime.strptime(item['updated_time'], FACEBOOK_DATETIME_FMT)
+                    if updated < since:
+                        break
+                except KeyError:
+                    break
+
             # Is news feed item a shared link?
             if item.get('type') not in ('link', 'video'):
                 continue
@@ -1642,8 +1695,11 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
             try:
                 url = url_fix(item['link'])
             except KeyError:
-                logger.info('Skipping over item with missing required fields:\n%s' % json.dumps(item))
-                continue
+                try:
+                    url = url_fix(item['source'])
+                except KeyError:
+                    logger.info('Skipping over item with missing required fields:\n%s' % json.dumps(item))
+                    continue
             except MalformedURLException:
                 logger.info('Skipping over malformed url:%s' % item['link'])
                 continue
@@ -1655,14 +1711,22 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
 
                 video = None
                 for fetcher in _fetcher.fetchers:
+
                     try:
-                        meta = fetcher.fetch(url, logger, user_id=user.id, host='http://www.facebook.com')
+                        if fetcher == _facebook_fetcher and _facebook_fetcher.supported(url):
+                            meta = _facebook_fetcher.metadata_from_news_item(item)
+                        else:
+                            meta = fetcher.fetch(url, logger, user_id=user.id, host='http://www.facebook.com')
+
                         video, created = Video.objects.get_or_create(url=url)
                         update_video_metadata(video, meta, logger)
+
                         logger.info('Successfully fetched metadata for video:%s' % url)
                         break
+
                     except UrlNotSupported:
                         continue
+
                     except Exception:
                         logger.exception('Error fetching link:%s' % item['link'])
                         break
@@ -1672,48 +1736,56 @@ def fetch_user_news_feed(user, since=None, page=1, user_task=None, news_feed_url
                     continue
 
             fb_friend = get_or_create_fb_identity(item['from'], logger)
-
             if fb_friend:
-                FacebookFriend.objects.get_or_create(user=user, fb_friend=fb_friend)
-
-                user_video, created = UserVideo.objects.get_or_create(user=fb_friend, video=video)
-                user_video.shared_timestamp = datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT)
-                user_video.save()
+                user.add_facebook_friend(fb_friend)
+                fb_friend.add_shared_video(video, timestamp=datetime.strptime(item['created_time'], FACEBOOK_DATETIME_FMT))
 
         # Update to reflect the most recent news item seen
         if page == 1 and items:
             newest = datetime.strptime(items[0]['created_time'], FACEBOOK_DATETIME_FMT)
             User.objects.filter(id=user.id).update(fb_news_last_shared_item_timestamp=newest)
+            invalidate(User)
 
         # Fetch next page?
         if json_data.get('paging') and json_data['paging'].get('next'):
-            task_info = fetch_user_news_feed.delay(user,
-                                                   page=page+1,
-                                                   user_task=user_task,
-                                                   news_feed_url=json_data['paging']['next'])
+            next_page_url = json_data['paging']['next']
 
-            # Set user task id to that of next page fetch task. This makes sure we
-            # display loading indicator with partial import of Facebook videos.
-            if user_task:
-                logger.info('Setting task id = %s' % task_info.task_id)
-                UserTask.objects.filter(pk=user_task.id).update(task_id=task_info.task_id)
+            if not next_page_url == news_feed_url:
+                task_info = fetch_user_news_feed.delay(user,
+                                                       page=page+1,
+                                                       user_task=user_task,
+                                                       since=since,
+                                                       news_feed_url=next_page_url)
+
+                # Set user task id to that of next page fetch task. This makes sure we
+                # display loading indicator with partial import of Facebook videos.
+                if user_task:
+                    UserTask.objects.filter(pk=user_task.id).update(task_id=task_info.task_id)
+                    invalidate(UserTask)
 
         elif user_task:
             UserTask.objects.filter(pk=user_task.id).update(result=states.SUCCESS)
+            invalidate(UserTask)
 
     except urllib2.URLError, exc:
-        logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))
-        if isinstance(exc, urllib2.HTTPError) and exc.code == 400:
+        if isinstance(exc, urllib2.HTTPError):
+            logger.error('Error fetching facebook news feed. url=%s, code=%s' % (news_feed_url, exc.code))
             try:
                 error = exc.fp.read()
+
                 logger.info('Facebook API error fetching news feed for user:%s\n%s' % (user.username, error))
                 error_obj = json.loads(error)
+
                 if error_obj['error']['type'] == 'OAuthException':
                     logger.info('User:%s revoked access from facebook...disabling' % user.username)
-                    User.objects.filter(id=user.id).update(is_registered=False)
+
+                    User.objects.filter(id=user.id).update(is_fetch_enabled=False)
+                    invalidate(User)
+
             except KeyError:
                 return fetch_news_feed.retry(exc=exc)
         else:
+            logger.error('Error fetching facebook news feed. url=%s, reason=%s' % (news_feed_url, exc.reason))
             return fetch_news_feed.retry(exc=exc)
         raise
 
@@ -1725,7 +1797,8 @@ def fetch_news_feed(*args, **kwargs):
     five_minutes_before_now = datetime.utcnow() - timedelta(minutes=15)
 
     queued = 0
-    for user in User.objects.filter(is_registered=True, date_joined__lte=five_minutes_before_now)\
+    for user in User.objects.filter(is_registered=True, is_fetch_enabled=True)\
+                            .exclude(date_joined__gte=five_minutes_before_now)\
                             .order_by('fb_news_feed_fetched'):
 
         if queued >= FACEBOOK_NEWS_FEED_FETCH_SCHEDULE:
@@ -1740,5 +1813,6 @@ def fetch_news_feed(*args, **kwargs):
         queued += 1
 
         User.objects.filter(id=user.id).update(fb_news_feed_fetched=datetime.utcnow())
+        invalidate(User)
 
     logger.info('Refreshing %d user news feeds' % queued)

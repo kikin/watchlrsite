@@ -1,10 +1,10 @@
 {% extends "user_home.html" %}
 {% load kikinvideo_tags %}
 {% block style_refs %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css" type="text/css"/>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css" type="text/css"/>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css" type="text/css"/>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/download.css?v=1" media="all"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/activity_queue.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/logged_in.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/video_queue_item.css?v={{ VERSION }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/download.css?v={{ VERSION }}" type="text/css" media="all"/>
     {% if suggested_followees|length_is:0 %}
      <style>
      #content{
@@ -16,15 +16,19 @@
 
 {% block script_refs %}
     {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/downloadpitch.js"></script>
-
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/userprofile.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/VideoController.js?v={{ VERSION }}"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kikinvideo/downloadpitch.js?v={{ VERSION }}"></script>
 
     <script type="text/javascript">
     $(document).ready(function(){
-        if(!window.location.hash)
-            window.location = "/#!/activity";
+        {% if is_yt_pitch %}
+            window.location.hash = "!/saved_queue";
+        {% else %}
+            if(!window.location.hash) {
+                window.location.hash = "!/activity";
+            }
+        {% endif %}
     });
     </script>
     
@@ -90,18 +94,14 @@
 
     </div>
 {% endblock right_panel %}
+
 {% block body_end %}
-    <script type="text/javascript">
-
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-25111801-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-
-    </script>
+    {% include "includes/analytics.html" %}
+    {% if is_new_user %}
+        <script type="text/javascript">
+             $(function() {
+                _gaq.push(['_trackPageview', '/welcome']);
+             });
+        </script>
+    {% endif %}
 {% endblock body_end %}

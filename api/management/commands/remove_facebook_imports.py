@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from api.models import User, UserVideo
+from api.models import User, UserVideo, cache_delete
 
 class Command(BaseCommand):
     args = '<username username ...>'
@@ -20,4 +20,5 @@ class Command(BaseCommand):
                     print 'Deleting video: %s' % activity.video.url
                     for user_activity in activity.user_activities:
                         UserVideo.objects.get(user=user_activity.user, video=activity.video).delete()
+                        cache_delete([User._cache_key(user_activity.user, 'shared_videos')])
                     activity.video.delete()
