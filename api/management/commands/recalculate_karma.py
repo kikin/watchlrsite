@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Zero out karma points for everybody
-        User.objects.update(karma=0)
+        User.objects.filter(is_registered=True).update(karma=0)
         
         invalidate(User)
 
