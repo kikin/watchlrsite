@@ -5,11 +5,18 @@ from django.contrib.auth.views import logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from kikinvideo.api.views import do_add
 from kikinvideo.api.models import Video, User, UserVideo, UserTask
 
+from social_auth.utils import sanitize_redirect
+from social_auth.backends.facebook import FACEBOOK_AUTHORIZATION_URL
+
 from celery import states
+
+from urllib import urlencode
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -423,6 +430,21 @@ def single_video(request, display_mode, video_id):
         
         except UserVideo.DoesNotExist:
             return HttpResponseNotFound()
+
+def publish_permissions(request):
+    redirect = sanitize_redirect(request.get_host(), request.REQUEST.get(REDIRECT_FIELD_NAME))
+    request.session[REDIRECT_FIELD_NAME] = redirect
+
+    complete_url = getattr(settings, 'SOCIAL_AUTH_COMPLETE_URL_NAME', 'complete')
+    complete_url = reverse(complete_url, args=('facebook',))
+
+    args = { 'client_id': settings.FACEBOOK_APP_ID,
+             'redirect_uri': request.build_absolute_uri(complete_url),
+             'scope' : 'publish_stream,' + ','.join(settings.FACEBOOK_EXTENDED_PERMISSIONS) }
+
+    auth_url = FACEBOOK_AUTHORIZATION_URL + '?' + urlencode(args)
+
+    return HttpResponseRedirect(auth_url)
 
 def goodbye(request):
     return render_to_response('goodbye.html', context_instance=RequestContext(request))
