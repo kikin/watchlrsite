@@ -150,7 +150,7 @@ class EmbedlyFetcher(object):
     # Embed.ly Multi Provider API Endpoint
     OEMBED_API_ENDPOINT = 'http://api.embed.ly/1/oembed'
 
-    OEMBED_SERVICE_ENDPOINT = 'http://api.embed.ly/1/services'
+    OEMBED_SERVICE_ENDPOINT = 'http://api.embed.ly/1/services/python'
 
     # URL Schemes Supported
     VIDEO_URL_SCHEMES = [
@@ -468,14 +468,17 @@ class EmbedlyFetcher(object):
 
     def __init__(self):
         self.providers = dict()
-        sources = urllib2.urlopen(self.OEMBED_SERVICE_ENDPOINT).read()
-        for source in json.loads(sources):
-            domain = source['domain']
-            if not domain.startswith('http://'):
-                domain = 'http://%s' % domain
-            self.providers[source['displayname']] = Source(source['displayname'],
-                                                           domain,
-                                                           source['favicon'])
+        try:
+            sources = urllib2.urlopen(self.OEMBED_SERVICE_ENDPOINT).read()
+            for source in json.loads(sources):
+                domain = source['domain']
+                if not domain.startswith('http://'):
+                    domain = 'http://%s' % domain
+                self.providers[source['displayname']] = Source(source['displayname'],
+                                                               domain,
+                                                               source['favicon'])
+        except Exception:
+            logger.error('Could not load provider list from Embedly')
 
     def sources(self):
         return self.providers.values()
