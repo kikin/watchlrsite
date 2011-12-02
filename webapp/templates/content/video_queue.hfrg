@@ -3,22 +3,29 @@
 <meta name="queue_item_count" content="{{ videos|length }}"/>
 
 {% if videos|length_is:"0"%}
-            {% if display_mode == "liked" %}
-                <div class="video-container" style="height:270px;border-bottom: none;width:730px;">
-                    <div class="featureTxt" style="width: 600px;">
-                    <h4>
-                        You have no liked videos at the moment.
-                    </h4>
-                    <p>Click <img src="{{ STATIC_URL }}images/heart_grey.png" style="height:15px; padding-right:2px;"/> to like a video.  Your liked videos appear on your public profile so your friends and others can enjoy them too.
-                    <img class="featureImage" alt="Learn how to use Watchlr" src="{{ STATIC_URL }}images/education/empty_likes2.png" style="width: 600px; padding-left: 0px;"/>
-                    </div>
-                </div>
-            {% endif %}
-            {% if display_mode ==  "saved"%}
-                    <div class="loading-container initial"  style="position:static;width:200px;margin-left: auto;margin-right: auto;">
-                        <div class="loading"></div>
-                    </div>
-        {% endif %}
+    {% if display_mode == "liked" %}
+        <div class="video-container" style="height:270px;border-bottom: none;width:730px;">
+            <div class="featureTxt" style="width: 600px;">
+            <h4>
+                You have no liked videos at the moment.
+            </h4>
+            <p>Click <img src="{{ STATIC_URL }}images/heart_grey.png" style="height:15px; padding-right:2px;"/> to like a video.  Your liked videos appear on your public profile so your friends and others can enjoy them too.
+            <img class="featureImage" alt="Learn how to use Watchlr" src="{{ STATIC_URL }}images/education/empty_likes2.png" style="width: 600px; padding-left: 0px;"/>
+            </div>
+        </div>
+    {% endif %}
+    {% if display_mode == "saved" %}
+        <div class="loading-container initial"  style="position:static;width:200px;margin-left: auto;margin-right: auto;">
+            <div class="loading"></div>
+        </div>
+    {% endif %}
+    {% if display_mode == "profile" %}
+        <div class="no-liked-videos-wrapper">
+            <div class="no-liked-videos">
+                {{ profile_owner.first_name }} hasn't liked any videos yet
+            </div>
+        </div>
+    {% endif %}
 {% endif %}
 
 {% for video in videos %}

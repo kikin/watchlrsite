@@ -1,6 +1,6 @@
 # Django settings for video project.
 
-_version = (2, 3, 6)
+_version = (2, 3, 7)
 VERSION = '.'.join([str(number) for number in _version])
 
 import sys, os
@@ -289,7 +289,7 @@ JOHNNY_MIDDLEWARE_KEY_PREFIX = 'kikinvideo'
 # Uncomment this to disable QuerySet caching
 #DISABLE_QUERYSET_CACHE = VIDEO_ENV.startswith('local')
 
-#frontend feature switches
+# Frontend feature switches
 ENABLE_HTML5_VIDEO = True
 
 # Use SES as email backend.
