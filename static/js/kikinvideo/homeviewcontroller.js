@@ -629,6 +629,34 @@ kikinvideo.HomeViewController = function() {
         selectedActivityType = type;
     }
 
+    function dismissSuggestedUser(uid) {
+        excludes = [];
+        $('.suggested-followee-item').each(function() {
+            excludes.push($(this).attr('id').substring(24));
+        });
+
+        $.get('/content/follow_suggestions/', {dismissed:uid, excludes:excludes.join(',')}, function(data) {
+            $('#suggested-followee-item-'+uid).remove();
+
+            if(data) {
+                $('.suggested-followees').children('.inner').append(data);
+                $('.suggested-followee-item').each(function() {
+                    var suggestion = $(this).attr('id').substring(24);
+                    if (excludes.indexOf(suggestion) == -1) {
+                        $(this).mouseover(function() {
+                            $(this).children('.dismiss-suggestion-button').show();
+                        });
+                        $(this).mouseout(function() {
+                            $(this).children('.dismiss-suggestion-button').hide();
+                        });
+                    }
+                });
+            } else if(excludes.length == 1) {
+                $('.suggested-followees').children('.inner').append('<div class="no-suggestions-found" style="font-style: italic; border-top: 1px solid #CDCDCD;">No more suggestions</div>');
+            }
+        });
+    }
+
     /*expose public functions...*/
     return {
 
@@ -651,7 +679,9 @@ kikinvideo.HomeViewController = function() {
         hideVidLikedBy : hideVidLikedBy,
 
         getSelectedActivityType: getSelectedActivityType,
-        setSelectedActivityType: setSelectedActivityType
+        setSelectedActivityType: setSelectedActivityType,
+
+        dismissSuggestedUser: dismissSuggestedUser
 
     };
 

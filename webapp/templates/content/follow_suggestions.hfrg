@@ -1,0 +1,23 @@
+{% load kikinvideo_tags %}
+
+<div class="suggested-followee-item" id="suggested-followee-item-{{ suggested.id }}">
+    <a class="dismiss-suggestion-button" href="javascript:home.dismissSuggestedUser({{ suggested.id }})">
+        <img src="{{ STATIC_URL }}images/x_small.png"/>
+    </a>
+    <a {{ suggested|user_profile_link }}>
+        <div class="fb-thumb-wrapper">
+            <img src="https://graph.facebook.com/{{ suggested.facebook_uid }}/picture?type=square"/>
+        </div>
+    </a>
+    <div class="profile-link-container">
+        <a {{ suggested|user_profile_link }}>
+            {{ suggested|full_name|truncate_text:14 }}
+        </a>
+    </div>
+    <div class="profile-liked-video-count">
+        {{ suggested|total_liked_videos }} likes
+    </div>
+    <a href="javascript:profileViewController.handleFollow({{ suggested.id }})" id="follow-button-user-{{ suggested.id }}" class="follow-link">
+        Follow
+    </a>
+</div>

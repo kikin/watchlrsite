@@ -272,7 +272,15 @@ kikinvideo.UIUniversal =
                     function() {
                         $('#activity-options').hide();
                     }
-                )
+                );
+                $('.suggested-followee-item').each(function() {
+                    $(this).mouseover(function() {
+                        $(this).children('.dismiss-suggestion-button').show();
+                    });
+                    $(this).mouseout(function() {
+                        $(this).children('.dismiss-suggestion-button').hide();
+                    });
+                });
             }
 
             function switchActivityType(type){

@@ -53,11 +53,20 @@
     font-weight: 900;
 }
 
+.suggested-followees .profile-liked-video-count{
+    float: left;
+    width: 130px;
+    font-size: 11px;
+    margin-left: 6px;
+    font-weight: normal;
+    color: gray;
+    line-height: 16px;
+}
 
 .suggested-followees .follow-link{
     float:left;
     margin-left:6px;
-    font-size:11px;
+    font-size:12px;
 }
 
 .suggested-followee-item .follow-button{
@@ -76,6 +85,11 @@
     font-weight: 800;
     text-align:center;
     padding-top:7px;
+}
+
+.suggested-followees .dismiss-suggestion-button {
+    float: right;
+    display: none;
 }
 
 .follow-button:hover{

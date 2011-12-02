@@ -775,11 +775,17 @@ class User(auth_models.User):
 
         return suggestions
 
-    def popular_users(self, count=10):
-        return self._build_follow_suggestions(User.objects.filter(karma__gt=0).order_by('-karma'), count)
+    def popular_users(self, count=10, excludes=None):
+        qs = User.objects.filter(karma__gt=0).order_by('-karma')
+        if excludes:
+            qs = qs.exclude(id__in=excludes)
+        return self._build_follow_suggestions(qs, count)
 
-    def follow_suggestions(self, count=10):
-        return self._build_follow_suggestions(self.fb_friends.filter(is_registered=True), count)
+    def follow_suggestions(self, count=10, excludes=None):
+        qs = self.fb_friends.filter(is_registered=True)
+        if excludes:
+            qs = qs.exclude(id__in=excludes)
+        return self._build_follow_suggestions(qs, count)
 
     def invite_friends_list(self, num=10):
 

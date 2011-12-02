@@ -40,11 +40,14 @@
     {% if not suggested_followees|length_is:0 %}
     <div class="suggested-followees container rounded-corners-5">
         <div class="inner">
-        <div class="title">
-            People To Follow
-        </div>
+            <div class="title">
+                People To Follow
+            </div>
             {% for kv_user in suggested_followees %}
-                <div class="suggested-followee-item">
+                <div class="suggested-followee-item" id="suggested-followee-item-{{ kv_user.id }}">
+                    <a class="dismiss-suggestion-button" href="javascript:home.dismissSuggestedUser({{ kv_user.id }})">
+                        <img src="{{ STATIC_URL }}images/x_small.png"/>
+                    </a>
                     <a {{ kv_user|user_profile_link }}>
                         <div class="fb-thumb-wrapper">
                             <img src="https://graph.facebook.com/{{ kv_user.facebook_uid }}/picture?type=square"/>
@@ -52,16 +55,19 @@
                     </a>
                     <div class="profile-link-container">
                         <a {{ kv_user|user_profile_link }}>
-                            {{ kv_user|full_name|truncate_text:16 }}
+                            {{ kv_user|full_name|truncate_text:14 }}
                         </a>
+                    </div>
+                    <div class="profile-liked-video-count">
+                        {{ kv_user|total_liked_videos }} likes
                     </div>
                     <a href="javascript:profileViewController.handleFollow({{ kv_user.id }})" id="follow-button-user-{{ kv_user.id }}" class="follow-link">
                         Follow
                     </a>
                 </div>
             {% endfor %}
-            </div>
         </div>
+    </div>
     {% endif %}
 
     {%  comment %}
