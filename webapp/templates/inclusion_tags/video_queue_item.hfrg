@@ -1,11 +1,13 @@
 {% load kikinvideo_tags %}
 
 {% if video|error_fetching_data %}
-    <div id="video-{{video.id}}" class="video-wrapper">
-        <div class="video-container">
-             {% error_fetching_data_message user video %}
+    {% if display_mode != 'profile' %}
+        <div id="video-{{video.id}}" class="video-wrapper">
+            <div class="video-container">
+                 {% error_fetching_data_message user video %}
+            </div>
         </div>
-    </div>
+    {% endif %}
 
 {% else %}
     {% if video|fetching_data %}
@@ -174,17 +176,19 @@
 
 <script type="text/javascript">
     $(function() {
-        UI.addToVideoList({{ video.id }},
-            {
-                id: {{ video.id }},
-                embed: '{{ video|extract_source_for_watchlr_player|safe }}',
-                host: '{{ video.url|safe }}',
-                title: '{{ video.title|truncate_text:45|escapejs }}',
-                description: '{{ video.description|truncate_chars:175|urlize|escapejs }}',
-                faviconURl: '{{ video|source_icon }}',
-                liked: {{ video|video_liked_by_user:user }},
-                saved: {{ video|video_saved_by_user:user }}
-            }
-        );
+        {% if not video|error_fetching_data %}
+            UI.addToVideoList({{ video.id }},
+                {
+                    id: {{ video.id }},
+                    embed: '{{ video|extract_source_for_watchlr_player|safe }}',
+                    host: '{{ video.url|safe }}',
+                    title: '{{ video.title|truncate_text:45|escapejs }}',
+                    description: '{{ video.description|truncate_chars:175|urlize|escapejs }}',
+                    faviconURl: '{{ video|source_icon }}',
+                    liked: {{ video|video_liked_by_user:user }},
+                    saved: {{ video|video_saved_by_user:user }}
+                }
+            );
+        {% endif %}
     });
 </script>
