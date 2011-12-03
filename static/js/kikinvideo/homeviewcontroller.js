@@ -40,6 +40,8 @@ kikinvideo.HomeViewController = function() {
 
     var activityItemsPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
 
+    var profileVideosPaginationThreshold = INITIAL_PAGINATION_THRESHOLD;
+
     var VID_LIKED_BY_CONTAINER_ID_PREFIX = "#video-liked-by-wrapper-vid-";
 
     //set to whatever num of these you want to initially load...
@@ -48,6 +50,8 @@ kikinvideo.HomeViewController = function() {
     var likedVideosToLoad = 10;
 
     var activityItemsToLoad = 10;
+
+    var profileVideosToLoad = 10;
 
     var selectedActivityType = "all";
 
@@ -184,9 +188,12 @@ kikinvideo.HomeViewController = function() {
         }else if(activeView == VIEWS.savedQueue){
             savedVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
             saveVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
-        }if(activeView == VIEWS.activity){
+        }else if(activeView == VIEWS.activity){
             activityItemsToLoad += INITIAL_PAGINATION_THRESHOLD;
             activityItemsPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
+        }else if(activeView == VIEWS.profile){
+            profileVideosToLoad += INITIAL_PAGINATION_THRESHOLD;
+            profileVideosPaginationThreshold += INITIAL_PAGINATION_THRESHOLD;
         }
         populatePanel(onComplete);
     }
@@ -273,6 +280,9 @@ kikinvideo.HomeViewController = function() {
             document.title = 'Activity - Watchlr';
             contentSource = ACTIVITY_CONTENT_URL;
             requestParams = {'start':0, 'count':activityItemsToLoad, 'activityType': selectedActivityType};
+        }else if (activeView == VIEWS.profile){
+            contentSource = LIKED_VIDEOS_CONTENT_URL;
+            requestParams = {'start':0, 'count':profileVideosToLoad};
         }
 
         if(uid)
@@ -307,11 +317,19 @@ kikinvideo.HomeViewController = function() {
                 }
                 $('.activity-queue-item:last').css({'border-bottom': 'none'});
                 $('#activity-filter-menu').show();
+            }else if(activeView == VIEWS.profile){
+                if(queueItemCount >= profileVideosPaginationThreshold){
+                    $(LOAD_MORE_VIDEOS_BUTTON_ID).show();
+                }else{
+                    $(LOAD_MORE_VIDEOS_BUTTON_ID).hide();
+                }
+                $('.video-container:last').css({'border-bottom': 'none'});
             }
 
             //because HTML5 videos don't respect display:'none'
             //like swf object embeds do...
-            videoController.prepareEmbeds();
+//            videoController.prepareEmbeds();
+
             if(onComplete)
                 onComplete();
         });
@@ -611,6 +629,34 @@ kikinvideo.HomeViewController = function() {
         selectedActivityType = type;
     }
 
+    function dismissSuggestedUser(uid) {
+        excludes = [];
+        $('.suggested-followee-item').each(function() {
+            excludes.push($(this).attr('id').substring(24));
+        });
+
+        $.get('/content/follow_suggestions/', {dismissed:uid, excludes:excludes.join(',')}, function(data) {
+            $('#suggested-followee-item-'+uid).remove();
+
+            if(data) {
+                $('.suggested-followees').children('.inner').append(data);
+                $('.suggested-followee-item').each(function() {
+                    var suggestion = $(this).attr('id').substring(24);
+                    if (excludes.indexOf(suggestion) == -1) {
+                        $(this).mouseover(function() {
+                            $(this).children('.dismiss-suggestion-button').show();
+                        });
+                        $(this).mouseout(function() {
+                            $(this).children('.dismiss-suggestion-button').hide();
+                        });
+                    }
+                });
+            } else if(excludes.length == 1) {
+                $('.suggested-followees').children('.inner').append('<div class="no-suggestions-found" style="font-style: italic; border-top: 1px solid #CDCDCD;">No more suggestions</div>');
+            }
+        });
+    }
+
     /*expose public functions...*/
     return {
 
@@ -633,7 +679,9 @@ kikinvideo.HomeViewController = function() {
         hideVidLikedBy : hideVidLikedBy,
 
         getSelectedActivityType: getSelectedActivityType,
-        setSelectedActivityType: setSelectedActivityType
+        setSelectedActivityType: setSelectedActivityType,
+
+        dismissSuggestedUser: dismissSuggestedUser
 
     };
 

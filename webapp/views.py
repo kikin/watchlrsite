@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, Http404, HttpResponseNotModified
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, Http404, HttpResponseNotModified, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.views import logout
@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 
 from kikinvideo.api.views import do_add
-from kikinvideo.api.models import Video, User, UserVideo, UserTask
+from kikinvideo.api.models import Video, User, UserVideo, UserTask, DismissedUserSuggestions
 
 from social_auth.utils import sanitize_redirect
 from social_auth.backends.facebook import FACEBOOK_AUTHORIZATION_URL
@@ -17,6 +17,7 @@ from social_auth.backends.facebook import FACEBOOK_AUTHORIZATION_URL
 from celery import states
 
 from urllib import urlencode
+from datetime import datetime
 
 import logging
 logger = logging.getLogger('kikinvideo')
@@ -95,9 +96,40 @@ def home(request):
         return render_to_response('logged_out.html', context_instance=RequestContext(request))
 
 
+def follow_suggestions(request):
+    if request.user.is_authenticated():
+        if request.GET.get('dismissed'):
+            try:
+                dismissed_user = User.objects.get(pk=request.GET['dismissed'])
+                suggestion, created = DismissedUserSuggestions.objects.get_or_create(user=request.user,
+                                                                                     suggested_user=dismissed_user)
+                if created:
+                    suggestion.dismissed_on = datetime.utcnow()
+                    suggestion.save()
+            except DismissedUserSuggestions.DoesNotExist:
+                pass
+
+        excludes = request.GET.get('excludes', '').split(',')
+
+        suggested = request.user.follow_suggestions(1, excludes=excludes)
+        if not suggested:
+            suggested = request.user.popular_users(1, excludes=excludes)
+
+        if suggested:
+            return render_to_response('content/follow_suggestions.hfrg',
+                                      dict(user=request.user,
+                                           suggested=suggested[0]),
+                                      context_instance=RequestContext(request))
+        else:
+            return HttpResponse('')
+    else:
+        return HttpResponseForbidden(ACCESS_FORBIDDEN_MESSAGE)
+
 #hard coding tag bindings so you can see how this will work...
 def profile(request):
-    return render_to_response('profile.html', context_instance=RequestContext(request))
+    return render_to_response('profile.html',
+                              dict(display_mode='profile'),
+                              context_instance=RequestContext(request))
 
 
 def profile_edit(request):
@@ -114,9 +146,9 @@ def logout_view(request):
 
 def liked_video_queue(request):
     if request.method == 'GET' and 'user_id' in request.GET:
-        try:
-            user = User.objects.get(id__exact=long(request.GET['user_id']))
-            all_liked_vids = user.liked_videos()
+        user = User.objects.get(id__exact=long(request.GET['user_id']))
+        all_liked_vids = user.liked_videos()
+        if 'start' in request.GET and 'count' in request.GET:
             start_index = int(request.GET['start'])
             end_index = start_index + int(request.GET['count'])
             if len(all_liked_vids) >= end_index:
@@ -125,14 +157,12 @@ def liked_video_queue(request):
                 vid_subset = all_liked_vids[start_index:]
             else:
                 vid_subset = []
-        except Exception, e:
-            #means url was malformed...
-            return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
         else:
             #just pass through all liked videos...
             vid_subset = user.liked_videos()
         return render_to_response('content/video_queue.hfrg',
                                   dict(user=request.user,
+                                       profile_owner=user,
                                        display_mode='profile',
                                        videos=vid_subset),
                                   context_instance=RequestContext(request))
@@ -333,9 +363,14 @@ def user_page(request, user_id, relation):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             related_users_subset = paginator.page(paginator.num_pages)
-        return render_to_response('user_list.html', {'related_users':related_users_subset.object_list,\
-                        'page':related_users_subset, 'heading': heading, 'profile_owner':target_user, 'display_mode':relation,\
-                        'is_own_profile':is_own_profile}, context_instance=RequestContext(request))
+        return render_to_response('user_list.html',
+                                  dict(related_users=related_users_subset.object_list,
+                                       page=related_users_subset,
+                                       heading=heading,
+                                       profile_owner=target_user,
+                                       display_mode=relation,
+                                       is_own_profile=is_own_profile),
+                                  context_instance=RequestContext(request))
     except (ObjectDoesNotExist, ValueError), e:
         return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
 

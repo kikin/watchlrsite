@@ -138,8 +138,8 @@ a:hover {
 
 #header-logo {
     position: absolute;
-    width: 224px;
-    height: 42px;
+    width: 115px;
+    height: 40px;
     background: url(/static/images/watchlr_logo.png) no-repeat;
     margin-top:10px;
 }

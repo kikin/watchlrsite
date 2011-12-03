@@ -25,6 +25,7 @@ urlpatterns = patterns('webapp',
                        (r'video_liked_by/(?P<video_id>[0-9]+)', 'views.video_liked_by'),
                        url(r'^(?P<username>[a-zA-Z0-9\.]+)$', 'views.public_profile', name='user_profile'),
                        (r'^publish_permissions', 'views.publish_permissions'),
+                       (r'^content/follow_suggestions', 'views.follow_suggestions'),
 #                       (r'^goodbye', 'views.goodbye'),
                        )
 
