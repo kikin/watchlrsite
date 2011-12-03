@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import chain
 from decimal import Decimal
 from hashlib import md5
+from operator import attrgetter
 
 try:
     from cpickle import dumps, loads
@@ -443,6 +444,8 @@ class User(auth_models.User):
         # Invalidate cached user and video properties, if any.
         cache_keys = [User._cache_key(self, '%s_videos' % property) for property in properties if property in kwargs]
         cache_keys += ['%s_%s_%s' % (video.id, self.id, property) for property in properties if property in kwargs]
+        if 'liked' in kwargs:
+            cache_keys.append('%s_likers' % video.id)
         cache_delete(cache_keys)
 
         return user_video
@@ -553,15 +556,25 @@ class User(auth_models.User):
         if host:
             kwargs['host'] = host
 
-        user_video = self._create_or_update_video(video, **kwargs)
-        cache.delete('%s_likers' % video.id)
-        return user_video
+        # Propagate activity to followers
+        for user in self.followers():
+            activity, created = Activity.objects.get_or_create(user=user,
+                                                               friend=self,
+                                                               video=video,
+                                                               action='like')
+
+            if created:
+                activity.expire_time = timestamp + timedelta(days=14)
+                activity.save()
+
+        return self._create_or_update_video(video, **kwargs)
 
     def unlike_video(self, video):
         # Take away karma points from sharing user
         video.increment_karma(self, -1)
 
-        cache_delete(['%s_likers' % self.id])
+        # Remove activity entries
+        Activity.objects.filter(friend=self, action='like').delete()
 
         return self._create_or_update_video(video, **{'liked': False})
 
@@ -586,6 +599,17 @@ class User(auth_models.User):
     def add_shared_video(self, video, timestamp=None):
         if timestamp is None:
             timestamp = datetime.utcnow()
+
+        for user in filter(attrgetter('is_registered'), self.facebook_friends()):
+            activity, created = Activity.objects.get_or_create(user=user,
+                                                               friend=self,
+                                                               video=video,
+                                                               action='share')
+
+            if created:
+                activity.expire_time = timestamp + timedelta(days=14)
+                activity.save()
+
         return self._create_or_update_video(video, **{'shared': True, 'timestamp': timestamp})
 
     def save_video(self, video, timestamp=None, host=None):
@@ -841,6 +865,15 @@ class User(auth_models.User):
                     pass
 
         return serialized
+
+
+class Activity(models.Model):
+    user = models.ForeignKey(User, related_name='+', db_index=True)
+    video = models.ForeignKey(Video, related_name='+', db_index=True)
+    friend = models.ForeignKey(User, related_name='+', db_index=True)
+    action = models.CharField(max_length=10, db_index=True)
+    insert_time = models.DateTimeField(auto_now_add=True, db_index=True)
+    expire_time = models.DateTimeField(db_index=True)
 
 
 class UserFollowsUser(models.Model):
