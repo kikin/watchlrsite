@@ -873,7 +873,7 @@ class Activity(models.Model):
     friend = models.ForeignKey(User, related_name='+', db_index=True)
     action = models.CharField(max_length=10, db_index=True)
     insert_time = models.DateTimeField(auto_now_add=True, db_index=True)
-    expire_time = models.DateTimeField(db_index=True)
+    expire_time = models.DateTimeField(db_index=True, null=True)
 
 
 class UserFollowsUser(models.Model):
