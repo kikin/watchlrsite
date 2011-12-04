@@ -3,7 +3,7 @@ from operator import attrgetter
 
 from django.core.management.base import BaseCommand
 
-from api.models import UserVideo, Activity
+from api.models import UserVideo, Video, Activity
 
 
 class Command(BaseCommand):
@@ -19,12 +19,15 @@ class Command(BaseCommand):
                 users = filter(attrgetter('is_registered'), uservideo.user.facebook_friends())
 
             for user in users:
-                activity, created = Activity.objects.get_or_create(user=user,
-                                                                   friend=uservideo.user,
-                                                                   video=uservideo.video,
-                                                                   action=action)
+                insert_time = uservideo.liked_timestamp if action == 'like' else uservideo.shared_timestamp
+                expire_time = insert_time + timedelta(days=14)
+                try:
+                    Activity.objects.get_or_create(user=user,
+                                                   friend=uservideo.user,
+                                                   video=uservideo.video,
+                                                   action=action,
+                                                   defaults={'insert_time': insert_time, 'expire_time': expire_time})
 
-                if created:
-                    timestamp = uservideo.liked_timestamp if action == 'like' else uservideo.shared_timestamp
-                    activity.expire_time = timestamp + timedelta(days=14)
-                    activity.save()
+                except Video.DoesNotExist:
+                    # Hmmm... Video no longer exists in database - maybe deleted. Skip for now!
+                    pass

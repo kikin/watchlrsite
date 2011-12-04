@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 from itertools import chain
 from decimal import Decimal
 from hashlib import md5
-from operator import attrgetter
+from operator import attrgetter, itemgetter
+from collections import defaultdict
 
 try:
     from cpickle import dumps, loads
@@ -10,7 +11,7 @@ except ImportError:
     from pickle import dumps, loads
 
 from django.db import models
-from django.db.models import F
+from django.db.models import F, Max
 from django.db.models.signals import post_save
 from django.contrib.auth import models as auth_models
 from django.dispatch import receiver
@@ -180,7 +181,7 @@ class Video(models.Model):
         if cached:
             return loads(cached)
 
-        timestamp = getattr(UserVideo.objects.get(video=self, user=user), '%s_timestamp' % action)
+        timestamp = getattr(UserVideo.objects.filter(video=self, user=user)[0:1].get(), '%s_timestamp' % action)
 
         cache_set(cache_key, dumps(timestamp))
 
@@ -558,14 +559,14 @@ class User(auth_models.User):
 
         # Propagate activity to followers
         for user in self.followers():
-            activity, created = Activity.objects.get_or_create(user=user,
-                                                               friend=self,
-                                                               video=video,
-                                                               action='like')
+            defaults = {'insert_time': timestamp,
+                        'expire_time': timestamp + timedelta(days=14)}
 
-            if created:
-                activity.expire_time = timestamp + timedelta(days=14)
-                activity.save()
+            Activity.objects.get_or_create(user=user,
+                                           friend=self,
+                                           video=video,
+                                           action='like',
+                                           defaults=defaults)
 
         return self._create_or_update_video(video, **kwargs)
 
@@ -574,7 +575,7 @@ class User(auth_models.User):
         video.increment_karma(self, -1)
 
         # Remove activity entries
-        Activity.objects.filter(friend=self, action='like').delete()
+        Activity.objects.filter(friend=self, video=video, action='like').delete()
 
         return self._create_or_update_video(video, **{'liked': False})
 
@@ -601,14 +602,14 @@ class User(auth_models.User):
             timestamp = datetime.utcnow()
 
         for user in filter(attrgetter('is_registered'), self.facebook_friends()):
-            activity, created = Activity.objects.get_or_create(user=user,
-                                                               friend=self,
-                                                               video=video,
-                                                               action='share')
+            defaults = {'insert_time': timestamp,
+                        'expire_time': timestamp + timedelta(days=14)}
 
-            if created:
-                activity.expire_time = timestamp + timedelta(days=14)
-                activity.save()
+            Activity.objects.get_or_create(user=user,
+                                           friend=self,
+                                           video=video,
+                                           action='share',
+                                           defaults=defaults)
 
         return self._create_or_update_video(video, **{'shared': True, 'timestamp': timestamp})
 
@@ -705,7 +706,7 @@ class User(auth_models.User):
             p.value = int(value)
             p.save()
 
-    def activity(self, type=None):
+    def activity(self, type=None, start=0, count=-1):
         """
         Activity stream for user.
 
@@ -736,49 +737,30 @@ class User(auth_models.User):
         >>> len(items), items[0].video.url, map(itemgetter(0), items[0].users)
         (2, u'http://www.youtube.com/watch?v=LOWL0KMAIek', [<User: aquaman>, <User: ghostface>])
         """
+        
+        query = Activity.objects.values('video').filter(user=self)
+        if type == 'facebook':
+            query = query.filter(action='share')
+        elif type == 'watchlr':
+            query = query.filter(action='like')
 
-        by_video = dict()
+        results = query.annotate(last_update=Max('insert_time')).order_by('-last_update')
+        if count == -1:
+            results = results[start:]
+        else:
+            results = results[start:start+count]
 
-        if not type == 'facebook':
-            for user in chain(self.following(), [self,]):
-
-                for video in user.liked_videos():
-
-                    if not video.status() == states.SUCCESS:
-                        continue
-
-                    liked_timestamp = video.date_liked(user)
-
-                    user_activity = UserActivity(user, liked_timestamp, 'like')
-                    try:
-                        by_video[video].user_activities.append(user_activity)
-                    except KeyError:
-                        by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
-
-                    if not by_video[video].timestamp or liked_timestamp > by_video[video].timestamp:
-                        by_video[video].timestamp = liked_timestamp
-
-        if not type == 'watchlr':
-            for user in self.facebook_friends():
-
-                for video in filter(lambda v: v.status() == states.SUCCESS, user.shared_videos()):
-
-                    shared_timestamp = video.date_shared(user)
-
-                    user_activity = UserActivity(user, shared_timestamp, 'share')
-                    try:
-                        by_video[video].user_activities.append(user_activity)
-                    except KeyError:
-                        by_video[video] = ActivityItem(video=video, user_activities=[user_activity])
-
-                    if not by_video[video].timestamp or shared_timestamp > by_video[video].timestamp:
-                        by_video[video].timestamp = shared_timestamp
-
-        items = sorted(by_video.values(), reverse=True)
-        for item in items:
-            item.user_activities.sort(reverse=True)
-
-        return items
+        items = dict()
+        for video_id in map(itemgetter('video'), results):
+            for item in Activity.objects.filter(user=self).filter(video__id=video_id).order_by('-insert_time'):
+                user_activity = UserActivity(item.friend, item.insert_time, item.action)
+                try:
+                    items[item.video].user_activities.append(user_activity)
+                except KeyError:
+                    items[item.video] = ActivityItem(video=item.video,
+                                                     user_activities=[user_activity],
+                                                     timestamp=item.insert_time)
+        return sorted(items.values(), reverse=True)
 
     def get_absolute_url(self):
         if self.is_registered:
@@ -872,7 +854,7 @@ class Activity(models.Model):
     video = models.ForeignKey(Video, related_name='+', db_index=True)
     friend = models.ForeignKey(User, related_name='+', db_index=True)
     action = models.CharField(max_length=10, db_index=True)
-    insert_time = models.DateTimeField(auto_now_add=True, db_index=True)
+    insert_time = models.DateTimeField(db_index=True)
     expire_time = models.DateTimeField(db_index=True)
 
 
