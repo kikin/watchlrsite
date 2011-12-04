@@ -19,16 +19,15 @@ class Command(BaseCommand):
                 users = filter(attrgetter('is_registered'), uservideo.user.facebook_friends())
 
             for user in users:
+                insert_time = uservideo.liked_timestamp if action == 'like' else uservideo.shared_timestamp
+                expire_time = insert_time + timedelta(days=14)
                 try:
-                    activity, created = Activity.objects.get_or_create(user=user,
-                                                                       friend=uservideo.user,
-                                                                       video=uservideo.video,
-                                                                       action=action)
-
-                    if created:
-                        timestamp = uservideo.liked_timestamp if action == 'like' else uservideo.shared_timestamp
-                        activity.expire_time = timestamp + timedelta(days=14)
-                        activity.save()
+                    Activity.objects.get_or_create(user=user,
+                                                   friend=uservideo.user,
+                                                   video=uservideo.video,
+                                                   action=action,
+                                                   defaults={'insert_time': insert_time, 'expire_time': expire_time})
 
                 except Video.DoesNotExist:
+                    # Hmmm... Video no longer exists in database - maybe deleted. Skip for now!
                     pass

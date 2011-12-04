@@ -311,23 +311,10 @@ def activity(request):
                 except UserTask.DoesNotExist:
                     pass
 
-            try:
-                all_activity_items = user.activity(activityType)
-                start_index = int(request.GET['start'])
-                end_index = start_index + int(request.GET['count'])
-                if len(all_activity_items) >= end_index:
-                    vid_subset = all_activity_items[start_index:end_index]
-                elif start_index < len(all_activity_items) and end_index >= len(all_activity_items):
-                    vid_subset = all_activity_items[start_index:]
-                else:
-                    vid_subset = []
-
-            except Exception, e:
-                #means url was malformed...
-                return HttpResponseBadRequest(MALFORMED_URL_MESSAGE)
+            vid_subset = user.activity(activityType, int(request.GET['start']), int(request.GET['count']))
 
         else:
-            vid_subset = request.user.activity()
+            vid_subset = request.user.activity(request.GET.get('activityType'))
 
         return render_to_response('content/activity_queue.hfrg',
                                   { 'activity_items': vid_subset, 'facebook_import_pending': facebook_import_pending, 'fetch_task_failed': fetch_task_failed },
