@@ -498,6 +498,14 @@ class User(auth_models.User):
             result.is_active=True
             result.save()
 
+        for uservideo in UserVideo.objects.filter(user=other, liked=True):
+            Activity.objects.get_or_create(user=self,
+                                           video=uservideo.video,
+                                           friend=other,
+                                           action='like',
+                                           defaults={'insert_time': uservideo.liked_timestamp,
+                                                     'expire_time': uservideo.liked_timestamp + timedelta(days=14)})
+
         if created and other.preferences().get('follow_email', True):
             from api.tasks import send_follow_email_notification
             send_follow_email_notification.delay(other, self)
@@ -513,6 +521,8 @@ class User(auth_models.User):
             relation.save()
 
             cache_delete([User._cache_key(self, 'following'), User._cache_key(other, 'followers')])
+
+            Activity.objects.filter(user=self, friend=other, action='like').delete()
 
         except UserFollowsUser.DoesNotExist:
             pass
