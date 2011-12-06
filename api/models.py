@@ -568,7 +568,7 @@ class User(auth_models.User):
             kwargs['host'] = host
 
         # Propagate activity to followers
-        for user in self.followers():
+        for user in self.followers() + self:
             defaults = {'insert_time': timestamp,
                         'expire_time': timestamp + timedelta(days=14)}
 
@@ -611,7 +611,7 @@ class User(auth_models.User):
         if timestamp is None:
             timestamp = datetime.utcnow()
 
-        for user in filter(attrgetter('is_registered'), self.facebook_friends()):
+        for user in filter(attrgetter('is_registered'), chain(self.facebook_friends(), [self,])):
             defaults = {'insert_time': timestamp,
                         'expire_time': timestamp + timedelta(days=14)}
 

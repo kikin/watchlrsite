@@ -1,7 +1,8 @@
 from datetime import timedelta
+from operator import attrgetter
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
-from api.models import UserVideo, Video, Activity, FacebookFriend
+from api.models import UserVideo, Video, Activity, UserFollowsUser, FacebookFriend
 
 class Command(BaseCommand):
     help = 'Populate activity table from user actions'
@@ -17,6 +18,11 @@ class Command(BaseCommand):
                                 dest='only_shares',
                                 default=False,
                                 help='Add only Facebook shares'),
+                    make_option('--only-self',
+                                action='store_true',
+                                dest='only_self',
+                                default=False,
+                                help='Add only self shares/likes'),
                   )
 
     def handle(self, *args, **options):
@@ -33,10 +39,21 @@ class Command(BaseCommand):
         for uservideo in query:
             action = 'like' if uservideo.liked else 'share'
 
-            if action == 'like':
-                users = uservideo.user.followers()
+            if options['only_self']:
+                if not uservideo.user.is_registered:
+                    continue
+                users = [uservideo.user,]
+
             else:
-                users = FacebookFriend.objects.filter(fb_friend=uservideo.user)
+                if action == 'like':
+                    users = map(attrgetter('follower'),
+                                UserFollowsUser.objects.filter(followee=uservideo.user, is_active=True))
+                else:
+                    users = map(attrgetter('user'),
+                                FacebookFriend.objects.filter(fb_friend=uservideo.user))
+
+                if uservideo.user.is_registered:
+                    users.append(uservideo.user)
 
             for user in users:
                 insert_time = uservideo.liked_timestamp if action == 'like' else uservideo.shared_timestamp
