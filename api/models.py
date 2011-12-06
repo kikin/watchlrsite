@@ -568,7 +568,7 @@ class User(auth_models.User):
             kwargs['host'] = host
 
         # Propagate activity to followers
-        for user in self.followers() + self:
+        for user in chain(self.followers() + [self,]):
             defaults = {'insert_time': timestamp,
                         'expire_time': timestamp + timedelta(days=14)}
 
