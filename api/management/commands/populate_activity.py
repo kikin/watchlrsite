@@ -1,6 +1,7 @@
 from datetime import timedelta
 from operator import attrgetter
 from optparse import make_option
+from dateutil import parser
 from django.core.management.base import BaseCommand, CommandError
 from api.models import UserVideo, Video, Activity, UserFollowsUser, FacebookFriend
 
@@ -23,6 +24,11 @@ class Command(BaseCommand):
                                 dest='only_self',
                                 default=False,
                                 help='Add only self shares/likes'),
+                    make_option('--since',
+                                action='store',
+                                dest='since',
+                                default=None,
+                                help='Add activity since timestamp')
                   )
 
     def handle(self, *args, **options):
@@ -36,35 +42,47 @@ class Command(BaseCommand):
         else:
             query = UserVideo.objects.exclude(liked=False, shared_timestamp__isnull=True)
 
+        if options['since']:
+            since = parser.parse(options['since'], ignoretz=True)
+
         for uservideo in query:
-            action = 'like' if uservideo.liked else 'share'
+            for action in ('like', 'share'):
 
-            if options['only_self']:
-                if not uservideo.user.is_registered:
+                if (action == 'like' and not uservideo.liked) \
+                    or (action == 'share' and not uservideo.shared_timestamp):
                     continue
-                users = [uservideo.user,]
 
-            else:
-                if action == 'like':
-                    users = map(attrgetter('follower'),
-                                UserFollowsUser.objects.filter(followee=uservideo.user, is_active=True))
+                if options['since']:
+                    timestamp = uservideo.liked_timestamp if action == 'like' else uservideo.shared_timestamp
+                    if timestamp < since:
+                        continue
+
+                if options['only_self']:
+                    if not uservideo.user.is_registered:
+                        continue
+                    users = [uservideo.user,]
+
                 else:
-                    users = map(attrgetter('user'),
-                                FacebookFriend.objects.filter(fb_friend=uservideo.user))
+                    if action == 'like':
+                        users = map(attrgetter('follower'),
+                                    UserFollowsUser.objects.filter(followee=uservideo.user, is_active=True))
+                    else:
+                        users = map(attrgetter('user'),
+                                    FacebookFriend.objects.filter(fb_friend=uservideo.user))
 
-                if uservideo.user.is_registered:
-                    users.append(uservideo.user)
+                    if uservideo.user.is_registered:
+                        users.append(uservideo.user)
 
-            for user in users:
-                insert_time = uservideo.liked_timestamp if action == 'like' else uservideo.shared_timestamp
-                expire_time = insert_time + timedelta(days=14)
-                try:
-                    Activity.objects.get_or_create(user=user,
-                                                   friend=uservideo.user,
-                                                   video=uservideo.video,
-                                                   action=action,
-                                                   defaults={'insert_time': insert_time, 'expire_time': expire_time})
+                for user in users:
+                    insert_time = uservideo.liked_timestamp if action == 'like' else uservideo.shared_timestamp
+                    expire_time = insert_time + timedelta(days=14)
+                    try:
+                        Activity.objects.get_or_create(user=user,
+                                                       friend=uservideo.user,
+                                                       video=uservideo.video,
+                                                       action=action,
+                                                       defaults={'insert_time': insert_time, 'expire_time': expire_time})
 
-                except Video.DoesNotExist:
-                    # Hmmm... Video no longer exists in database - maybe deleted. Skip for now!
-                    pass
+                    except Video.DoesNotExist:
+                        # Hmmm... Video no longer exists in database - maybe deleted. Skip for now!
+                        pass
