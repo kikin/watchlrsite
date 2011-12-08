@@ -611,7 +611,7 @@ class User(auth_models.User):
         if timestamp is None:
             timestamp = datetime.utcnow()
 
-        for user in attrgetter('user', FacebookFriend.objects.filter(fb_friend=self, user__registered=True)):
+        for user in map(attrgetter('user'), FacebookFriend.objects.filter(fb_friend=self, user__registered=True)):
             defaults = {'insert_time': timestamp,
                         'expire_time': timestamp + timedelta(days=14)}
 
